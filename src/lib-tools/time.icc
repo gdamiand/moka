@@ -1,0 +1,263 @@
+/*
+ * lib-tools : Divers outils autour de lib-gmapkernel.
+ * Copyright (C) 2004, Moka Team, Université de Poitiers, Laboratoire SIC
+ *               http://www.sic.sp2mi.univ-poitiers.fr/
+ * Copyright (C) 2009, Guillaume Damiand, CNRS, LIRIS,
+ *               guillaume.damiand@liris.cnrs.fr, http://liris.cnrs.fr/
+ *
+ * This file is part of lib-tools
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+//******************************************************************************
+
+INLINE
+CTime::CTime()
+{
+#ifdef WIN32
+  _ftime(&FTime);
+#else
+  gettimeofday(&FTime, NULL);
+#endif
+}
+
+//******************************************************************************
+#ifdef WIN32
+
+INLINE
+CTime::CTime(long ASec, long AMilliSec)
+{
+  FTime.time = ASec;
+  FTime.millitm = AMilliSec;
+}
+
+//------------------------------------------------------------------------------
+
+INLINE
+void CTime::setTime(long ASec, long AMilliSec)
+{
+  FTime.time = ASec;
+  FTime.millitm = AMilliSec;
+}
+
+//------------------------------------------------------------------------------
+
+INLINE
+void CTime::getTime(long * ASec, long * AMilliSec) const
+{
+  *ASec = FTime.time;
+  *AMilliSec = FTime.millitm;
+}
+
+//******************************************************************************
+#else // WIN32
+
+INLINE
+CTime::CTime(long ASec, long AMicroSec)
+{
+  FTime.tv_sec = ASec;
+  FTime.tv_usec = AMicroSec;
+}
+
+//------------------------------------------------------------------------------
+
+INLINE
+void CTime::setTime(long ASec, long AMicroSec)
+{
+  FTime.tv_sec = ASec;
+  FTime.tv_usec = AMicroSec;
+}
+
+//------------------------------------------------------------------------------
+
+INLINE
+void CTime::getTime(long * ASec, long * AMicroSec) const
+{
+  *ASec = FTime.tv_sec;
+  *AMicroSec = FTime.tv_usec;
+}
+
+#endif // WIN32
+//******************************************************************************
+
+INLINE
+void CTime::updateTime()
+{
+#ifdef WIN32
+  _ftime(&FTime);
+#else
+  gettimeofday(&FTime, NULL);
+#endif
+}
+
+//******************************************************************************
+
+INLINE
+void CTime::displayTime(std::ostream & AStream, bool ADisplayAll) const
+{
+#ifdef WIN32
+  time_t tmp = FTime.time;
+#else
+  time_t tmp = FTime.tv_sec;
+#endif
+  struct tm * t = gmtime(&tmp);
+  bool display = false;
+
+  long msec, usec;
+
+#ifdef WIN32
+  msec = FTime.millitm;
+  usec = 0;
+#else
+  msec = FTime.tv_usec / 1000;
+  usec = FTime.tv_usec % 1000;
+#endif
+
+  if (t->tm_hour > 0) {
+    AStream << t->tm_hour << " h ";
+    display = ADisplayAll;
+  }
+  if (t->tm_min > 0 || display) {
+    AStream << t->tm_min << " m ";
+    display = ADisplayAll;
+  }
+  if (t->tm_sec > 0 || display) {
+    AStream << t->tm_sec << " s ";
+    display = ADisplayAll;
+  }
+  if (msec > 0 || display) {
+    AStream << msec << " ms ";
+    display = ADisplayAll;
+  }
+
+#ifndef WIN32
+  if (usec > 0 || display)
+    AStream << usec << " µs";
+#endif
+}
+
+//******************************************************************************
+
+INLINE
+CTime CTime::operator + (const CTime & ATime) const
+{
+  CTime t;
+
+#ifdef WIN32
+  t.FTime.time = this->FTime.time + ATime.FTime.time;
+  t.FTime.millitm = this->FTime.millitm + ATime.FTime.millitm;
+
+  if (t.FTime.millitm > 1000) {
+    t.FTime.millitm -= 1000;
+    t.FTime.time += 1;
+  }
+#else
+  t.FTime.tv_sec = this->FTime.tv_sec + ATime.FTime.tv_sec;
+  t.FTime.tv_usec = this->FTime.tv_usec + ATime.FTime.tv_usec;
+
+  if (t.FTime.tv_usec > 1000000) {
+    t.FTime.tv_usec -= 1000000;
+    t.FTime.tv_sec += 1;
+  }
+#endif
+
+  return t;
+}
+
+//******************************************************************************
+
+INLINE
+CTime CTime::operator - (const CTime & ATime) const
+{
+  CTime t;
+
+#ifdef WIN32
+  t.FTime.time = this->FTime.time - ATime.FTime.time;
+
+  if (ATime.FTime.millitm <= this->FTime.millitm)
+    t.FTime.millitm = this->FTime.millitm - ATime.FTime.millitm;
+  else {
+    t.FTime.millitm = (this->FTime.millitm + 1000) - ATime.FTime.millitm;
+    t.FTime.time -= 1;
+  }
+#else
+  t.FTime.tv_sec = this->FTime.tv_sec - ATime.FTime.tv_sec;
+
+  if (ATime.FTime.tv_usec <= this->FTime.tv_usec)
+    t.FTime.tv_usec = this->FTime.tv_usec - ATime.FTime.tv_usec;
+  else {
+    t.FTime.tv_usec = (this->FTime.tv_usec + 1000000) - ATime.FTime.tv_usec;
+    t.FTime.tv_sec -= 1;
+  }
+#endif
+
+  return t;
+}
+
+//******************************************************************************
+
+INLINE
+const CTime & CTime::operator += (const CTime & ATime)
+{
+#ifdef WIN32
+  FTime.time += ATime.FTime.time;
+  FTime.millitm += ATime.FTime.millitm;
+
+  if (FTime.millitm > 1000) {
+    FTime.millitm -= 1000;
+    FTime.time += 1;
+  }
+#else
+  FTime.tv_sec += ATime.FTime.tv_sec;
+  FTime.tv_usec += ATime.FTime.tv_usec;
+
+  if (FTime.tv_usec > 1000000) {
+    FTime.tv_usec -= 1000000;
+    FTime.tv_sec += 1;
+  }
+#endif
+
+  return *this;
+}
+
+//******************************************************************************
+
+INLINE
+const CTime & CTime::operator -= (const CTime & ATime)
+{
+#ifdef WIN32
+  FTime.time -= ATime.FTime.time;
+
+  if (ATime.FTime.millitm > FTime.millitm) {
+    FTime.millitm = (FTime.millitm + 1000) - ATime.FTime.millitm;
+    FTime.time -= 1;
+  }
+  else
+    FTime.millitm -= ATime.FTime.millitm;
+#else
+  FTime.tv_sec -= ATime.FTime.tv_sec;
+
+  if (ATime.FTime.tv_usec > FTime.tv_usec) {
+    FTime.tv_usec = (FTime.tv_usec + 1000000) - ATime.FTime.tv_usec;
+    FTime.tv_sec -= 1;
+  }
+  else
+    FTime.tv_usec -= ATime.FTime.tv_usec;
+#endif
+
+  return *this;
+}
+
+//******************************************************************************

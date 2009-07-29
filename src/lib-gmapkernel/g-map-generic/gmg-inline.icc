@@ -1,0 +1,450 @@
+/*
+ * lib-gmapkernel : Un noyau de 3-G-cartes et des opérations.
+ * Copyright (C) 2004, Moka Team, Université de Poitiers, Laboratoire SIC
+ *               http://www.sic.sp2mi.univ-poitiers.fr/
+ * Copyright (C) 2009, Guillaume Damiand, CNRS, LIRIS,
+ *               guillaume.damiand@liris.cnrs.fr, http://liris.cnrs.fr/
+ *
+ * This file is part of lib-gmapkernel
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+//******************************************************************************
+#include <list>
+#include <queue>
+
+#include "dynamic-coverage.hh"
+#include "static-coverage.hh"
+//******************************************************************************
+namespace GMap3d
+{
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha01(CDart* ADart) const
+{
+  return alpha1(alpha0(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha010(CDart* ADart) const
+{
+  return alpha0(alpha01(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha0101(CDart* ADart) const
+{
+  return alpha1(alpha010(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha0101210(CDart* ADart) const
+{
+  return alpha210(alpha0101(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha01010(CDart* ADart) const
+{
+  return alpha0(alpha0101(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha01021(CDart* ADart) const
+{
+  return alpha21(alpha010(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha0102101(CDart* ADart) const
+{
+  return alpha2101(alpha010(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha010212(CDart* ADart) const
+{
+  return alpha212(alpha010(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha012(CDart* ADart) const
+{
+  return alpha2(alpha01(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha0123(CDart* ADart) const
+{
+  return alpha3(alpha012(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha0121(CDart* ADart) const
+{
+  return alpha1(alpha012(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha012321(CDart* ADart) const
+{
+  return alpha21(alpha0123(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha02(CDart* ADart) const
+{
+  return alpha2(alpha0(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha020(CDart* ADart) const
+{
+  return alpha0(alpha02(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha021(CDart* ADart) const
+{
+  return alpha1(alpha02(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha0210(CDart* ADart) const
+{
+  return alpha0(alpha021(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha02101(CDart* ADart) const
+{
+  return alpha1(alpha0210(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha02121(CDart* ADart) const
+{
+  return alpha21(alpha021(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha023(CDart* ADart) const
+{
+  return alpha3(alpha02(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha03(CDart* ADart) const
+{
+  return alpha3(alpha0(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha030(CDart* ADart) const
+{
+  return alpha0(alpha03(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha10(CDart* ADart) const
+{
+  return alpha0(alpha1(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha101(CDart* ADart) const
+{
+  return alpha1(alpha10(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha1010(CDart* ADart) const
+{
+  return alpha0(alpha101(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha10101(CDart* ADart) const
+{
+  return alpha1(alpha1010(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha1010101(CDart* ADart) const
+{
+  return alpha01(alpha10101(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha1012(CDart* ADart) const
+{
+  return alpha2(alpha101(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha1012101(CDart* ADart) const
+{
+  return alpha2101(alpha101(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha10121(CDart* ADart) const
+{
+  return alpha1(alpha1012(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha101201(CDart* ADart) const
+{
+  return alpha01(alpha1012(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha101232(CDart* ADart) const
+{
+  return alpha32(alpha1012(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha102(CDart* ADart) const
+{
+  return alpha2(alpha10(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha1021(CDart* ADart) const
+{
+  return alpha1(alpha102(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha12(CDart* ADart) const
+{
+  return alpha2(alpha1(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha121(CDart* ADart) const
+{
+  return alpha1(alpha12(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha1210(CDart* ADart) const
+{
+  return alpha0(alpha121(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha12101(CDart* ADart) const
+{
+  return alpha1(alpha1210(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha1212(CDart* ADart) const
+{
+  return alpha2(alpha121(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha123(CDart* ADart) const
+{
+  return alpha3(alpha12(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha1232(CDart* ADart) const
+{
+  return alpha2(alpha123(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha12321(CDart* ADart) const
+{
+  return alpha1(alpha1232(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha123210(CDart* ADart) const
+{
+  return alpha0(alpha12321(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha13(CDart* ADart) const
+{
+  return alpha3(alpha1(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha20(CDart* ADart) const
+{
+  return alpha0(alpha2(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha201(CDart* ADart) const
+{
+  return alpha1(alpha20(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha21(CDart* ADart) const
+{
+  return alpha1(alpha2(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha210(CDart* ADart) const
+{
+  return alpha0(alpha21(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha2101(CDart* ADart) const
+{
+  return alpha1(alpha210(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha21012(CDart* ADart) const
+{
+  return alpha2(alpha2101(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha210123(CDart* ADart) const
+{
+  return alpha3(alpha21012(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha212(CDart* ADart) const
+{
+  return alpha2(alpha21(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha2121(CDart* ADart) const
+{
+  return alpha1(alpha212(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha23(CDart* ADart) const
+{
+  return alpha3(alpha2(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha231(CDart* ADart) const
+{
+  return alpha1(alpha23(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha2310(CDart* ADart) const
+{
+  return alpha0(alpha231(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha232(CDart* ADart) const
+{
+  return alpha2(alpha23(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha2321(CDart* ADart) const
+{
+  return alpha21(alpha23(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha232101(CDart* ADart) const
+{
+  return alpha01(alpha2321(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha30(CDart* ADart) const
+{
+  return alpha0(alpha3(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha3012(CDart* ADart) const
+{
+  return alpha12(alpha30(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha30120(CDart* ADart) const
+{
+  return alpha0(alpha3012(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha302(CDart* ADart) const
+{
+  return alpha2(alpha30(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha31(CDart* ADart) const
+{
+  return alpha1(alpha3(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha32(CDart* ADart) const
+{
+  return alpha2(alpha3(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha3201(CDart* ADart) const
+{
+  return alpha01(alpha32(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha321(CDart* ADart) const
+{
+  return alpha1(alpha32(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha323(CDart* ADart) const
+{
+  return alpha3(alpha32(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::alpha321012(CDart* ADart) const
+{
+  return alpha012(alpha321(ADart));
+}
+//******************************************************************************
+INLINE
+CDart* CGMapGeneric::getDirectInfoAsDart(CDart* ADart, int ADirectInfoIndex)
+{
+  assert(ADart!=NULL);
+  return (CDart*) ADart->getDirectInfo(ADirectInfoIndex);
+}
+//******************************************************************************
+} // namespace GMap3d
+//******************************************************************************

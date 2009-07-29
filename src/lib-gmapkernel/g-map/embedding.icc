@@ -1,0 +1,300 @@
+/*
+ * lib-gmapkernel : Un noyau de 3-G-cartes et des opérations.
+ * Copyright (C) 2004, Moka Team, Université de Poitiers, Laboratoire SIC
+ *               http://www.sic.sp2mi.univ-poitiers.fr/
+ * Copyright (C) 2009, Guillaume Damiand, CNRS, LIRIS,
+ *               guillaume.damiand@liris.cnrs.fr, http://liris.cnrs.fr/
+ *
+ * This file is part of lib-gmapkernel
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+//******************************************************************************
+/**
+ * Un CEmbedding est une liste de CAttribute associés à la même orbite
+ *
+ * Rappels:
+ *
+ *   // Premier CAttribute de la liste :
+ *   CAttribute* FFirstAttrib;
+ *
+ *   // Identifiant de l'orbite :
+ *   TOrbit FId;
+ *
+ *   // Chaînage des CEmbedding, utilisé par CDart :
+ *   CEmbedding* FPrev;
+ *   CEmbedding* FNext;
+ */
+//******************************************************************************
+#include "attribute.hh"
+
+#include <cassert>
+//******************************************************************************
+INLINE
+CEmbedding* CEmbedding::getPrev() const
+{
+  return FPrev;
+}
+//******************************************************************************
+INLINE
+void CEmbedding::setPrev(CEmbedding* AEmbedding)
+{
+  FPrev = AEmbedding;
+}
+//******************************************************************************
+INLINE
+CEmbedding* CEmbedding::getNext() const
+{
+  return FNext;
+}
+//******************************************************************************
+INLINE
+void CEmbedding::setNext(CEmbedding* AEmbedding)
+{
+  FNext = AEmbedding;
+}
+//******************************************************************************
+INLINE
+CAttribute* CEmbedding::getFirstAttribute() const
+{
+  return FFirstAttribute;
+}
+//******************************************************************************
+INLINE
+void CEmbedding::setFirstAttribute(CAttribute* AAttribute)
+{
+  FFirstAttribute = AAttribute;
+}
+//******************************************************************************
+INLINE
+CEmbedding::CEmbedding(TOrbit AOrbit) :
+  FFirstAttribute(NULL),
+  FId		 (AOrbit),
+  FPrev		 (NULL),
+  FNext		 (NULL)
+{
+}
+//******************************************************************************
+INLINE
+CEmbedding::CEmbedding(const CEmbedding& AEmbedding) :
+  FFirstAttribute(NULL),
+  FId		 (AEmbedding.FId),
+  FPrev		 (NULL),
+  FNext		 (NULL)
+ 
+{
+  CAttribute* A = AEmbedding.getFirstAttribute();
+
+  while ( A!=NULL )
+    {
+      addAttribute(A->copy());
+      A = A->getNext();
+    }
+}
+//******************************************************************************
+INLINE
+CEmbedding::~CEmbedding()
+{
+  CAttribute* A = getFirstAttribute();
+  CAttribute* tmp = NULL;
+
+  while ( A!=NULL )
+    {
+      tmp = A;
+      A = A->getNext();
+      tmp->destroy();
+    }
+}
+//******************************************************************************
+INLINE
+TOrbit CEmbedding::getOrbit() const
+{
+  return FId;
+}
+//******************************************************************************
+INLINE
+CAttribute* CEmbedding::getAttribute(TAttributeId AAttribType) const
+{
+  CAttribute* A = getFirstAttribute();
+  
+  while ( A!=NULL )
+    {
+      if ( A->getType()==AAttribType )
+	return A; // On alpha trouvé l'attribut
+      
+      A = A->getNext();
+    }
+  
+  return NULL; // Il n'existe pas d'attribut de ce type
+}
+//******************************************************************************
+INLINE
+void CEmbedding::addAttribute(CAttribute* AAttribute)
+{
+  assert( AAttribute!=NULL );
+  assert( AAttribute->getPrev()==NULL && AAttribute->getNext()==NULL );
+  assert( getAttribute(AAttribute->getType())==NULL );
+
+  // Insertion en tête de la liste
+  if ( getFirstAttribute()!=NULL )
+    // Si la liste des attributs n'est pas vide on modifie le chaînage :
+    {
+      getFirstAttribute()->setPrev(AAttribute);
+      AAttribute->setNext(getFirstAttribute());
+    }
+
+  setFirstAttribute(AAttribute); // Le premier attribut est AAttribute
+}
+//******************************************************************************
+/**
+ * Equivalent d'un constructeur par recopie.
+ * La liste des attributs de cette instance est initialisée par l'appel
+ * de la méthode copy() sur chaque attribut de l'instance.
+ * Le champ FId est initialisé avec la même orbite que celle de l'instance.
+ */
+INLINE
+CEmbedding* CEmbedding::copy() const
+{
+  return new CEmbedding(*this);
+}
+//******************************************************************************
+/**
+ * Méthode pendante de copy, qui se charge de détruire ce qu'il faut.
+ * Ici, delete this appelle le destructeur qui va détruire les attributs.
+ */
+INLINE
+void CEmbedding::destroy()
+{
+  delete this;
+}
+//******************************************************************************
+/**
+ * Enlève l'attribut passé en paramètre de la liste des attributs.
+ * Retourne un pointeur vers cet attribut.
+ * Précondition : l'attribut fait partie de la liste des attributs de
+ * l'instance.
+ */
+INLINE
+CAttribute* CEmbedding::removeAttribute(CAttribute* AAttribute)
+{
+  assert( AAttribute!=NULL );
+  assert( getAttribute(AAttribute->getType())==AAttribute );
+
+  if ( getFirstAttribute()==AAttribute )
+    // Si l'attribut à enlever est le premier :
+    {
+      assert( AAttribute->getPrev()==NULL );
+      // On décale le premier attribut :
+      setFirstAttribute(AAttribute->getNext());
+    }
+  else
+    {
+      assert( AAttribute->getPrev()!=NULL );
+      // Sinon on modifie le chaînage next :
+      AAttribute->getPrev()->setNext(AAttribute->getNext());
+    }
+
+  if ( AAttribute->getNext()!=NULL )
+    // Si l'attribut supprimé n'est pas le dernier de la liste,
+    // on modifie le chaînage prev :
+    AAttribute->getNext()->setPrev(AAttribute->getPrev());
+
+  return AAttribute;
+}
+//******************************************************************************
+/**
+ * Enlève l'attribut ayant l'identifiant AAttribType de la liste et retourne
+ * un pointeur vers cet attribut.
+ * Si aucun attribut n'est de ce type, alors retourne NULL.
+ */
+INLINE
+CAttribute* CEmbedding::removeAttribute(TAttributeId AAttribType)
+{
+  CAttribute* A = getAttribute(AAttribType);
+
+  if (A != NULL)
+    return removeAttribute(A);
+
+  return NULL;
+}
+//******************************************************************************
+/**
+ * Enlève l'attribut de la liste et le détruit éventuellement en appelant
+ * la méthode destroy() sur cet attribut.
+ * Précondition : l'attribut doit appartenir à la liste des attributs.
+ */
+INLINE
+void CEmbedding::deleteAttribute(CAttribute* AAttribute)
+{
+  assert( AAttribute!=NULL );
+  
+  removeAttribute(AAttribute); // Suppression l'attribut de la liste.
+  AAttribute->destroy();       // Appel de la méthode destroy() sur l'instance.
+}
+//******************************************************************************
+/**
+ * Enlève l'attribut ayant l'identifiant AAttribType de la liste et le
+ * détruit éventuellement en appelant la méthode destroy() sur cet attribut.
+ * Si aucun attribut n'est de ce type, ne fait rien.
+ */
+INLINE
+void CEmbedding::deleteAttribute(TAttributeId AAttribType)
+{
+  CAttribute* A = removeAttribute(AAttribType);
+
+  if (A != NULL)
+    A->destroy();
+}
+//******************************************************************************
+/**
+ * Ajoute tous les attributs de AEmbedding non présents dans la liste des
+ * attributs de l'instance dans cette liste. Ces attributs sont enlevés
+ * de la liste des attributs de AEmbedding.
+ * Précondition : l'instance et AEmbedding concernent la même orbite.
+ */
+INLINE
+void CEmbedding::mergeAttribute(CEmbedding* AEmbedding)
+{
+  assert( FId==AEmbedding->FId );  // la précondition
+
+  CAttribute* A	  = AEmbedding->getFirstAttribute();
+  CAttribute* tmp = NULL;
+
+  while (A != NULL) // Parcours de chaque attribut de AEmbedding
+    {
+      tmp = A;
+      A	  = A->getNext();
+
+      if ( getAttribute(tmp->getType())==NULL )
+	// Si l'attribut courant du parcours n'est pas présent dans les
+	// attributs de l'instance...
+        {
+	  // On enlève cet attribut de AEmbedding :
+          AEmbedding->removeAttribute(tmp);
+          tmp->setPrev(NULL);
+	  tmp->setNext(NULL);
+	  // Et on l'ajoute dans les attributs de l'instance :
+          addAttribute(tmp);
+        }
+    }
+}
+//******************************************************************************
+// Accesseur pour tester si la liste des attributs de l'instance est vide
+INLINE
+bool CEmbedding::isEmpty() const
+{
+  return getFirstAttribute() == NULL;
+}
+//******************************************************************************

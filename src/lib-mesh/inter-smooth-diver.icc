@@ -1,0 +1,655 @@
+/*
+ * lib-mesh : Opérations de maillage et lissage.
+ * Copyright (C) 2004, Moka Team, Université de Poitiers, Laboratoire SIC
+ *               http://www.sic.sp2mi.univ-poitiers.fr/
+ * Copyright (C) 2009, Guillaume Damiand, CNRS, LIRIS,
+ *               guillaume.damiand@liris.cnrs.fr, http://liris.cnrs.fr/
+ *
+ * This file is part of lib-mesh
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+//******************************************************************************
+#include "vertex.hh"
+#include "transformation-matrix.hh"
+#include <cassert>
+//******************************************************************************
+INLINE
+CMesh1InterpolationDiver::CMesh1InterpolationDiver(int ASx,
+						   const CVertex& AVertex0,
+						   const CVertex& AVertex1)
+  : CMesh1Diver(ASx)
+{
+  FVertex0 = AVertex0;
+  FVertex1 = AVertex1;
+}
+//------------------------------------------------------------------------------
+INLINE
+CMesh1InterpolationDiver::~CMesh1InterpolationDiver()
+{}
+//------------------------------------------------------------------------------
+INLINE
+CMesh2InterpolationDiver::CMesh2InterpolationDiver(int ASx, int ASy,
+						   const CVertex** ABottomEdge,
+						   const CVertex** ATopEdge,
+						   const CVertex** ALeftEdge,
+						   const CVertex** ARightEdge)
+  : CMesh2Diver(ASx, ASy)
+{
+  assert(ABottomEdge[ 0 ]==ALeftEdge [ 0 ]);
+  assert(ABottomEdge[FSx]==ARightEdge[ 0 ]);
+  assert(ATopEdge   [ 0 ]==ALeftEdge [FSy]);
+  assert(ATopEdge   [FSx]==ARightEdge[FSy]);
+
+  // Allocations:
+  FBottomEdge = new const CVertex* [FSx+1];
+  FTopEdge    = new const CVertex* [FSx+1];
+  FLeftEdge   = new const CVertex* [FSy+1];
+  FRightEdge  = new const CVertex* [FSy+1];
+
+  // Affectations:
+  for (int i=0; i<=FSx; ++i)
+    {
+      FBottomEdge[i] = ABottomEdge[i];
+      FTopEdge   [i] = ATopEdge   [i];
+    }
+
+  for (int j=0; j<=FSy; ++j)
+    {
+      FLeftEdge  [j] = ALeftEdge  [j];
+      FRightEdge [j] = ARightEdge [j];
+    }
+}
+//------------------------------------------------------------------------------
+INLINE
+CMesh2InterpolationDiver::~CMesh2InterpolationDiver()
+{
+  // Libérations:
+  delete [] FBottomEdge;
+  delete [] FTopEdge   ;
+  delete [] FLeftEdge  ;
+  delete [] FRightEdge ;
+}
+//------------------------------------------------------------------------------
+INLINE
+CMesh3InterpolationDiver::CMesh3InterpolationDiver(int ASx, int ASy, int ASz,
+						   const CVertex*** ALeftFace  ,
+						   const CVertex*** ARightFace ,
+						   const CVertex*** AFrontFace ,
+						   const CVertex*** ABackFace  ,
+						   const CVertex*** ABottomFace,
+						   const CVertex*** ATopFace   )
+  : CMesh3Diver(ASx, ASy, ASz)
+{
+  int i,j,k;
+
+#ifndef NDEBUG
+  for (i=0; i<FSx; ++i)
+    {
+      assert( ABottomFace[ i ][ 0 ] == AFrontFace[ 0 ][ i ] );
+      assert( ABottomFace[ i ][FSy] == ABackFace [ 0 ][ i ] );
+      assert( ATopFace   [ i ][ 0 ] == AFrontFace[FSz][ i ] );
+      assert( ATopFace   [ i ][FSy] == ABackFace [FSz][ i ] );
+    }
+
+  for (j=0; j<FSy; ++j)
+    {
+      assert( ABottomFace[ 0 ][ j ] == ALeftFace [ j ][ 0 ] );
+      assert( ABottomFace[FSx][ j ] == ARightFace[ j ][ 0 ] );
+      assert( ATopFace   [ 0 ][ j ] == ALeftFace [ j ][FSz] );
+      assert( ATopFace   [FSx][ j ] == ARightFace[ j ][FSz] );
+    }
+
+  for (k=0; k<FSz; ++k)
+    {
+      assert( AFrontFace [ k ][ 0 ] == ALeftFace [ 0 ][ k ] );
+      assert( AFrontFace [ k ][FSx] == ARightFace[ 0 ][ k ] );
+      assert( ABackFace  [ k ][ 0 ] == ALeftFace [FSy][ k ] );
+      assert( ABackFace  [ k ][FSx] == ARightFace[FSy][ k ] );
+    }
+#endif
+
+  // Allocations:
+  FLeftFace   = new const CVertex** [FSy+1];
+  FRightFace  = new const CVertex** [FSy+1];
+  FFrontFace  = new const CVertex** [FSz+1];
+  FBackFace   = new const CVertex** [FSz+1];
+  FBottomFace = new const CVertex** [FSx+1];
+  FTopFace    = new const CVertex** [FSx+1];
+
+  for (j=0; j<=FSy; ++j)
+    {
+      FLeftFace  [j] = new const CVertex* [FSz+1];
+      FRightFace [j] = new const CVertex* [FSz+1];
+    }
+
+  for (k=0; k<=FSz; ++k)
+    {
+      FFrontFace [k] = new const CVertex* [FSx+1];
+      FBackFace  [k] = new const CVertex* [FSx+1];
+    }
+
+  for (i=0; i<=FSx; ++i)
+    {
+      FBottomFace[i] = new const CVertex* [FSy+1];
+      FTopFace   [i] = new const CVertex* [FSy+1];
+    }
+
+  // Affectations:
+  for (j=0; j<=FSy; ++j)
+    for (k=0; k<=FSz; ++k)
+      {
+	FLeftFace  [j][k] = ALeftFace  [j][k];
+	FRightFace [j][k] = ARightFace [j][k];
+      }
+
+  for (k=0; k<=FSz; ++k)
+    for (i=0; i<=FSx; ++i)
+      {
+	FFrontFace [k][i] = AFrontFace [k][i];
+	FBackFace  [k][i] = ABackFace  [k][i];
+      }
+
+  for (i=0; i<=FSx; ++i)
+    for (j=0; j<=FSy; ++j)
+      {
+	FBottomFace[i][j] = ABottomFace[i][j];
+	FTopFace   [i][j] = ATopFace   [i][j];
+      }
+}
+//------------------------------------------------------------------------------
+INLINE
+CMesh3InterpolationDiver::~CMesh3InterpolationDiver()
+{
+  // Libérations:
+  for (int j=0; j<=FSy; ++j)
+    {
+      delete [] FLeftFace  [j];
+      delete [] FRightFace [j];
+    }
+
+  for (int k=0; k<=FSz; ++k)
+    {
+      delete [] FFrontFace [k];
+      delete [] FBackFace  [k];
+    }
+
+  for (int i=0; i<=FSx; ++i)
+    {
+      delete [] FBottomFace[i];
+      delete [] FTopFace   [i];
+    }
+
+  delete [] FLeftFace  ;
+  delete [] FRightFace ;
+  delete [] FFrontFace ;
+  delete [] FBackFace  ;
+  delete [] FBottomFace;
+  delete [] FTopFace   ;
+}
+//******************************************************************************
+INLINE
+CMesh1LinearDiver::CMesh1LinearDiver(int ASx,
+				     const CVertex& AVertex0,
+				     const CVertex& AVertex1)
+  : CMesh1InterpolationDiver(ASx, AVertex0, AVertex1)
+{
+}
+//------------------------------------------------------------------------------
+INLINE
+CMesh1LinearDiver::~CMesh1LinearDiver()
+{}
+//------------------------------------------------------------------------------
+INLINE
+CMesh2LinearDiver::CMesh2LinearDiver(int ASx, int ASy,
+ 				     const CVertex** ABottomEdge,
+				     const CVertex** ATopEdge,
+				     const CVertex** ALeftEdge,
+				     const CVertex** ARightEdge)
+  : CMesh2InterpolationDiver(ASx, ASy,
+			     ABottomEdge, ATopEdge,
+			     ALeftEdge, ARightEdge)
+{
+  FP00 = FBottomEdge[ 0 ];
+  FP10 = FRightEdge [ 0 ];
+  FP11 = FTopEdge   [FSx];
+  FP01 = FLeftEdge  [FSy];
+}
+//------------------------------------------------------------------------------
+INLINE
+CMesh2LinearDiver::~CMesh2LinearDiver()
+{}
+//------------------------------------------------------------------------------
+INLINE
+CMesh3LinearDiver::CMesh3LinearDiver(int ASx, int ASy, int ASz,
+				     const CVertex** ALeftFace[],
+				     const CVertex** ARightFace[],
+				     const CVertex** AFrontFace[],
+				     const CVertex** ABackFace[],
+				     const CVertex** ABottomFace[],
+				     const CVertex** ATopFace[])
+  : CMesh3InterpolationDiver(ASx, ASy, ASz,
+			     ALeftFace, ARightFace,
+			     AFrontFace, ABackFace,
+			     ABottomFace,
+			     ATopFace)
+{
+  FP000 = FBottomFace[ 0 ][ 0 ];
+  FP010 = FBottomFace[ 0 ][ASy];
+  FP100 = FBottomFace[ASx][ 0 ];
+  FP110 = FBottomFace[ASx][ASy];
+
+  FP001 = ATopFace   [ 0 ][ 0 ];
+  FP011 = ATopFace   [ 0 ][ASy];
+  FP101 = ATopFace   [ASx][ 0 ];
+  FP111 = ATopFace   [ASx][ASy];
+}
+//------------------------------------------------------------------------------
+INLINE
+CMesh3LinearDiver::~CMesh3LinearDiver()
+{}
+//******************************************************************************
+INLINE
+CMesh1SmoothingDiver::CMesh1SmoothingDiver(int ASx,
+					   const CTransformationMatrix& AMethod,
+					   const CVertex* AControlPoints)
+  : CMesh1Diver(ASx)
+{
+  assert(AControlPoints!=NULL);
+
+  for (int dim=0; dim<3; ++dim)
+    {
+      // Récupération du vecteur de 4 coordonnées:
+      CVector controlPoints;
+
+      for (int i=0; i<4; ++i)
+	controlPoints[i] = AControlPoints[i].getCoord(dim);
+
+      // Calcul du vecteur de contrôle:
+      FControl[dim] = controlPoints* AMethod;
+    }
+}
+//------------------------------------------------------------------------------
+INLINE
+CMesh1SmoothingDiver::~CMesh1SmoothingDiver()
+{}
+//------------------------------------------------------------------------------
+INLINE
+CMesh2SmoothingDiver::CMesh2SmoothingDiver(int ASx, int ASy,
+					   const CTransformationMatrix& AMethod,
+					   const CVertex** AControlPoints)
+  : CMesh2Diver(ASx, ASy)
+{
+  assert(AControlPoints!=NULL);
+
+  FMethod = & AMethod;
+
+  for (int i=0; i<4; ++i)
+    FCurbsY[i] = new CMesh1SmoothingDiver(ASy, * FMethod,
+					  AControlPoints[i]);
+
+  FCurbX = NULL;
+}
+//------------------------------------------------------------------------------
+INLINE
+CMesh2SmoothingDiver::~CMesh2SmoothingDiver()
+{
+  for (int i=0; i<4; ++i)
+    delete FCurbsY[i];
+
+  if (FCurbX!=NULL)
+    delete FCurbX;
+}
+//------------------------------------------------------------------------------
+INLINE
+CMesh3SmoothingDiver::CMesh3SmoothingDiver(int ASx, int ASy, int ASz,
+					   const CTransformationMatrix& AMethod,
+					   const CVertex*** AControlPoints)
+  : CMesh3Diver(ASx, ASy, ASz)
+{
+  assert(AControlPoints!=NULL);
+
+  FMethod = & AMethod;
+
+  for (int i=0; i<4; ++i)
+    FSurfacesYZ[i] = new CMesh2SmoothingDiver(ASy, ASz, * FMethod,
+					      AControlPoints[i]);
+
+  FCurbX = NULL;
+}
+//------------------------------------------------------------------------------
+INLINE
+CMesh3SmoothingDiver::~CMesh3SmoothingDiver()
+{
+  for (int i=0; i<4; ++i)
+    delete FSurfacesYZ[i];
+
+  if (FCurbX!=NULL)
+    delete FCurbX;
+}
+//******************************************************************************
+INLINE
+CVertex CMesh1LinearDiver::computeCurrentVertex() const
+{
+  TCoordinate
+    x = FKx0*FVertex0.getX() + FKx1*FVertex1.getX(),
+    y = FKx0*FVertex0.getY() + FKx1*FVertex1.getY(),
+    z = FKx0*FVertex0.getZ() + FKx1*FVertex1.getZ();
+
+  return CVertex(x,y,z);
+}
+//------------------------------------------------------------------------------
+INLINE
+void CMesh2LinearDiver::setIx(int AIx)
+{
+  CMesh2InterpolationDiver::setIx(AIx);
+
+  FPi0 = FBottomEdge[FIx];
+  FPi1 = FTopEdge   [FIx];
+}
+//------------------------------------------------------------------------------
+INLINE
+void CMesh2LinearDiver::setIy(int AIy)
+{
+  CMesh2InterpolationDiver::setIy(AIy);
+
+  FP0j = FLeftEdge  [FIy];
+  FP1j = FRightEdge [FIy];
+}
+//------------------------------------------------------------------------------
+INLINE
+CVertex CMesh2LinearDiver::computeCurrentVertex() const
+{
+  TCoordinate
+    x =
+    (
+     FKx0        * FP0j->getX()  +  FKx1        * FP1j->getX()  +
+     FKy0        * FPi0->getX()  +  FKy1        * FPi1->getX()  )
+    -
+    (   FKx0 * FKy0 * FP00->getX()  +  FKx1 * FKy0 * FP10->getX()  +
+	FKx0 * FKy1 * FP01->getX()  +  FKx1 * FKy1 * FP11->getX()  ),
+
+    y =
+    (
+     FKx0        * FP0j->getY()  +  FKx1        * FP1j->getY()  +
+     FKy0        * FPi0->getY()  +  FKy1        * FPi1->getY()  )
+    -
+    (   FKx0 * FKy0 * FP00->getY()  +  FKx1 * FKy0 * FP10->getY()  +
+	FKx0 * FKy1 * FP01->getY()  +  FKx1 * FKy1 * FP11->getY()  ),
+
+    z =
+    (
+     FKx0        * FP0j->getZ()  +  FKx1        * FP1j->getZ()  +
+     FKy0        * FPi0->getZ()  +  FKy1        * FPi1->getZ()  )
+    -
+    (   FKx0 * FKy0 * FP00->getZ()  +  FKx1 * FKy0 * FP10->getZ()  +
+	FKx0 * FKy1 * FP01->getZ()  +  FKx1 * FKy1 * FP11->getZ()  );
+
+  return CVertex(x,y,z);
+}
+//------------------------------------------------------------------------------
+INLINE
+void CMesh3LinearDiver::setIx(int AIx)
+{
+  CMesh3InterpolationDiver::setIx(AIx);
+
+  FPi00 = FBottomFace[FIx][ 0 ];
+  FPi01 = FTopFace   [FIx][ 0 ];
+  FPi10 = FBottomFace[FIx][FSy];
+  FPi11 = FTopFace   [FIx][FSy];
+
+  FPi0k = FFrontFace [FIz][FIx];
+  FPi1k = FBackFace  [FIz][FIx];
+
+  FPij0 = FBottomFace[FIx][FIy];
+  FPij1 = FTopFace   [FIx][FIy];
+}
+//------------------------------------------------------------------------------
+INLINE
+void CMesh3LinearDiver::setIy(int AIy)
+{
+  CMesh3InterpolationDiver::setIy(AIy);
+
+  FP0j0 = FLeftFace  [FIy][ 0 ];
+  FP1j0 = FRightFace [FIy][ 0 ];
+  FP0j1 = FLeftFace  [FIy][FSz];
+  FP1j1 = FRightFace [FIy][FSz];
+
+  FP0jk = FLeftFace  [FIy][FIz];
+  FP1jk = FRightFace [FIy][FIz];
+
+  FPij0 = FBottomFace[FIx][FIy];
+  FPij1 = FTopFace   [FIx][FIy];
+}
+//------------------------------------------------------------------------------
+INLINE
+void CMesh3LinearDiver::setIz(int AIz)
+{
+  CMesh3InterpolationDiver::setIz(AIz);
+
+  FP00k = FFrontFace [FIz][ 0 ];
+  FP01k = FBackFace  [FIz][ 0 ];
+  FP10k = FFrontFace [FIz][FSx];
+  FP11k = FBackFace  [FIz][FSx];
+
+  FP0jk = FLeftFace  [FIy][FIz];
+  FP1jk = FRightFace [FIy][FIz];
+
+  FPi0k = FFrontFace [FIz][FIx];
+  FPi1k = FBackFace  [FIz][FIx];
+}
+//------------------------------------------------------------------------------
+INLINE
+CVertex CMesh3LinearDiver::computeCurrentVertex() const
+{
+  TCoordinate
+    x =
+    // Faces:
+    (
+     FKx0        * FP0jk->getX() +  FKx1       * FP1jk->getX() +
+     FKy0        * FPi0k->getX() +  FKy1       * FPi1k->getX() +
+     FKz0        * FPij0->getX() +  FKz1       * FPij1->getX() )
+    // Arêtes:
+    -
+    (
+     FKx0 * FKy0 * FP00k->getX() + FKx1 * FKy0 * FP10k->getX() +
+     FKx0 * FKy1 * FP01k->getX() + FKx1 * FKy1 * FP11k->getX() +
+
+     FKx0 * FKz0 * FP0j0->getX() + FKx1 * FKz0 * FP1j0->getX() +
+     FKx0 * FKz1 * FP0j1->getX() + FKx1 * FKz1 * FP1j1->getX() +
+
+     FKy0 * FKz0 * FPi00->getX() + FKy1 * FKz0 * FPi10->getX() +
+     FKy0 * FKz1 * FPi01->getX() + FKy1 * FKz1 * FPi11->getX() )
+    // Sommets:
+    +
+    (
+     FKx0 * FKy0 * FKz0 * FP000->getX() +
+     FKx1 * FKy1 * FKz1 * FP111->getX() +
+     FKx1 * FKy0 * FKz0 * FP100->getX() +
+     FKx0 * FKy1 * FKz0 * FP010->getX() +
+     FKx0 * FKy0 * FKz1 * FP001->getX() +
+     FKx0 * FKy1 * FKz1 * FP011->getX() +
+     FKx1 * FKy0 * FKz1 * FP101->getX() +
+     FKx1 * FKy1 * FKz0 * FP110->getX() ),
+
+    y =
+    // Faces:
+    (
+     FKx0        * FP0jk->getY() +  FKx1       * FP1jk->getY() +
+     FKy0        * FPi0k->getY() +  FKy1       * FPi1k->getY() +
+     FKz0        * FPij0->getY() +  FKz1       * FPij1->getY() )
+    // Arêtes:
+    -
+    (
+     FKx0 * FKy0 * FP00k->getY() + FKx1 * FKy0 * FP10k->getY() +
+     FKx0 * FKy1 * FP01k->getY() + FKx1 * FKy1 * FP11k->getY() +
+
+     FKx0 * FKz0 * FP0j0->getY() + FKx1 * FKz0 * FP1j0->getY() +
+     FKx0 * FKz1 * FP0j1->getY() + FKx1 * FKz1 * FP1j1->getY() +
+
+     FKy0 * FKz0 * FPi00->getY() + FKy1 * FKz0 * FPi10->getY() +
+     FKy0 * FKz1 * FPi01->getY() + FKy1 * FKz1 * FPi11->getY() )
+    // Sommets:
+    +
+    (
+     FKx0 * FKy0 * FKz0 * FP000->getY() +
+     FKx1 * FKy1 * FKz1 * FP111->getY() +
+     FKx1 * FKy0 * FKz0 * FP100->getY() +
+     FKx0 * FKy1 * FKz0 * FP010->getY() +
+     FKx0 * FKy0 * FKz1 * FP001->getY() +
+     FKx0 * FKy1 * FKz1 * FP011->getY() +
+     FKx1 * FKy0 * FKz1 * FP101->getY() +
+     FKx1 * FKy1 * FKz0 * FP110->getY() ),
+
+    z =
+    // Faces:
+    (
+     FKx0        * FP0jk->getZ() +  FKx1       * FP1jk->getZ() +
+     FKy0        * FPi0k->getZ() +  FKy1       * FPi1k->getZ() +
+     FKz0        * FPij0->getZ() +  FKz1       * FPij1->getZ() )
+    // Arêtes:
+    -
+    (
+     FKx0 * FKy0 * FP00k->getZ() + FKx1 * FKy0 * FP10k->getZ() +
+     FKx0 * FKy1 * FP01k->getZ() + FKx1 * FKy1 * FP11k->getZ() +
+
+     FKx0 * FKz0 * FP0j0->getZ() + FKx1 * FKz0 * FP1j0->getZ() +
+     FKx0 * FKz1 * FP0j1->getZ() + FKx1 * FKz1 * FP1j1->getZ() +
+
+     FKy0 * FKz0 * FPi00->getZ() + FKy1 * FKz0 * FPi10->getZ() +
+     FKy0 * FKz1 * FPi01->getZ() + FKy1 * FKz1 * FPi11->getZ() )
+    // Sommets:
+    +
+    (
+     FKx0 * FKy0 * FKz0 * FP000->getZ() +
+     FKx1 * FKy1 * FKz1 * FP111->getZ() +
+     FKx1 * FKy0 * FKz0 * FP100->getZ() +
+     FKx0 * FKy1 * FKz0 * FP010->getZ() +
+     FKx0 * FKy0 * FKz1 * FP001->getZ() +
+     FKx0 * FKy1 * FKz1 * FP011->getZ() +
+     FKx1 * FKy0 * FKz1 * FP101->getZ() +
+     FKx1 * FKy1 * FKz0 * FP110->getZ() );
+
+  return CVertex(x,y,z);
+}
+//******************************************************************************
+INLINE
+void CMesh1SmoothingDiver::setIx(int AIx)
+{
+  CMesh1Diver::setIx(AIx);
+
+  TCoordinate t = 1;
+
+  for (int i=3; i>=0; --i)
+    {
+      FTX[i] = t;
+      t *= FKx1;
+    }
+}
+//------------------------------------------------------------------------------
+INLINE
+CVertex CMesh1SmoothingDiver::computeCurrentVertex() const
+{
+  TCoordinate coord[3];
+
+  for (int i=0; i<3; ++i)
+    coord[i] = FTX * FControl[i];
+
+  return CVertex(coord[0], coord[1], coord[2]);
+}
+//------------------------------------------------------------------------------
+INLINE
+void CMesh2SmoothingDiver::setIx(int AIx)
+{
+  assert(FCurbX!=NULL);
+
+  CMesh2Diver::setIx(AIx);
+
+  FCurbX->setIx(AIx);
+}
+//------------------------------------------------------------------------------
+INLINE
+void CMesh2SmoothingDiver::setIy(int AIy)
+{
+  CMesh2Diver::setIy(AIy);
+
+  CVertex controlPoints[4];
+
+  for (int i=0; i<4; ++i)
+    {
+      FCurbsY[i]->setIx(AIy);
+      controlPoints[i] = FCurbsY[i]->computeCurrentVertex();
+    }
+
+  if (FCurbX!=NULL)
+    delete FCurbX;
+
+  FCurbX = new CMesh1SmoothingDiver(FSx, * FMethod,
+				    controlPoints);
+}
+//------------------------------------------------------------------------------
+INLINE
+CVertex CMesh2SmoothingDiver::computeCurrentVertex() const
+{
+  assert(FCurbX!=NULL);
+
+  return FCurbX->computeCurrentVertex();
+}
+//------------------------------------------------------------------------------
+INLINE
+void CMesh3SmoothingDiver::setIx(int AIx)
+{
+  assert(FCurbX!=NULL);
+
+  FCurbX->setIx(AIx);
+}
+//------------------------------------------------------------------------------
+INLINE
+void CMesh3SmoothingDiver::setIy(int AIy)
+{
+  CMesh3Diver::setIy(AIy);
+
+  CVertex controlPoints[4];
+
+  for (int i=0; i<4; ++i)
+    {
+      FSurfacesYZ[i]->setIx(AIy);
+      controlPoints[i] = FSurfacesYZ[i]->computeCurrentVertex();
+    }
+
+  if (FCurbX!=NULL)
+    delete FCurbX;
+
+  FCurbX = new CMesh1SmoothingDiver(FSx, * FMethod,
+				    controlPoints);
+}
+//------------------------------------------------------------------------------
+INLINE
+void CMesh3SmoothingDiver::setIz(int AIz)
+{
+  CMesh3Diver::setIz(AIz);
+
+  for (int i=0; i<4; ++i)
+    FSurfacesYZ[i]->setIy(AIz);
+}
+//------------------------------------------------------------------------------
+INLINE
+CVertex CMesh3SmoothingDiver::computeCurrentVertex() const
+{
+  assert(FCurbX!=NULL);
+
+  return FCurbX->computeCurrentVertex();
+}
+//******************************************************************************

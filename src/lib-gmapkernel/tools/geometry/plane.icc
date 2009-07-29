@@ -1,0 +1,251 @@
+/*
+ * lib-gmapkernel : Un noyau de 3-G-cartes et des opérations.
+ * Copyright (C) 2004, Moka Team, Université de Poitiers, Laboratoire SIC
+ *               http://www.sic.sp2mi.univ-poitiers.fr/
+ * Copyright (C) 2009, Guillaume Damiand, CNRS, LIRIS,
+ *               guillaume.damiand@liris.cnrs.fr, http://liris.cnrs.fr/
+ *
+ * This file is part of lib-gmapkernel
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+//******************************************************************************
+INLINE
+CPlane::CPlane()
+  : FNormal(0.0, 0.0, 0.0), FNormalNorm(0.0), FD(0.0)
+{
+}
+//******************************************************************************
+INLINE
+CPlane::CPlane(TCoordinate Aa, TCoordinate Ab, TCoordinate Ac, TCoordinate Ad)
+{
+  setPlane(Aa, Ab, Ac, Ad);
+}
+//******************************************************************************
+INLINE
+CPlane::CPlane(const CVertex & APoint1,
+	       const CVertex & APoint2,
+	       const CVertex & APoint3)
+{
+  setPlane(APoint1, APoint2, APoint3);
+}
+//******************************************************************************
+INLINE
+CPlane::CPlane(const CVertex & ANormal, const CVertex & APoint)
+{
+  setPlane(ANormal, APoint);
+}
+//******************************************************************************
+INLINE
+CPlane::~CPlane()
+{
+}
+//******************************************************************************
+INLINE
+void CPlane::setPlane(TCoordinate Aa, TCoordinate Ab, TCoordinate Ac, TCoordinate Ad)
+{
+  FNormal.setXYZ(Aa, Ab, Ac);
+  FNormalNorm = FNormal.norm();
+  FD = Ad;
+}
+//******************************************************************************
+INLINE
+void CPlane::setPlane(const CVertex & APoint1,
+		      const CVertex & APoint2,
+		      const CVertex & APoint3)
+{
+  FNormal = (APoint2 - APoint1) * (APoint3 - APoint1);
+  FNormalNorm = FNormal.norm();
+  FD = - (APoint1.getX() * FNormal.getX() +
+	  APoint1.getY() * FNormal.getY() +
+	  APoint1.getZ() * FNormal.getZ());
+}
+//******************************************************************************
+INLINE
+void CPlane::setPlane(const CVertex & ANormal, const CVertex & APoint)
+{
+  FNormal = ANormal;
+  FNormalNorm = FNormal.norm();
+  FD = - (APoint.getX() * FNormal.getX() +
+	  APoint.getY() * FNormal.getY() +
+	  APoint.getZ() * FNormal.getZ());
+}
+//******************************************************************************
+INLINE
+const CVertex & CPlane::getNormal() const
+{
+  return FNormal;
+}
+//******************************************************************************
+INLINE
+TCoordinate CPlane::getNormalNorm() const
+{
+  return FNormalNorm;
+}
+//******************************************************************************
+INLINE
+TCoordinate CPlane::getA() const
+{
+  return FNormal.getX();
+}
+//******************************************************************************
+INLINE
+TCoordinate CPlane::getB() const
+{
+  return FNormal.getY();
+}
+//******************************************************************************
+INLINE
+TCoordinate CPlane::getC() const
+{
+  return FNormal.getZ();
+}
+//******************************************************************************
+INLINE
+TCoordinate CPlane::getD() const
+{
+  return FD;
+}
+//******************************************************************************
+INLINE
+void CPlane::reverseOrientation()
+{
+  FNormal = -FNormal;
+  FD = -FD;
+}
+//******************************************************************************
+INLINE
+bool CPlane::isPointOnPlane(const CVertex & APoint) const
+{
+  return isZero(FNormal.getX() * APoint.getX() +
+	  FNormal.getY() * APoint.getY() +
+	  FNormal.getZ() * APoint.getZ() +
+	  FD);
+}
+//******************************************************************************
+INLINE
+TCoordinate CPlane::pointDistance(const CVertex & APoint) const
+{
+  return (FNormal.getX() * APoint.getX() +
+	  FNormal.getY() * APoint.getY() +
+	  FNormal.getZ() * APoint.getZ() +
+	  FD) / FNormalNorm;
+}
+//******************************************************************************
+INLINE
+bool CPlane::getLineIntersection(const CVertex & APoint,
+				 const CVertex & ADirection,
+				 TCoordinate * AInterParam) const
+{
+  TCoordinate d = FNormal.dot(ADirection);
+
+  if (d != 0.0) {
+    *AInterParam = - (FNormal.dot(APoint) + FD) / d;
+  }
+  else
+    return false;
+
+  return true;
+}
+//******************************************************************************
+INLINE
+bool CPlane::getLineIntersection(const CVertex & APoint,
+				 const CVertex & ADirection,
+				 CVertex * AInter) const
+{
+  TCoordinate d = FNormal.dot(ADirection);
+
+  if (d != 0.0) {
+    d = - (FNormal.dot(APoint) + FD) / d;
+    *AInter = APoint + ADirection * d;
+  }
+  else
+    return false;
+
+  return true;
+}
+//******************************************************************************
+INLINE
+TProjection CPlane::getBestProjection() const
+{
+  if (fabs(FNormal.getZ()) > fabs(FNormal.getX())) {
+    if (fabs(FNormal.getZ()) > fabs(FNormal.getY()))
+      return XY_Proj;
+    else
+      return XZ_Proj;
+  }
+  else {
+    if (fabs(FNormal.getX()) > fabs(FNormal.getY()))
+      return YZ_Proj;
+    else
+      return XZ_Proj;
+  }
+}
+//******************************************************************************
+INLINE
+CVertex CPlane::projectPoint(const CVertex & APoint) const
+{
+  CVertex pt;
+  if (getLineIntersection(APoint, getNormal(), &pt))
+    return pt;
+  else
+    return APoint;
+}
+//******************************************************************************
+INLINE
+CVertex CPlane::projectPoint(const CVertex & APoint, TProjection AProj) const
+{
+  switch (AProj) {
+  case XY_Proj:
+    return CVertex(APoint.getX(), APoint.getY(), 0.0);
+  case YZ_Proj:
+    return CVertex(APoint.getY(), APoint.getZ(), 0.0);
+  case XZ_Proj:
+    return CVertex(APoint.getX(), APoint.getZ(), 0.0);
+  }
+
+  return APoint;
+}
+//******************************************************************************
+INLINE
+CVertex CPlane::unprojectPoint(const CVertex & APoint, TProjection AProj) const
+{
+  switch (AProj) {
+  case XY_Proj:
+    assert(FNormal.getZ() != 0.0);
+    return CVertex(APoint.getX(),
+		   APoint.getY(),
+		   -(APoint.getX() * FNormal.getX() +
+		     APoint.getY() * FNormal.getY() +
+		     FD) / FNormal.getZ());
+  case YZ_Proj:
+    assert(FNormal.getX() != 0.0);
+    return CVertex(-(APoint.getX() * FNormal.getY() +
+		     APoint.getY() * FNormal.getZ() +
+		     FD) / FNormal.getX(),
+		   APoint.getX(),
+		   APoint.getY());
+  case XZ_Proj:
+    assert(FNormal.getY() != 0.0);
+    return CVertex(APoint.getX(),
+		   -(APoint.getX() * FNormal.getX() +
+		     APoint.getY() * FNormal.getZ() +
+		     FD) / FNormal.getY(),
+		   APoint.getY());
+  }
+
+  return APoint;
+}
+//******************************************************************************

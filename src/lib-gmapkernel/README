@@ -1,0 +1,283 @@
+********************************************************************************
+Remarques generales sur le "kernel" :
+
+Normalement, on doit UNIQUEMENT appeler des méthodes des classes
+CGMapBasic et CGMap, même si ces méthodes sont parfois seulement une
+indirection vers la même méthode de CDart par exemple.
+
+Quand on veut créer un attribut, par exemple les coordonnées 3d, il
+faut créer une classe, par exemple CVertex, héritant de CAttribute.
+Cette classe doit redéfinir les méthodes copy et destroy, fixant le
+comportement de cet attribut lors des décousures et coutures. Dans le
+cas général, ces méthodes feront juste respectivement un "new CVertex"
+étant une recopie du paramètre, et un "delete this".  Mais on peut
+faire des attributs partages, avec un compteur de référence sans
+problème.
+
+Il y a 3 options de compilation importantes, que l'on peut passer
+comme une option du compilateur respectivement avec -DUSE_STL,
+-DINLINE_FLAG et -DNDEBUG.
+
+USE_STL : si on veut utiliser la stl au lieu de nos classes "list",
+"bitset" et "queue".
+
+INLINE_FLAG : si on ne veut pas compiler les méthodes en inline. La
+compilation est dans ce cas beaucoup plus rapide, la version inline
+étant généralement faite uniquement à la fin, pour la version release.
+
+NDEBUG : pour ne pas faire les assert. Ces assert permettent de
+debugger plus facilement, mais ralentissent l'exécution. A mettre pour
+la version release.
+
+Explications succintes:
+
+================================================================================
+================================================================================
+Classe CDart:
+
+--------------------------------------------------------------------------------
+Invariant 1:
+        Si isOrbitUsed(orbit), alors il existe dans la liste <infos> un
+        embedding pour <orbit>.
+
+Invariant 2:
+        S'il existe un embedding pour orbit, il a au moins un attribut.
+
+Invariant 3:
+        Il ne doit pas y avoir 2 embeddings pour la même orbite sur le même
+        brin.
+
+--------------------------------------------------------------------------------
+CEmbedding * getEmbedding(TOrbit orbit) const
+
+S'il existe un embedding pour l'orbite <orbit> dans la liste des
+embeddings, le retourne sinon retourne NULL.
+
+--------------------------------------------------------------------------------
+void addEmbedding(CEmbedding * E)
+
+Le brin this ne doit pas avoir d'embedding pour l'orbite
+E->getOrbit(), sinon on va avoir deux embeddings pour la même orbite
+dans la même liste ce qui n'est pas cohérent !  Ajoute <E> dans la
+liste des embeddings et positionne le bool pour indiquer que ce brin
+contient un embedding pour cette orbite.
+
+--------------------------------------------------------------------------------
+CEmbedding * removeEmbedding(TOrbit orbit)
+
+Cherche s'il existe un embedding pour l'orbite <orbit> dans la liste
+des embeddings. Si oui, l'enlève de cette liste et le retourne. Dans
+ce cas, enlève le bool pour indiquer que ce brin n'a pas d'embedding
+pour cette orbite. Sinon ne fait rien et retourne NULL.
+
+--------------------------------------------------------------------------------
+void deleteEmbedding(TOrbit orbit)
+
+Supprime l'embedding pour l'orbite <orbit> de la liste des embeddings,
+et le détruit, s'il existe. Sinon ne fait rien.
+
+--------------------------------------------------------------------------------
+void mergeEmbedding(CEmbedding * E)
+
+Récupère tous les attributs de E que ce brin n'a pas déjà. Ces
+attributs sont ajoutes dans l'embedding de <this> associe à l'orbite
+concernée. Ces attributs "récupérés" sont enlevés de la liste des
+attributs de <E>, pour ne pas être pointes à 2 endroits à la fois.
+
+--------------------------------------------------------------------------------
+CAttribute * getAttribute(TOrbit orbit, TByte attribType) const
+
+Retourne l'attribut pour l'orbite <orbit> et l'id <attribType>.
+Retourne NULL s'il n'y en a pas.
+
+--------------------------------------------------------------------------------
+void addAttribute(TOrbit orbit, CAttribute * data)
+
+Ajoute l'attribut <data> dans l'embedding pour l'orbite <orbit>.
+Marche tout le temps, que le brin ait ou pas un embedding pour cette
+orbite. C'est à l'appelant de ne pas ajouter deux fois même attribut
+(même orbite et même id), car ce n'est jamais vérifie!
+
+--------------------------------------------------------------------------------
+CAttribute * removeAttribute(TOrbit orbit, TByte typeAttr)
+
+Enlève l'attribut <typeAttr> pour l'orbite <orbit> s'il existe, et le
+retourne.  Si à la suite de cette TOperationState, la liste des
+attribute de cette orbite est vide, supprime l'embedding associe.
+
+--------------------------------------------------------------------------------
+void deleteAttribute(TOrbit orbit, TByte typeAttr)
+
+Enlève des listes et détruit l'attribut <typeAttr> pour l'orbite
+<orbit> s'il existe, sinon ne fait rien.
+
+
+================================================================================
+================================================================================
+Classe CEmbedding:
+
+--------------------------------------------------------------------------------
+Invariant 1:
+        La liste attributs n'est jamais vide.
+
+Invariant 2:
+        Il ne doit pas y avoir 2 attributs ayant le même id.
+
+--------------------------------------------------------------------------------
+CEmbedding::CEmbedding(CEmbedding* E)
+
+Constructeur, qui recopie tous les objets pointes sur les attributs de
+E, et le même <id> d'orbite. Les objets sont recopies par la méthode
+copy() de la classe attribute.  Ils peuvent être donc dupliques ou
+partages suivant les besoins.  Ces attributs seront ensuite détruits
+par la méthode destroy() de la classe attribute. Si on veut faire un
+attribut partage, il suffit de coder correctement ces deux méthodes.
+
+--------------------------------------------------------------------------------
+CAttribute * CEmbedding::getAttribute(TByte attribType)
+
+Retourne un pointeur sur l'attribut ayant <attribType> comme id, NULL
+s'il n'y en a pas.
+
+--------------------------------------------------------------------------------
+void CEmbedding::addAttribute(CAttribute * A)
+
+Ajoute l'attribut dans la liste des attributs. Attention, c'est à
+l'appelant de s'assurer qu'il n'y a pas déjà un attribut de même id
+dans la liste, sinon ça fait n'importe quoi ensuite!
+
+--------------------------------------------------------------------------------
+CAttribute * removeAttribute(TByte attribType)
+
+Enlève l'attribut de id <attribType> de la liste <attribs> s'il existe
+et le retourne. Sinon fait rien et retourne NULL.
+
+--------------------------------------------------------------------------------
+void CEmbedding::deleteAttribute(TByte attribType)
+
+Enlève l'attribut de id <attribType> de la liste <attribs> s'il existe
+et le détruit (par la methode CAttribute::destroy()).  Ne fait rien
+sinon.
+
+--------------------------------------------------------------------------------
+void mergeAttribute(CEmbedding * E)
+
+Il faut que this embedding ait la même orbite que E. Même méthode que
+ci-dessus mais on teste les attributs. Pique les attributs que this
+n'a pas déjà, et laisse les autres dans la liste <attribs> de E.
+
+================================================================================
+================================================================================
+Classe : CGMapBasic
+
+Juste les mark, orbitUsed, les linkAlpha, unlinkAlpha, setFreei...
+Rien d'intéressant.  On à coupé CGMap en 2 classes; CGMapBasic et CGMap,
+car CDynamicCoverage a besoin des méthodes de base de gmap (celles qui sont
+dans CGMapBasic), mais gmap a besoin de CDynamicCoverage (les fonctions se
+trouvant maintenant dans CGMap);
+Inclusion croisée => pas d'inline.
+Solution, on coupe et du coup CGMapBasic n'a pas besoin de CDynamicCoverage
+
+================================================================================
+================================================================================
+Classe : CGMap
+
+--------------------------------------------------------------------------------
+Invariant 1:
+        Seules les orbites pour lesquelles isOrbitUsed(orbit) est à vrai
+        peuvent être plongées (mais elles ne le sont pas forcement toutes).
+
+Invariant2:
+        Il n'existe pas 2 attributs de même id pour une même orbite.
+
+--------------------------------------------------------------------------------
+CAttribute * getAttribute(const CDart *D, TOrbit orbit, TByte typeAttr) const
+
+Retourne l'attribut ayant comme id <typeAttr> et comme orbite <orbit>
+s'il en existe un. Sinon retourne NULL.
+
+--------------------------------------------------------------------------------
+void addAttribute(CDart * D, TOrbit orbit, CAttribute * A)
+
+Ajoute l'attribut <A> à l'orbite <orbit> incidente au brin <D>.
+Attention, il n'y a pas de test pour vérifier si cette orbite a déjà
+un attribut de ce type.  C'est à l'appelant de s'en assurer!
+
+--------------------------------------------------------------------------------
+void deleteAttribute(CDart * D, TOrbit orbit, TByte typeAttr)
+
+Supprime l'attribut ayant comme id <typeAttr> et comme orbite <orbit>
+de l'orbite incidente au brin <D>, s'il existe. Sinon ne fait rien.
+
+--------------------------------------------------------------------------------
+CDart * getEmbeddingOwner(const CDart * D, TOrbit orbit)
+
+Retourne le brin appartenant à l'orbite <orbit> incidente au brin <D>
+contenant l'embedding de cette orbite, s'il y en a un. Retourne NULL
+sinon.
+
+--------------------------------------------------------------------------------
+void CGMap::groupAttributes(CDart * D1, CDart * D2, TMask16 mk)
+
+Regroupe tous les attributs des orbites incidentes à d1 et à d2 afin
+qu'il n'y ait qu'une seule des orbites qui porte tous les attributs.
+Cette méthode est appelée juste avant une couture de D1 et D2.  Le
+paramètre <mk> désigne les orbites que l'on doit regarder. Pour ces
+orbites, regroupe les attributs si nécessaire, afin qu'il n'y ait
+qu'une seule des 2 orbites qui ait un embedding.  Le bit correspondant
+est à 1 dans le mask.  Pour chaque orbite, il y a 2 cas. Soit d1 et d2
+sont dans la même orbite, et il n'y a alors rien à bouger. Soit non et
+alors on regarde si les 2 brins ont un plongement pour cette orbite.
+Sinon on n'a rien à faire, et si oui on déplace tous les attributs
+d'une des 2 orbites sur l'autre.
+
+--------------------------------------------------------------------------------
+void duplicateAttributes(CDart * D1, CDart * D2, TMask16 mk)
+
+Cette méthode est appelée juste après une décousure de D1 et D2, afin
+de mettre éventuellement à jour les plongements.  Le paramètre <mk>
+désigne les orbites que l'on doit regarder. Pour ces orbites, duplique
+le plongement quand d1 et d2 sont dans deux orbites différentes, et
+que l'un a un plongement et pas l'autre.
+
+--------------------------------------------------------------------------------
+Methodes de couture:
+
+linkAlpha(d1,d2):
+
+Fait le double link d1->d2 et d2->d1.
+Attention: Ne vérifie pas les contraintes des cartes.
+
+dartSewi(d1,d2)
+Fait linkAlpha(d1,d2) et met à jour éventuellement le plongement si besoin.
+ATTENTION: Ne vérifie pas les contraintes des cartes.
+
+bool canSewi(d1,d2)
+Teste si on a le droit de coudre d1 et d2 pour les contraintes des cartes.
+
+topoSewi(d1,d2)
+Fait linkAlpha(d1,d2) et pour tous les brins de l'orbite nécessaire d'après les
+contraintes des cartes. Attention: Pas de modif du plongement.
+
+sewi(d1,d2)
+Comme topoSewi(d1,d2) mais en plus mise-à-jour de tous les plongements
+nécessaires. Seule méthode de couture SURE.
+
+unlinkAlpha(d)
+Fait le unlink pour ai(d) et pour d. Attention: Ne vérifie pas les contraintes
+des cartes.
+
+dartSewi(d)
+Fait unlinkAlpha(d) puis met à jour les plongements quand nécessaire. 
+Attention: Ne vérifie pas les contraintes des cartes.
+
+topoUnsewi(d)
+Fait des unlinkAlpha pour toute l'orbite nécessaire afin que l'on vérifie les
+contraintes des cartes. Attention: Pas de modif du plongement.
+
+unsewi(d)
+Comme topoUnsewi mais en plus on met à jour les plongements quand nécessaire.
+Seule méthode de décousure SURE.
+
+================================================================================
+================================================================================

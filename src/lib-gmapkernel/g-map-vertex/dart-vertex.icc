@@ -1,0 +1,184 @@
+/*
+ * lib-gmapkernel : Un noyau de 3-G-cartes et des opérations.
+ * Copyright (C) 2004, Moka Team, Université de Poitiers, Laboratoire SIC
+ *               http://www.sic.sp2mi.univ-poitiers.fr/
+ * Copyright (C) 2009, Guillaume Damiand, CNRS, LIRIS,
+ *               guillaume.damiand@liris.cnrs.fr, http://liris.cnrs.fr/
+ *
+ * This file is part of lib-gmapkernel
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+//******************************************************************************
+#include "streams.hh"
+//******************************************************************************
+namespace GMap3d
+{
+//******************************************************************************
+INLINE
+CDartVertex::CDartVertex() :
+  CDart()
+{
+}
+//******************************************************************************
+INLINE
+CDartVertex::CDartVertex(const std::bitset<NB_MARKS> & AMarks) :
+  CDart(AMarks)
+{
+}
+//******************************************************************************
+INLINE
+CDartVertex::CDartVertex(const CDartVertex & ADart) :
+  CDart(ADart)
+{
+}
+//******************************************************************************
+INLINE
+CDartVertex::CDartVertex(const std::bitset<NB_MARKS> & AMarks,
+			 const CVertex & AVertex) :
+  CDart	      (AMarks),
+  FBurstVertex(AVertex)
+{
+}
+//******************************************************************************
+INLINE
+CDartVertex::CDartVertex(std::istream & AStream, TSaveFormat AFormat) :
+  CDart()
+{
+  if (!load(AStream, AFormat))
+    std::cerr << "Erreur: chargement du brin impossible" << std::endl;
+}
+//******************************************************************************
+INLINE
+CDartVertex::~CDartVertex()
+{}
+//******************************************************************************
+INLINE
+CVertex & CDartVertex::getBurstVertex()
+{
+  return FBurstVertex;
+}
+//------------------------------------------------------------------------------
+INLINE
+void CDartVertex::setBurstVertex(const CVertex & AVertex)
+{
+  FBurstVertex = AVertex;
+}
+//******************************************************************************
+INLINE
+bool CDartVertex::save(std::ostream & AStream, TSaveFormat AFormat,
+		       int ADirectInfoIndex) const
+{
+  // Initialisations:
+  CVertex * vertex =
+    static_cast<CAttributeVertex *>
+    (getAttribute(ORBIT_VERTEX, ATTRIBUTE_VERTEX));
+
+  bool hasVertex = vertex!=NULL;
+  int i;
+
+  // Positionnement du format d'écriture:
+  switch (AFormat)
+    {
+    case AsciiFormat : setAsciiMode (); break;
+    case BinaryFormat: setBinaryMode(); break;
+    default: std::cerr << "CDartVertex.save: Format inconnu!!!" << std::endl;
+    }
+
+  // Écriture des alpha-i:
+  for (i=0; i<=3; ++i)
+    {
+      writeInt(AStream,
+	       (uint32_t) (getAlpha(i)->getDirectInfo(ADirectInfoIndex)));
+      writeTab(AStream);
+    }
+
+  // Écriture de l'état des marques:
+  assert(NB_MARKS % 8 == 0);
+  bool b[8];
+
+  for (i=0; i<NB_MARKS; ++i)
+    {
+      b[i % 8] = getMark(i);
+
+      if (i%8 == 7)
+	{
+	  writeChar(AStream, bool2char(b));
+	  writeTab(AStream);
+	}
+    }
+
+  // Écriture du plongement sommet éventuel:
+  writeBool(AStream, hasVertex);
+
+  if (hasVertex)
+    {
+      writeTab(AStream); writeCoord(AStream, vertex->getX());
+      writeTab(AStream); writeCoord(AStream, vertex->getY());
+      writeTab(AStream); writeCoord(AStream, vertex->getZ());
+    }
+
+  writeRet(AStream);
+
+  return AStream.good();
+}
+//******************************************************************************
+INLINE
+bool CDartVertex::load(std::istream & AStream, TSaveFormat AFormat)
+{
+  bool hasVertex;
+
+  // Positionnement du format de lecture:
+  switch (AFormat)
+    {
+    case AsciiFormat : setAsciiMode (); break;
+    case BinaryFormat: setBinaryMode(); break;
+    default: std::cerr << "CDartVertex.load: Format inconnu!!!" << std::endl;
+    }
+
+  // Lecture des alpha-i:
+  setAlpha0((CDart *) (readInt(AStream)+1));
+  setAlpha1((CDart *) (readInt(AStream)+1));
+  setAlpha2((CDart *) (readInt(AStream)+1));
+  setAlpha3((CDart *) (readInt(AStream)+1));
+
+  // Lecture de l'état des marques:
+  assert(NB_MARKS % 8 == 0);
+  bool b[8];
+
+  for (int i=0; i<NB_MARKS; ++i)
+    {
+      if (i%8 == 0)
+	char2bool(readChar(AStream), b);
+
+      setMark(i, b[i % 8]);
+    }
+
+  // Lecture du plongement sommet éventuel:
+  hasVertex = readBool(AStream);
+
+  if (hasVertex)
+    {
+      TCoordinate x = readCoord(AStream);
+      TCoordinate y = readCoord(AStream);
+      TCoordinate z = readCoord(AStream);
+      addAttribute(ORBIT_VERTEX, new CAttributeVertex(x,y,z));
+    }
+
+  return AStream.good();
+}
+//******************************************************************************
+} // namespace GMap3d
+//******************************************************************************

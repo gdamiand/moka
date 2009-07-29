@@ -1,0 +1,553 @@
+/*
+ * lib-gmapkernel : Un noyau de 3-G-cartes et des opérations.
+ * Copyright (C) 2004, Moka Team, Université de Poitiers, Laboratoire SIC
+ *               http://www.sic.sp2mi.univ-poitiers.fr/
+ * Copyright (C) 2009, Guillaume Damiand, CNRS, LIRIS,
+ *               guillaume.damiand@liris.cnrs.fr, http://liris.cnrs.fr/
+ *
+ * This file is part of lib-gmapkernel
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+//******************************************************************************
+#include "transformation-matrix.hh"
+#include <cassert>
+//******************************************************************************
+INLINE
+CVertex CGeometry::orthoProjectVertexOnLine(const CVertex& AVertex,
+					    const CVertex& ALineVertex,
+					    const CVertex& ALineDirection)
+{
+  assert(!ALineDirection.isNull());
+
+  TCoordinate n2 = ALineDirection.sqrNorm();
+
+  assert(!isZero(n2));
+
+  TCoordinate t =
+    ( ( AVertex.getX() - ALineVertex.getX() ) * ALineDirection.getX() +
+      ( AVertex.getY() - ALineVertex.getY() ) * ALineDirection.getY() +
+      ( AVertex.getZ() - ALineVertex.getZ() ) * ALineDirection.getZ() ) / n2;
+
+  return ALineVertex + t*ALineDirection;
+}
+//******************************************************************************
+INLINE
+CVertex CGeometry::orthoProjectVertexOnPlane(const CVertex& AVertex,
+					     const TCoordinate& AA,
+					     const TCoordinate& AB,
+					     const TCoordinate& AC,
+					     const TCoordinate& AD)
+{
+  /* Le plan alpha pour équation A*x + B*y + C*z + D = 0.
+   *
+   * Soient X ,Y ,Z  les coordonnées du point à projeter (AVertex).
+   * Soient XP,YP,ZP les coordonnées du point projeté sur le plan.
+   * La droite orthogonale au plan et passant par AVertex est définie par
+   * l'équation d'inconnues x y z et de paramètre t:
+   *
+   * (X-x)/A = (Y-y)/B = (Z-z)/C = t
+   *
+   * D'où:
+   *
+   * x = X + A*t
+   * y = Y + B*t
+   * z = Z + C*t
+   *
+   * Or le sommet (XP,YP,ZP) appartient à la droite et au plan. Donc:
+   *
+   * A*(X+A*t) + B*(Y+B*t) + C*(Z+C*t) + D = 0
+   *
+   * Cela permet de déterminer t:
+   *
+   * t = - (A*X + B*Y + C*Z + D) / (A^2 + B^2 + C^2)
+   *
+   * Et donc d'obtenir XP, YP et ZP...
+   */
+
+#define X (AVertex.getX())
+#define Y (AVertex.getY())
+#define Z (AVertex.getZ())
+
+  TCoordinate t = - (AA*X + AB*Y + AC*Z + AD) / (sqr(AA) + sqr(AB) + sqr(AC));
+
+  return CVertex(X + AA*t, Y + AB*t, Z + AC*t);
+
+#undef X
+#undef Y
+#undef Z
+}
+//******************************************************************************
+INLINE
+CVertex CGeometry::orthoProjectVertexOnPlane(const CVertex& AVertex,
+					     const CVertex& APlaneVertex,
+					     const CVertex& APlaneNormal)
+{
+  assert(!APlaneNormal.isNull());
+
+  /* Soient X , Y , Z  les coordonnées de AVertex.
+   * Soient X0, Y0, Z0 les coordonnées de APlaneVertex.
+   * Soient XN, YN, ZN les composantes de APlaneNormal.
+   *
+   * Le plan alpha pour équation A*x + B*y + C*z + D = 0, avec:
+   *
+   * A = XN
+   * B = YN
+   * C = ZN
+   * D = - (A*X0 + B*Y0 + C*Z0)
+   */
+
+#define A (APlaneNormal.getX())
+#define B (APlaneNormal.getY())
+#define C (APlaneNormal.getZ())
+#define D (- (A * APlaneVertex.getX() + \
+	      B * APlaneVertex.getY() + \
+	      C * APlaneVertex.getZ()))
+
+  return orthoProjectVertexOnPlane(AVertex, A, B, C, D);
+
+#undef A
+#undef B
+#undef C
+#undef D
+}
+
+/* Autre écriture:
+ *
+ * AVertex +
+ * APlaneNormal *
+ * (APlaneVertex.dot(APlaneNormal) - AVertex.dot(APlaneNormal)) /
+ * sqr(APlaneNormal.norm());
+ */
+//******************************************************************************
+INLINE
+CVertex CGeometry::centralHomothety(const CVertex& AVertex,
+				    const CVertex& ACenter,
+				    const TCoordinate& ACoef)
+{
+  return ACenter + ACoef*(AVertex-ACenter);
+}
+//******************************************************************************
+INLINE
+CVertex CGeometry::centralHomothety(const CVertex& AVertex,
+				    const CVertex& ACenter,
+				    const CVertex& ACoef)
+{
+  return ACenter + ACoef.multiply(AVertex-ACenter);
+}
+//******************************************************************************
+INLINE
+CVertex CGeometry::axialHomothety(const CVertex& AVertex,
+				  const CVertex& ALineVertex,
+				  const CVertex& ALineDirection,
+				  const TCoordinate& ACoef)
+{
+  assert(!ALineDirection.isNull());
+  CVertex center = orthoProjectVertexOnLine(AVertex,
+					    ALineVertex, ALineDirection);
+  return center + ACoef*(AVertex-center);
+}
+//******************************************************************************
+INLINE
+CVertex CGeometry::planarHomothety(const CVertex& AVertex,
+				   const CVertex& APlaneVertex,
+				   const CVertex& APlaneNormal,
+				   const TCoordinate& ACoef)
+{
+  assert(!APlaneNormal.isNull());
+  CVertex center = orthoProjectVertexOnPlane(AVertex,
+					     APlaneVertex, APlaneNormal);
+  return center + ACoef*(AVertex-center);
+}
+//******************************************************************************
+INLINE
+TCoordinate CGeometry::distanceToVertex(const CVertex& AVertex,
+				   const CVertex& AOtherVertex)
+{
+  return (AVertex-AOtherVertex).norm();
+}
+//******************************************************************************
+INLINE
+TCoordinate CGeometry::distanceToLine(const CVertex& AVertex,
+				 const CVertex& ALineVertex,
+				 const CVertex& ALineDirection)
+{
+  CVertex proj = orthoProjectVertexOnLine(AVertex, ALineVertex, ALineDirection);
+  return (AVertex-proj).norm();
+}
+//******************************************************************************
+INLINE
+TCoordinate CGeometry::distanceToPlane(const CVertex& AVertex,
+				  const CVertex& APlaneVertex,
+				  const CVertex& APlaneNormal)
+{
+  CVertex proj = orthoProjectVertexOnPlane(AVertex, APlaneVertex, APlaneNormal);
+  return (AVertex-proj).norm();
+}
+//******************************************************************************
+INLINE
+CVertex CGeometry::getBissectrix(const CVertex& AVector1,
+				 const CVertex& AVector2,
+				 const CVertex& ANormal)
+{
+  assert(!AVector1.isNull());
+  assert(!AVector2.isNull());
+
+  CVertex V1 = AVector1 / AVector1.norm();
+  CVertex V2 = AVector2 / AVector2.norm();
+
+  if ((V1+V2).isNull())
+    {
+      if (ANormal.isNull())
+	return getNormalVector(V1);
+      else
+	return V1*ANormal;
+    }
+  else
+    {
+      if (isPositive((AVector1*AVector2).dot(ANormal)))
+	return V1+V2;
+      else
+	return -(V1+V2);
+    }
+}
+//******************************************************************************
+INLINE
+CVertex CGeometry::getNormalVector(const CVertex& AVector)
+{
+  assert(!AVector.isNull());
+
+  if (isZero(AVector.getX()))
+    return AVector.norm()*OX;
+
+  // if (isZero(AVector.getY())) return OY;
+  // if (isZero(AVector.getZ())) return OZ;
+
+  CVertex V(-AVector.getY(), AVector.getX(), 0);
+
+  return (AVector.norm()/V.norm()) * V;
+}
+//******************************************************************************
+INLINE
+CVertex CGeometry::getNormalVector(const CVertex& AVector1,
+				   const CVertex& AVector2)
+{
+  TCoordinate n1 = AVector1.norm();
+  TCoordinate n2 = AVector2.norm();
+
+  CVertex V = AVector1*AVector2;
+
+  if (V.isNull())
+    return ORIGIN;
+
+  assert(!isZero(n1));
+  assert(!isZero(n2));
+
+  return ((n1+n2)/(2*V.norm()))*V;
+}
+//******************************************************************************
+INLINE
+CVertex CGeometry::getNormalVector(const CVertex& AVertex1,
+				   const CVertex& AVertex2,
+				   const CVertex& AVertex3)
+{ return getNormalVector(AVertex2-AVertex1, AVertex3-AVertex2); }
+//******************************************************************************
+INLINE
+CVertex CGeometry::getLinesIntersection(const CVertex& ALine1Vertex1,
+					const CVertex& ALine1Vertex2,
+					const CVertex& ALine2Vertex1,
+					const CVertex& ALine2Vertex2)
+{
+  assert(ALine1Vertex1 != ALine1Vertex2);
+  assert(ALine2Vertex1 != ALine2Vertex2);
+
+#define A (ALine1Vertex1)
+#define B (ALine1Vertex2)
+#define C (ALine2Vertex1)
+#define D (ALine2Vertex2)
+
+  CVertex AB = B - A;
+  CVertex CD = D - C;
+  CVertex AC = C - A;
+
+  CVertex ABvCD = AB*CD;
+
+  TCoordinate t = det(AC,CD,ABvCD) / ABvCD.sqrNorm();
+
+  return A + t*AB;
+
+#undef A
+#undef B
+#undef C
+#undef D
+}
+//******************************************************************************
+INLINE
+bool CGeometry::areColinear(const CVertex& AVector1,
+			    const CVertex& AVector2)
+{
+  return (AVector1*AVector2).isNull();
+}
+//******************************************************************************
+INLINE
+TCoordinate CGeometry::getAngle(const CVertex& AVector1,
+				const CVertex& AVector2,
+				const CVertex& ANormal)
+{
+  // Formule:  V1.V2 = Norm(V1) * Norm(V2) * Cos ( Angle(V1,V2) )
+
+  CVertex v1 = AVector1;
+  CVertex v2 = AVector2;
+  CVertex n  = ANormal;
+
+  if (!v1.isNull()) v1 /= v1.norm();
+  if (!v2.isNull()) v2 /= v2.norm();
+  if (!n .isNull()) n  /= n .norm();
+
+  TCoordinate cosinus = v1.dot(v2);
+
+  if (cosinus > +1) cosinus = +1;
+  if (cosinus < -1) cosinus = -1;
+
+  TCoordinate angle = dAcos(cosinus);
+
+  return isPositive((v1*v2).dot(n)) ? +angle : -angle;
+}
+//******************************************************************************
+INLINE
+CVertex CGeometry::getAngles(const CVertex& AVx,
+			     const CVertex& AVz)
+{
+  if (AVx.isNull() || AVz.isNull())
+    return ORIGIN;
+
+  CTransformationMatrix matrix;
+
+  CVertex Vx(orthoProjectVertexOnPlane(AVx, ORIGIN, AVz));
+  CVertex Vy(AVz*Vx);
+  CVertex Vz(AVz);
+
+  TCoordinate alpha,beta,gamma;
+
+  // gamma (pour obtenir: Vy.getX()==0 && Vy.getY()>0)
+  // Après rotation, Vy doit se retrouver sur le vecteur N.
+  // N est tel que: N.Vz==0 et N.getX()==0,
+  // donc N = Vertex(0,Vz.getZ(),-Vz.getY())
+
+  gamma = getAngle(CVertex(0,+Vz.getZ(),-Vz.getY()),Vy, Vz);
+
+  matrix.rotate(Vz, -gamma);
+  matrix.applyOn(Vx);
+  matrix.applyOn(Vy);
+
+  // beta (pour obtenir: Vx.getZ()==0)
+
+  beta = getAngle(OX,Vx, Vy);
+
+  matrix.setToIdentity();
+  matrix.rotate(Vy, -beta);
+  matrix.applyOn(Vx);
+  matrix.applyOn(Vz);
+
+  // alpha (pour obtenir: Vz.getY()==0)
+
+  alpha = getAngle(OZ,Vz, Vx);
+
+  return CVertex(alpha,beta,gamma);
+}
+//******************************************************************************
+INLINE
+int CGeometry::localiseVertexComparedToLine(const CVertex& AVertex,
+					    const CVertex& ALineVertex,
+					    const CVertex& ALineDirection,
+					    const CVertex& APlaneNormal)
+{
+  assert(!ALineDirection.isNull());
+  assert(!APlaneNormal.isNull());
+
+  CVertex direction = ALineDirection / ALineDirection.norm();
+  CVertex normal    = APlaneNormal   / APlaneNormal  .norm();
+
+  return sign((direction * normal).dot(AVertex-ALineVertex));
+}
+//******************************************************************************
+INLINE
+void CGeometry::getSegmentsIntersection(const CVertex& AVertexA,
+					const CVertex& AVertexB,
+					const CVertex& AVertexC,
+					const CVertex& AVertexD,
+					const CVertex& APlaneNormal,
+					int& AIntersection1On,
+					CVertex& AIntersection1,
+					int& AIntersection2On,
+					CVertex& AIntersection2)
+{
+  assert(!APlaneNormal.isNull());
+
+  bool nullLength1 = AVertexA == AVertexB;
+  bool nullLength2 = AVertexC == AVertexD;
+
+  // Cas où un des deux segments au moins est de longueur nulle:
+  if (nullLength1 || nullLength2)
+    {
+      // Les deux segments sont de longueur nulle, pas d'intersection:
+      if (nullLength1 && nullLength2)
+	{
+	  AIntersection1On = AIntersection2On = 0;
+	  return;
+	}
+
+      // Un seul segment est de longueur nulle.
+      // Il y alpha au plus un sommet à insérer:
+      AIntersection1On = 0;
+      AIntersection2On = 0;
+
+      return;
+    }
+
+  // Les deux segments ne sont pas de longueur nulle:
+  CVertex directionAB = AVertexB - AVertexA;
+  CVertex directionCD = AVertexD - AVertexC;
+
+  int A = localiseVertexComparedToLine(AVertexA,
+				       AVertexC, directionCD,
+				       APlaneNormal);
+
+  int B = localiseVertexComparedToLine(AVertexB,
+				       AVertexC, directionCD,
+				       APlaneNormal);
+
+  if (A==0 && B==0)
+    {
+      // Les deux arêtes sont alignées (co-raffinement 1d):
+      // Tri de A, B, C et D:
+      const CVertex * vertices[4] =
+      { & AVertexA, & AVertexB, & AVertexC, & AVertexD };
+
+      CVertex normal = directionAB * APlaneNormal;
+
+      assert(!normal.isNull());
+      normal /= normal.norm();
+
+      int i,j;
+
+      // Tri à bulle, guère moins efficace qu'un quick-sort vu la taille du
+      // tableau (4 éléments):
+      for (i=0; i<3; ++i)
+	for (j=i+1; j<4; ++j)
+	  if (localiseVertexComparedToLine(*vertices[i], *vertices[j],
+					   normal, APlaneNormal) == 1)
+	    {
+	      const CVertex * tmp = vertices[i];
+	      vertices[i] = vertices[j];
+	      vertices[j] = tmp;
+	    }
+
+      bool firstSegment[4];
+
+      for (i=0; i<4; ++i)
+	firstSegment[i] = vertices[i]==&AVertexA || vertices[i]==&AVertexB;
+
+      // Intersections:
+      if (firstSegment[0]==firstSegment[1])
+	{
+	  // Les segments sont disjoints:
+	  AIntersection1On = AIntersection2On = 0;
+	}
+      else
+	{
+	  // Les segments se chevauchent, ou l'un est compris dans l'autre:
+	  if (*vertices[0] == *vertices[1])
+	    AIntersection1On = 0;
+	  else
+	    {
+	      AIntersection1On = firstSegment[0] ? 1 : 2;
+	      AIntersection1   = * vertices[1];
+	    }
+	
+	  if (*vertices[2] == *vertices[3])
+	    AIntersection2On = 0;
+	  else
+	    {
+	      AIntersection2On = firstSegment[3] ? 1 : 2;
+	      AIntersection2   = * vertices[2];
+	    }
+	}
+    }
+  else
+    {
+      // Les deux arêtes sont disjointes ou se croisent en un point unique:
+      int C = localiseVertexComparedToLine(AVertexC,
+					   AVertexA, directionAB,
+					   APlaneNormal);
+
+      int D = localiseVertexComparedToLine(AVertexD,
+					   AVertexA, directionAB,
+					   APlaneNormal);
+
+      // assert(C!=0 || D!=0);
+
+      int combineAB = combineSigns(A,B);
+      int combineCD = combineSigns(C,D);
+
+      AIntersection1On = (combineAB==-1 && combineCD<=0) ? 1 : 0;
+      AIntersection2On = (combineCD==-1 && combineAB<=0) ? 2 : 0;
+
+      if (AIntersection1On!=0 || AIntersection2On!=0)
+	{
+	  AIntersection1 = AIntersection2 =
+	    getLinesIntersection(AVertexA, AVertexB, AVertexC, AVertexD);
+	}
+    }
+}
+//******************************************************************************
+INLINE
+void CGeometry::getSegmentsIntersection2d(const CVertex& AVertexA,
+					  const CVertex& AVertexB,
+					  const CVertex& AVertexC,
+					  const CVertex& AVertexD,
+					  int& AIntersection1On,
+					  CVertex& AIntersection1,
+					  int& AIntersection2On,
+					  CVertex& AIntersection2)
+{
+  getSegmentsIntersection(AVertexA, AVertexB, AVertexC, AVertexD,
+			  OZ,
+			  AIntersection1On, AIntersection1,
+			  AIntersection2On, AIntersection2);
+}
+//******************************************************************************
+INLINE
+CVertex CGeometry::getRoundingNormalVector(const CVertex& AVertex1, 
+					   const CVertex& AVertex2,
+					   const CVertex& AVertex3)
+{
+#define A (AVertex1)
+#define B (AVertex2)
+#define C (AVertex3)
+  
+  CVertex AB = B - A;
+  CVertex AC = C - A;
+
+  if (CGeometry::areColinear(AB,AC))
+    return A;
+  else
+    return AC * (AB * AC);
+
+#undef A
+#undef B
+#undef C
+}
+//******************************************************************************

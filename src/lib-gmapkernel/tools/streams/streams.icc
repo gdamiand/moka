@@ -1,0 +1,171 @@
+/*
+ * lib-gmapkernel : Un noyau de 3-G-cartes et des opérations.
+ * Copyright (C) 2004, Moka Team, Université de Poitiers, Laboratoire SIC
+ *               http://www.sic.sp2mi.univ-poitiers.fr/
+ * Copyright (C) 2009, Guillaume Damiand, CNRS, LIRIS,
+ *               guillaume.damiand@liris.cnrs.fr, http://liris.cnrs.fr/
+ *
+ * This file is part of lib-gmapkernel
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+//******************************************************************************
+static bool bin = true;
+//******************************************************************************
+INLINE
+uint8_t bool2char(bool ABoolArray[])
+{
+  uint8_t AChar = 0;
+
+  for (int i=7; i>=0; --i)
+    {
+      AChar+=AChar;
+
+      if (ABoolArray[i])
+	++AChar;
+    }
+
+  return AChar;
+}
+//******************************************************************************
+INLINE
+void char2bool(uint8_t AChar, bool ABoolArray[])
+{
+  uint8_t mask = 1;
+
+  for (int i=0; i<8; ++i)
+    {
+      ABoolArray[i]= (AChar & mask)!=0;
+      mask+=mask;
+    }
+}
+//******************************************************************************
+INLINE
+void setBinaryMode()
+{
+  bin= true;
+}
+//******************************************************************************
+INLINE
+void setAsciiMode()
+{
+  bin= false;
+}
+//******************************************************************************
+INLINE
+void writeBool(std::ostream& AStream, bool b)
+{
+  if (bin)
+    writeChar(AStream, b);
+  else
+    writeInt(AStream, b);
+}
+//******************************************************************************
+INLINE
+void writeChar(std::ostream& AStream, uint8_t AChar)
+{
+  if (bin)
+    AStream.write((char *) & AChar, sizeof(uint8_t));
+  else
+    AStream << (int) AChar;
+}
+//******************************************************************************
+INLINE
+void writeInt(std::ostream& AStream, uint32_t AInt)
+{
+  if (bin)
+    AStream.write((char *) & AInt, sizeof(uint32_t));
+  else
+    AStream << AInt;
+}
+//******************************************************************************
+INLINE
+void writeCoord(std::ostream& AStream, const TCoordinate& ACoord)
+{
+  if (bin)
+    AStream.write((char *) & ACoord, sizeof(TCoordinate));
+  else
+    AStream << ACoord;
+}
+//******************************************************************************
+INLINE
+bool readBool(std::istream& AStream)
+{
+  if (bin)
+    return readChar(AStream)!=0;
+  else
+    return readInt(AStream)!=0;
+}
+//******************************************************************************
+INLINE
+uint8_t readChar(std::istream& AStream)
+{
+  uint8_t c;
+
+  if (bin)
+    AStream.read((char *) & c, sizeof(uint8_t));
+  else
+    { int i; AStream >> i; c=i; }
+
+  return c;
+}
+//******************************************************************************
+INLINE
+uint32_t readInt(std::istream& AStream)
+{
+  uint32_t i;
+
+  if (bin)
+    AStream.read((char *) & i, sizeof(uint32_t));
+  else
+    AStream >> i;
+
+  return i;
+}
+//******************************************************************************
+INLINE
+TCoordinate readCoord(std::istream& AStream)
+{
+  TCoordinate c;
+
+  if (bin)
+    AStream.read((char *) & c, sizeof(TCoordinate));
+  else
+    AStream >> c;
+  
+  return c;
+}
+//******************************************************************************
+INLINE
+void writeTab(std::ostream& AStream)
+{
+  if (!bin)
+    AStream << '\t';
+}
+//******************************************************************************
+INLINE
+void writeSpc(std::ostream& AStream)
+{
+  if (!bin)
+    AStream << ' ';
+}
+//******************************************************************************
+INLINE
+void writeRet(std::ostream& AStream)
+{
+  if (!bin)
+    AStream << std::endl;
+}
+//******************************************************************************

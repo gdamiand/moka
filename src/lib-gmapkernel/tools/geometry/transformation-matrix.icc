@@ -1,0 +1,488 @@
+/*
+ * lib-gmapkernel : Un noyau de 3-G-cartes et des opérations.
+ * Copyright (C) 2004, Moka Team, Université de Poitiers, Laboratoire SIC
+ *               http://www.sic.sp2mi.univ-poitiers.fr/
+ * Copyright (C) 2009, Guillaume Damiand, CNRS, LIRIS,
+ *               guillaume.damiand@liris.cnrs.fr, http://liris.cnrs.fr/
+ *
+ * This file is part of lib-gmapkernel
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+//******************************************************************************
+#include "geometry.hh"
+#include "vector.hh"
+
+#include <cassert>
+#include <cmath>
+//******************************************************************************
+INLINE
+CTransformationMatrix::CTransformationMatrix(TMatrixType AType)
+{
+  switch (AType)
+    {
+    case AnyMatrix     : break;
+    case NullMatrix    : setToNull    (); break;
+    case IdentityMatrix: setToIdentity(); break;
+    }
+}
+//******************************************************************************
+INLINE
+CTransformationMatrix::
+CTransformationMatrix(const CTransformationMatrix& AMatrix)
+{
+  *this = AMatrix;
+}
+//******************************************************************************
+INLINE
+CTransformationMatrix::CTransformationMatrix(TCoordinate A00, TCoordinate A01,
+					     TCoordinate A02, TCoordinate A03,
+					     TCoordinate A10, TCoordinate A11,
+					     TCoordinate A12, TCoordinate A13,
+					     TCoordinate A20, TCoordinate A21,
+					     TCoordinate A22, TCoordinate A23,
+					     TCoordinate A30, TCoordinate A31,
+					     TCoordinate A32, TCoordinate A33)
+{
+  FElements[0][0] = A00; FElements[0][1] = A01;
+  FElements[0][2] = A02; FElements[0][3] = A03;
+
+  FElements[1][0] = A10; FElements[1][1] = A11;
+  FElements[1][2] = A12; FElements[1][3] = A13;
+
+  FElements[2][0] = A20; FElements[2][1] = A21;
+  FElements[2][2] = A22; FElements[2][3] = A23;
+
+  FElements[3][0] = A30; FElements[3][1] = A31;
+  FElements[3][2] = A32; FElements[3][3] = A33;
+}
+//******************************************************************************
+INLINE
+CTransformationMatrix::CTransformationMatrix(const CVertex& AVertex1,
+					     const CVertex& AVertex2,
+					     const CVertex& AVertex3)
+{
+  FElements[0][0] = AVertex1.getX();
+  FElements[0][1] = AVertex1.getY();
+  FElements[0][2] = AVertex1.getZ();
+  FElements[0][3] = 0;
+
+  FElements[1][0] = AVertex2.getX();
+  FElements[1][1] = AVertex2.getY();
+  FElements[1][2] = AVertex2.getZ();
+  FElements[1][3] = 0;
+
+  FElements[2][0] = AVertex3.getX();
+  FElements[2][1] = AVertex3.getY();
+  FElements[2][2] = AVertex3.getZ();
+  FElements[2][3] = 0;
+
+  FElements[3][0] = 0;
+  FElements[3][1] = 0;
+  FElements[3][2] = 0;
+  FElements[3][3] = 0;
+}
+//******************************************************************************
+INLINE
+void CTransformationMatrix::setToNull()
+{
+  for (int row=0; row<4; ++row)
+    for (int col=0; col<4; ++col)
+      (*this)[row][col] = 0;
+}
+//******************************************************************************
+INLINE
+void CTransformationMatrix::setToIdentity()
+{
+  for(int row=0; row<4; ++row)
+    for(int col=0; col<4; ++col)
+      (*this)[row][col] = (row==col) ? 1 : 0;
+}
+//******************************************************************************
+INLINE
+CTransformationMatrix& CTransformationMatrix::
+operator=(const CTransformationMatrix& AMatrix)
+{
+  if (&AMatrix != this)
+    {
+      for (int row=0; row<4; ++row)
+	for (int col=0; col<4; ++col)
+	  (*this)[row][col] = AMatrix[row][col];
+    }
+
+  return *this;
+}
+//******************************************************************************
+INLINE
+TCoordinate* CTransformationMatrix::operator[](int ARow) const
+{
+  assert(0 <= ARow && ARow <= 3);
+
+  return (TCoordinate *) FElements[ARow];
+}
+//******************************************************************************
+INLINE
+CTransformationMatrix
+CTransformationMatrix::operator*(const CTransformationMatrix& AMatrix) const
+{
+  CTransformationMatrix temp(NullMatrix);
+
+  for (int row=0; row<4; ++row)
+    for (int col=0; col<4; ++col)
+      for (int k=0; k<4; ++k)
+	temp[row][col] +=
+	  (*this)[row][k] * AMatrix[k][col];
+
+  return temp;
+}
+//******************************************************************************
+INLINE
+CVector CTransformationMatrix::operator*(const CVector& AVector) const
+{
+  CVector temp(CVector::NullVector);
+
+  for (int row=0; row<4; ++row)
+    for (int col=0; col<4; ++col)
+      temp[row] +=
+	(*this)[row][col] * AVector[col];
+
+  return temp;
+}
+//******************************************************************************
+INLINE
+void CTransformationMatrix::translate(const CVertex& AVector)
+{
+  CTransformationMatrix translationMatrix(IdentityMatrix);
+
+  translationMatrix[0][3] = AVector.getX();
+  translationMatrix[1][3] = AVector.getY();
+  translationMatrix[2][3] = AVector.getZ();
+
+  (*this) = translationMatrix * (*this);
+}
+//******************************************************************************
+INLINE
+void CTransformationMatrix::rotate(const CVertex& AAxeDirection,
+				   TCoordinate AAngle)
+{
+  assert(!AAxeDirection.isNull());
+
+  CTransformationMatrix rotationMatrix(IdentityMatrix);
+
+  CVertex u = AAxeDirection / AAxeDirection.norm(); // vecteur unitaire
+
+  TCoordinate ca = cos(AAngle / 180.0 * M_PI);
+  TCoordinate sa = sin(AAngle / 180.0 * M_PI);
+
+  TCoordinate ux = u.getX();
+  TCoordinate uy = u.getY();
+  TCoordinate uz = u.getZ();
+
+  TCoordinate ux2 = ux * ux;
+  TCoordinate uy2 = uy * uy;
+  TCoordinate uz2 = uz * uz;
+
+  rotationMatrix[0][0] = ux2 + ca*(1-ux2);
+  rotationMatrix[0][1] = ux*uy*(1-ca) - uz*sa;
+  rotationMatrix[0][2] = uz*ux*(1-ca) + uy*sa;
+
+  rotationMatrix[1][0] = ux*uy*(1-ca) + uz*sa;
+  rotationMatrix[1][1] = uy2 + ca*(1-uy2);
+  rotationMatrix[1][2] = uy*uz*(1-ca) - ux*sa;
+
+  rotationMatrix[2][0] = uz*ux*(1-ca) - uy*sa;
+  rotationMatrix[2][1] = uy*uz*(1-ca) + ux*sa;
+  rotationMatrix[2][2] = uz2 + ca*(1-uz2);
+
+  (*this) = rotationMatrix * (*this);
+}
+//******************************************************************************
+INLINE
+void CTransformationMatrix::rotate(const CVertex& AAxeVertex,
+				   const CVertex& AAxeDirection,
+				   TCoordinate AAngle)
+{
+  translate(-AAxeVertex);
+  rotate(AAxeDirection, AAngle);
+  translate(+AAxeVertex);
+}
+//******************************************************************************
+INLINE
+void CTransformationMatrix::rotate(const CVertex& AAngles)
+{
+  CVertex Y(OY), Z(OZ);
+
+  CTransformationMatrix rotationMatrix(CTransformationMatrix::IdentityMatrix);
+
+  rotationMatrix.rotate(OX, AAngles.getX()); rotationMatrix.applyOn(Y);
+  rotationMatrix.rotate( Y, AAngles.getY()); rotationMatrix.applyOn(Z);
+  rotationMatrix.rotate( Z, AAngles.getZ());
+
+  (*this) = rotationMatrix * (*this);
+}
+//******************************************************************************
+INLINE
+void CTransformationMatrix::rotate180(const CVertex& AAxeDirection)
+{
+  assert(!AAxeDirection.isNull());
+
+  CTransformationMatrix rotation180Matrix(IdentityMatrix);
+
+  CVertex u = AAxeDirection / AAxeDirection.norm(); // vecteur unitaire
+
+  TCoordinate ux = u.getX();
+  TCoordinate uy = u.getY();
+  TCoordinate uz = u.getZ();
+
+  rotation180Matrix[0][0] = 2*ux*ux - 1;
+  rotation180Matrix[0][1] = 2*ux*uy;
+  rotation180Matrix[0][2] = 2*uz*ux;
+
+  rotation180Matrix[1][0] = 2*ux*uy;
+  rotation180Matrix[1][1] = 2*uy*uy - 1;
+  rotation180Matrix[1][2] = 2*uy*uz;
+
+  rotation180Matrix[2][0] = 2*uz*ux;
+  rotation180Matrix[2][1] = 2*uy*uz;
+  rotation180Matrix[2][2] = 2*uz*uz - 1;
+
+  (*this) = rotation180Matrix * (*this);
+}
+//******************************************************************************
+INLINE
+void CTransformationMatrix::scale(TCoordinate ACoef)
+{
+  scale(CVertex(ACoef,ACoef,ACoef));
+}
+//******************************************************************************
+INLINE
+void CTransformationMatrix::scale(const CVertex& ACoef)
+{
+  CTransformationMatrix scaleMatrix(IdentityMatrix);
+
+  scaleMatrix[0][0] = ACoef.getX();
+  scaleMatrix[1][1] = ACoef.getY();
+  scaleMatrix[2][2] = ACoef.getZ();
+
+  (*this) = scaleMatrix * (*this);
+}
+//******************************************************************************
+INLINE
+void CTransformationMatrix::scale(const CVertex& ACenter, TCoordinate ACoef)
+{
+  CTransformationMatrix scaleMatrix(IdentityMatrix);
+
+  scaleMatrix.translate(-ACenter);
+  scaleMatrix.scale(ACoef);
+  scaleMatrix.translate(+ACenter);
+
+  (*this) = scaleMatrix * (*this);
+}
+//******************************************************************************
+INLINE
+void CTransformationMatrix::scale(const CVertex& ACenter, const CVertex& ACoef)
+{
+  CTransformationMatrix scaleMatrix(IdentityMatrix);
+
+  scaleMatrix.translate(-ACenter);
+  scaleMatrix.scale(ACoef);
+  scaleMatrix.translate(+ACenter);
+
+  (*this) = scaleMatrix * (*this);
+}
+//******************************************************************************
+INLINE
+void CTransformationMatrix::axialScale(const CVertex& AAxeDirection,
+				       TCoordinate ACoef)
+{
+  assert(!AAxeDirection.isNull());
+
+  CVertex axeNormal = CGeometry::getNormalVector(AAxeDirection);
+  CTransformationMatrix scaleMatrix(IdentityMatrix);
+
+  scaleMatrix.orientate(AAxeDirection, axeNormal, OX, OZ);
+  scaleMatrix.scale(CVertex(1,ACoef,ACoef));
+  scaleMatrix.orientate(OX, OZ, AAxeDirection, axeNormal);
+
+  (*this) = scaleMatrix * (*this);
+}
+//******************************************************************************
+INLINE
+void CTransformationMatrix::axialScale(const CVertex& AAxeVertex,
+				       const CVertex& AAxeDirection,
+				       TCoordinate ACoef)
+{
+  assert(!AAxeDirection.isNull());
+
+  CTransformationMatrix scaleMatrix(IdentityMatrix);
+
+  scaleMatrix.translate(-AAxeVertex);
+  scaleMatrix.axialScale(AAxeDirection, ACoef);
+  scaleMatrix.translate(+AAxeVertex);
+
+  (*this) = scaleMatrix * (*this);
+}
+//******************************************************************************
+INLINE
+void CTransformationMatrix::planarScale(const CVertex& APlaneNormal,
+					TCoordinate ACoef)
+{
+  assert(!APlaneNormal.isNull());
+
+  CVertex planeVector = CGeometry::getNormalVector(APlaneNormal);
+  CTransformationMatrix scaleMatrix(IdentityMatrix);
+
+  scaleMatrix.orientate(planeVector, APlaneNormal, OX, OZ);
+  scaleMatrix.scale(CVertex(1,1,ACoef));
+  scaleMatrix.orientate(OX, OZ, planeVector, APlaneNormal);
+
+  (*this) = scaleMatrix * (*this);
+}
+//******************************************************************************
+INLINE
+void CTransformationMatrix::planarScale(const CVertex& APlaneVertex,
+					const CVertex& APlaneNormal,
+					TCoordinate ACoef)
+{
+  assert(!APlaneNormal.isNull());
+
+  CTransformationMatrix scaleMatrix(IdentityMatrix);
+
+  scaleMatrix.translate(-APlaneVertex);
+  scaleMatrix.planarScale(APlaneNormal, ACoef);
+  scaleMatrix.translate(+APlaneVertex);
+
+  (*this) = scaleMatrix * (*this);
+}
+//******************************************************************************
+INLINE
+void CTransformationMatrix::orientate(const CVertex& AVector1,
+				      const CVertex& AVector2)
+{
+  assert(!AVector1.isNull());
+  assert(!AVector2.isNull());
+
+  CVertex axe = AVector1*AVector2;
+
+  if (axe.isNull())
+    {
+      if (AVector1.dot(AVector2) < 0)
+	rotate(CGeometry::getNormalVector(AVector1), 180.0);
+
+      return;
+    }
+
+  rotate(axe, CGeometry::getAngle(AVector2, AVector1));
+}
+//******************************************************************************
+INLINE
+void CTransformationMatrix::orientate(const CVertex& ACenter,
+				      const CVertex& AVector1,
+				      const CVertex& AVector2)
+{
+  translate(-ACenter);
+  orientate(AVector1, AVector2);
+  translate(+ACenter);
+}
+//******************************************************************************
+INLINE
+void CTransformationMatrix::orientate(const CVertex& AVectorU1,
+				      const CVertex& AVectorV1,
+				      const CVertex& AVectorU2,
+				      const CVertex& AVectorV2)
+{
+  assert(!AVectorU1.isNull());
+  assert(!AVectorV1.isNull());
+
+  CVertex        U1 = AVectorU1;
+  CVertex const& U2 = AVectorU2;
+
+  CVertex V1 = CGeometry::orthoProjectVertexOnPlane(AVectorV1,  ORIGIN, U1);
+  CVertex V2 = CGeometry::orthoProjectVertexOnPlane(AVectorV2,  ORIGIN, U2);
+
+  assert(!V1.isNull());
+  assert(!V2.isNull());
+
+  CTransformationMatrix
+    orientationMatrix(CTransformationMatrix::IdentityMatrix);
+
+  orientationMatrix.rotate180(CGeometry::getBissectrix(U1,-U2));
+  orientationMatrix.applyOn(V1);
+  orientationMatrix.rotate180(CGeometry::getBissectrix(V1,V2, U2));
+
+  (*this) = orientationMatrix * (*this);
+}
+//******************************************************************************
+INLINE
+void CTransformationMatrix::transform(const CVertex& AOrigin1 ,
+				      const CVertex& AVectorU1,
+				      const CVertex& AVectorV1,
+				      const CVertex& AOrigin2 ,
+				      const CVertex& AVectorU2,
+				      const CVertex& AVectorV2,
+				      const CVertex& ACoef)
+{
+  CTransformationMatrix
+    transformationMatrix(CTransformationMatrix::IdentityMatrix);
+
+  transformationMatrix.translate(-AOrigin1);
+  transformationMatrix.orientate(AVectorU1, AVectorV1, OZ,OX);
+  transformationMatrix.scale(ACoef);
+  transformationMatrix.orientate(OZ,OX, AVectorU2, AVectorV2);
+  transformationMatrix.translate(+AOrigin2);
+
+  (*this) = transformationMatrix * (*this);
+}
+//******************************************************************************
+INLINE
+void CTransformationMatrix::applyOn(CVertex& AVertex) const
+{
+  applyOn(AVertex, AVertex);
+}
+//******************************************************************************
+INLINE
+void CTransformationMatrix::applyOn(const CVertex& AVertex,
+				    CVertex& AResult) const
+{
+  TCoordinate vertex[4] = { AVertex.getX(), AVertex.getY(), AVertex.getZ(), 1 };
+  TCoordinate result[3] = { 0,0,0 };
+
+  for (int row=0; row<3; ++row)
+    for (int col=0; col<4; ++col)
+      result[row] += (*this)[row][col] * vertex[col];
+
+  AResult.setXYZ(result[0], result[1], result[2]);
+}
+//******************************************************************************
+INLINE
+std::ostream& operator<<(std::ostream& AStream,
+			 const CTransformationMatrix& AMatrix)
+{
+  AStream << std::endl;
+
+  for (int row=0; row<4; ++row)
+    {
+      AStream << "[";
+
+      for (int col=0; col<4; ++col)
+	AStream << AMatrix[row][col] << "\t";
+      // AStream.form("% .3f ", AMatrix[row][col]);
+
+      AStream << "]" << std::endl;
+    }
+
+  return AStream;
+}
+//******************************************************************************

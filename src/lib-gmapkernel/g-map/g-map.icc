@@ -1,0 +1,852 @@
+/*
+ * lib-gmapkernel : Un noyau de 3-G-cartes et des opérations.
+ * Copyright (C) 2004, Moka Team, Université de Poitiers, Laboratoire SIC
+ *               http://www.sic.sp2mi.univ-poitiers.fr/
+ * Copyright (C) 2009, Guillaume Damiand, CNRS, LIRIS,
+ *               guillaume.damiand@liris.cnrs.fr, http://liris.cnrs.fr/
+ *
+ * This file is part of lib-gmapkernel
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+//******************************************************************************
+#include "dart.hh"
+#include "embedding.hh"
+#include "dynamic-coverage.hh"
+#include "static-coverage.hh"
+#include <cassert>
+//******************************************************************************
+namespace GMap3d
+{
+//******************************************************************************
+INLINE
+CGMap::CGMap()
+  : CGMapBasic()
+{
+}
+//******************************************************************************
+INLINE
+CCoverage* CGMap::getDynamicCoverage(const CDart* ADart, TOrbit AOrbit)
+{
+  switch (AOrbit)
+    {
+    case ORBIT_SELF:  	 return new CDynamicCoverageSelf  (this,ADart  );
+    case ORBIT_0:    	 return new CDynamicCoverage0     (this,ADart  );
+    case ORBIT_1:    	 return new CDynamicCoverage1     (this,ADart  );
+    case ORBIT_01:   	 return new CDynamicCoverage01    (this,ADart  );
+    case ORBIT_2:    	 return new CDynamicCoverage2     (this,ADart  );
+    case ORBIT_02:   	 return new CDynamicCoverage02    (this,ADart  );
+    case ORBIT_12:   	 return new CDynamicCoverage12    (this,ADart  );
+    case ORBIT_012:  	 return new CDynamicCoverage012   (this,ADart  );
+    case ORBIT_3:    	 return new CDynamicCoverage3     (this,ADart  );
+    case ORBIT_03:   	 return new CDynamicCoverage03    (this,ADart  );
+    case ORBIT_13:   	 return new CDynamicCoverage13    (this,ADart  );
+    case ORBIT_013:  	 return new CDynamicCoverage013   (this,ADart  );
+    case ORBIT_23:   	 return new CDynamicCoverage23    (this,ADart  );
+    case ORBIT_023:  	 return new CDynamicCoverage023   (this,ADart  );
+    case ORBIT_123:  	 return new CDynamicCoverage123   (this,ADart  );
+    case ORBIT_0123: 	 return new CDynamicCoverage0123  (this,ADart  );
+    case ORBIT_BORDER_0: return new CDynamicBorderCoverage(this,ADart,0);
+    case ORBIT_BORDER_1: return new CDynamicBorderCoverage(this,ADart,1);
+    case ORBIT_BORDER_2: return new CDynamicBorderCoverage(this,ADart,2);
+    case ORBIT_BORDER_3: return new CDynamicBorderCoverage(this,ADart,3);
+    }
+
+  return NULL;
+}
+//******************************************************************************
+INLINE
+CCoverage* CGMap::getStaticCoverage(const CDart* ADart, TOrbit AOrbit)
+{
+  switch (AOrbit)
+    {
+    case ORBIT_SELF:  	 return new CStaticCoverageSelf  (this,ADart  );
+    case ORBIT_0:    	 return new CStaticCoverage0     (this,ADart  );
+    case ORBIT_1:    	 return new CStaticCoverage1     (this,ADart  );
+    case ORBIT_01:   	 return new CStaticCoverage01    (this,ADart  );
+    case ORBIT_2:    	 return new CStaticCoverage2     (this,ADart  );
+    case ORBIT_02:   	 return new CStaticCoverage02    (this,ADart  );
+    case ORBIT_12:   	 return new CStaticCoverage12    (this,ADart  );
+    case ORBIT_012:  	 return new CStaticCoverage012   (this,ADart  );
+    case ORBIT_3:    	 return new CStaticCoverage3     (this,ADart  );
+    case ORBIT_03:   	 return new CStaticCoverage03    (this,ADart  );
+    case ORBIT_13:   	 return new CStaticCoverage13    (this,ADart  );
+    case ORBIT_013:  	 return new CStaticCoverage013   (this,ADart  );
+    case ORBIT_23:   	 return new CStaticCoverage23    (this,ADart  );
+    case ORBIT_023:  	 return new CStaticCoverage023   (this,ADart  );
+    case ORBIT_123:  	 return new CStaticCoverage123   (this,ADart  );
+    case ORBIT_0123: 	 return new CStaticCoverage0123  (this,ADart  );
+    case ORBIT_BORDER_0: return new CStaticBorderCoverage(this,ADart,0);
+    case ORBIT_BORDER_1: return new CStaticBorderCoverage(this,ADart,1);
+    case ORBIT_BORDER_2: return new CStaticBorderCoverage(this,ADart,2);
+    case ORBIT_BORDER_3: return new CStaticBorderCoverage(this,ADart,3);
+    }
+
+  return NULL;
+}
+//******************************************************************************
+INLINE
+CCoverage* CGMap::getBasicDynamicCoverage(const CDart* ADart, TOrbit AOrbit,
+					  int AMarkNumber)
+{
+  switch (AOrbit)
+    {
+    case ORBIT_012:      return new CBasicDynamicCoverage012 (this,ADart  ,
+							      AMarkNumber);
+    case ORBIT_123:      return new CBasicDynamicCoverage123 (this,ADart  ,
+							      AMarkNumber);
+    case ORBIT_0123:     return new CBasicDynamicCoverage0123(this,ADart  ,
+							      AMarkNumber);
+    case ORBIT_BORDER_0: return new CBasicBorderCoverage     (this,ADart,0,
+							      AMarkNumber);
+    case ORBIT_BORDER_1: return new CBasicBorderCoverage     (this,ADart,1,
+							      AMarkNumber);
+    case ORBIT_BORDER_2: return new CBasicBorderCoverage     (this,ADart,2,
+							      AMarkNumber);
+    case ORBIT_BORDER_3: return new CBasicBorderCoverage     (this,ADart,3,
+							      AMarkNumber);
+    }
+
+  return NULL;
+}
+//******************************************************************************
+INLINE
+CCoverage* CGMap::getMultiDynamicCoverage(const CDart* D, TOrbit orbit)
+{
+  switch (orbit)
+    {
+    case ORBIT_012:  return new CMultiDynamicCoverage012 (this, D);
+    case ORBIT_123:  return new CMultiDynamicCoverage123 (this, D);
+    case ORBIT_0123: return new CMultiDynamicCoverage0123(this, D);
+    }
+
+  return NULL;
+}
+//******************************************************************************
+INLINE
+bool CGMap::isSameOrbit(CDart* ADart1, CDart* D2, TOrbit orbit)
+{
+  bool found = false;
+
+  CCoverage* C = getDynamicCoverage(ADart1,orbit);
+
+  while (!found && C->cont())
+    if ((*C)++ == D2)
+      found = true;
+
+  delete C;
+
+  return found;
+}
+//******************************************************************************
+INLINE
+CDart* CGMap::getEmbeddingOwner(const CDart* D, TOrbit orbit)
+{
+  CCoverage* C = getDynamicCoverage(D, orbit);
+  CDart* res = NULL;
+  bool found = false;
+
+  while (!found && C->cont())
+    {
+      if ((**C)->isOrbitUsed(orbit))
+	{
+	  res = **C;
+	  found = true;
+	}
+      else
+        ++ * C;
+    }
+
+  delete C;
+
+  return res;
+}
+//******************************************************************************
+INLINE
+CAttribute * CGMap::getAttribute(const CDart* D, TOrbit orbit,
+				 TAttributeId typeAttr)
+{
+  assert(isOrbitUsed(orbit));
+  CDart* Do = getEmbeddingOwner(D, orbit);
+
+  if ( Do!=NULL )
+    return Do->getAttribute(orbit,typeAttr);
+
+  return NULL;
+}
+//******************************************************************************
+INLINE
+void CGMap::addAttribute(CDart* D, TOrbit orbit, CAttribute * A)
+{
+  assert(isOrbitUsed(orbit));
+  CDart* Do = getEmbeddingOwner(D,orbit);
+
+  if ( Do==NULL )
+    Do = D;
+  
+  Do->addAttribute(orbit,A);
+}
+//******************************************************************************
+INLINE
+CAttribute * CGMap::removeAttribute(CDart* D, TOrbit orbit,
+				    TAttributeId typeAttr)
+{
+  assert(isOrbitUsed(orbit));
+
+  CDart* Do = getEmbeddingOwner(D,orbit);
+  
+  if (Do!=NULL)
+    return Do->removeAttribute(orbit,typeAttr);
+  
+  return NULL;
+}
+//******************************************************************************
+INLINE
+void CGMap::deleteAttribute(CDart* D, TOrbit orbit, TAttributeId typeAttr)
+{
+  delete removeAttribute(D, orbit, typeAttr);
+}
+//******************************************************************************
+INLINE
+bool CGMap::isSameOrbit(CDart* ADart1, CDart* ADart2, TOrbit AOrbit,
+			CDart*& ADartEmbeddingOwner1)
+{
+  CCoverage * cov = getDynamicCoverage(ADart1, AOrbit);
+  ADartEmbeddingOwner1 = NULL;
+  bool found = false;
+
+  while (!found && cov->cont())
+    {
+      if (**cov == ADart2)
+	found = true;
+      
+      if ((**cov)->isOrbitUsed(AOrbit))
+	ADartEmbeddingOwner1 = **cov;
+
+      ++ *cov;
+    }
+
+  delete cov;
+  return found;
+}
+//******************************************************************************
+INLINE
+bool CGMap::isValidOrbit(CDart* ADart, TOrbit AOrbit)
+{
+  for (int i=0; i<2; ++i)
+    for (int j=i+2; j<4; ++j)
+      if ((AOrbit & ORBIT_DIM[i]) && (AOrbit & ORBIT_DIM[j]) &&
+	  alpha(alpha(ADart, i), j) != alpha(alpha(ADart, j), i))
+	return false;
+
+  return true;
+}
+//******************************************************************************
+INLINE
+void CGMap::groupAttributes(CDart* ADart1, CDart* D2, TMask16 AMask)
+{
+  TOrbit i,j;
+
+  CDart* d1;
+  CDart* d2;
+
+  for (i = ORBIT_0; i <= ORBIT_0123; ++i)   // pour chaque orbite
+    if (AMask[i] && isOrbitUsed(i) && isValidOrbit(ADart1, i))
+      {
+	if (isSameOrbit(ADart1, D2, i, d1))    // même orbite => rien a grouper
+	  for (j = i+1; j <= ORBIT_0123; ++j)
+	    {
+	      if (IS_ORBIT_INCLUDED(i,j)) // l'orbite i incluse dans l'orbite j
+		AMask.set(j,false);
+	    }
+	else
+	  { // ADart1 et D2 dans deux orbites différentes => il faut grouper
+	    d2 = getEmbeddingOwner(D2,i);
+
+	    if (d1!=NULL && d2!=NULL) // les 2 brins portent un embedding
+	      { // 1) on enleve l'embedding de d1 pour <orbit>
+		CEmbedding *E = d1->removeEmbedding(i); 
+		assert(E!=NULL);
+		// 2) puis d2 récupère de E les attributs qu'il n'a pas
+		d2->mergeEmbedding(E);
+		// 3) on détruit E (et les éventuels attributs restés)
+		E->destroy();
+	      }
+	  }
+      }
+}
+//******************************************************************************
+INLINE
+void CGMap::duplicateAttributes(CDart* ADart1, CDart* D2, TMask16 AMask)
+{
+  TOrbit i,j;
+  CDart* d1;
+
+  for (i = ORBIT_0; i <= ORBIT_0123; ++i) // pour chaque orbite
+    if (AMask[i] && isOrbitUsed(i) && isValidOrbit(ADart1, i))
+      {
+	if (isSameOrbit(ADart1, D2, i, d1))   // même orbite => rien a dégrouper
+	  {
+	    for (j = i+1; j <= ORBIT_0123; ++j)
+	      if (IS_ORBIT_INCLUDED(i,j))
+		AMask.set(j,false);
+	  }
+	else
+	  { // ADart1 et D2 dans deux orbites différentes => il faut dégrouper
+	    if (d1==NULL) // le brin ADart1 n'a pas d'embedding pour <i>
+	      {
+		d1 = getEmbeddingOwner(D2,i);
+		if (d1!=NULL) // si D2 en a un, on le duplique pour ADart1
+		  ADart1->addEmbedding((d1->getEmbedding(i))->copy());
+	      }
+	    else
+	      { // Ici, d1!=NULL donc forcément D2 n'a pas d'embedding
+		// et on va lui en rajouter un (la copie de celui de d1).
+		assert(getEmbeddingOwner(D2,i)==NULL);
+		D2->addEmbedding((d1->getEmbedding(i))->copy());
+	      }
+	  }
+      }
+}
+//******************************************************************************
+INLINE
+bool CGMap::canSew0(CDart* d1, CDart* d2)
+{
+  assert(d1!=NULL && d2!=NULL);
+  return canSew(d1,d2, 0);
+}
+//******************************************************************************
+INLINE
+bool CGMap::canSew1(CDart* d1, CDart* d2)
+{
+  assert(d1!=NULL && d2!=NULL);
+  return canSew(d1,d2, 1);
+}
+//******************************************************************************
+INLINE
+bool CGMap::canSew2(CDart* d1, CDart* d2)
+{
+  assert(d1!=NULL && d2!=NULL);
+  return canSew(d1,d2, 2);
+}
+//******************************************************************************
+INLINE
+bool CGMap::canSew3(CDart* d1, CDart* d2)
+{
+  return canSew(d1,d2, 3);
+}
+//******************************************************************************
+INLINE
+bool CGMap::canSew(CDart* d1, CDart* d2, int i)
+{
+  assert(d1!=NULL && d2!=NULL);
+
+  if ( d1==d2 || !isFree(d1,i) || !isFree(d2,i) )
+    return false;
+
+  CCoverage* cov1 = getDynamicCoverage(d1, ORBIT_INVO[i]);
+  CCoverage* cov2 = getDynamicCoverage(d2, ORBIT_INVO[i]);
+
+  while (cov1->cont() && cov2->cont() &&
+	 cov1->prevOperationType()==cov2->prevOperationType())
+    {
+      ++(*cov1);
+      ++(*cov2);
+    }
+
+  bool ok = !cov1->cont() && !cov2->cont();
+
+  delete cov1;
+  delete cov2;
+
+  return ok;
+}
+//******************************************************************************
+INLINE
+void CGMap::dartSew0(CDart* ADart1, CDart* ADart2)
+{
+  groupAttributes(ADart1,ADart2,MASK0); 
+  linkAlpha0(ADart1,ADart2);
+}
+//******************************************************************************
+INLINE
+void CGMap::dartSew1(CDart* ADart1, CDart* ADart2)
+{
+  groupAttributes(ADart1,ADart2,MASK1);
+  linkAlpha1(ADart1,ADart2);
+}
+//******************************************************************************
+INLINE
+void CGMap::dartSew2(CDart* ADart1, CDart* ADart2)
+{
+  groupAttributes(ADart1,ADart2,MASK2);
+  linkAlpha2(ADart1,ADart2);
+}
+//******************************************************************************
+INLINE
+void CGMap::dartSew3(CDart* ADart1, CDart* ADart2)
+{
+  groupAttributes(ADart1,ADart2,MASK3);
+  linkAlpha3(ADart1,ADart2);
+}
+//******************************************************************************
+INLINE
+void CGMap::dartSew(CDart* ADart1, CDart* ADart2, int ADimension)
+{
+  switch(ADimension)
+    {
+    case 0: dartSew0(ADart1, ADart2); break;
+    case 1: dartSew1(ADart1, ADart2); break;
+    case 2: dartSew2(ADart1, ADart2); break;
+    case 3: dartSew3(ADart1, ADart2); break;
+    }
+}
+//******************************************************************************
+INLINE
+void CGMap::dartUnsew0(CDart* ADart)
+{
+  assert(ADart!=NULL);
+  assert(!isFree0(ADart));
+
+  CDart* D2 = alpha0(ADart);
+  unlinkAlpha0(ADart);
+  duplicateAttributes(ADart,D2,MASK0);
+}
+//******************************************************************************
+INLINE
+void CGMap::dartUnsew1(CDart* ADart)
+{
+  assert(ADart!=NULL);
+  assert(!isFree1(ADart));
+
+  CDart* D2 = alpha1(ADart);
+  unlinkAlpha1(ADart);
+  duplicateAttributes(ADart,D2,MASK1);
+}
+//******************************************************************************
+INLINE
+void CGMap::dartUnsew2(CDart* ADart)
+{
+  assert(ADart!=NULL);
+  assert(!isFree2(ADart));
+
+  CDart* D2 = alpha2(ADart);
+  unlinkAlpha2(ADart);
+  duplicateAttributes(ADart,D2,MASK2);
+}
+//******************************************************************************
+INLINE
+void CGMap::dartUnsew3(CDart* ADart)
+{
+  assert(ADart!=NULL);
+  assert(!isFree3(ADart));
+
+  CDart* D2 = alpha3(ADart);
+  unlinkAlpha3(ADart);
+  duplicateAttributes(ADart,D2,MASK3);
+}
+//******************************************************************************
+INLINE
+void CGMap::dartUnsew(CDart* ADart, int ADimension)
+{
+  switch(ADimension)
+    {
+    case 0: dartUnsew0(ADart); break;
+    case 1: dartUnsew1(ADart); break;
+    case 2: dartUnsew2(ADart); break;
+    case 3: dartUnsew3(ADart); break;
+    }
+}
+//******************************************************************************
+INLINE
+void CGMap::topoSew0(CDart* ADart1, CDart* ADart2)
+{
+  assert(canSew0(ADart1,ADart2));
+
+  CDynamicCoverage23 I1(this,ADart1);
+  CDynamicCoverage23 I2(this,ADart2);
+
+  while (I1.cont()) // on ne teste pas I2.cont() grâce à l'assert.
+    linkAlpha0(I1++,I2++);
+}
+//******************************************************************************
+INLINE
+void CGMap::topoSew1(CDart* ADart1, CDart* ADart2)
+{
+  assert(canSew1(ADart1,ADart2));
+  
+  linkAlpha1(ADart1,ADart2);
+  
+  if (!isFree3(ADart1))
+    linkAlpha1(alpha3(ADart1),alpha3(ADart2));
+}
+//******************************************************************************
+INLINE
+void CGMap::topoSew2(CDart* ADart1, CDart* ADart2)
+{
+  assert(canSew2(ADart1,ADart2));
+  
+  linkAlpha2(ADart1,ADart2);
+  
+  if (!isFree0(ADart1))
+    linkAlpha2(alpha0(ADart1),alpha0(ADart2));
+}
+//******************************************************************************
+//
+INLINE
+void CGMap::topoSew3(CDart* ADart1, CDart* ADart2)
+{
+  assert(canSew3(ADart1,ADart2));
+  
+  CDynamicCoverage01 I1(this, ADart1);
+  CDynamicCoverage01 I2(this, ADart2);
+  
+  while( I1.cont() )  // on ne teste pas I2.cont() grâce à l'assert.
+    linkAlpha3(I1++,I2++);
+}
+//******************************************************************************
+INLINE
+void CGMap::topoSew(CDart* ADart1, CDart* ADart2, int ADimension)
+{
+  switch(ADimension)
+    {
+    case 0: topoSew0(ADart1, ADart2); break;
+    case 1: topoSew1(ADart1, ADart2); break;
+    case 2: topoSew2(ADart1, ADart2); break;
+    case 3: topoSew3(ADart1, ADart2); break;
+    }
+}
+//******************************************************************************
+INLINE
+void CGMap::topoUnsew0(CDart* ADart)
+{
+  assert(!isFree0(ADart));
+
+  CDynamicCoverage23 I(this,ADart);
+  while (I.cont())
+    unlinkAlpha0(I++);
+}
+//******************************************************************************
+INLINE
+void CGMap::topoUnsew1(CDart* ADart)
+{
+  assert(!isFree1(ADart));
+
+  unlinkAlpha1(ADart);
+  if (!isFree3(ADart))
+    unlinkAlpha1(alpha3(ADart));
+}
+//******************************************************************************
+INLINE
+void CGMap::topoUnsew2(CDart* ADart)
+{
+  assert(!isFree2(ADart));
+  
+  unlinkAlpha2(ADart);
+  if (!isFree0(ADart))
+    unlinkAlpha2(alpha0(ADart));
+}
+//******************************************************************************
+INLINE
+void CGMap::topoUnsew3(CDart* ADart)
+{
+  assert(!isFree3(ADart));
+  
+  CDynamicCoverage01 I(this, ADart);
+  while (I.cont())
+    unlinkAlpha3(I++);
+}
+//******************************************************************************
+INLINE
+void CGMap::topoUnsew(CDart* ADart, int ADimension)
+{
+  switch(ADimension)
+    {
+    case 0: topoUnsew0(ADart); break;
+    case 1: topoUnsew1(ADart); break;
+    case 2: topoUnsew2(ADart); break;
+    case 3: topoUnsew3(ADart); break;
+    }
+}
+//******************************************************************************
+INLINE
+void CGMap::sew0(CDart* ADart1, CDart* ADart2)
+{
+  assert(canSew0(ADart1,ADart2));
+
+  CDynamicCoverage23 I1(this, ADart1);
+  CDynamicCoverage23 I2(this, ADart2);
+
+  CDart*d1 = I1++;
+  CDart*d2 = I2++;
+
+  groupAttributes(d1,d2,MASK0);
+  linkAlpha(d1,d2,0);
+
+  while (I1.cont()) //  on ne teste pas I2.cont() grâce à l'assert.
+    {
+      d1 = *I1; d2 = *I2;
+
+
+      if (I1.prevOperationType() == OP_ALPHAI)
+	{
+	  // Le précédent ++ à réalisé un alpha2, donc on teste
+	  // uniquement les orbites contenant 0 mais pas 2
+	  groupAttributes(d1,d2,MASK0M2);
+	}
+      else
+	{
+	  // Ici, le précédent ++ à réalisé un alpha3 ou un jump, donc on teste
+	  // uniquement les orbites contenant 0 mais pas 3.
+	  groupAttributes(d1,d2,MASK0M3);
+	}
+      
+      linkAlpha(d1,d2,0);
+
+      ++I1; ++I2;
+    }
+}
+
+//******************************************************************************
+INLINE
+void CGMap::sew1(CDart* ADart1, CDart* ADart2)
+{
+  assert(canSew1(ADart1,ADart2));
+
+  groupAttributes(ADart1,ADart2,MASK1);
+  linkAlpha(ADart1,ADart2, 1);
+
+  if (!isFree3(ADart1))
+    {
+      // Ici on a déjà groupé les orbites contenant 1 et 3, donc on regarde
+      //  uniquement celles contenant 1 mais pas 3.
+      groupAttributes(alpha3(ADart1),alpha3(ADart2), MASK1M3); 
+      linkAlpha(alpha3(ADart1),alpha3(ADart2), 1);
+    }
+}
+//******************************************************************************
+INLINE
+void CGMap::sew2(CDart* ADart1, CDart* ADart2)
+{
+  assert(canSew2(ADart1,ADart2));
+
+  groupAttributes(ADart1,ADart2, MASK2);
+  linkAlpha(ADart1,ADart2, 2); 
+
+  if (!isFree0(ADart1))
+    {
+      // Ici on a déjà groupé les orbites contenant 2 et 0, donc on regarde
+      //  uniquement celles contenant 2 mais pas 0.
+      groupAttributes(alpha0(ADart1),alpha0(ADart2), MASK2M0);
+      linkAlpha(alpha0(ADart1),alpha0(ADart2), 2);
+    }
+}
+
+//******************************************************************************
+INLINE
+void CGMap::sew3(CDart* ADart1, CDart* ADart2)
+{
+  assert(canSew3(ADart1,ADart2));
+
+  CDynamicCoverage01 I1(this, ADart1);
+  CDynamicCoverage01 I2(this, ADart2);
+
+  CDart* d1 = I1++;
+  CDart* d2 = I2++;
+
+  groupAttributes(d1,d2, MASK3);
+  linkAlpha(d1,d2, 3);
+
+  while(I1.cont()) //  on ne teste pas I2.cont() grâce à l'assert.
+    {
+      d1 = *I1;
+      d2 = *I2;
+
+      if (I1.prevOperationType()==OP_ALPHAI)
+	{
+	  // Le précédent ++ à réalisé un alpha0, donc on teste
+	  // uniquement les orbites contenant 3 mais pas 0
+	  groupAttributes(d1,d2, MASK3M0);
+	}  
+      else
+	{
+	  // Ici, le précédent ++ à réalisé un alpha1 ou un jump, donc on teste
+	  // uniquement les orbites contenant 3 mais pas 1.
+	  groupAttributes(d1,d2, MASK3M1);
+	}
+
+      linkAlpha(d1,d2,3);
+      ++I1; ++I2;
+    }
+}
+
+//******************************************************************************
+//
+INLINE
+void CGMap::sew(CDart* ADart1, CDart* ADart2, int ADimension)
+{
+  switch(ADimension)
+    {
+    case 0: sew0(ADart1, ADart2); break;
+    case 1: sew1(ADart1, ADart2); break;
+    case 2: sew2(ADart1, ADart2); break;
+    case 3: sew3(ADart1, ADart2); break;
+    }
+}
+
+//******************************************************************************
+INLINE
+void CGMap::unsew0(CDart* ADart)
+{
+  assert(!isFree0(ADart));
+
+  CDart* d1 = NULL;
+  CDart* d2 = NULL;
+  bool prevai;
+  CDynamicCoverage23 It(this, ADart);
+
+  while(It.cont())
+    {
+      d1 = *It; d2 = alpha0(d1);
+      unlinkAlpha0(d1);
+      prevai = (It.prevOperationType()==OP_ALPHAI);
+      ++It;
+
+      if (It.cont())
+	{
+	  if (prevai)
+	    {
+	      // Le précédent ++ à réalisé un alpha2, donc on teste
+	      // uniquement les orbites contenant 0 mais pas 3
+	      duplicateAttributes(d1,d2,MASK0M3);
+	    }
+	  else
+	    {
+	      // Ici, le précédent ++ à réalisé un alpha3 ou un jump, donc on
+	      //  teste uniquement les orbites contenant 0 mais pas 3.
+	      duplicateAttributes(d1,d2,MASK0M2);
+	    }
+	}
+    }
+
+  duplicateAttributes(d1,d2,MASK0);
+
+  // Version sure, ou on teste toujours toutes les orbites.
+  //    CDynamicCoverage23 I(this,ADart);
+  //    while( I.cont() )
+  //      dartUnsew0(I++);
+}
+//******************************************************************************
+INLINE
+void CGMap::unsew1(CDart* ADart)
+{
+  assert(!isFree1(ADart));
+
+  CDart* D2 = alpha1(ADart);
+  unlinkAlpha1(ADart);
+
+  if (!isFree3(ADart))
+    {
+      duplicateAttributes(ADart,D2,MASK1M3);
+      ADart = alpha3(ADart); D2 = alpha1(ADart);
+      unlinkAlpha1(ADart);
+    }
+
+  duplicateAttributes(ADart,D2, MASK1);
+
+  // Version sure, où on teste toujours toutes les orbites
+  //    dartUnsew1(ADart);
+  //    if (!isFree3(ADart)) dartUnsew1(alpha3(ADart));
+}
+
+//******************************************************************************
+INLINE
+void CGMap::unsew2(CDart* ADart)
+{
+  assert(!isFree2(ADart));
+
+  CDart* D2 = alpha2(ADart);
+  unlinkAlpha2(ADart);
+
+  if (!isFree0(ADart))
+    {
+      duplicateAttributes(ADart,D2,MASK2M0);
+      ADart = alpha0(ADart); D2 = alpha2(ADart);
+      unlinkAlpha2(ADart);
+    }
+
+  duplicateAttributes(ADart,D2,MASK2);
+
+  // Version sure, ou on teste toujours toutes les orbites
+  //    dartUnsew2(ADart);
+  //    if (!isFree0(ADart)) dartUnsew2(alpha0(ADart));
+}
+
+//******************************************************************************
+INLINE
+void CGMap::unsew3(CDart* ADart)
+{
+  assert(!isFree3(ADart));
+
+  CDart* d1 = NULL;
+  CDart* d2 = NULL;
+  bool prevai;
+  CDynamicCoverage01 It(this, ADart);
+
+  while(It.cont())
+    {
+      d1 = *It; d2 = alpha3(d1);
+      unlinkAlpha3(d1);
+      prevai = (It.prevOperationType()==OP_ALPHAI);
+      ++It;
+      if (It.cont())
+	{
+	  if (prevai)
+	    {
+	      // Le précédent ++ à réalisé un alpha0, donc on teste
+	      // uniquement les orbites contenant 3 mais pas 1.
+	      duplicateAttributes(d1,d2,MASK3M1);
+	    }
+	  else
+	    {
+	      // Ici, le précédent ++ à réalisé un alpha1 ou un jump, donc on
+	      // testeuniquement les orbites contenant 3 mais pas 0
+	      duplicateAttributes(d1,d2,MASK3M0);
+	    }
+	}
+    }
+
+  duplicateAttributes(d1,d2,MASK3);
+
+  // // Version sure, ou on teste toujours toutes les orbites.
+  // CDynamicCoverage01 I(this, ADart);
+  // while (I.cont())
+  //   dartUnsew3(I++);
+}
+//******************************************************************************
+INLINE
+void CGMap::unsew(CDart* ADart,int ADimension)
+{
+  switch(ADimension)
+    {
+    case 0: unsew0(ADart); break;
+    case 1: unsew1(ADart); break;
+    case 2: unsew2(ADart); break;
+    case 3: unsew3(ADart); break;
+    }
+}
+//******************************************************************************
+} // namespace GMap3d
+//******************************************************************************

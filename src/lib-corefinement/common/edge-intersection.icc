@@ -1,0 +1,125 @@
+/*
+ * lib-corefinement : Opérations de corafinement.
+ * Copyright (C) 2004, Moka Team, Université de Poitiers, Laboratoire SIC
+ *               http://www.sic.sp2mi.univ-poitiers.fr/
+ * Copyright (C) 2009, Guillaume Damiand, CNRS, LIRIS,
+ *               guillaume.damiand@liris.cnrs.fr, http://liris.cnrs.fr/
+ *
+ * This file is part of lib-corefinement
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+//******************************************************************************
+namespace GMap3d
+{
+//******************************************************************************
+
+INLINE
+CEdgeIntersection::CEdgeIntersection(CDart * AIntersectedCell,
+				     TCoordinate AIntersectionParameter,
+				     CVertex const & AIntersectionPoint,
+				     int AIntersectedCellDimension,
+				     TPositionOnEdge AIntersectionPosition)
+  : FIntersectedCell(AIntersectedCell),
+    FIntersectionParameter(AIntersectionParameter),
+    FIntersectionPoint(AIntersectionPoint),
+    FIntersectedCellDimension(AIntersectedCellDimension),
+    FIntersectionPosition(AIntersectionPosition)
+{
+}
+
+//******************************************************************************
+
+INLINE
+CDart * CEdgeIntersection::getCell() const
+{
+  return FIntersectedCell;
+}
+
+//******************************************************************************
+
+INLINE
+TCoordinate CEdgeIntersection::getParameter() const
+{
+  return FIntersectionParameter;
+}
+
+//******************************************************************************
+
+INLINE
+CVertex const & CEdgeIntersection::getPoint() const
+{
+  return FIntersectionPoint;
+}
+
+//******************************************************************************
+
+INLINE
+int CEdgeIntersection::getCellDimension() const
+{
+  return FIntersectedCellDimension;
+}
+
+//******************************************************************************
+
+INLINE
+TPositionOnEdge CEdgeIntersection::getPosition() const
+{
+  return FIntersectionPosition;
+}
+
+//******************************************************************************
+
+INLINE
+void CEdgeIntersection::setCell(CDart * ADart)
+{
+  FIntersectedCell = ADart;
+}
+
+//******************************************************************************
+
+INLINE
+void CEdgeIntersection::setParameter(TCoordinate AParameter)
+{
+  FIntersectionParameter = AParameter;
+}
+
+//******************************************************************************
+
+INLINE
+void CEdgeIntersection::setPoint(CVertex const & APoint)
+{
+  FIntersectionPoint = APoint;
+}
+
+//******************************************************************************
+
+INLINE
+void CEdgeIntersection::setCellDimension(int ADimension)
+{
+  FIntersectedCellDimension = ADimension;
+}
+
+//******************************************************************************
+
+INLINE
+void CEdgeIntersection::setPosition(TPositionOnEdge APosition)
+{
+  FIntersectionPosition = APosition;
+}
+
+//******************************************************************************
+} // namespace GMap3d
+//******************************************************************************

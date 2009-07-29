@@ -1,0 +1,492 @@
+/*
+ * lib-gmapkernel : Un noyau de 3-G-cartes et des opérations.
+ * Copyright (C) 2004, Moka Team, Université de Poitiers, Laboratoire SIC
+ *               http://www.sic.sp2mi.univ-poitiers.fr/
+ * Copyright (C) 2009, Guillaume Damiand, CNRS, LIRIS,
+ *               guillaume.damiand@liris.cnrs.fr, http://liris.cnrs.fr/
+ *
+ * This file is part of lib-gmapkernel
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+//******************************************************************************
+#include "attribute.hh"
+#include "embedding.hh"
+
+#include <cassert>
+//******************************************************************************
+namespace GMap3d
+{
+//******************************************************************************
+// Constructeurs
+// On initialise pas les champs FMarks et FUsedOrbits car tout les bits sont
+// initialisées à faux par défaut (constructeur de bitset).
+INLINE
+CDart::CDart() :
+  FFirstEmbedding(NULL),
+  FPrev		 (NULL),
+  FNext		 (NULL)
+{
+  FAlpha[0] = this;
+  FAlpha[1] = this;
+  FAlpha[2] = this;
+  FAlpha[3] = this;
+}
+//******************************************************************************
+INLINE
+CDart::CDart(const CDart& ADart) :
+  FFirstEmbedding(NULL),
+  FMarks	 (ADart.FMarks),
+  FUsedOrbits	 (ADart.FUsedOrbits),
+  FPrev		 (NULL),
+  FNext		 (NULL)
+{
+  FAlpha[0] = this;
+  FAlpha[1] = this;
+  FAlpha[2] = this;
+  FAlpha[3] = this;
+}
+//******************************************************************************
+INLINE
+CDart::CDart(const std::bitset<NB_MARKS>& AMarks) :
+  FFirstEmbedding(NULL),
+  FMarks         (AMarks),
+  FPrev		 (NULL),
+  FNext		 (NULL)
+{
+  FAlpha[0] = this;
+  FAlpha[1] = this;
+  FAlpha[2] = this;
+  FAlpha[3] = this;
+}
+//******************************************************************************
+// Destructeur
+// Attention, si le brin n'a pas été préalablement décousu alors ses brins 
+// voisins pointent désormais vers une adresse invalide.
+INLINE
+CDart::~CDart()
+{
+  CEmbedding* E = FFirstEmbedding;
+
+  // Destruction de tout les embedding de la liste
+  while(E != NULL)
+    {
+      CEmbedding* tmp = E;
+      E = E->getNext();
+      delete tmp;
+    }
+}
+//******************************************************************************
+INLINE
+CEmbedding* CDart::getFirstEmbedding() const
+{
+  return FFirstEmbedding;
+}
+//******************************************************************************
+INLINE
+void CDart::setFirstEmbedding(CEmbedding* AEmbedding)
+{
+  FFirstEmbedding = AEmbedding;
+}
+//******************************************************************************
+INLINE
+CDart* CDart::getAlpha0() const
+{
+  return FAlpha[0];
+}
+//******************************************************************************
+INLINE
+CDart* CDart::getAlpha1() const
+{
+  return FAlpha[1];
+}
+//******************************************************************************
+INLINE
+CDart* CDart::getAlpha2() const
+{
+  return FAlpha[2];
+}
+//******************************************************************************
+INLINE
+CDart* CDart::getAlpha3() const
+{
+  return FAlpha[3];
+}
+//******************************************************************************
+INLINE
+CDart* CDart::getAlpha(int ADimension) const
+{
+  assert(0<=ADimension && ADimension<=3);
+  
+  return FAlpha[ADimension];
+}
+//******************************************************************************
+INLINE
+void CDart::setAlpha0(CDart* ADart)
+{
+  assert(ADart != NULL);
+  
+  FAlpha[0] = ADart;
+}
+//******************************************************************************
+INLINE
+void CDart::setAlpha1(CDart* ADart)
+{
+  assert(ADart != NULL);
+  
+  FAlpha[1] = ADart;
+}
+//******************************************************************************
+INLINE
+void CDart::setAlpha2(CDart* ADart)
+{
+  assert(ADart != NULL);
+  
+  FAlpha[2] = ADart;
+}
+//******************************************************************************
+INLINE
+void CDart::setAlpha3(CDart* ADart)
+{
+  assert(ADart != NULL);
+  
+  FAlpha[3] = ADart;
+}
+//******************************************************************************
+INLINE
+void CDart::setAlpha(CDart* ADart, int ADimension)
+{
+  assert(ADart != NULL);
+  assert(0<=ADimension && ADimension<=3);
+  
+  FAlpha[ADimension] = ADart;
+}
+//******************************************************************************
+INLINE
+bool CDart::isFree0() const
+{
+  return FAlpha[0] == this;
+}
+//******************************************************************************
+INLINE
+bool CDart::isFree1() const
+{
+  return FAlpha[1] == this;
+}
+//******************************************************************************
+INLINE
+bool CDart::isFree2() const
+{
+  return FAlpha[2] == this;
+}
+//******************************************************************************
+INLINE
+bool CDart::isFree3() const
+{
+  return FAlpha[3] == this;
+}
+//******************************************************************************
+INLINE
+bool CDart::isFree(int ADimension) const
+{
+  assert(0<=ADimension && ADimension<=3);
+
+  return FAlpha[ADimension] == this;
+}
+//******************************************************************************
+INLINE
+void CDart::setFree0()
+{
+  FAlpha[0] = this;
+}
+//******************************************************************************
+INLINE
+void CDart::setFree1()
+{
+  FAlpha[1] = this;
+}
+//******************************************************************************
+INLINE
+void CDart::setFree2()
+{
+  FAlpha[2]=this;
+}
+//******************************************************************************
+INLINE
+void CDart::setFree3()
+{
+  FAlpha[3] = this;
+}
+//******************************************************************************
+INLINE
+void CDart::setFree(int ADimension)
+{
+  assert(0<=ADimension && ADimension<=3);
+
+  FAlpha[ADimension] = this;
+}
+//******************************************************************************
+INLINE
+void* CDart::getDirectInfo(int ADirectIndex) const
+{
+  assert(0<=ADirectIndex && ADirectIndex<NB_DIRECT_INFO);
+
+  return FDirectInfo[ADirectIndex];
+}
+//******************************************************************************
+INLINE
+void CDart::setDirectInfo(int ADirectIndex, void* AValue)
+{
+  assert(0<=ADirectIndex && ADirectIndex<NB_DIRECT_INFO);
+
+  FDirectInfo[ADirectIndex] = AValue;
+}
+//******************************************************************************
+INLINE
+bool CDart::getMark(int AMarkNumber) const
+{
+  assert(0<=AMarkNumber && AMarkNumber<NB_MARKS);
+
+  return FMarks[AMarkNumber];
+}
+//******************************************************************************
+INLINE
+void CDart::setMark(int AMarkNumber, bool AValue)
+{
+  assert(0<=AMarkNumber && AMarkNumber<NB_MARKS);
+
+  FMarks.set(AMarkNumber, AValue);
+}
+//******************************************************************************
+INLINE
+std::bitset<NB_MARKS> CDart::getMarks() const
+{
+  return FMarks;
+}
+//******************************************************************************
+INLINE
+void CDart::setMarks(const std::bitset<NB_MARKS>& AMarks)
+{
+  this->FMarks = AMarks;
+}
+//******************************************************************************
+INLINE
+void CDart::setOrbitUsed(TOrbit AOrbit)
+{
+  assert(ORBIT_SELF<=AOrbit && AOrbit<=ORBIT_0123);
+
+  FUsedOrbits.set(static_cast<int>(AOrbit), true);
+}
+//******************************************************************************
+INLINE
+void CDart::unsetOrbitUsed(TOrbit AOrbit)
+{
+  assert(ORBIT_SELF<=AOrbit && AOrbit<=ORBIT_0123);
+
+  FUsedOrbits.set(static_cast<int>(AOrbit), false);
+}
+//******************************************************************************
+INLINE
+bool CDart::isOrbitUsed(TOrbit AOrbit) const
+{
+  assert(ORBIT_SELF<=AOrbit && AOrbit<=ORBIT_0123);
+
+  return FUsedOrbits[static_cast<int>(AOrbit)];
+}
+//******************************************************************************
+INLINE
+CDart* CDart::getPrev() const
+{
+  return FPrev;
+}
+//******************************************************************************
+INLINE
+void CDart::setPrev(CDart* ADart)
+{
+  FPrev = ADart;
+}
+//******************************************************************************
+INLINE
+CDart* CDart::getNext() const
+{
+  return FNext;
+}
+//******************************************************************************
+INLINE
+void CDart::setNext(CDart* ADart)
+{
+  FNext = ADart;
+}
+//******************************************************************************
+INLINE
+CEmbedding* CDart::getEmbedding(TOrbit AOrbit) const
+{
+  if (isOrbitUsed(AOrbit))
+    {
+      CEmbedding* E = getFirstEmbedding();
+
+      while (E != NULL)
+        {
+          if (E->getOrbit() == AOrbit)
+	    return E;
+
+          E = E->getNext();
+        }
+    }
+
+  return NULL;
+}
+//******************************************************************************
+INLINE
+void CDart::addEmbedding(CEmbedding* AEmbedding)
+{
+  assert(AEmbedding != NULL);
+  assert(AEmbedding->getPrev() == NULL && AEmbedding->getNext() == NULL);
+  assert(getEmbedding(AEmbedding->getOrbit()) == NULL);
+
+  setOrbitUsed(AEmbedding->getOrbit());
+
+  if (getFirstEmbedding() != NULL)
+    {
+      // Insertion dans la liste :
+      getFirstEmbedding()->setPrev(AEmbedding);
+      AEmbedding->setNext(getFirstEmbedding());
+    }
+
+  setFirstEmbedding(AEmbedding);
+}
+//******************************************************************************
+INLINE
+CEmbedding* CDart::removeEmbedding(CEmbedding* AEmbedding)
+{
+  assert(AEmbedding != NULL);
+
+  if (getFirstEmbedding() == AEmbedding)
+    {
+      assert(AEmbedding->getPrev() == NULL);
+      setFirstEmbedding(AEmbedding->getNext());
+    }
+  else
+    {
+      assert(AEmbedding->getPrev() != NULL);
+      AEmbedding->getPrev()->setNext(AEmbedding->getNext());
+    }
+
+  if (AEmbedding->getNext() != NULL)
+    AEmbedding->getNext()->setPrev(AEmbedding->getPrev());
+
+  return AEmbedding;
+}
+//******************************************************************************
+INLINE
+CEmbedding* CDart::removeEmbedding(TOrbit AOrbit)
+{
+  CEmbedding* E = getEmbedding(AOrbit);
+  
+  if (E == NULL)
+    return NULL;
+  
+  unsetOrbitUsed(AOrbit);
+  return removeEmbedding(E);
+}
+//******************************************************************************
+INLINE
+void CDart::deleteEmbedding(CEmbedding* AEmbedding)
+{
+  assert(AEmbedding != NULL);
+
+  delete removeEmbedding(AEmbedding);
+}
+//******************************************************************************
+INLINE
+void CDart::deleteEmbedding(TOrbit AOrbit)
+{
+  delete removeEmbedding(AOrbit); // car delete NULL marche et ne fait rien
+}
+//******************************************************************************
+INLINE
+CAttribute* CDart::getAttribute(TOrbit AOrbit, TAttributeId AAttribType) const
+{
+  CEmbedding* E = getEmbedding(AOrbit);
+  
+  if (E == NULL)
+    return NULL;
+  
+  return E->getAttribute(AAttribType);
+}
+//******************************************************************************
+INLINE
+void CDart::addAttribute(TOrbit AOrbit, CAttribute* AAttribute)
+{
+  assert(AAttribute != NULL);
+
+  CEmbedding* E = getEmbedding(AOrbit);
+
+  if (E == NULL)
+    { // Le brin n'a pas d'embedding pour cette orbite et donc on en créé un.
+      E = new CEmbedding(AOrbit);
+      addEmbedding(E);
+    }
+
+  E->addAttribute(AAttribute);
+}
+//******************************************************************************
+INLINE
+void CDart::mergeEmbedding(CEmbedding* AEmbedding)
+{
+  assert(AEmbedding != NULL);
+
+  CEmbedding* E = getEmbedding(AEmbedding->getOrbit());
+
+  if (E == NULL)
+    { // Le brin n'a pas d'embedding pour cette orbite et donc on en créé un
+      // et on prend tout les attributs de AEmbedding sans test.
+      E = new CEmbedding(AEmbedding->getOrbit());
+      addEmbedding(E);
+      E->setFirstAttribute(AEmbedding->getFirstAttribute());
+      AEmbedding->setFirstAttribute(NULL);
+    }
+  else // Ici on va seulement prendre les attributs de AEmbedding qu'on n'a pas.
+    E->mergeAttribute(AEmbedding);
+}
+//******************************************************************************
+INLINE
+CAttribute* CDart::removeAttribute(TOrbit AOrbit, TAttributeId AAttribType)
+{
+  CAttribute* A = NULL;
+  CEmbedding* E = getEmbedding(AOrbit);
+
+  if (E != NULL)
+    {
+      A = E->removeAttribute(AAttribType);
+
+      if (E->isEmpty())
+        {
+          deleteEmbedding(E);
+          unsetOrbitUsed(AOrbit);
+        }
+    }
+
+  return A;
+}
+//******************************************************************************
+INLINE
+void CDart::deleteAttribute(TOrbit AOrbit, TAttributeId AAttribType)
+{
+  delete removeAttribute(AOrbit, AAttribType);
+}
+//******************************************************************************
+} // namespace GMap3d
+//******************************************************************************

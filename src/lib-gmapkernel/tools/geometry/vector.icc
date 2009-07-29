@@ -1,0 +1,129 @@
+/*
+ * lib-gmapkernel : Un noyau de 3-G-cartes et des opérations.
+ * Copyright (C) 2004, Moka Team, Université de Poitiers, Laboratoire SIC
+ *               http://www.sic.sp2mi.univ-poitiers.fr/
+ * Copyright (C) 2009, Guillaume Damiand, CNRS, LIRIS,
+ *               guillaume.damiand@liris.cnrs.fr, http://liris.cnrs.fr/
+ *
+ * This file is part of lib-gmapkernel
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+//******************************************************************************
+#include "transformation-matrix.hh"
+
+#include <cassert>
+//******************************************************************************
+INLINE
+CVector::CVector(TVectorType AType)
+{
+  FElements = new TCoordinate[4];
+
+  if (AType==NullVector)
+    setToNull();
+}
+//******************************************************************************
+INLINE
+CVector::CVector(const CVector& AVector)
+{
+  FElements = new TCoordinate[4];
+
+  for (int i=0; i<4; ++i)
+    (*this)[i] = AVector[i];
+}
+//******************************************************************************
+INLINE
+CVector::CVector(TCoordinate A0, TCoordinate A1, TCoordinate A2, TCoordinate A3)
+{
+  FElements = new TCoordinate[4];
+
+  FElements[0] = A0;
+  FElements[1] = A1;
+  FElements[2] = A2;
+  FElements[3] = A3;
+}
+//******************************************************************************
+INLINE
+CVector::~CVector()
+{
+  delete [] FElements;
+}
+//******************************************************************************
+INLINE
+void CVector::setToNull()
+{
+  for (int i=0; i<4; ++i)
+    FElements[i] = 0;
+}
+//******************************************************************************
+INLINE
+CVector& CVector::operator=(const CVector& AVector)
+{
+  if (&AVector != this)
+    for (int i=0; i<4; ++i)
+      FElements[i] = AVector.FElements[i];
+
+  return *this;
+}
+//******************************************************************************
+INLINE
+TCoordinate& CVector::operator[](int AIndex) const
+{
+  assert(0 <= AIndex && AIndex <= 3);
+
+  return FElements[AIndex];
+}
+//******************************************************************************
+INLINE
+CVector CVector::operator*(const CTransformationMatrix& AMatrix) const
+{
+  CVector temp(NullVector);
+
+  for (int row=0; row<4; ++row)
+    for (int col=0; col<4; ++col)
+      temp[col] +=
+	(*this)[row] * AMatrix[row][col];
+
+  return temp;
+}
+//******************************************************************************
+INLINE
+TCoordinate CVector::operator*(const CVector& AVector) const
+{
+  TCoordinate temp = 0;
+
+  for (int k=0; k<4; ++k)
+    temp +=
+      (*this)[k] * AVector[k];
+
+  return temp;
+}
+//******************************************************************************
+INLINE
+std::ostream& operator<<(std::ostream& AStream, const CVector& AVector)
+{
+  AStream << std::endl;
+
+  AStream << "[";
+
+  for (int i=0; i<4; ++i)
+    AStream << AVector[i] << "\t";
+  // AStream.form("% .3f ", AVector[i]);
+
+  AStream << "]" << std::endl;
+
+  return AStream;
+}
+//******************************************************************************

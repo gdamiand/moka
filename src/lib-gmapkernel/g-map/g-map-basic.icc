@@ -1,0 +1,493 @@
+/*
+ * lib-gmapkernel : Un noyau de 3-G-cartes et des opérations.
+ * Copyright (C) 2004, Moka Team, Université de Poitiers, Laboratoire SIC
+ *               http://www.sic.sp2mi.univ-poitiers.fr/
+ * Copyright (C) 2009, Guillaume Damiand, CNRS, LIRIS,
+ *               guillaume.damiand@liris.cnrs.fr, http://liris.cnrs.fr/
+ *
+ * This file is part of lib-gmapkernel
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+//******************************************************************************
+#include "dart.hh"
+#include <cassert>
+#include <cstdlib>
+//******************************************************************************
+namespace GMap3d
+{
+//******************************************************************************
+INLINE
+CDart* CGMapBasic::getFirstDart() const
+{
+  return FFirstDart;
+}
+//******************************************************************************
+INLINE
+void CGMapBasic::setFirstDart(CDart* ADart)
+{
+  FFirstDart = ADart;
+}
+//******************************************************************************
+INLINE
+CDart* CGMapBasic::newDart()
+{
+  return new CDart(FMaskMarks);
+}
+//******************************************************************************
+INLINE
+void CGMapBasic::delDart(CDart* ADart)
+{
+  delete ADart;
+}
+//******************************************************************************
+INLINE
+CDart* CGMapBasic::addMapDart()
+{
+  CDart* ADart = newDart();
+
+  assert(ADart != NULL);
+
+  // Insertion dans la liste des brins :
+  if ( getFirstDart()!=NULL )
+    {
+      getFirstDart()->setPrev(ADart);
+      ADart->setNext(getFirstDart());
+    }
+  
+  setFirstDart(ADart);
+
+  return ADart;
+}
+//******************************************************************************
+INLINE
+void CGMapBasic::delMapDart(CDart* ADart)
+{
+  assert( ADart!=NULL );
+
+  if ( getFirstDart()==ADart )
+    {
+      assert( ADart->getPrev()==NULL );
+      setFirstDart(ADart->getNext());
+    }
+  else
+    {
+      assert( ADart->getPrev()!=NULL );
+      ADart->getPrev()->setNext(ADart->getNext());
+    }
+
+  if ( ADart->getNext()!=NULL )
+    ADart->getNext()->setPrev(ADart->getPrev());
+  
+  delDart(ADart);
+}
+//******************************************************************************
+INLINE
+void CGMapBasic::randomizeDarts()
+{
+  CDart* first	 = getFirstDart();
+  
+  if (first==NULL) return;
+  
+  CDart* current = first->getNext();
+  CDart* tmp;
+  CDart* next;
+  int i, dejaTraite = 1;
+
+  if ( first==NULL ) return;
+
+  srand(time(NULL));
+  
+  first->setNext(NULL);
+  
+  while ( current!=NULL )
+    {
+      next = current->getNext();
+      
+      i	  = rand()%dejaTraite;
+      tmp = first;
+      while ( i!=0 ) { tmp=tmp->getNext(); --i; }
+      assert( tmp!=NULL );
+
+      current->setPrev( tmp->getPrev() );
+      current->setNext( tmp );
+      if ( tmp==first )
+	first=current;
+      else
+	tmp->getPrev()->setNext(current);
+      
+      tmp->setPrev( current );
+
+      current = next;
+      ++dejaTraite;
+    }
+
+  setFirstDart(first);  
+}
+//******************************************************************************
+INLINE
+void CGMapBasic::removeAllDarts()
+{
+  CDart* d = getFirstDart();
+  CDart* tmp;
+
+  while ( d!=NULL )
+    {
+      tmp = d;
+      d = d->getNext();
+      delDart(tmp);
+    }
+  setFirstDart(NULL);
+}
+//******************************************************************************
+INLINE
+void CGMapBasic::empty()
+{
+  removeAllDarts();
+
+  // Met tout les bits � faux :
+  FMaskMarks.reset();
+  FUsedMarks.reset();
+  FUsedOrbits.reset();
+  FUsedDirectInfo.reset();
+
+  FNbUsedMarks	     = 0;
+  FNbUsedDirectInfos = 0;
+
+#ifndef NDEBUG
+  FMaxNbUsedMarks	= 0;
+  FMaxNbUsedDirectInfos	= 0;
+#endif // NDEBUG
+
+  int i;
+
+  for (i=0; i<NB_MARKS; ++i)
+    FMarks[i] = i;
+
+  for (i=0; i<NB_DIRECT_INFO; ++i)
+    FDirectInfos[i] = i;
+}
+//******************************************************************************
+INLINE
+CGMapBasic::CGMapBasic() :
+  FFirstDart(NULL)
+{
+  empty();
+}
+//******************************************************************************
+INLINE
+bool CGMapBasic::isFree(const CDart* ADart, int ADimension) const
+{
+  return ADart->isFree(ADimension);
+}
+//******************************************************************************
+INLINE
+bool CGMapBasic::isFree0(const CDart* ADart) const
+{
+  return ADart->isFree0();
+}
+//******************************************************************************
+INLINE
+bool CGMapBasic::isFree1(const CDart* ADart) const
+{
+  return ADart->isFree1();
+}
+//******************************************************************************
+INLINE
+bool CGMapBasic::isFree2(const CDart* ADart) const
+{
+  return ADart->isFree2();
+}
+//******************************************************************************
+INLINE
+bool CGMapBasic::isFree3(const CDart* ADart) const
+{
+  return ADart->isFree3();
+}
+//******************************************************************************
+INLINE
+CDart* CGMapBasic::alpha(const CDart* ADart, int ADimension) const
+{
+  return ADart->getAlpha(ADimension);
+}
+//******************************************************************************
+INLINE
+CDart* CGMapBasic::alpha0(const CDart* ADart) const
+{
+  return ADart->getAlpha0();
+}
+//******************************************************************************
+INLINE
+CDart* CGMapBasic::alpha1(const CDart* ADart) const
+{
+  return ADart->getAlpha1();
+}
+//******************************************************************************
+INLINE
+CDart* CGMapBasic::alpha2(const CDart* ADart) const
+{
+  return ADart->getAlpha2();
+}
+//******************************************************************************
+INLINE
+CDart* CGMapBasic::alpha3(const CDart* ADart) const
+{
+  return ADart->getAlpha3();
+}
+//******************************************************************************
+INLINE
+int CGMapBasic::getNewDirectInfo()
+{
+#ifndef NDEBUG
+  if (FNbUsedDirectInfos == NB_DIRECT_INFO)
+    // Pas assez de champs directInfo (voir macro NB_DIRECT_INFO).
+    assert(false);
+
+  if (FNbUsedDirectInfos == FMaxNbUsedDirectInfos)
+    FMaxNbUsedDirectInfos = FNbUsedDirectInfos + 1;
+#endif // NDEBUG
+  
+  int directInfo = FDirectInfos[FNbUsedDirectInfos ++];
+  FUsedDirectInfo.set(directInfo, true);
+  return directInfo;
+}
+//******************************************************************************
+INLINE
+void CGMapBasic::freeDirectInfo(int ADirectIndex)
+{
+  assert(0 <= ADirectIndex && ADirectIndex < NB_DIRECT_INFO);
+  assert(FUsedDirectInfo[ADirectIndex]);
+
+  FUsedDirectInfo.set(ADirectIndex, false);
+  FDirectInfos[-- FNbUsedDirectInfos] = ADirectIndex;
+}
+//******************************************************************************
+INLINE
+void* CGMapBasic::getDirectInfo(CDart* ADart, int ADirectIndex) const
+{
+  assert( FUsedDirectInfo[ADirectIndex] );
+  
+  return ADart->getDirectInfo(ADirectIndex);
+}
+//******************************************************************************
+INLINE
+void CGMapBasic::setDirectInfo(CDart* ADart, int ADirectIndex, void* APointer)
+{
+  assert( FUsedDirectInfo[ADirectIndex] );
+
+  ADart->setDirectInfo(ADirectIndex, APointer);
+}
+//******************************************************************************
+INLINE
+bool CGMapBasic::getMaskMark(int AMarkNumber) const
+{
+  return FMaskMarks[AMarkNumber];
+}
+//******************************************************************************
+INLINE
+int CGMapBasic::getNbUsedMarks() const
+{
+  return FNbUsedMarks;
+}
+//******************************************************************************
+INLINE
+void CGMapBasic::setMarks(CDart* ADart, const std::bitset<NB_MARKS> & AMarks) const
+{
+  ADart->setMarks(AMarks ^ FMaskMarks);
+}
+//******************************************************************************
+INLINE
+std::bitset<NB_MARKS> CGMapBasic::getMarks(CDart* ADart) const
+{
+  return ADart->getMarks() ^ FMaskMarks;
+}
+//******************************************************************************
+INLINE
+int CGMapBasic::getNewMark()
+{
+#ifndef NDEBUG
+  if ( FNbUsedMarks==NB_MARKS )
+    // Pas assez de marques bool�ennes (voir macro NB_MARKS).
+    assert(false);
+
+  if (FNbUsedMarks==FMaxNbUsedMarks)
+    FMaxNbUsedMarks = FNbUsedMarks + 1;
+#endif // NDEBUG
+
+  int mark = FMarks[FNbUsedMarks++];
+  FUsedMarks.set(mark, true);
+  return mark;
+}
+//******************************************************************************
+INLINE
+void CGMapBasic::negateMaskMark(int AMarkNumber)
+{
+  assert(FUsedMarks[AMarkNumber]);
+
+  FMaskMarks.flip(AMarkNumber);
+}
+//******************************************************************************
+INLINE
+bool CGMapBasic::isMarked(const CDart* ADart, int AMarkNumber) const
+{
+  assert(FUsedMarks[AMarkNumber]);
+
+  return ADart->getMark(AMarkNumber)!=getMaskMark(AMarkNumber);
+}
+//******************************************************************************
+INLINE
+void CGMapBasic::setMarkTo(CDart* ADart, int AMarkNumber, bool AState)
+{
+  assert(FUsedMarks[AMarkNumber]);
+  
+  ADart->setMark(AMarkNumber, AState ^ FMaskMarks[AMarkNumber]);
+}
+//******************************************************************************
+INLINE
+void CGMapBasic::setMark(CDart* ADart, int AMarkNumber)
+{
+  setMarkTo(ADart, AMarkNumber, true);
+}
+//******************************************************************************
+INLINE
+void CGMapBasic::unsetMark(CDart* ADart, int AMarkNumber)
+{
+  setMarkTo(ADart, AMarkNumber, false);
+}
+//******************************************************************************
+INLINE
+bool CGMapBasic::isWholeMapUnmarked(int AMarkNumber)
+{
+  for (CDart* current = FFirstDart; current!=NULL; current = current->getNext())
+    if (isMarked(current, AMarkNumber))
+      return false;
+
+  return true;
+}
+//******************************************************************************
+INLINE
+void CGMapBasic::freeMark(int AMarkNumber)
+{
+  // L'assert qui tue:
+  // assert(isWholeMapUnmarked(AMarkNumber));
+
+  assert( 0<=AMarkNumber && AMarkNumber<NB_MARKS );
+  assert( FUsedMarks[AMarkNumber] );
+
+  FUsedMarks.set(AMarkNumber, false);
+  FMarks[-- FNbUsedMarks] = AMarkNumber;
+}
+//******************************************************************************
+INLINE
+bool CGMapBasic::isOrbitUsed(TOrbit AOrbit) const
+{
+  return FUsedOrbits[static_cast<int>(AOrbit)];
+}
+//******************************************************************************
+INLINE
+bool CGMapBasic::isOrbitUsed(CDart* ADart, TOrbit AOrbit) const
+{
+  return ADart->isOrbitUsed(AOrbit);
+}
+//******************************************************************************
+INLINE
+void CGMapBasic::setOrbitUsed(TOrbit AOrbit)
+{
+  FUsedOrbits.set(static_cast<int>(AOrbit), true);
+}
+//******************************************************************************
+INLINE
+void CGMapBasic::unsetOrbitUsed(TOrbit AOrbit)
+{
+  // assert(isOrbitUsed(AOrbit));
+
+  // L'assert qui tue, le retour:
+#ifndef NDEBUG
+  // for (CDart* current = FFirstDart; current != NULL;
+  // current = current->getNext())
+  // assert(current->getEmbedding(AOrbit) == NULL);
+#endif // NDEBUG
+
+  FUsedOrbits.set(static_cast<int>(AOrbit), false);
+}
+//******************************************************************************
+INLINE
+void CGMapBasic::linkAlpha(CDart* ADart1, CDart* ADart2, int ADimension)
+{
+  assert( ADart1!=NULL && ADart2!=NULL);
+  
+  ADart1->setAlpha(ADart2, ADimension);
+  ADart2->setAlpha(ADart1, ADimension);
+}
+//******************************************************************************
+INLINE
+void CGMapBasic::linkAlpha0(CDart* ADart1, CDart* ADart2)
+{
+  linkAlpha(ADart1, ADart2, 0);
+}
+//******************************************************************************
+INLINE
+void CGMapBasic::linkAlpha1(CDart* ADart1, CDart* ADart2)
+{
+  linkAlpha(ADart1, ADart2, 1);
+}
+//******************************************************************************
+INLINE
+void CGMapBasic::linkAlpha2(CDart* ADart1, CDart* ADart2)
+{
+  linkAlpha(ADart1, ADart2, 2);
+}
+//******************************************************************************
+INLINE
+void CGMapBasic::linkAlpha3(CDart* ADart1, CDart* ADart2)
+{
+  linkAlpha(ADart1, ADart2, 3);
+}
+//******************************************************************************
+INLINE
+void CGMapBasic::unlinkAlpha(CDart* ADart, int ADimension)
+{
+  assert( ADart!=NULL );
+  
+  ADart->getAlpha(ADimension)->setFree(ADimension);
+  ADart->setFree(ADimension);
+}
+//******************************************************************************
+INLINE
+void CGMapBasic::unlinkAlpha0(CDart* ADart)
+{
+  unlinkAlpha(ADart, 0);
+}
+//******************************************************************************
+INLINE
+void CGMapBasic::unlinkAlpha1(CDart* ADart)
+{
+  unlinkAlpha(ADart, 1);
+}
+//******************************************************************************
+INLINE
+void CGMapBasic::unlinkAlpha2(CDart* ADart)
+{
+  unlinkAlpha(ADart, 2);
+}
+//******************************************************************************
+INLINE
+void CGMapBasic::unlinkAlpha3(CDart* ADart)
+{
+  unlinkAlpha(ADart, 3);
+}
+//******************************************************************************
+} // namespace GMap3d
+//******************************************************************************

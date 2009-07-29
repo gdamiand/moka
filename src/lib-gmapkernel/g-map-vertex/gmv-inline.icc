@@ -1,0 +1,209 @@
+/*
+ * lib-gmapkernel : Un noyau de 3-G-cartes et des opérations.
+ * Copyright (C) 2004, Moka Team, Université de Poitiers, Laboratoire SIC
+ *               http://www.sic.sp2mi.univ-poitiers.fr/
+ * Copyright (C) 2009, Guillaume Damiand, CNRS, LIRIS,
+ *               guillaume.damiand@liris.cnrs.fr, http://liris.cnrs.fr/
+ *
+ * This file is part of lib-gmapkernel
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+//******************************************************************************
+#include "geometry.hh"
+//******************************************************************************
+namespace GMap3d
+{
+//******************************************************************************
+INLINE
+void CGMapVertex::empty()
+{
+  CGMap::empty();
+
+  setOrbitUsed(ORBIT_VERTEX);
+}
+//******************************************************************************
+INLINE
+CDart* CGMapVertex::newDart()
+{
+  return new CDartVertex(FMaskMarks);
+}
+//******************************************************************************
+INLINE
+void CGMapVertex::delDart(CDart * ADart)
+{
+  assert(ADart != NULL);
+
+  delete static_cast<CDartVertex *>(ADart);
+}
+//******************************************************************************
+INLINE
+CDart* CGMapVertex::addMapDart()
+{
+  return CGMapGeneric::addMapDart();
+}
+//******************************************************************************
+INLINE
+CDartVertex* CGMapVertex::addMapDart(const CVertex & AVertex)
+{
+  CDartVertex * dart = static_cast<CDartVertex *>(CGMapGeneric::addMapDart());
+  setVertex(dart, AVertex);
+  return dart;
+}
+//******************************************************************************
+INLINE
+TCoordinate CGMapVertex::getBurstCoef(int ADim) const
+{
+  assert(ADim>=0 && ADim<=3);
+
+  return FBurstCoef[ADim];
+}
+//******************************************************************************
+INLINE
+void CGMapVertex::setBurstCoef(int ADim, TCoordinate ACoef)
+{
+  assert(ADim >=0 && ADim <=3);
+  assert(ACoef>=0 && ACoef<=1);
+
+  FBurstCoef[ADim]= ACoef;
+}
+//******************************************************************************
+INLINE
+CAttributeVertex * CGMapVertex::findVertex(CDart* ADart)
+{
+  assert(ADart!=NULL);
+
+  return static_cast<CAttributeVertex *>
+    (getAttribute(ADart, ORBIT_VERTEX, ATTRIBUTE_VERTEX));
+}
+//******************************************************************************
+INLINE
+CAttributeVertex * CGMapVertex::getVertex(CDart* ADart) const
+{
+  assert(ADart!=NULL);
+
+  return static_cast<CAttributeVertex *>
+    (ADart->getAttribute(ORBIT_VERTEX, ATTRIBUTE_VERTEX));
+}
+//******************************************************************************
+INLINE
+void CGMapVertex::setVertex(CDart* ADart, const CVertex & AVertex)
+{
+  assert(ADart!=NULL);
+  assert(findVertex(ADart)==NULL);
+
+  addAttribute(ADart, ORBIT_VERTEX, new CAttributeVertex(AVertex));
+}
+//******************************************************************************
+INLINE
+void CGMapVertex::setVertex(CDart* ADart, CAttributeVertex * AVertex)
+{
+  assert(ADart!=NULL);
+  assert(AVertex!=NULL);
+  assert(findVertex(ADart)==NULL);
+
+  addAttribute(ADart, ORBIT_VERTEX, AVertex);
+}
+//******************************************************************************
+INLINE
+void CGMapVertex::updateVertex(CDart* ADart, const CVertex & AVertex)
+{
+  assert(ADart!=NULL);
+
+  CAttributeVertex * vertex = findVertex(ADart);
+
+  if (vertex==NULL)
+    addAttribute(ADart, ORBIT_VERTEX, new CAttributeVertex(AVertex));
+  else
+    *vertex = AVertex;
+}
+//******************************************************************************
+INLINE
+void CGMapVertex::delVertex(CDart* ADart)
+{
+  assert(ADart!=NULL);
+
+  deleteAttribute(ADart, ORBIT_VERTEX, ATTRIBUTE_VERTEX);
+}
+//******************************************************************************
+INLINE
+CAttributeVertex * CGMapVertex::removeVertex(CDart* ADart)
+{
+  assert(ADart!=NULL);
+
+  return
+    static_cast<CAttributeVertex *>(removeAttribute(ADart, ORBIT_VERTEX,
+						    ATTRIBUTE_VERTEX));
+}
+//******************************************************************************
+INLINE
+CVertex & CGMapVertex::getBurstVertex(CDart* ADart) const
+{
+  assert(ADart!=NULL);
+  return (static_cast<CDartVertex *>(ADart))->getBurstVertex();
+}
+//------------------------------------------------------------------------------
+INLINE
+void CGMapVertex::setBurstVertex(CDart* ADart, const CVertex & AVertex)
+{
+  assert(ADart!=NULL);
+  static_cast<CDartVertex *>(ADart)->setBurstVertex(AVertex);
+}
+//******************************************************************************
+INLINE
+CVertex CGMapVertex::computeBurstExtremity(CDart* ADart) const
+{
+  if (isFree0(ADart))
+    return getBurstVertex(ADart);
+
+  TCoordinate k0 = FBurstCoef[0];
+
+  CVertex& v1 = getBurstVertex(       ADart );
+  CVertex& v2 = getBurstVertex(alpha0(ADart));
+
+  // v1 + k0 * (v2-v1) / 2
+
+  k0 /= 2;
+
+  return k0*v2 + (1-k0)*v1;
+}
+//******************************************************************************
+INLINE
+CAttributeVertex*
+CGMapVertex::getDirectInfoAsAttributeVertex(CDart* ADart,
+					    int ADirectInfoIndex) const
+{
+  assert(ADart!=NULL);
+  return static_cast<CAttributeVertex*>(ADart->getDirectInfo(ADirectInfoIndex));
+}
+//******************************************************************************
+INLINE
+CVertex*
+CGMapVertex::getDirectInfoAsVertex(CDart* ADart, int ADirectInfoIndex) const
+{
+  assert(ADart!=NULL);
+  return static_cast<CVertex*>(ADart->getDirectInfo(ADirectInfoIndex));
+}
+//******************************************************************************
+INLINE
+TCoordinate*
+CGMapVertex::getDirectInfoAsCoord(CDart* ADart, int ADirectInfoIndex) const
+{
+  assert(ADart!=NULL);
+  return static_cast<TCoordinate*>(ADart->getDirectInfo(ADirectInfoIndex));
+}
+//******************************************************************************
+} // namespace GMap3d
+//******************************************************************************

@@ -1,0 +1,209 @@
+/*
+ * lib-gmapkernel : Un noyau de 3-G-cartes et des opérations.
+ * Copyright (C) 2004, Moka Team, Université de Poitiers, Laboratoire SIC
+ *               http://www.sic.sp2mi.univ-poitiers.fr/
+ * Copyright (C) 2009, Guillaume Damiand, CNRS, LIRIS,
+ *               guillaume.damiand@liris.cnrs.fr, http://liris.cnrs.fr/
+ *
+ * This file is part of lib-gmapkernel
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+//******************************************************************************
+#include "vertex.hh"
+#include <cassert>
+//******************************************************************************
+INLINE
+CMesh1Diver::~CMesh1Diver()
+{}
+//------------------------------------------------------------------------------
+INLINE
+void CMesh1Diver::setIx(int AIx)
+{
+  assert(0<=AIx && AIx<=FSx);
+  FIx = AIx;
+  FKx1 = FSx==0 ? 0 : FIx/(TCoordinate) FSx;
+  FKx0 = FSx==0 ? 0 : 1-FKx1;
+}
+//------------------------------------------------------------------------------
+INLINE
+CMesh2Diver::~CMesh2Diver()
+{}
+//------------------------------------------------------------------------------
+INLINE
+CVertex CMesh1Diver::computeCurrentVertex() const
+{
+  assert(false);
+  return ORIGIN; // Pour éviter un warning.
+}
+//------------------------------------------------------------------------------
+INLINE
+void CMesh2Diver::setIy(int AIy)
+{
+  assert(0<=AIy && AIy<=FSy);
+  FIy = AIy;
+  FKy1 = FSy==0 ? 0 : FIy/(TCoordinate) FSy;
+  FKy0 = FSy==0 ? 0 : 1-FKy1;
+}
+//------------------------------------------------------------------------------
+INLINE
+CMesh3Diver::~CMesh3Diver()
+{}
+//******************************************************************************
+//******************************************************************************
+INLINE
+CMesh1BasicDiver::CMesh1BasicDiver(int ASx,
+				   const CVertex& AOrigin,
+				   const CVertex& AVectorX)
+  : CMesh1Diver(ASx)
+{
+  FOrigin  = AOrigin;
+  FVectorX = AVectorX;
+}
+//------------------------------------------------------------------------------
+INLINE
+CMesh1BasicDiver::~CMesh1BasicDiver()
+{}
+//------------------------------------------------------------------------------
+INLINE
+CMesh2BasicDiver::CMesh2BasicDiver(int ASx, int ASy,
+				   const CVertex& AOrigin,
+				   const CVertex& AVectorX,
+				   const CVertex& AVectorY)
+  : CMesh2Diver(ASx, ASy)
+{
+  FOrigin  = AOrigin;
+  FVectorX = AVectorX;
+  FVectorY = AVectorY;
+}
+//------------------------------------------------------------------------------
+INLINE
+CMesh2BasicDiver::~CMesh2BasicDiver()
+{}
+//------------------------------------------------------------------------------
+INLINE
+CMesh3BasicDiver::CMesh3BasicDiver(int ASx, int ASy, int ASz,
+				   const CVertex& AOrigin,
+				   const CVertex& AVectorX,
+				   const CVertex& AVectorY,
+				   const CVertex& AVectorZ)
+  : CMesh3Diver(ASx, ASy, ASz)
+{
+  FOrigin  = AOrigin;
+  FVectorX = AVectorX;
+  FVectorY = AVectorY;
+  FVectorZ = AVectorZ;
+}
+//------------------------------------------------------------------------------
+INLINE
+CMesh3BasicDiver::~CMesh3BasicDiver()
+{}
+//******************************************************************************
+//******************************************************************************
+INLINE
+CMesh1Diver::CMesh1Diver(int ASx)
+{
+  assert(ASx>=0);
+
+  FIx =  0 ;
+  FSx = ASx;
+}
+//------------------------------------------------------------------------------
+INLINE
+int CMesh1Diver::getSx() const
+{
+  return FSx;
+}
+//------------------------------------------------------------------------------
+INLINE
+int CMesh2Diver::getSy() const
+{
+  return FSy;
+}
+//------------------------------------------------------------------------------
+INLINE
+CMesh2Diver::CMesh2Diver(int ASx, int ASy)
+  : CMesh1Diver(ASx)
+{
+  assert(ASy>=0);
+
+  FIy =  0 ;
+  FSy = ASy;
+}
+//------------------------------------------------------------------------------
+INLINE
+CMesh3Diver::CMesh3Diver(int ASx, int ASy, int ASz)
+  : CMesh2Diver(ASx, ASy)
+{
+  assert(ASz>=0);
+
+  FIz =  0 ;
+  FSz = ASz;
+}
+//------------------------------------------------------------------------------
+INLINE
+int CMesh3Diver::getSz() const
+{
+  return FSz;
+}
+//------------------------------------------------------------------------------
+INLINE
+void CMesh3Diver::setIz(int AIz)
+{
+  assert(0<=AIz && AIz<=FSz);
+  FIz = AIz;
+  FKz1 = FSz==0 ? 0 : FIz/(TCoordinate) FSz;
+  FKz0 = FSz==0 ? 0 : 1-FKz1;
+}
+//******************************************************************************
+//******************************************************************************
+INLINE
+CVertex CMesh1BasicDiver::computeCurrentVertex() const
+{
+  return FOrigin + FKx1*FVectorX;
+}
+//------------------------------------------------------------------------------
+INLINE
+CVertex CMesh2BasicDiver::computeCurrentVertex() const
+{
+  return FOrigin + FKx1*FVectorX + FKy1*FVectorY;
+}
+//------------------------------------------------------------------------------
+INLINE
+CVertex CMesh3BasicDiver::computeCurrentVertex() const
+{
+  return FOrigin + FKx1*FVectorX + FKy1*FVectorY + FKz1*FVectorZ;
+}
+//******************************************************************************
+//******************************************************************************
+INLINE
+CMesh1VectorDiver::CMesh1VectorDiver(const std::vector<CVertex>& AVector) :
+  CMesh1Diver(AVector.size()-1),
+  FVertices  (AVector)
+{
+}
+//------------------------------------------------------------------------------
+INLINE
+CMesh1VectorDiver::~CMesh1VectorDiver()
+{
+}
+//------------------------------------------------------------------------------
+INLINE
+CVertex CMesh1VectorDiver::computeCurrentVertex() const
+{
+  assert( FIx<=getSx() );
+  return FVertices[FIx];
+}
+//******************************************************************************
