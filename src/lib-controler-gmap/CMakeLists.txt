@@ -48,6 +48,8 @@ add_library (controler-gmap
   precompile/precompile-normal-vector.cc precompile/precompile-sew.cc
   )
 #-------------------------------------------------------------------------------
+find_package(GLUT)
+find_package(OpenGL)
 INCLUDE(FindGLUT REQUIRED)
 INCLUDE_DIRECTORIES(${GLUT_INCLUDE_DIR})
 TARGET_LINK_LIBRARIES(controler-gmap ${GLUT_LIBRARIES})

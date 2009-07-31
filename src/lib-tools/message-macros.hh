@@ -69,9 +69,7 @@
 #include <cassert>
 #include <string>
 
-#include "tools-win32.hh"
-
-DLL_TOOLS void DBG_MSG_SPACES(int n);
+void DBG_MSG_SPACES(int n);
 
 //******************************************************************************
 

@@ -29,7 +29,6 @@
 
 #include "inline-macro.hh"
 #include "vertex.hh"
-#include "tools-win32.hh"
 
 /// Les différents plan de projection possibles.
 typedef enum {XY_Proj, YZ_Proj, XZ_Proj} TProjection;

@@ -108,7 +108,9 @@ void CGMapBasic::randomizeDarts()
 
   if ( first==NULL ) return;
 
+#ifndef _WINDOWS
   srand(time(NULL));
+#endif
   
   first->setNext(NULL);
   

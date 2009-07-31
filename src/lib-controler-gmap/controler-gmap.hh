@@ -64,6 +64,10 @@
 #include "rounding-interface.hh"
 #endif // MODULE_ROUNDING
 
+#ifdef _WINDOWS
+#include <windows.h>
+#endif
+
 #include <GL/gl.h>
 #include <cstdio>
 #include <list>

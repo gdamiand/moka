@@ -25,10 +25,10 @@
 #define FLOATSPINBOX_QT_HH
 
 //----------------- Include std ------------------
-using namespace std ;
 #include <iostream>
-#include <cstdlib>
+using namespace std ;
 
+#include <cstdlib>
 #include <string.h>
 
 //------------- Include QT --------------

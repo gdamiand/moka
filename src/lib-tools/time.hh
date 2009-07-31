@@ -24,7 +24,7 @@
 #ifndef TIME_HH
 #define TIME_HH
 
-#ifdef WIN32
+#ifdef _WINDOWS
 #include <windows.h>
 #include <sys/timeb.h>
 #else
@@ -35,14 +35,13 @@
 #include <iostream>
 
 #include "inline-macro.hh"
-#include "tools-win32.hh"
 
 /** Classe définissant un temps avec une précision en millisecondes.
  *
  * @author Nicolas Guiard
  */
 
-class DLL_TOOLS CTime
+class CTime
 {
 public:
 
@@ -61,7 +60,7 @@ public:
 
   CTime();
 
-#ifdef WIN32
+#ifdef _WINDOWS
 
   /** Constructeur avec initialisation
    *
@@ -75,7 +74,7 @@ public:
 
   CTime(long ASec, long AMilliSec = 0);
 
-#else // WIN32
+#else // _WINDOWS
 
   /** Constructeur avec initialisation
    *
@@ -89,7 +88,7 @@ public:
 
   CTime(long ASec, long AMicroSec = 0);
 
-#endif // WIN32
+#endif // _WINDOWS
 
   //@}
 
@@ -98,7 +97,7 @@ public:
 
   //@{
 
-#ifdef WIN32
+#ifdef _WINDOWS
 
   /** setTime
    *
@@ -122,7 +121,7 @@ public:
 
   void getTime(long * ASec, long * AMilliSec) const;
 
-#else // WIN32
+#else // _WINDOWS
 
   /** setTime
    *
@@ -146,7 +145,7 @@ public:
 
   void getTime(long * ASec, long * AMicroSec) const;
 
-#endif // WIN32
+#endif // _WINDOWS
 
   /** updateTime
    *
@@ -217,7 +216,7 @@ private:
    * La structure "C" contenant les informations sur le temps.
    */
 
-#ifdef WIN32
+#ifdef _WINDOWS
   struct _timeb FTime;
 #else
   struct timeval FTime;
@@ -226,7 +225,7 @@ private:
   //@}
 };
 
-DLL_TOOLS std::ostream & operator << (std::ostream & AStream,
+std::ostream & operator << (std::ostream & AStream,
 				      const CTime & ATime);
   
 #include INCLUDE_INLINE("time.icc")

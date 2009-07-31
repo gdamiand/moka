@@ -33,7 +33,7 @@
 
 namespace GMap3d {
 
-  class DLL_COREFINEMENT CBooleanOperations3d : public CBooleanOperations
+  class CBooleanOperations3d : public CBooleanOperations
   {
   public:
 

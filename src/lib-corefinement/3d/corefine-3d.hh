@@ -38,7 +38,7 @@ namespace GMap3d {
   typedef CGridTree3d<std::list<CDart*>*> TFaceGrid;
   typedef CGridTree3dIterator<std::list<CDart*>*> TFaceGridIter;
 
-  class DLL_COREFINEMENT CCorefine3d : public CCorefine
+  class CCorefine3d : public CCorefine
   {
   public:
 

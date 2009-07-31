@@ -6,42 +6,46 @@ cmake_minimum_required(VERSION 2.6.2)
 project(moka)
 
 ################################################################################
-# Par défaut, il y a 2 types de distributions :
-#   (a spécifier lorsqu'on exécute cmake, par exemple :
+# By default, there are two possible build type:
+#   (fix when executing cmake, for example:
 #	 cd debug; cmake ../src/ -DCMAKE_BUILD_TYPE=Debug)
 # Debug       = non inline + assert 
 # Release     = inline     + no-assert + O3
 
-#SET(CMAKE_CXX_FLAGS_DEBUG "-g")
+#SET(CMAKE_CXX_FLAGS_DEBUG "-g -Wall")
 #SET(CMAKE_CXX_FLAGS_RELEASE "-DINLINE_FLAG -O3 -finline-functions -DNDEBUG")
 
+# If like me you have some problems under windows, set these variable to
+# the correct pathes and file.
+IF (WIN32)
+  SET(GLUT_INCLUDE_DIR "C:/Program Files/Microsoft SDKs/Windows/v6.1/Include/")
+  SET(QTDIR "C:/Qt/qt")
+  SET(QT_QMAKE_EXECUTABLE "C:/Qt/qt/bin/qmake")
+ENDIF (WIN32)
+
 #-------------------------------------------------------------------------------
-# Des options que l'on peut activer ou désactiver selon les besoins.
-# L'option par défaut est mise en majuscule.
+# Some options that we can enable or disable. The default is in uppercase.
 #
 #-------------------------------------------------------------------------------
-# Pour utiliser des librairies dynamique (on) ou statique (OFF)
+# To use dynamic libraires (on) or static (OFF)
 OPTION(BUILD_SHARED_LIBS "Build shared libraries." OFF)
 
 #-------------------------------------------------------------------------------
-# Les modules à activer ou désactiver
+# Some modules that we can enable or disable.
 OPTION(MODULE_MESH "Activate mesh module" ON)
 OPTION(MODULE_ROUNDING "Activate rounding module" ON)
 OPTION(MODULE_COREFINEMENT "Activate corefining module" ON)
 OPTION(MODULE_SPAMOD "Activate spamod module" OFF)
 
 #-------------------------------------------------------------------------------
-# Des options de compilation que l'on peut activer avec ADD_DEFINITIONS(xxx).
+# Some compiler options that we can enable with some ADD_DEFINITIONS(xxx).
 
-# -DNO_ACCENTED_CHARS pour ne pas utiliser de caractères accentués;
-# -DNO_LIST_OPENGL pour ne pas utiliser les listes openGl précompilés;
-
-ADD_DEFINITIONS("-Wall")
-ADD_DEFINITIONS("-g")
+# -DNO_ACCENTED_CHARS to avoid accented char.
+# -DNO_LIST_OPENGL to not use precompile openGl list.
 
 ################################################################################
-# Pour savoir comment gérer les icc : ils sont soit inclus dans les
-# .hh en mode INLINE, soit dans les .cc en mode NONINLINE.
+# To manage correctlty icc files : they are either included in .hh files
+# in INLINE mode, or included in .cc file in NONINLINE mode.
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
    set_property(DIRECTORY PROPERTY
 		IMPLICIT_DEPENDS_INCLUDE_TRANSFORM 
@@ -56,7 +60,7 @@ else (CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif (CMAKE_BUILD_TYPE STREQUAL  "Debug")
 
 #------------------------------------------------------------------------------
-# Les includes pour gmapkernel
+# Includes for gmapkernel
 include_directories (${CMAKE_SOURCE_DIR}/src/lib-gmapkernel)
 include_directories (${CMAKE_SOURCE_DIR}/src/lib-gmapkernel/g-map)
 include_directories (${CMAKE_SOURCE_DIR}/src/lib-gmapkernel/g-map-generic)
@@ -64,10 +68,10 @@ include_directories (${CMAKE_SOURCE_DIR}/src/lib-gmapkernel/g-map-vertex)
 include_directories (${CMAKE_SOURCE_DIR}/src/lib-gmapkernel/tools/geometry)
 include_directories (${CMAKE_SOURCE_DIR}/src/lib-gmapkernel/tools/streams)
 #------------------------------------------------------------------------------
-# Les includes pour tools
+# Includes for tools
 include_directories (${CMAKE_SOURCE_DIR}/src/lib-tools)
 #------------------------------------------------------------------------------
-# Les includes pour controler
+# Includes for controler
 include_directories (${CMAKE_SOURCE_DIR}/src/lib-controler)
 include_directories (${CMAKE_SOURCE_DIR}/src/lib-controler/parameter)
 include_directories (${CMAKE_SOURCE_DIR}/src/lib-controler/parameter/parameter-precompile)
@@ -75,7 +79,7 @@ include_directories (${CMAKE_SOURCE_DIR}/src/lib-controler/parameter/parameter-v
 include_directories (${CMAKE_SOURCE_DIR}/src/lib-controler/precompile)
 include_directories (${CMAKE_SOURCE_DIR}/src/lib-controler/view)
 #-------------------------------------------------------------------------------
-# Les includes pour controler-gmap
+# Includes for controler-gmap
 include_directories (${CMAKE_SOURCE_DIR}/src/lib-controler-gmap)
 include_directories (${CMAKE_SOURCE_DIR}/src/lib-controler-gmap/operations)
 include_directories (${CMAKE_SOURCE_DIR}/src/lib-controler-gmap/parameter)
@@ -83,7 +87,7 @@ include_directories (${CMAKE_SOURCE_DIR}/src/lib-controler-gmap/parameter/parame
 include_directories (${CMAKE_SOURCE_DIR}/src/lib-controler-gmap/parameter/parameter-precompile)
 include_directories (${CMAKE_SOURCE_DIR}/src/lib-controler-gmap/precompile)
 #-------------------------------------------------------------------------------
-# Pour positionner les flags de compilation en fonction des modules
+# Some specific options depending on the enabled modules.
 if (MODULE_COREFINEMENT)
   add_definitions(-DMODULE_COREFINEMENT)
 
@@ -101,7 +105,7 @@ endif (MODULE_COREFINEMENT)
 if (MODULE_MESH)
   add_definitions(-DMODULE_MESH)
 
-  # Les includes pour mesh
+  # Includes for mesh
   include_directories (${CMAKE_SOURCE_DIR}/src/lib-mesh)
 
   add_subdirectory (src/lib-mesh lib-mesh)
@@ -110,7 +114,7 @@ endif (MODULE_MESH)
 if (MODULE_ROUNDING)
   add_definitions(-DMODULE_ROUNDING)
 
-  # Les includes pour rounding
+  # Includes for rounding
   include_directories (${CMAKE_SOURCE_DIR}/src/lib-rounding)
 
   add_subdirectory (src/lib-rounding lib-rounding)
@@ -120,7 +124,7 @@ endif (MODULE_ROUNDING)
 if (MODULE_SPAMOD)
   add_definitions(-DMODULE_SPAMOD)
 
-  # Les includes pour spamod
+  # Includes for spamod
   include_directories (${CMAKE_SOURCE_DIR}/src/lib-spamod)
   include_directories (${CMAKE_SOURCE_DIR}/src/lib-spamod/main)
   include_directories (${CMAKE_SOURCE_DIR}/src/lib-spamod/main/attributes)
@@ -130,7 +134,7 @@ if (MODULE_SPAMOD)
 endif (MODULE_SPAMOD)
 
 if ( MODULE_COREFINEMENT )
-  # Les includes pour tools
+  # Includes for tools
   include_directories (${CMAKE_SOURCE_DIR}/src/lib-tools)
 
   add_subdirectory (src/lib-tools lib-tools)

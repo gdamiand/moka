@@ -26,7 +26,6 @@
 
 #include "attribute.hh"
 #include "bounding-box.hh"
-#include "tools-win32.hh"
 
 /** Classe définissant un attribut boîte englobante qui contient les limites
  * spatiales d'un objet.
@@ -34,7 +33,7 @@
  * @author Nicolas Guiard
  */
 
-class DLL_TOOLS CAttributeBoundingBox : public CAttribute, public CBoundingBox
+class CAttributeBoundingBox : public CAttribute, public CBoundingBox
 {
 public:
 

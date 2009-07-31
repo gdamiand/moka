@@ -27,6 +27,11 @@
 //******************************************************************************
 #include "controler-types.hh"
 #include "parameter.hh"
+
+#ifdef _WINDOWS
+#include <windows.h>
+#endif
+
 #include <GL/gl.h>
 #include <GL/glu.h>
 //******************************************************************************

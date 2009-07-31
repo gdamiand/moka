@@ -6,6 +6,8 @@ add_library (spamod
 )
 
 #-------------------------------------------------------------------------------
+find_package(GLUT)
+find_package(OpenGL)
 INCLUDE(FindOpenGL REQUIRED)
 INCLUDE_DIRECTORIES(${OPENGL_INCLUDE_DIR})
 TARGET_LINK_LIBRARIES(spamod ${OPENGL_LIBRARIES})

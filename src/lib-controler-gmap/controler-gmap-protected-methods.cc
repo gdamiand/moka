@@ -146,7 +146,8 @@ void CControlerGMap::updateSelectionIfNeeded()
   if ( isSelectionChanged() )
     {
       int  nbLevels = getNbSelectionLevels();
-      bool validLast[nbLevels];
+      bool* validLast=new bool[nbLevels];
+      //  bool validLast[nbLevels]; marche pas sous VC++ !!!
       
       for (int i=0; i<nbLevels; ++i)
 	validLast[i] = false;
@@ -173,6 +174,8 @@ void CControlerGMap::updateSelectionIfNeeded()
 	  unsetLastSelectedDart(k);
 
       unsetSelectionChanged();
+
+      delete []validLast;
     }
 }
 //******************************************************************************

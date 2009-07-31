@@ -51,19 +51,20 @@ set (QT_RESOURCES Icones/icones.qrc)
 
 #-------------------------------------------------------------------------------
 # We need QT4 library
-FIND_PACKAGE(Qt4 REQUIRED)
+FIND_PACKAGE(Qt4 COMPONENTS QtOpenGL Qt3Support REQUIRED)
 INCLUDE(${QT_USE_FILE})
 
+add_definitions(${QT_DEFINITIONS})
 include_directories (${QT_QTOPENGL_INCLUDE_DIR})
 
 QT4_WRAP_CPP(MOC_SRCS ${NEED_MOCS})
 QT4_ADD_RESOURCES(RESOURCES_SRCS ${QT_RESOURCES})
 
 #-------------------------------------------------------------------------------
-add_executable(../mokaQt ${IHM_SRCS} ${MOC_SRCS} ${RESOURCES_SRCS})
+add_executable(mokaQt ${IHM_SRCS} ${MOC_SRCS} ${RESOURCES_SRCS})
 
-target_link_libraries (../mokaQt controler-gmap controler gmapkernel)
+target_link_libraries (mokaQt controler-gmap controler gmapkernel)
 
-target_link_libraries(../mokaQt ${QT_LIBRARIES} Qt3Support)
-target_link_libraries(../mokaQt ${QT_QTOPENGL_LIBRARY})
+target_link_libraries(mokaQt ${QT_LIBRARIES} ${QT_QT3SUPPORT_LIBRARY})
+target_link_libraries(mokaQt ${QT_QTOPENGL_LIBRARY})
 #-------------------------------------------------------------------------------

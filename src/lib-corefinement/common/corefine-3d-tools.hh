@@ -31,7 +31,7 @@
 
 namespace GMap3d {
 
-  class DLL_COREFINEMENT CCorefine3dTools : public CCorefine2dTools
+  class CCorefine3dTools : public CCorefine2dTools
   {
   public:
 

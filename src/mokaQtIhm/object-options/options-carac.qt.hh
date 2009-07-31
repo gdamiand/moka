@@ -27,6 +27,9 @@
 //--------- Include autres classes developees ----------
 #include "controler-gmap.hh"
 
+#ifdef _WINDOWS
+#include <windows.h>
+#endif
 
 //--------------------- Include QT --------------------
 

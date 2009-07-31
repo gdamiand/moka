@@ -34,7 +34,6 @@
 #include <climits>
 
 #include "bounding-box.hh"
-#include "tools-win32.hh"
 
 template <class T> class CGrid3dIterator;
 

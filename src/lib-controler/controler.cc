@@ -29,6 +29,10 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
+#ifdef _WINDOWS
+#include <direct.h>
+#endif
+
 using namespace std;
 //******************************************************************************
 #define DEFAULT_DIRECTORY ".moka"
@@ -66,10 +70,14 @@ CControler::CControler(int ANb, const std::string & AName,
   FConfigDirectory += AName;
   
   // Création du répertoire FConfigDirectory au cas ou il n'existe pas déjà.
+#ifdef _WINDOWS
+  _mkdir(FConfigDirectory.c_str());
+#else
 #if defined(_MSC_VER) || defined(__MINGW32__)
   mkdir(FConfigDirectory.c_str());
 #else
   mkdir(FConfigDirectory.c_str(), 0755);
+#endif
 #endif
 
 //----------------------------------------------------------------------------

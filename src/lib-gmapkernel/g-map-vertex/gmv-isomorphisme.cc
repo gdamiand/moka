@@ -23,7 +23,11 @@
 
 //******************************************************************************
 #include "g-map-vertex.hh"
+
+#ifndef _WINDOWS
 #include "chrono.hh"
+#endif
+
 #include <iostream>
 using namespace std;
 using namespace GMap3d;
@@ -37,9 +41,11 @@ int CGMapVertex::findMotif( CGMapVertex* AMap )
    bool matchOne = false;
    bool matchAll = true;
 
+#ifndef _WINDOWS
    CChrono c;
    c.start();
-   
+#endif
+
    CDynamicCoverageAll it1(this);
    CDynamicCoverageAll it2(AMap);
    
@@ -71,8 +77,10 @@ int CGMapVertex::findMotif( CGMapVertex* AMap )
    AMap->unmarkAll(markTreated2);
    AMap->freeMark(markTreated2);
 
+#ifndef _WINDOWS
    c.stop();
    c.display("Temps de recherche du motif");
+#endif
    
    if ( !matchAll )
      {
@@ -93,8 +101,10 @@ unsigned int CGMapVertex::countNumberOfMotifs( CGMapVertex* AMap )
   bool match = false;
 
 
+#ifndef _WINDOWS
   CChrono c; c.start();
-  
+#endif
+
   CDynamicCoverageAll it1(this);
   CDynamicCoverageAll it2(AMap);
   
@@ -117,8 +127,10 @@ unsigned int CGMapVertex::countNumberOfMotifs( CGMapVertex* AMap )
    freeMark(markTreated);
    AMap->freeMark(markTreated2);
 
+#ifndef _WINDOWS
    c.stop();
    c.display("Temps de recherche de tout les motifs");
+#endif
    
    freeDirectInfo(index);
 

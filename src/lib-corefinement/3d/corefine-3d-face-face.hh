@@ -56,7 +56,7 @@ namespace GMap3d {
   typedef CGrid3dIterator< std::pair< std::list<CDart*>,
 				      std::list<CDart*> > > TCorefFaceGridIter;
 
-  class DLL_COREFINEMENT CCorefine3dFF : public CCorefine
+  class CCorefine3dFF : public CCorefine
   {
   public:
     CCorefine3dFF(CGMapVertex * AMap, bool ACalculateOrientation = true,

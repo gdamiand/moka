@@ -125,11 +125,21 @@ void CPrecompileFace::drawModel()
   bool bursted1 = ! areEqual(FParameterGMapV->getMap()->getBurstCoef(1), 1.0);
   int treated   = FParameterGMapV->getMap()->getNewMark();
 
+#ifdef _WINDOWS
+#define WINAPI __stdcall
+#else
+#define WINAPI
+#endif
+  
   FTess = gluNewTess();
-  gluTessCallback(FTess, GLU_TESS_BEGIN,   (GLvoid (*) ( )) & glBegin    );
-  gluTessCallback(FTess, GLU_TESS_END,     (GLvoid (*) ( )) & glEnd      );
-  gluTessCallback(FTess, GLU_TESS_VERTEX,  (GLvoid (*) ( )) & glVertex3dv);
-  gluTessCallback(FTess, GLU_TESS_COMBINE, (GLvoid (*) ( )) & monCombine );
+  gluTessCallback(FTess, GLU_TESS_BEGIN,
+		  (GLvoid (WINAPI *) ( )) & glBegin    );
+  gluTessCallback(FTess, GLU_TESS_END,
+		  (GLvoid (WINAPI *) ( )) & glEnd      );
+  gluTessCallback(FTess, GLU_TESS_VERTEX,
+		  (GLvoid (WINAPI *) ( )) & glVertex3dv);
+  gluTessCallback(FTess, GLU_TESS_COMBINE,
+		  (GLvoid (WINAPI *) ( )) & monCombine );
 
   // Couleur globale :
   if ( !FParameterFace->getRandomCLFace  () &&

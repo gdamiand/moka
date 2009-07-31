@@ -38,6 +38,10 @@
 #include "parameter-axis.hh"
 #include "parameter-grid.hh"
 
+#ifdef _WINDOWS
+#include <windows.h>
+#endif
+
 #include <GL/gl.h>
 #include <cstdio>
 #include <list>

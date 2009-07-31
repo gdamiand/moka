@@ -665,18 +665,18 @@ void CControlerGMap::treatFilledFace( ofstream & fout, CDart * dart,
 void CControlerGMap::saveGridIncludingBox( ofstream & fout )
 {
   CVertex v1, v2, p1, p2;
-  CVertex min(0,0,0), max(0,0,0);
+  CVertex vmin(0,0,0), vmax(0,0,0);
   bool init=true;
 
   // Axis:
   {
     // X
-    v1=CVertex(0,0,0); updateMinMax2d(v1,min,max,init); init=false;
-    v1=CVertex(1,0,0); updateMinMax2d(v1,min,max,init);
+    v1=CVertex(0,0,0); updateMinMax2d(v1,vmin,vmax,init); init=false;
+    v1=CVertex(1,0,0); updateMinMax2d(v1,vmin,vmax,init);
     // Y
-    v1=CVertex(0,1,0); updateMinMax2d(v1,min,max,init);
+    v1=CVertex(0,1,0); updateMinMax2d(v1,vmin,vmax,init);
     // Z
-    v1=CVertex(0,0,1); updateMinMax2d(v1,min,max,init);
+    v1=CVertex(0,0,1); updateMinMax2d(v1,vmin,vmax,init);
   }
 	
   // Grid:
@@ -699,16 +699,16 @@ void CControlerGMap::saveGridIncludingBox( ofstream & fout )
 	    /* X direction: */
 	    if (i>=0 || !py)
 	      {
-		v1=CVertex(xmin, i, 0); updateMinMax2d(v1,min,max,init);
+		v1=CVertex(xmin, i, 0); updateMinMax2d(v1,vmin,vmax,init);
 		init=false;
-		v1=CVertex(size, i, 0); updateMinMax2d(v1,min,max,init);
+		v1=CVertex(size, i, 0); updateMinMax2d(v1,vmin,vmax,init);
 	      }
 	    /* Y direction: */
 	    if (i>=0 || !px)
 	      {
-		v1=CVertex(i, ymin, 0); updateMinMax2d(v1,min,max,init);
+		v1=CVertex(i, ymin, 0); updateMinMax2d(v1,vmin,vmax,init);
 		init=false;
-		v1=CVertex(i, size, 0); updateMinMax2d(v1,min,max,init);
+		v1=CVertex(i, size, 0); updateMinMax2d(v1,vmin,vmax,init);
 	      }
 	  }
 	if (xz)
@@ -716,16 +716,16 @@ void CControlerGMap::saveGridIncludingBox( ofstream & fout )
 	    /* X direction: */
 	    if (i>=0 || !pz)
 	      {
-		v1=CVertex(xmin, 0, i); updateMinMax2d(v1,min,max,init);
+		v1=CVertex(xmin, 0, i); updateMinMax2d(v1,vmin,vmax,init);
 		init=false;
-		v1=CVertex(size, 0, i); updateMinMax2d(v1,min,max,init);
+		v1=CVertex(size, 0, i); updateMinMax2d(v1,vmin,vmax,init);
 	      }
 	    /* Z direction: */
 	    if (i>=0 || !px)
 	      {
-		v1=CVertex(i, 0, zmin); updateMinMax2d(v1,min,max,init);
+		v1=CVertex(i, 0, zmin); updateMinMax2d(v1,vmin,vmax,init);
 		init=false;
-		v1=CVertex(i, 0, size); updateMinMax2d(v1,min,max,init);
+		v1=CVertex(i, 0, size); updateMinMax2d(v1,vmin,vmax,init);
 	      }
 	  }
 	if (yz)
@@ -733,22 +733,22 @@ void CControlerGMap::saveGridIncludingBox( ofstream & fout )
 	    /* Y direction: */
 	    if (i>=0 || !pz)
 	      {
-		v1=CVertex(0, ymin, i); updateMinMax2d(v1,min,max,init);
+		v1=CVertex(0, ymin, i); updateMinMax2d(v1,vmin,vmax,init);
 		init=false;
-		v1=CVertex(0, size, i);updateMinMax2d(v1,min,max,init);
+		v1=CVertex(0, size, i);updateMinMax2d(v1,vmin,vmax,init);
 	      }
 	    /* Z direction: */
 	    if (i>=0 || !py)
 	      {
-		v1=CVertex(0, i, zmin); updateMinMax2d(v1,min,max,init);
+		v1=CVertex(0, i, zmin); updateMinMax2d(v1,vmin,vmax,init);
 		init=false;
-		v1=CVertex(0, i, size); updateMinMax2d(v1,min,max,init);
+		v1=CVertex(0, i, size); updateMinMax2d(v1,vmin,vmax,init);
 	      }
 	  }
       }
   }
 
-  debutComposante(fout,min,max);
+  debutComposante(fout,vmin,vmax);
 }
 
 //******************************************************************************

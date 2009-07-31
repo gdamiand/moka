@@ -27,7 +27,7 @@
 
 #include <QtGui/QCloseEvent>
 #include <QtGui/QMouseEvent>
-#include <QPainter>
+#include <QtGui/QPainter>
 
 using namespace GMap3d ;
 

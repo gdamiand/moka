@@ -27,6 +27,9 @@
 #include <cstring>
 
 #ifdef MODULE_SPAMOD
+#ifdef _WINDOWS
+#include <windows.h>
+#endif
 #include <GL/glut.h>
 #endif // MODULE_SPAMOD
 

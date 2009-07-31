@@ -25,16 +25,15 @@
 #ifndef COREF_API_HH
 #define COREF_API_HH
 
-#include "corefinement-win32.hh"
 //******************************************************************************
 namespace GMap3d
 {
-  class DLL_COREFINEMENT CGMapVertex;
-  class DLL_COREFINEMENT CDart;
+  class CGMapVertex;
+  class CDart;
 }
-class DLL_COREFINEMENT CVertex;
+class CVertex;
 //******************************************************************************
-class DLL_COREFINEMENT CCorefinementAPI
+class CCorefinementAPI
 {
 private:
   GMap3d::CGMapVertex * FMap;

@@ -26,7 +26,7 @@
 INLINE
 CTime::CTime()
 {
-#ifdef WIN32
+#ifdef _WINDOWS
   _ftime(&FTime);
 #else
   gettimeofday(&FTime, NULL);
@@ -34,7 +34,7 @@ CTime::CTime()
 }
 
 //******************************************************************************
-#ifdef WIN32
+#ifdef _WINDOWS
 
 INLINE
 CTime::CTime(long ASec, long AMilliSec)
@@ -62,7 +62,7 @@ void CTime::getTime(long * ASec, long * AMilliSec) const
 }
 
 //******************************************************************************
-#else // WIN32
+#else // _WINDOWS
 
 INLINE
 CTime::CTime(long ASec, long AMicroSec)
@@ -89,13 +89,13 @@ void CTime::getTime(long * ASec, long * AMicroSec) const
   *AMicroSec = FTime.tv_usec;
 }
 
-#endif // WIN32
+#endif // _WINDOWS
 //******************************************************************************
 
 INLINE
 void CTime::updateTime()
 {
-#ifdef WIN32
+#ifdef _WINDOWS
   _ftime(&FTime);
 #else
   gettimeofday(&FTime, NULL);
@@ -107,7 +107,7 @@ void CTime::updateTime()
 INLINE
 void CTime::displayTime(std::ostream & AStream, bool ADisplayAll) const
 {
-#ifdef WIN32
+#ifdef _WINDOWS
   time_t tmp = FTime.time;
 #else
   time_t tmp = FTime.tv_sec;
@@ -117,7 +117,7 @@ void CTime::displayTime(std::ostream & AStream, bool ADisplayAll) const
 
   long msec, usec;
 
-#ifdef WIN32
+#ifdef _WINDOWS
   msec = FTime.millitm;
   usec = 0;
 #else
@@ -142,7 +142,7 @@ void CTime::displayTime(std::ostream & AStream, bool ADisplayAll) const
     display = ADisplayAll;
   }
 
-#ifndef WIN32
+#ifndef _WINDOWS
   if (usec > 0 || display)
     AStream << usec << " µs";
 #endif
@@ -155,7 +155,7 @@ CTime CTime::operator + (const CTime & ATime) const
 {
   CTime t;
 
-#ifdef WIN32
+#ifdef _WINDOWS
   t.FTime.time = this->FTime.time + ATime.FTime.time;
   t.FTime.millitm = this->FTime.millitm + ATime.FTime.millitm;
 
@@ -183,7 +183,7 @@ CTime CTime::operator - (const CTime & ATime) const
 {
   CTime t;
 
-#ifdef WIN32
+#ifdef _WINDOWS
   t.FTime.time = this->FTime.time - ATime.FTime.time;
 
   if (ATime.FTime.millitm <= this->FTime.millitm)
@@ -211,7 +211,7 @@ CTime CTime::operator - (const CTime & ATime) const
 INLINE
 const CTime & CTime::operator += (const CTime & ATime)
 {
-#ifdef WIN32
+#ifdef _WINDOWS
   FTime.time += ATime.FTime.time;
   FTime.millitm += ATime.FTime.millitm;
 
@@ -237,7 +237,7 @@ const CTime & CTime::operator += (const CTime & ATime)
 INLINE
 const CTime & CTime::operator -= (const CTime & ATime)
 {
-#ifdef WIN32
+#ifdef _WINDOWS
   FTime.time -= ATime.FTime.time;
 
   if (ATime.FTime.millitm > FTime.millitm) {

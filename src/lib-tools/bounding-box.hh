@@ -25,14 +25,13 @@
 #define BOUNDING_BOX_HH
 
 #include "vertex.hh"
-#include "tools-win32.hh"
 
 /** Classe définissant une boîte englobante.
  *
  * @author Nicolas Guiard
  */
 
-class DLL_TOOLS CBoundingBox
+class CBoundingBox
 {
 public:
 
@@ -254,6 +253,6 @@ private:
  *
  * Cet opérateur permet d'afficher les coordonnées de la boîte englobante.
  */
-DLL_TOOLS std::ostream & operator << (std::ostream & AStream, const CBoundingBox & ABB);
+std::ostream & operator << (std::ostream & AStream, const CBoundingBox & ABB);
 
 #endif

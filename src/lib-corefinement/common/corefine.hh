@@ -25,12 +25,11 @@
 #define COREFINE_HH
 
 #include "g-map-vertex.hh"
-#include "corefinement-win32.hh"
 
 namespace GMap3d
 {
 
-  class DLL_COREFINEMENT CCorefine
+  class CCorefine
   {
   public:
 

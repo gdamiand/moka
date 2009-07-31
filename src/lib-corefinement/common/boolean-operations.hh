@@ -25,7 +25,6 @@
 #define BOOLEAN_OPERATIONS_HH
 
 #include "g-map-vertex.hh"
-#include "corefinement-win32.hh"
 
 /** Classe définissant les opérations booléennes entre deux objets
  *
@@ -50,14 +49,14 @@ typedef enum {BO_Union, BO_Intersection,
  * TBooleanOperation.
  */
 
-DLL_COREFINEMENT std::ostream & operator << (std::ostream & AStream, TBooleanOperation ABoolOp);
+std::ostream & operator << (std::ostream & AStream, TBooleanOperation ABoolOp);
 
 //@}
 
 namespace GMap3d
 {
 
-class DLL_COREFINEMENT CBooleanOperations
+class CBooleanOperations
 {
 public:
 

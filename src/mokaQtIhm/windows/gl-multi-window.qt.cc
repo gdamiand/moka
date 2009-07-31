@@ -25,6 +25,10 @@
 #include "window.qt.hh"
 #include "HtmlEntities.hh"
 
+#ifdef _WINDOWS
+#include <windows.h>
+#endif
+
 #ifdef __APPLE__
 #include <GLUT/glut.h>
 #else

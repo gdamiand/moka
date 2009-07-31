@@ -28,11 +28,11 @@
 #include "general-tools.hh"
 #include "edge-intersection.hh"
 
-class DLL_COREFINEMENT CBoundingBox;
+class CBoundingBox;
 
 namespace GMap3d {
 
-  class DLL_COREFINEMENT CCorefine2dTools : public CGeneralTools
+  class CCorefine2dTools : public CGeneralTools
   {
   public:
 

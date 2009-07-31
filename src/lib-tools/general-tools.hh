@@ -25,10 +25,9 @@
 #define GENERAL_TOOLS_HH
 
 #include "g-map-vertex.hh"
-#include "tools-win32.hh"
 
-class DLL_TOOLS CPlane;
-class DLL_TOOLS CBoundingBox;
+class CPlane;
+class CBoundingBox;
 
 namespace GMap3d {
 
@@ -37,7 +36,7 @@ namespace GMap3d {
    * @author Nicolas Guiard
    */
 
-  class DLL_TOOLS CGeneralTools
+  class CGeneralTools
   {
   public:
 

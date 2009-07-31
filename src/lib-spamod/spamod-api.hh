@@ -27,6 +27,10 @@
 //******************************************************************************
 #include "spamod-types.hh"
 
+#ifdef _WINDOWS
+#include <windows.h>
+#endif
+
 #include <GL/gl.h>
 #include <bitset>
 

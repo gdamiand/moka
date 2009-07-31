@@ -29,6 +29,10 @@
 #include "view.hh"
 #include "vertex.hh"
 
+#ifdef _WINDOWS
+#include <windows.h>
+#endif
+
 #include <GL/glu.h>
 #include <GL/glut.h>
 #include <list>

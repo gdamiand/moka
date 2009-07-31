@@ -28,7 +28,6 @@
 
 #include "inline-macro.hh"
 #include "g-map-vertex.hh"
-#include "corefinement-win32.hh"
 
 namespace GMap3d
 {
@@ -46,7 +45,7 @@ namespace GMap3d
    * TPositionOnEdge.
    */
 
-  DLL_COREFINEMENT std::ostream & operator << (std::ostream & AStream, TPositionOnEdge APos);
+  std::ostream & operator << (std::ostream & AStream, TPositionOnEdge APos);
 
   //@}
 
@@ -54,7 +53,7 @@ namespace GMap3d
    *
    * @author Nicolas Guiard
    */
-  class DLL_COREFINEMENT CEdgeIntersection
+  class CEdgeIntersection
   {
   public:
 
@@ -118,7 +117,7 @@ namespace GMap3d
     //@}
   };
 
-  DLL_COREFINEMENT std::ostream& operator<<(std::ostream & AStream,
+  std::ostream& operator<<(std::ostream & AStream,
 			                                const CEdgeIntersection & AInter);
 
 } // namespace GMap3d
