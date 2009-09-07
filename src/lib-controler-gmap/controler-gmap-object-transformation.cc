@@ -536,3 +536,21 @@ void CControlerGMap::updatePonderationCoefs()
 			     getPonderationStretchOutMax());
 }
 //******************************************************************************
+CVertex CControlerGMap::getVertexPosition() const
+{
+  if ( getLastSelectedDart()==NULL ) return ORIGIN;
+  return *FMap->findVertex(getLastSelectedDart());
+}
+//------------------------------------------------------------------------------
+void CControlerGMap::setVertexPosition(const CVertex& AVertex)
+{
+  if ( getLastSelectedDart()!=NULL && getVertexPosition()!=AVertex)
+    {
+      undoRedoPreSave();
+      FMap->translate(getSelectionMark(), AVertex-getVertexPosition());
+      undoRedoPostSaveOk();
+    
+      setModelChanged();
+    }
+}
+//******************************************************************************

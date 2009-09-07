@@ -186,6 +186,7 @@ Window :: Window() :
    FDialogRotation    = new dialogRotation(this , FControler);
    FDialogHomothetie  = new dialogHomothetie(this , FControler);
    FDialogTranslation = new dialogTranslation(this , FControler);
+   FDialogMoveto      = new dialogMoveto(this , FControler);
    FCouleurs          = new OptionCouleurs(this) ;
 
    updateStatusBar() ;
@@ -1619,6 +1620,17 @@ void Window :: callbackScaleWindow()
    resetActiveOperations();
    getControler() -> setMode(MODE_SCALE);
    FOperationActive =  FDialogHomothetie ;
+   FOperationActive -> update();
+   FOperationActive -> setVisible(true);
+   updateStatusBar() ;
+   repaint();
+}
+
+void Window :: callbackMovetoWindow()
+{
+   resetActiveOperations();
+   getControler() -> setMode(MODE_SELECTION);
+   FOperationActive =  FDialogMoveto ;
    FOperationActive -> update();
    FOperationActive -> setVisible(true);
    updateStatusBar() ;

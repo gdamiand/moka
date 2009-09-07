@@ -34,7 +34,9 @@
 
 // Constructeur
 //-------------
-champsOperations :: champsOperations(QToolBar * parent , QBoxLayout *  Layout)
+champsOperations :: champsOperations(QToolBar * parent ,
+				     QBoxLayout *  Layout,
+				     bool WithRecuperer)
       :
       QWidget(parent),
       FParent(parent)
@@ -51,8 +53,11 @@ champsOperations :: champsOperations(QToolBar * parent , QBoxLayout *  Layout)
    FSaisieZ = new FloatSpinBox(0.5) ;
    FSaisieZ -> setWrapping(true) ;
 
-   FRecuperer = new QPushButton(*HTML::decode("R&eacute;cuperer")) ;
-
+   if ( WithRecuperer )
+     FRecuperer = new QPushButton(*HTML::decode("R&eacute;cuperer")) ;
+   else
+     FRecuperer = NULL;
+   
    if (Layout != NULL)
    {
       Layout -> addWidget(FAffX);
@@ -62,7 +67,7 @@ champsOperations :: champsOperations(QToolBar * parent , QBoxLayout *  Layout)
       Layout -> addWidget(FAffZ);
       Layout -> addWidget(FSaisieZ);
       Layout -> addSpacing(8);
-      Layout -> addWidget(FRecuperer);
+      if ( FRecuperer!=NULL ) Layout -> addWidget(FRecuperer);
    }
    else
    {
@@ -73,7 +78,7 @@ champsOperations :: champsOperations(QToolBar * parent , QBoxLayout *  Layout)
       parent -> addWidget(FAffZ);
       parent -> addWidget(FSaisieZ);
       parent -> addWidget(new SpaceWidget(8, 8));
-      parent -> addWidget(FRecuperer);
+      if ( FRecuperer!=NULL ) parent -> addWidget(FRecuperer);
    }
 }
 

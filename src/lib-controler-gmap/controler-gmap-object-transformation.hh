@@ -77,6 +77,10 @@ float getObjectScaleCoef(int ADim) const;
 void setObjectScalePonderation(bool AActive);
 bool getObjectScalePonderation() const;
 void toggleObjectScalePonderation();
+
+CVertex getVertexPosition() const;
+void    setVertexPosition(const CVertex& AVertex);
+
 //@}
 
 //******************************************************************************

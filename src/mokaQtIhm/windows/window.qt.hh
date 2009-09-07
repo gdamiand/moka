@@ -50,6 +50,7 @@ namespace GMap3d
 #include "operation-chanfreinage.qt.hh"
 
 #include "dialog-do.qt.hh"
+#include "dialog-moveto.qt.hh"
 #include "dialog-homothetie.qt.hh"
 #include "dialog-translation.qt.hh"
 #include "dialog-rotation.qt.hh"
@@ -277,6 +278,7 @@ public slots:
   void callbackTranslateWindow ( ) ;
   void callbackRotateWindow ( ) ;
   void callbackScaleWindow ( ) ;
+  void callbackMovetoWindow ( ) ;
 
   // -- coudre
   void callbackIntuitiveTopoSew ( ) ;
@@ -967,6 +969,7 @@ private:
   dialogOperations * FDialogRotation ;
   dialogOperations * FDialogHomothetie ;
   dialogOperations * FDialogTranslation ;
+  dialogOperations * FDialogMoveto ;
    
 #ifdef MODULE_GEOLOGY
   // Pointeur sur la fenetre de construction active
@@ -974,7 +977,7 @@ private:
 #endif // MODULE_GEOLOGY
   
   // Pointeur sur l'operation active 
-  // Operations : Rotation, translation, homothetie
+  // Operations : Rotation, translation, homothetie, moveto
   dialogOperations * FOperationActive ;
 
   // Pointeur sur l'ensemble des actions

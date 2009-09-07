@@ -56,7 +56,8 @@ public:
    * @param Layout Si NULL, le widget est ajoute a la toolbar parent,
                    sinon il est ajoute au Layout.
    */
-  champsOperations ( QToolBar * parent , QBoxLayout * Layout = NULL) ;
+  champsOperations ( QToolBar * parent , QBoxLayout * Layout = NULL,
+		     bool WithRecuperer = true) ;
 
   /**
    * Destructeur

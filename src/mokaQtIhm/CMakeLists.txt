@@ -10,9 +10,9 @@ object-creations/creation-cylindre.qt.cc  object-creations/creation-pyramide.qt.
 object-creations/creation-maillage.qt.cc  object-creations/creation-sphere.qt.cc
 object-creations/creation-objet.qt.cc     object-creations/creation-tore.qt.cc
 
-object-operations/dialog-homothetie.qt.cc 
-object-operations/dialog-operations.qt.cc  object-operations/dialog-translation.qt.cc
-object-operations/dialog-rotation.qt.cc    object-operations/operation-chanfreinage.qt.cc
+object-operations/dialog-homothetie.qt.cc object-operations/dialog-moveto.qt.cc
+object-operations/dialog-operations.qt.cc object-operations/dialog-translation.qt.cc
+object-operations/dialog-rotation.qt.cc   object-operations/operation-chanfreinage.qt.cc
 
 object-options/options-affichage.qt.cc  object-options/options-frame.qt.cc
 object-options/options-carac.qt.cc      object-options/options-interpolation.qt.cc
@@ -21,30 +21,30 @@ object-options/options-divers.qt.cc     object-options/options-vue.qt.cc
 object-options/options-extrusion.qt.cc
 
 utils/floatSpinBox.qt.cc  utils/HtmlEntities.cc  
-utils/IdWidgets.qt.cc  utils/SpaceWidget.qt.cc
+utils/IdWidgets.qt.cc     utils/SpaceWidget.qt.cc
 
 windows/dialog-do.qt.cc windows/gl-multi-window.qt.cc windows/menu-bar.qt.cc
-windows/window.qt.cc windows/gl-window.qt.cc windows/select-bar.qt.cc
+windows/window.qt.cc    windows/gl-window.qt.cc       windows/select-bar.qt.cc
 )
 
 set (NEED_MOCS 
-object-creations/creation-boutons.qt.hh         object-operations/operation-chanfreinage.qt.hh
-object-creations/creation-brin.qt.hh            object-options/options-affichage.qt.hh
-object-creations/creation-cylindre.qt.hh        object-options/options-carac.qt.hh
-object-creations/creation-maillage.qt.hh        object-options/options-couleurs.qt.hh
-object-creations/creation-objet.qt.hh           object-options/options-divers.qt.hh
-object-creations/creation-options.qt.hh         object-options/options-extrusion.qt.hh
-object-creations/creation-polygone.qt.hh        object-options/options-frame.qt.hh
-object-creations/creation-pyramide.qt.hh        object-options/options-interpolation.qt.hh
-object-creations/creation-sphere.qt.hh          object-options/options-ponderation.qt.hh
-object-creations/creation-tore.qt.hh            object-options/options-vue.qt.hh
-utils/floatSpinBox.qt.hh                        utils/IdWidgets.qt.hh
-utils/SpaceWidget.qt.hh                         windows/dialog-do.qt.hh
-object-operations/dialog-homothetie.qt.hh       windows/gl-multi-window.qt.hh
-object-operations/dialog-operations.qt.hh       windows/gl-window.qt.hh
-object-operations/dialog-rotation.qt.hh         windows/menu-bar.qt.hh
-windows/select-bar.qt.hh
-object-operations/dialog-translation.qt.hh      windows/window.qt.hh
+object-creations/creation-boutons.qt.hh    object-operations/operation-chanfreinage.qt.hh
+object-creations/creation-brin.qt.hh       object-options/options-affichage.qt.hh
+object-creations/creation-cylindre.qt.hh   object-options/options-carac.qt.hh
+object-creations/creation-maillage.qt.hh   object-options/options-couleurs.qt.hh
+object-creations/creation-objet.qt.hh      object-options/options-divers.qt.hh
+object-creations/creation-options.qt.hh    object-options/options-extrusion.qt.hh
+object-creations/creation-polygone.qt.hh   object-options/options-frame.qt.hh
+object-creations/creation-pyramide.qt.hh   object-options/options-interpolation.qt.hh
+object-creations/creation-sphere.qt.hh     object-options/options-ponderation.qt.hh
+object-creations/creation-tore.qt.hh       object-options/options-vue.qt.hh
+utils/floatSpinBox.qt.hh                   utils/IdWidgets.qt.hh
+utils/SpaceWidget.qt.hh                    windows/dialog-do.qt.hh
+object-operations/dialog-homothetie.qt.hh  windows/gl-multi-window.qt.hh
+object-operations/dialog-operations.qt.hh  windows/gl-window.qt.hh
+object-operations/dialog-rotation.qt.hh    windows/menu-bar.qt.hh
+object-operations/dialog-moveto.qt.hh      windows/select-bar.qt.hh
+object-operations/dialog-translation.qt.hh windows/window.qt.hh
 )
 
 set (QT_RESOURCES Icones/icones.qrc)

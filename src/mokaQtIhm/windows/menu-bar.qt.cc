@@ -243,6 +243,9 @@ MenuBar :: MenuBar(Window * parent)
    operations ->  addAction(pop1 , *HTML::decode("&Homoth&eacute;tie") ,
                             FParent ,
                             SLOT(callbackScaleWindow()) , Qt::Key_H) ;
+   operations ->  addAction("&Move to" , FParent ,
+                            SLOT(callbackMovetoWindow()),
+			    Qt::SHIFT + Qt::Key_T) ;
 
    operations -> addSeparator() ;
 
