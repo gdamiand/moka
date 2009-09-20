@@ -27,6 +27,12 @@
 
 public:
 
+/** Calcule le nombre d'arêtes non degré 2 local.
+ * Si ce nombre vaut zéro, la carte représente une 2 quasi-variété.
+ * @return le nombre d'arêtes non degré 2 local.
+ */
+unsigned int countNonLocalDegreeTwoEdges();
+
 /**
  *  Calcule les caractéristiques globales de la carte (nombre de brins,
  *  de cellules, de bords). Pour ne pas calculer certaines caractéristiques,

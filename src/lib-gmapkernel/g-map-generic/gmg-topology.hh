@@ -73,6 +73,13 @@ void countBorders(int AMarkNumber,
 void countBorders(CDart* ADart, TOrbit AOrbit,
 		  int* ANb0, int* ANb1, int* ANb2, int* ANb3);
 
+/** Count the number of edges with local degree different from two.
+ * Remark: if this number is equal to zero, the map corresponds to a
+ * 2 dimensional quasi-manifols.
+ * @return the number of edges with local degree different from two.
+ */
+unsigned int countNonLocalDegreeTwoEdges();
+
 /**
  * Compte le nombre de cellules incidentes à un brin marqué avec la marque
  * AMarkNumber. Pour ne compter que certains types de cellules, mettre à

@@ -29,6 +29,9 @@
 using namespace GMap3d;
 using namespace std;
 //******************************************************************************
+unsigned int CControlerGMap::countNonLocalDegreeTwoEdges()
+{ return FMap->countNonLocalDegreeTwoEdges(); }
+//******************************************************************************
 void CControlerGMap::getMapGlobalCharacteristics(int* ANbDarts,
 						 int* ANbVertices, int* ANbEdges,
 						 int* ANbFaces, int* ANbVolumes,

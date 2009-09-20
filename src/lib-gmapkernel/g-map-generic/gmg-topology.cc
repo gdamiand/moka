@@ -86,6 +86,24 @@ bool CGMapGeneric::isOrientable(CDart * ADart, TOrbit AOrbit)
   return orientable;
 }
 //******************************************************************************
+unsigned int CGMapGeneric::countNonLocalDegreeTwoEdges()
+{
+  unsigned int res = 0;
+  int mark = getNewMark();
+  CDynamicCoverageAll it(this);
+  for (; it.cont(); ++it)
+    {
+      if ( !isMarked(*it, mark) )
+	{
+	  if (!isLocalDegreeTwoSup(*it, 1)) ++res;
+	  markOrbit(*it, ORBIT_EDGE,mark);
+	}
+    }
+  negateMaskMark(mark);
+  freeMark(mark);
+  return res;
+}
+//******************************************************************************
 void CGMapGeneric::countBorders(int /*AMarkNumber*/,
 				int * ANb0, int * ANb1, int * ANb2, int * ANb3)
 {
