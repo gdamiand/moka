@@ -1422,6 +1422,12 @@ void Window :: caracTopo()
    FOptionsCarac -> show_impl() ;
 }
 
+void Window :: callback2Manifold()
+{
+  getControler()->countNonLocalDegreeTwoEdges();
+  updateStatusBar();
+}
+
 void Window :: couleurs()
 {
    resetActiveOperations();

@@ -248,6 +248,7 @@ public slots:
   void affich ( ) ;
 
   void caracTopo ( ) ;
+  void callback2Manifold ( ) ;
   void couleurs ( ) ;
   void affichDivers ( );
   

@@ -196,6 +196,10 @@ MenuBar :: MenuBar(Window * parent)
                       FParent,
                       SLOT(caracTopo()), *new QKeySequence("ALT+c")) ;
 
+   options->addAction(*HTML::decode("Is 2D quasi-&manifold"),
+                      FParent,
+                      SLOT(callback2Manifold())) ;
+
    // Creation du menu creations
    //---------------------------
    creations = new QMenu(*HTML::decode("C&r&eacute;er"));

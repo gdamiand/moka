@@ -30,7 +30,23 @@ using namespace GMap3d;
 using namespace std;
 //******************************************************************************
 unsigned int CControlerGMap::countNonLocalDegreeTwoEdges()
-{ return FMap->countNonLocalDegreeTwoEdges(); }
+{
+  unsigned int nb=FMap->countNonLocalDegreeTwoEdges();
+  if (nb==0)
+    {
+      setMessage("No edge with local degre > 2: "
+		 "the map is a 2D quasi manifold.");
+    }
+  else
+    {
+      if (nb==1)
+	setMessage("1 edge with local degre > 2: "
+		   "the map is NOT a 2D quasi manifold.");
+      else
+	setMessage(nb," edges with local degre > 2: "
+		   "the map is NOT a 2D quasi manifold.");
+    }
+}
 //******************************************************************************
 void CControlerGMap::getMapGlobalCharacteristics(int* ANbDarts,
 						 int* ANbVertices, int* ANbEdges,
