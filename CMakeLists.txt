@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# Moka : Un modeleur de 3-G-cartes.
+# Moka : A 3D Topological Modeller.
 #
 
 cmake_minimum_required(VERSION 2.6.2)
