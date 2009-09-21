@@ -1,7 +1,6 @@
 #-------------------------------------------------------------------------------
 # Moka : A 3D Topological Modeller.
 #
-
 cmake_minimum_required(VERSION 2.6.2)
 project(moka)
 
