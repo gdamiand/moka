@@ -29,11 +29,14 @@ public:
 
 /**
  * Cherche si la carte *this est un motif de la carte AMap.
+ * @param AMap la carte dans laquelle on va chercher le motif.
+ * @param ANbMatched un pointeur vers un entier. Si non nul, paramètre
+ * retour qui va contenir le nombre de brins maximum matché. 
  * @return -1 si motif non trouvé, le numéro du direct info contenant 
  * l'injection sinon (valide pour les brins marqués pour AMarkToTest)
  * Retourne le premier motif trouvé.
  */
-int findMotif( CGMapVertex* AMap );
+int findMotif( CGMapVertex* AMap, unsigned int* ANbMatched=NULL );
     
 /**
  * Compte le nombre de fois que la carte *this est motif de la carte AMap.
@@ -46,6 +49,8 @@ unsigned int countNumberOfMotifs( CGMapVertex* AMap );
  * brin AFromDart dans la carte this et ADestDart dans la carte AMap.
  * AMarkTreated est le numéro de marque utilisé pour marquer les brins
  * déjà traités.
+ * @param ANbMatched un pointeur vers un entier. Si non nul, paramètre
+ * retour qui va contenir le nombre de brins matché. 
  * @return vrai ssi motif trouvé, faux sinon. Dans les 2 cas, le champ
  * directInfo[AIndex] contient l'injection affectée (partiellement en
  * cas d'échec.
@@ -53,7 +58,8 @@ unsigned int countNumberOfMotifs( CGMapVertex* AMap );
 bool findMotifFrom( CDart* AFromDart, unsigned int AMarkTreated,
 		    unsigned int AIndex,
 		    CGMapVertex* AMap, CDart* ADestDart,
-		    unsigned int AMarkTreated2 );
+		    unsigned int AMarkTreated2,
+		    unsigned int* ANbMatched=NULL );
 
 /// Met le champ directinfo du motif d'origine ADart à Null.
 /// Le parcours du motif utilise la marque AMark.

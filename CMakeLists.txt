@@ -147,6 +147,7 @@ add_subdirectory (src/lib-controler-gmap lib-controler-gmap)
 add_subdirectory (src/mokaQtIhm mokaQtIhm)
 
 add_subdirectory (src/example-basic example-basic EXCLUDE_FROM_ALL)
+#add_subdirectory (src/submapTest submapTest EXCLUDE_FROM_ALL)
 
 #-------------------------------------------------------------------------------
 

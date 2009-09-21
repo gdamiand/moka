@@ -32,7 +32,7 @@
 using namespace std;
 using namespace GMap3d;
 //******************************************************************************
-int CGMapVertex::findMotif( CGMapVertex* AMap )
+int CGMapVertex::findMotif( CGMapVertex* AMap, unsigned int* ANbMatched )
 {
    int index = getNewDirectInfo();
 
@@ -46,6 +46,14 @@ int CGMapVertex::findMotif( CGMapVertex* AMap )
    c.start();
 #endif
 
+   unsigned int oneMatching;
+   unsigned int * ptrOneMatching=NULL;
+   
+   if ( ANbMatched!=NULL )
+     {
+       *ANbMatched=0; ptrOneMatching = &oneMatching;
+     }
+   
    CDynamicCoverageAll it1(this);
    CDynamicCoverageAll it2(AMap);
    
@@ -60,11 +68,15 @@ int CGMapVertex::findMotif( CGMapVertex* AMap )
 	   for ( it2.reinit(); !matchOne && it2.cont(); ++it2 )
 	     {
 	       matchOne=findMotifFrom(*it1, markTreated, index,
-				      AMap, *it2, markTreated2);
+				      AMap, *it2, markTreated2,
+				      ptrOneMatching);
 
 	       unmarkMotifMark(*it1,markTreated,(matchOne?-1:index),
 			       AMap,*it2,(matchOne?-1:markTreated2));
 
+	       if ( ANbMatched!=NULL && oneMatching>*ANbMatched)
+		 *ANbMatched = oneMatching;
+	       
 	       // assert( isWholeMapUnmarked(markTreated) );
 	     }
 
@@ -176,18 +188,21 @@ void CGMapVertex::unmarkMotifMark(CDart* ADart, int AMark, int AIndex,
 bool CGMapVertex::findMotifFrom( CDart* AFromDart, unsigned int AMarkTreated,
 				 unsigned int AIndex,
 				 CGMapVertex* AMap, CDart* ADestDart,
-				 unsigned int AMarkTreated2 )
+				 unsigned int AMarkTreated2,
+				 unsigned int* ANbMatched )
 {
    bool match = true;
    int i = 0;
 
+   if ( ANbMatched!=NULL) *ANbMatched = 0;
+   
    // Les 2 piles pour parcourir les 2 cartes en parallèle.
    stack<CDart*> toTreat;
    stack<CDart*> toTreat2;
 
    toTreat.push(AFromDart);
-   toTreat2.push(ADestDart);
-
+   toTreat2.push(ADestDart);   
+   
    // Le parcours, tant que la pile n'est pas vide.
    CDart* current;
    CDart* other;
@@ -197,7 +212,8 @@ bool CGMapVertex::findMotifFrom( CDart* AFromDart, unsigned int AMarkTreated,
       // Le prochain brin.
       current = toTreat.top();  toTreat.pop();
       other   = toTreat2.top(); toTreat2.pop();
-
+      if ( ANbMatched!=NULL) ++(*ANbMatched);
+      
       if ( !isMarked(current, AMarkTreated) )
 	{
 	  if ( AMap->isMarked(other, AMarkTreated2) )
@@ -243,7 +259,7 @@ bool CGMapVertex::findMotifFrom( CDart* AFromDart, unsigned int AMarkTreated,
 	    }	  
 	}
    }
-   
+
    return match;
 }
 //******************************************************************************
