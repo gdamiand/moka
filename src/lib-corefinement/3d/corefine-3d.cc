@@ -22,6 +22,7 @@
  */
 
 #include <cmath>
+#include <sstream>
 #include "corefine-3d.hh"
 #include "time.hh"
 
@@ -1884,8 +1885,13 @@ void CCorefine3d::createIntersectionEdge(CDart * AFace1, CDart * AFace2,
   CGMapVertex * tmp_map = new CGMapVertex;
   char file_name[1024] = "\0";
 
-  sprintf(file_name, "edge%04u.map", FNumberOfIntersectionEdges);
-
+  stringstream s; 
+  s<<"edge";
+  s.width(4); s.fill(0); s.flags (ios::right);
+  s<<FNumberOfIntersectionEdges;
+  s.width(0);
+  s<<".map";
+  
   d1 = tmp_map->addMapDart();
   d2 = tmp_map->addMapDart();
 
@@ -1894,7 +1900,7 @@ void CCorefine3d::createIntersectionEdge(CDart * AFace1, CDart * AFace2,
   tmp_map->setVertex(d1, *getVertex(edge1));
   tmp_map->setVertex(d2, *getVertex(a0(edge1)));
 
-  tmp_map->save(file_name, AsciiFormat);
+  tmp_map->save(s.str(), AsciiFormat);
 
   delete tmp_map;
 #endif // FOLLOW_DEBUG_MODE ----------------------------------------------------
