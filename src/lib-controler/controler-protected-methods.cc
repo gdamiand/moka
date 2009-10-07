@@ -45,28 +45,24 @@ void CControler::setMessage(const string & AMessage)
 //******************************************************************************
 void CControler::setMessage(int ANumber, const string & AMessage)
 {
-  char txtNumber[6];
-  sprintf(txtNumber, "%d",ANumber);
-  
-  setMessage(string(txtNumber)+AMessage);
+  stringstream s;
+  s<<ANumber<<AMessage;  
+  setMessage(s.str());
 }
 //******************************************************************************
 void CControler::setMessage(int ANumber1, int ANumber2, const string & AMessage)
 {
-  char txtNumber1[6];
-  char txtNumber2[6];
-  sprintf(txtNumber1, "%d",ANumber1);
-  sprintf(txtNumber2, "%d",ANumber2);
-  
-  setMessage(string(txtNumber1)+" "+string(txtNumber2)+AMessage);
+  stringstream s;
+  s<<ANumber1<<" "<<ANumber2<<AMessage;
+  setMessage(s.str());
 }
 //******************************************************************************
 void CControler::setMessage(const string & AMessage1, int ANumber,
 			    const string & AMessage2)
 {
-  char txtNumber[6];
-  sprintf(txtNumber, "%d",ANumber);
-  setMessage(AMessage1+string(txtNumber)+AMessage2);
+  stringstream s;
+  s<<AMessage1<<ANumber<<AMessage2;  
+  setMessage(s.str());
 }
 //******************************************************************************
 CPrecompile* CControler::newPrecompile(TViewId AViewId,
