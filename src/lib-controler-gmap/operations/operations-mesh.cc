@@ -27,7 +27,7 @@
 #include "g-map-vertex.hh"
 #include "controler-gmap.hh"
 #include <cassert>
-#include <cstring>
+#include <sstream>
 
 #include "mesh-interface.hh"
 
@@ -86,18 +86,13 @@ bool CControlerGMap::meshSquares(int ADimFrom, int ADimTo)
 				      getParameterOperations()
 				      ->getInterpolationSews(),
 				      false, ADimFrom, ADimTo);
-    
-      char qte[128];
-      char buf[1024];
-    
-      if (nb==0)
-	strcpy(qte, "Aucun");
-      else
-	sprintf(qte, "%d", nb);
-    
-      sprintf(buf, "%s %s [%d -> %d]",
-	      qte, nb<2 ? "carré maillé" : "carrés maillés",
-	      ADimFrom, ADimTo);
+
+      std::stringstream s;
+      if (nb==0) s<<"Aucun";
+      else s<<nb;
+
+      s<<(nb<2 ? "carré maillé" : "carrés maillés");
+      s<<" ["<<ADimFrom<<" -> "<<ADimTo<<"]";
     
       if (nb==0)
 	undoRedoPostSaveFailed();
@@ -108,7 +103,7 @@ bool CControlerGMap::meshSquares(int ADimFrom, int ADimTo)
 	  res = true;
 	}
     
-      setMessage(buf);
+      setMessage(s.str());
     }
 
   return res;
@@ -141,17 +136,13 @@ bool CControlerGMap::meshCubes(int ADimFrom, int ADimTo)
 	CMesh(FMap).meshMarkedCubes(getSelectionMark(), sx,sy,sz, NULL,
 				    merges, sews, false, ADimFrom, ADimTo);
 
-      char qte[128];
-      char buf[1024];
-
-      if (nb==0)
-	strcpy(qte, "Aucun");
-      else
-	sprintf(qte, "%d", nb);
-
-      sprintf(buf, "%s %s [%d -> %d]",
-	      qte, nb<2 ? "cube maillé" : "cubes maillés",
-	      ADimFrom, ADimTo);
+      std::stringstream s;
+      
+      if (nb==0) s<<"Aucun";
+      else s<<nb;
+      
+      s<<(nb<2 ? "cube maillé" : "cubes maillés");
+      s<<" ["<<ADimFrom<<" -> "<<ADimTo<<"]";
 
       if (nb==0)
 	undoRedoPostSaveFailed();
@@ -162,7 +153,7 @@ bool CControlerGMap::meshCubes(int ADimFrom, int ADimTo)
 	  res = true;
 	}
 
-      setMessage(buf);
+      setMessage(s.str());
     }
   return res;
 }

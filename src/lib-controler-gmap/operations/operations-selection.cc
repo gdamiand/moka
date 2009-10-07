@@ -25,6 +25,7 @@
 #include "g-map-vertex.hh"
 #include "controler-gmap.hh"
 #include <cassert>
+#include <sstream>
 
 using namespace GMap3d;
 //******************************************************************************
@@ -37,10 +38,11 @@ void CControlerGMap::setSelectionLevel(int ALevel)
                                       SUB_OPERATION_SET_SELECTION_LEVEL, -1)))
    {
       FParameterSelection->setSelectionLevel(ALevel);
-      char message[64];
-      sprintf(message, "Niveau de sélection : %d", ALevel + 1);
+
+      std::stringstream s;
+      s<<"Selection level number :"<<ALevel + 1;
       setSelectionChanged();
-      setMessage(message);
+      setMessage(s.str());
    }
 }
 //******************************************************************************
@@ -107,10 +109,9 @@ bool CControlerGMap::swapSelectionLevels(int ALevel1, int ALevel2)
       FParameterSelection->swapLevels(ALevel1, ALevel2);
       setSelectionChanged();
 
-      char message[64];
-      sprintf(message, "Échange des niveaux de sélection %d et %d",
-              ALevel1, ALevel2);
-      setMessage(message);
+      std::stringstream s;
+      s<<"Swap selection levels "<<ALevel1<<" and "<<ALevel2;
+      setMessage(s.str());
       return true;
    }
 

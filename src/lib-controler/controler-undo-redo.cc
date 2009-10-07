@@ -136,9 +136,9 @@ string CControler::getFilename(int AIndex) const
 {
   assert(AIndex >= 0);
 
-  char buffer[256];
-  sprintf(buffer, "%s/.moka-undo-%d", FConfigDirectory.c_str(),AIndex);
-  return buffer;
+  stringstream s;
+  s<<FConfigDirectory<<"/.moka-undo-"<<AIndex;  
+  return s.str();
 }
 //******************************************************************************
 int CControler::getNewFileIndex()
@@ -296,9 +296,9 @@ void CControler::basicPostSaveFailed()
 //******************************************************************************
 string CControler::getUndoRedoStatus() const
 {
-  char result[256];
-  sprintf(result, "%d * %d", FUndos.size(), FRedos.size());
-  return result;
+  stringstream s;
+  s<< FUndos.size()<<" * "<<FRedos.size();
+  return s.str();
 }
 //******************************************************************************
 bool CControler::existsFile(const string & AFilename)
@@ -317,12 +317,10 @@ void CControler::saveLastUndoOnFile()
 {
   if (!FUndoOnFile) return;
     
-  char buffer[256];
-  sprintf(buffer, "%s/.moka-last-undo-file", FConfigDirectory.c_str());
+  stringstream s;
+  s<<FConfigDirectory<<"/.moka-last-undo-file";
 
-  ofstream os;
-  os.open(buffer);
-
+  ofstream os(s.str().c_str());
   if (os.is_open())
     {
       os<<FLastFileIndex<<endl;
@@ -334,12 +332,10 @@ void CControler::recupLastUndoFromFile()
 {
   if (!FUndoOnFile) return;
 
-  char buffer[256];
-  sprintf(buffer, "%s/.moka-last-undo-file", FConfigDirectory.c_str());
-
-  ifstream is;
-  is.open(buffer);
-
+  stringstream s;
+  s<<FConfigDirectory<<"/.moka-last-undo-file";
+  
+  ifstream is(s.str().c_str());;
   if (is.is_open())
     {
       is>>FLastFileIndex;

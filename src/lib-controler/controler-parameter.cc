@@ -118,10 +118,9 @@ void CControler::loadOnePrecompileParameter(TViewId AViewId,
 //******************************************************************************
 void CControler::saveAllParameters(TViewId AViewId)
 {
-  char fileName[256];
-  sprintf(fileName, "%s/model-parameters.txt", FConfigDirectory.c_str());
-  
-  ofstream os(fileName);
+  stringstream s;
+  s<<FConfigDirectory<<"/model-parameters.txt";  
+  ofstream os(s.str().c_str());
 
   if (!os.good())
     return;
@@ -144,11 +143,10 @@ void CControler::saveAllParameters(TViewId AViewId)
 //******************************************************************************
 void CControler::loadAllParameters(TViewId AViewId)
 {
-  char fileName[256];
-  sprintf(fileName, "%s/model-parameters.txt", FConfigDirectory.c_str());
-  
-  ifstream is(fileName);
-  
+  stringstream s;
+  s<<FConfigDirectory<<"/model-parameters.txt";  
+  ifstream is(s.str().c_str());
+
   if (!is.good())
     return;
 

@@ -23,6 +23,7 @@
 
 #include <set>
 #include <cfloat>
+#include <sstream>
 
 // #define DEBUG_MESSAGES
 // #define DEBUG_MARKS
@@ -1971,12 +1972,18 @@ bool CCorefine3dFF::intersectFaces(CDart * AFace1, CDart * AFace2,
 #else
   if (nb >= SAVE_STEPS_SINCE) {
 #endif
-    char file_name[256] = "\0";
-    sprintf(file_name, "CCorefine3DFF_intersectFaces%04i.map", nb);
+
+    stringstream s; 
+    s<<"CCorefine3DFF_intersectFaces";
+    s.width(4); s.fill(0); s.flags (ios::right);
+    s<<nb;
+    s.width(0);
+    s<<".map";
+
     FMap->markCopy(FFictiveEdgeMark, 0);
     FMap->markCopy(FInterEdgeMark, 1);
     FMap->markCopy(FFaceMark, 2);
-    FMap->save(file_name, AsciiFormat);
+    FMap->save(s.str(), AsciiFormat);
   }
 #endif
   ++nb;
