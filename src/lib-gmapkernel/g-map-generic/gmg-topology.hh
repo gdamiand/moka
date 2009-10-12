@@ -120,6 +120,11 @@ void getGlobalCharacteristics(int* ANbDarts,
 			      int* ANb0Borders, int* ANb1Borders,
 			      int* ANb2Borders, int* ANb3Borders);
 
+/** Display all the characteristics of the map (number of darts and
+ *   number of cells.
+ */
+std::ostream& displayCharacteristics(std::ostream &AOs);
+
 /**
  * Calcule les caractéristiques d'une surface dont un brin est donné
  * (nombre de brins, de cellules, de bords, caractéristique d'Euler,
