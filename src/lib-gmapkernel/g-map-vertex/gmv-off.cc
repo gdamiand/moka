@@ -36,8 +36,8 @@ void CGMapVertex::linkFaceAlpha2OFF(vector< list<CDart*> >& ATestVertices,
    CDart* current = ADart;
    do
    {
-      unsigned int v1 = (unsigned int)getDirectInfo(current, AIndex);
-      unsigned int v2 = (unsigned int)getDirectInfo(alpha0(current), AIndex);
+      unsigned long int v1 = (unsigned long int)getDirectInfo(current, AIndex);
+      unsigned long int v2 = (unsigned long int)getDirectInfo(alpha0(current), AIndex);
 
       list<CDart*>& tmp1 = ATestVertices[v1];
       list<CDart*>& tmp2 = ATestVertices[v2];
@@ -47,7 +47,7 @@ void CGMapVertex::linkFaceAlpha2OFF(vector< list<CDart*> >& ATestVertices,
       CDart* foundEdge = NULL;
       for (it = tmp1.begin(); foundEdge == NULL && it != tmp1.end(); ++it)
       {
-         if (((unsigned int)getDirectInfo(alpha0(*it), AIndex)) == v2)
+         if (((unsigned long int)getDirectInfo(alpha0(*it), AIndex)) == v2)
          {
             foundEdge = *it;
          }
@@ -402,8 +402,8 @@ bool CGMapVertex::exportOff2D(std::ostream & AStream)
    int directInfoIndex = getNewDirectInfo();
    int markVertex = getNewMark();
    int markEdge   = getNewMark();
-   unsigned int nbV = 0;
-   unsigned int nbE = 0;
+   unsigned long int nbV = 0;
+   unsigned long int nbE = 0;
    for (it.reinit(); it.cont(); ++it)
    {
       if (!isMarked(*it, markVertex))
@@ -445,8 +445,8 @@ bool CGMapVertex::exportOff2D(std::ostream & AStream)
    {
       if (!isMarked(*it, markEdge))
       {
-         AStream << (unsigned int)getDirectInfo(*it, directInfoIndex)
-         << " " << (unsigned int)getDirectInfo(alpha0(*it),
+         AStream << (unsigned long int)getDirectInfo(*it, directInfoIndex)
+         << " " << (unsigned long int)getDirectInfo(alpha0(*it),
                                                directInfoIndex) << endl;
          markOrbit(*it, ORBIT_EDGE, markEdge);
       }
@@ -527,7 +527,7 @@ bool CGMapVertex::exportOff3D(std::ostream & AStream)
             itFace.reinit();         
             while( itFace.cont() )
             {         
-               AStream << (unsigned int)getDirectInfo(*itFace, directInfoIndex)
+               AStream << (unsigned long int)getDirectInfo(*itFace, directInfoIndex)
                        << " ";
                
                setMark(alpha3(*itFace), markFace);

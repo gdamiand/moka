@@ -101,7 +101,7 @@ bool CDartVertex::save(std::ostream & AStream, TSaveFormat AFormat,
   for (i=0; i<=3; ++i)
     {
       writeInt(AStream,
-	       (uint32_t) (getAlpha(i)->getDirectInfo(ADirectInfoIndex)));
+	       (long int) (getAlpha(i)->getDirectInfo(ADirectInfoIndex)));
       writeTab(AStream);
     }
 

@@ -123,12 +123,12 @@ uint8_t readChar(std::istream& AStream)
 }
 //******************************************************************************
 INLINE
-uint32_t readInt(std::istream& AStream)
+long int readInt(std::istream& AStream)
 {
-  uint32_t i;
+  long int i;
 
   if (bin)
-    AStream.read((char *) & i, sizeof(uint32_t));
+    AStream.read((char *) & i, sizeof(long int));
   else
     AStream >> i;
 
