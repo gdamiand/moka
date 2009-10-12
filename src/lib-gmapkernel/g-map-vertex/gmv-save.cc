@@ -235,7 +235,7 @@ CDart* CGMapVertex::load(istream & AStream, TSaveFormat AFormat)
       for (; i<nbLoaded; ++i)
 	for (int dim=0; dim<=3; ++dim)
 	  {
-	    int n = (uint32_t) table[i]->getAlpha(dim) -1;
+	    int n = (long int) table[i]->getAlpha(dim) -1;
 	    
 	    if (n==i)
 	      table[i]->setFree(dim);

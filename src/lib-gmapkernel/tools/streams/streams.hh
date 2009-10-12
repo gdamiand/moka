@@ -140,7 +140,7 @@ uint8_t readChar(std::istream& AStream);
  * @param AStream Un flot
  * @return Un entier non signé codé sur 4 octets
  */
-uint32_t readInt(std::istream& AStream);
+long int readInt(std::istream& AStream);
 
 /**
  * Lit un flottant dans le flot AStream, en tenant compte du mode de chargement

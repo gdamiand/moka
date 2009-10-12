@@ -200,13 +200,13 @@ void CPrecompileFace::setRandomColor(CDart* ADart, int ADimension)
     }
   else
     { 
-      int c = 0;
+      long int c = 0;
       
       CCoverage* cov = FParameterGMapV->getMap()->
 	getDynamicCoverage(ADart, ORBIT_CELL[ADimension]);
       
       for ( ; cov->cont(); ++ *cov)
-	c += (int) ** cov;
+	c += (long int) ** cov;
       
       delete cov;
       
