@@ -443,6 +443,16 @@ void CGMapGeneric::getSurfaceCharacteristics(CDart * ADart,
     }
 }
 //******************************************************************************
+std::ostream& CGMapGeneric::displayCharacteristics(std::ostream &AOs)
+{
+  int nbd, nbv, nbe, nbf, nbvol, nbcc;
+  getGlobalCharacteristics(&nbd, &nbv, &nbe, &nbf, &nbvol, &nbcc,
+			   NULL, NULL, NULL, NULL);
+  AOs<<"Nb of darts= "<<nbd<<"; vertices= "<<nbv<<"; edges="<<nbe
+     <<"; faces="<<nbf<<"; volumes="<<nbvol<<"; cc="<<nbcc;
+  return AOs;
+}
+//******************************************************************************
 string CGMapGeneric::getSurfaceName(int AB2, int AQ, int AG)
 {
   assert(0 <= AB2);
