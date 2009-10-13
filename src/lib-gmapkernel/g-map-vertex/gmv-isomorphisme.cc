@@ -74,8 +74,8 @@ int CGMapVertex::findMotif( CGMapVertex* AMap, unsigned int* ANbMatched )
 	       unmarkMotifMark(*it1,markTreated,(matchOne?-1:index),
 			       AMap,*it2,(matchOne?-1:markTreated2));
 
-	       if ( ANbMatched!=NULL && oneMatching>*ANbMatched)
-		 *ANbMatched = oneMatching;
+	       if ( ANbMatched!=NULL && oneMatching>(*ANbMatched) )
+		 (*ANbMatched) = oneMatching;
 	       
 	       // assert( isWholeMapUnmarked(markTreated) );
 	     }
@@ -212,10 +212,11 @@ bool CGMapVertex::findMotifFrom( CDart* AFromDart, unsigned int AMarkTreated,
       // Le prochain brin.
       current = toTreat.top();  toTreat.pop();
       other   = toTreat2.top(); toTreat2.pop();
-      if ( ANbMatched!=NULL) ++(*ANbMatched);
       
       if ( !isMarked(current, AMarkTreated) )
 	{
+	  if ( ANbMatched!=NULL) ++(*ANbMatched);
+	  
 	  if ( AMap->isMarked(other, AMarkTreated2) )
 	    match = false;
 	  else
