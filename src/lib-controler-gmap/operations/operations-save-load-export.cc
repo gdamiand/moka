@@ -48,7 +48,7 @@ bool CControlerGMap::empty()
 
       undoRedoPostSaveOk();
       setModelChanged();
-      setMessage("Carte vidée");
+      setMessage("Empty the map");
       res = true;
    }
    return res;
@@ -66,13 +66,13 @@ bool CControlerGMap::addMap(const char * AFilename)
       {
          undoRedoPostSaveOk();
          setModelChanged();
-         setMessage("Ajout effectué");
+         setMessage(string("Add the map from ") + AFilename + " done");
          res = true;
       }
       else
       {
          undoRedoPostSaveFailed();
-         setMessage("Chargement impossible");
+         setMessage(string("Error for loading ")+AFilename);
       }
 
       assert(isMapOk());
@@ -96,13 +96,13 @@ bool CControlerGMap::loadMap(const char * AFilename)
       {
          undoRedoPostSaveOk();
          setModelChanged();
-         setMessage("Chargement effectué");
+         setMessage(string("Load the map from ")+AFilename+" done");
          res = true;
       }
       else
       {
          undoRedoPostSaveFailed();
-         setMessage("Chargement impossible");
+         setMessage(string("Error for loading ")+AFilename);
       }
 
       assert(isMapOk());
@@ -118,9 +118,9 @@ bool CControlerGMap::saveMapAscii(const char* AFilename)
    {
       res = FMap->save(AFilename, AsciiFormat);
       if (res)
-         setMessage("Sauvegarde effectuée");
+	setMessage(string("Save in ")+AFilename+" done");
       else
-         setMessage("Sauvegarde impossible");
+	setMessage(string("Error during saving ")+AFilename);
    }
 
    return res;
@@ -133,9 +133,9 @@ bool CControlerGMap::saveMapBinary(const char * AFilename)
    {
       res = FMap->save(AFilename, BinaryFormat);
       if (res)
-         setMessage("Sauvegarde binaire effectuée");
+	setMessage(string("Binary save in ")+AFilename+ " done");
       else
-         setMessage("Sauvegarde binaire impossible");
+         setMessage(string("Error during binary saving ")+AFilename);
    }
 
    return res;
@@ -152,7 +152,7 @@ bool CControlerGMap::exportXfig(const char * AFilename, TViewId AViewId,
       ofstream fout(AFilename, ios::trunc);
       sauveCarteXfig(AViewId, fout, AArrow, AFace, ASews, AGrid, AVertices);
       fout.close();
-      setMessage("Export xfig effectué");
+      setMessage(string("Export Xfig ")+AFilename+" done");
       res = true;
    }
 
@@ -168,7 +168,8 @@ bool CControlerGMap::exportPov(const char * AFilename)
       ofstream fout(AFilename, ios::trunc);
       bool ok = FMap->exportToPov(fout);
       fout.close();
-      setMessage(ok ? "Export PoV effectué" : "Export PoV echoué");
+      setMessage(ok ? string("Export PoV ")+AFilename+" done" :
+		 string("Error during export PoV ")+AFilename);
       res = true;
    }
 
@@ -185,7 +186,7 @@ bool CControlerGMap::exportXfigAsIntervoxel(const char * AFilename,
       ofstream fout(AFilename, ios::trunc);
       sauveCarteIntervoxelXfig(AViewId, fout);
       fout.close();
-      setMessage("Export intervoxel effectué");
+      setMessage(string("Export in intervoxel ") + AFilename + " done");
       res = true;
    }
 
@@ -333,13 +334,13 @@ bool CControlerGMap::importOff(const char* AFilename)
       {
          undoRedoPostSaveOk();
          setModelChanged();
-         setMessage("Import OFF effectué");
+         setMessage(string("Import OFF ") + AFilename + " done");
          res = true;
       }
       else
       {
          undoRedoPostSaveFailed();
-         setMessage("Erreur durant l'import OFF");
+         setMessage(string("Error during import OFF ")+AFilename);
       }
 
       assert(isMapOk());
@@ -356,12 +357,12 @@ bool CControlerGMap::exportOff(const char* AFilename)
    {
       if (FMap->exportOff(AFilename))
       {
-         setMessage("Export OFF effectué");
+	setMessage(string("Export OFF ") + AFilename + " done");
          res = true;
       }
       else
       {
-         setMessage("Erreur durant l'export OFF");
+	setMessage(string("Error during export OFF ")+AFilename);
       }
    }
 
@@ -376,12 +377,12 @@ bool CControlerGMap::exportOff3D(const char* AFilename)
    {
       if (FMap->exportOff3D(AFilename))
       {
-         setMessage("Export OFF effectué");
+	setMessage(string("Export OFF ")+AFilename+" done");
          res = true;
       }
       else
       {
-         setMessage("Erreur durant l'export OFF");
+	setMessage(string("Erreur during export OFF")+AFilename);
       }
    }
 
