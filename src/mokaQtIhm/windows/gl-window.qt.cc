@@ -164,8 +164,9 @@ void GLWindow :: initializeGL()
    glEnable(GL_NORMALIZE);
 
    glDisable(GL_BLEND);
-
-   glEnable(GL_POLYGON_MODE);
+   //glEnable(GL_CULL_FACE);
+   
+   //   glEnable(GL_POLYGON_MODE);
    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
    // Proprietes des surfaces ----------------------------------------------
@@ -204,7 +205,6 @@ void GLWindow :: creation()
       controler->viewAddPrecompile(FViewId, PRECOMPILE_GRID);
       controler->viewAddPrecompile(FViewId, PRECOMPILE_AXIS);
       controler->viewAddPrecompile(FViewId, PRECOMPILE_AIMED_POINT);
-      controler->viewAddPrecompile(FViewId, PRECOMPILE_FACE);
       controler->viewAddPrecompile(FViewId,
                                    PRECOMPILE_OBJECT_TRANSFORMATION);
       controler->viewAddPrecompile(FViewId, PRECOMPILE_PREVIEW);
@@ -217,6 +217,8 @@ void GLWindow :: creation()
       controler->getParameterSpamod(FViewId)->setViewMode(SPAMOD_NONE);
 #endif // MODULE_SPAMOD
       controler->viewAddPrecompile(FViewId, PRECOMPILE_DART);
+      controler->viewAddPrecompile(FViewId, PRECOMPILE_FACE);
+
       controler->viewDisablePrecompile(FViewId, PRECOMPILE_SEW);
       controler->viewDisablePrecompile(FViewId, PRECOMPILE_VERTEX);
       controler->viewDisablePrecompile(FViewId, PRECOMPILE_FACE);
