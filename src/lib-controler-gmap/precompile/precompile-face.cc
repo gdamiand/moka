@@ -116,6 +116,15 @@ static void monCombine(GLdouble c[3], void *d[4], GLfloat w[4], void **out)
 
   *out = nv;
 }
+
+/* TODO use openGL to draw the darts ?
+static void edgeFlagDataCB(GLboolean flag, void* lpContext)
+{ glEdgeFlag(flag); }
+  
+gluTessCallback(FTess, GLU_TESS_EDGE_FLAG_DATA,
+(GLvoid (WINAPI *) ( )) & edgeFlagDataCB);
+*/
+
 //******************************************************************************
 void CPrecompileFace::drawModel()
 {

@@ -178,13 +178,12 @@ void GLMultiWindow :: initializeGL (  )
   glEnable(GL_DEPTH_TEST); // z-buffer
   glDepthFunc(GL_LEQUAL);
 
-  glEnable(GL_NORMALIZE);
-  
+  glEnable(GL_NORMALIZE);  
   glDisable(GL_BLEND);
   
-  glEnable(GL_POLYGON_MODE);
+  //  glEnable(GL_POLYGON_MODE);
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-  
+
   // Proprietes des surfaces ----------------------------------------------
   static const GLfloat Material_Ks[] = {0.5, 0.5, 0.5,  1.0};
   static const GLfloat Material_Ke[] = {0.0, 0.0, 0.0,  1.0};
@@ -234,7 +233,6 @@ void GLMultiWindow :: creation ( )
 	  controler->viewAddPrecompile(FViewIds [ i ], PRECOMPILE_GRID);
 	  controler->viewAddPrecompile(FViewIds [ i ], PRECOMPILE_AXIS);
 	  controler->viewAddPrecompile(FViewIds [ i ], PRECOMPILE_AIMED_POINT);
-	  controler->viewAddPrecompile(FViewIds [ i ], PRECOMPILE_FACE);
 	  controler->viewAddPrecompile(FViewIds [ i ], PRECOMPILE_OBJECT_TRANSFORMATION);
 	  controler->viewAddPrecompile(FViewIds [ i ], PRECOMPILE_PREVIEW);
 	  controler->viewAddPrecompile(FViewIds [ i ], PRECOMPILE_NORMAL_VECTOR);
@@ -246,6 +244,7 @@ void GLMultiWindow :: creation ( )
 	  controler->getParameterSpamod(FViewIds [ i ])->setViewMode(SPAMOD_NONE);
 #endif // MODULE_SPAMOD
 	  controler->viewAddPrecompile(FViewIds [ i ], PRECOMPILE_DART);
+	  controler->viewAddPrecompile(FViewIds [ i ], PRECOMPILE_FACE);
 	  
 	  controler->viewDisablePrecompile(FViewIds [ i ], PRECOMPILE_SEW);
 	  

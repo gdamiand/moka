@@ -374,8 +374,8 @@ void CSpamodAPI::drawMap()
 
 	if (FEuclidianParam[1])
 	  {
-	    glEnable(GL_BLEND);
-	    glDepthMask(GL_FALSE);
+	    // glEnable(GL_BLEND);
+	    // glDepthMask(GL_FALSE);
 
 	    color = colors->Get_Color(2);
 
@@ -386,8 +386,8 @@ void CSpamodAPI::drawMap()
 	
 	    EV->Solid_Draw();
 
-	    glDepthMask(GL_TRUE);
-	    glDisable(GL_BLEND);
+	    // glDepthMask(GL_TRUE);
+	    // glDisable(GL_BLEND);
 	  }
 
       }
@@ -419,8 +419,8 @@ void CSpamodAPI::drawMap()
 	    if (translucid)
 	      {
 		// FEuclidianView->Solid_Draw(FColors);
-		glEnable(GL_BLEND);
-		glDepthMask(GL_FALSE);
+		// glEnable(GL_BLEND);
+		// glDepthMask(GL_FALSE);
 	      }
 
 	    color = colors->Get_Color(2);
@@ -430,8 +430,8 @@ void CSpamodAPI::drawMap()
 
 	    if (translucid)
 	      {
-		glDepthMask(GL_TRUE);
-		glDisable(GL_BLEND);
+		// glDepthMask(GL_TRUE);
+		// glDisable(GL_BLEND);
 	      }
 	  }
 
