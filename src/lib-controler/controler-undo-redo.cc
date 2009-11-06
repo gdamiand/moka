@@ -281,6 +281,7 @@ void CControler::basicPostSaveOk()
 
   // Sauvegarde de FActu :
   FUndos.push_front(FActu);
+  delete FActu;
   FActu = NULL;
 
   emptyRedoList();
@@ -367,7 +368,8 @@ void CControler::recupFromFiles()
       (*os)<<filename.c_str();
       
       FUndos.push_back(os);
-      
+      delete os;
+
       ++nbFilesRecup;
       if ( nbFilesRecup==FNbMaxUndos )
 	undoFull = true;
