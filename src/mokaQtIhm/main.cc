@@ -36,46 +36,46 @@
 //******************************************************************************
 int main(int argc, char** argv)
 {
-  Q_INIT_RESOURCE(icones);
-  
+    Q_INIT_RESOURCE(icones);
+
 #ifdef MODULE_SPAMOD
-  glutInit(&argc, argv);
+    glutInit(&argc, argv);
 #endif // MODULE_SPAMOD
-  
-  QApplication appli(argc, argv);
-  Window moka;
 
-  bool fullscreen = false;
-  bool help = false;
-  
-  for ( int i=1; i<argc; ++i )
-  {
-    if ( !strcmp(argv[i],"-fullscreen" ) )
-      fullscreen=true;    
-    else if ( !strcmp( argv [ i ] , "-?") || !strcmp( argv [ i ] , "-h") )
-      help = true;
-    else if (  !strcmp( argv [ i ] , "-i") )
-      {
-	if (i+1==argc) help=true;
-	else moka.getControler()->importOff(argv[++i]);
-      }
-    else  moka.getControler()->addMap(argv [ i ]);
-  }
+    QApplication appli(argc, argv);
+    Window moka;
 
-  if (help)
+    bool fullscreen = false;
+    bool help = false;
+
+    for ( int i=1; i<argc; ++i )
     {
-      std::cout<<"Usage : mokaQt [-h -?] [-fullscreen] [-i offfile1] ... [-i offfilek] "
-	"[mokafile1 ... mokafilek]"<<std::endl
-	       <<"   -h -?: help command."<<std::endl
-	       <<"   -fullscreen: put moka in fullscreen mode."<<std::endl
-	       <<"   -i offfilei: import off file."<<std::endl
-	       <<"   mokafilei: load moka file."<<std::endl;
-      exit(EXIT_FAILURE);
+        if ( !strcmp(argv[i],"-fullscreen" ) )
+            fullscreen=true;
+        else if ( !strcmp( argv [ i ] , "-?") || !strcmp( argv [ i ] , "-h") )
+            help = true;
+        else if (  !strcmp( argv [ i ] , "-i") )
+        {
+            if (i+1==argc) help=true;
+            else moka.getControler()->importOff(argv[++i]);
+        }
+        else  moka.getControler()->addMap(argv [ i ]);
     }
-  
-  if ( fullscreen ) moka . showFullScreen ( ) ;
-  else moka.show();
-  
-  return appli.exec();
+
+    if (help)
+    {
+        std::cout<<"Usage : mokaQt [-h -?] [-fullscreen] [-i offfile1] ... [-i offfilek] "
+                 "[mokafile1 ... mokafilek]"<<std::endl
+                 <<"   -h -?: help command."<<std::endl
+                 <<"   -fullscreen: put moka in fullscreen mode."<<std::endl
+                 <<"   -i offfilei: import off file."<<std::endl
+                 <<"   mokafilei: load moka file."<<std::endl;
+        exit(EXIT_FAILURE);
+    }
+
+    if ( fullscreen ) moka . showFullScreen ( ) ;
+    else moka.show();
+
+    return appli.exec();
 }
 //******************************************************************************

@@ -26,356 +26,356 @@
 using namespace std;
 //******************************************************************************
 bool CControler::getUndoOnFile() const
-{ return FUndoOnFile; }
+{
+    return FUndoOnFile;
+}
 //******************************************************************************
 void CControler::setUndoOnFile(bool ABool)
 {
-  if (ABool!=FUndoOnFile)
+    if (ABool!=FUndoOnFile)
     {
-      emptyUndoRedo();
-      FUndoOnFile = ABool;
+        emptyUndoRedo();
+        FUndoOnFile = ABool;
     }
 }
 //******************************************************************************
 int CControler::getNbMaxUndos() const
 {
-  return FNbMaxUndos;
-  
+    return FNbMaxUndos;
+
 }
 //******************************************************************************
 void CControler::setNbMaxUndos(int ANumber)
 {
-  assert(ANumber==-1 || ANumber>=0);
-  
-  if ( ANumber!=-1 && ANumber<FNbMaxUndos )
+    assert(ANumber==-1 || ANumber>=0);
+
+    if ( ANumber!=-1 && ANumber<FNbMaxUndos )
     {
-      if (FActu != NULL)
-	{
-	  FRedos.push_front(FActu);
-	  --FLastFileIndex;
-	  FActu = NULL;
-	}
-      emptyRedoList();
-      
-      int nbToRemove = FUndos.size()-ANumber;
-      for (int i=0; i<nbToRemove; ++i)
-	{
-	  if (FUndoOnFile) remove(FUndos.back()->str().c_str());
-	  delete FUndos.back();
-	  FUndos.pop_back();
-	}
+        if (FActu != NULL)
+        {
+            FRedos.push_front(FActu);
+            --FLastFileIndex;
+            FActu = NULL;
+        }
+        emptyRedoList();
+
+        int nbToRemove = FUndos.size()-ANumber;
+        for (int i=0; i<nbToRemove; ++i)
+        {
+            if (FUndoOnFile) remove(FUndos.back()->str().c_str());
+            delete FUndos.back();
+            FUndos.pop_back();
+        }
     }
-  
-  FNbMaxUndos = ANumber;
-  saveLastUndoOnFile();
+
+    FNbMaxUndos = ANumber;
+    saveLastUndoOnFile();
 }
 //******************************************************************************
 bool CControler::undo(int AStep)
 {
-  if (!canApplyOperation(COperation(OPERATION_UNDO_REDO)))
-    return false;
+    if (!canApplyOperation(COperation(OPERATION_UNDO_REDO)))
+        return false;
 
-  if (!basicUndo(AStep))
-    return false;
+    if (!basicUndo(AStep))
+        return false;
 
-  setMessage(string("Undo [") + getUndoRedoStatus() + "]");
-  return true;
+    setMessage(string("Undo [") + getUndoRedoStatus() + "]");
+    return true;
 }
 //******************************************************************************
 bool CControler::redo(int AStep)
 {
-  if (!canApplyOperation(COperation(OPERATION_UNDO_REDO)))
-    return false;
+    if (!canApplyOperation(COperation(OPERATION_UNDO_REDO)))
+        return false;
 
-  if (!basicRedo(AStep))
-    return false;
+    if (!basicRedo(AStep))
+        return false;
 
-  setMessage(string("Redo [") + getUndoRedoStatus() + "]");
-  return true;
+    setMessage(string("Redo [") + getUndoRedoStatus() + "]");
+    return true;
 }
 //******************************************************************************
 void CControler::emptyUndoList()
-{ 
-  while (!FUndos.empty())
+{
+    while (!FUndos.empty())
     {
-      if (FUndoOnFile) remove(FUndos.front()->str().c_str());
-      delete FUndos.front();
-      FUndos.pop_front();
+        if (FUndoOnFile) remove(FUndos.front()->str().c_str());
+        delete FUndos.front();
+        FUndos.pop_front();
     }
 
-  FLastFileIndex = 0;
-  saveLastUndoOnFile();
+    FLastFileIndex = 0;
+    saveLastUndoOnFile();
 }
 //******************************************************************************
 void CControler::emptyRedoList()
 {
-  while (!FRedos.empty())
+    while (!FRedos.empty())
     {
-      if (FUndoOnFile) remove(FRedos.front()->str().c_str());
-      delete FRedos.front();
-      FRedos.pop_front();
+        if (FUndoOnFile) remove(FRedos.front()->str().c_str());
+        delete FRedos.front();
+        FRedos.pop_front();
     }
 }
 //******************************************************************************
 bool CControler::emptyUndoRedo()
 {
-  if (FActu != NULL)
+    if (FActu != NULL)
     {
-      FRedos.push_front(FActu);
-      FActu = NULL;
+        FRedos.push_front(FActu);
+        FActu = NULL;
     }
-  
-  emptyRedoList();
-  emptyUndoList();
 
-  setMessage("Pile des undo / redo réinitialisée");
-  return true;
+    emptyRedoList();
+    emptyUndoList();
+
+    setMessage("Pile des undo / redo réinitialisée");
+    return true;
 }
 //******************************************************************************
 string CControler::getFilename(int AIndex) const
 {
-  assert(AIndex >= 0);
+    assert(AIndex >= 0);
 
-  stringstream s;
-  s<<FConfigDirectory<<"/.moka-undo-"<<AIndex;  
-  return s.str();
+    stringstream s;
+    s<<FConfigDirectory<<"/.moka-undo-"<<AIndex;
+    return s.str();
 }
 //******************************************************************************
 int CControler::getNewFileIndex()
 {
-  ++FLastFileIndex;
+    ++FLastFileIndex;
 
-  if ( FNbMaxUndos!=-1 )
+    if ( FNbMaxUndos!=-1 )
     {
-      while (FUndos.size() > (unsigned int)FNbMaxUndos)
-	{
-	  ostringstream* os = FUndos.back();
-	  FUndos.pop_back();
-	  if (FUndoOnFile) remove(os->str().c_str());
-	  delete os;
-	}
+        while (FUndos.size() > (unsigned int)FNbMaxUndos)
+        {
+            ostringstream* os = FUndos.back();
+            FUndos.pop_back();
+            if (FUndoOnFile) remove(os->str().c_str());
+            delete os;
+        }
     }
 
-  return FLastFileIndex;
+    return FLastFileIndex;
 }
 //******************************************************************************
 ostringstream* CControler::saveModel()
 {
-  return NULL;
+    return NULL;
 }
 //------------------------------------------------------------------------------
 bool CControler::loadModel(ostringstream * /* AStream */)
 {
-  return true;
+    return true;
 }
 //******************************************************************************
 bool CControler::basicUndo(int AStep)
 {
-  if (AStep == 0)
-    return true;
+    if (AStep == 0)
+        return true;
 
-  if (AStep < 0)
-    return basicRedo(-AStep);
+    if (AStep < 0)
+        return basicRedo(-AStep);
 
-  if (FUndos.empty())
-    return false;
+    if (FUndos.empty())
+        return false;
 
-  // Premier undo :
-  if (FActu == NULL)
-    FActu = saveModel();
+    // Premier undo :
+    if (FActu == NULL)
+        FActu = saveModel();
 
-  // Sauvegarde de l'état actuel dans la pile des redos :
-  FRedos.push_front(FActu);
+    // Sauvegarde de l'état actuel dans la pile des redos :
+    FRedos.push_front(FActu);
 
-  // Déplacement de AStep-1 éléments de la pile des undos vers celle des redos :
-  for (int i = 1; i < AStep && 1 < FUndos.size(); ++i)
+    // Déplacement de AStep-1 éléments de la pile des undos vers celle des redos :
+    for (int i = 1; i < AStep && 1 < FUndos.size(); ++i)
     {
-      FRedos.push_front(FUndos.front());
-      FUndos.pop_front();
-      --FLastFileIndex;
+        FRedos.push_front(FUndos.front());
+        FUndos.pop_front();
+        --FLastFileIndex;
     }
 
-  // Lecture de la carte dans la pile des undos :
-  assert(! FUndos.empty());
-  FActu = FUndos.front();
-  FUndos.pop_front();
-  --FLastFileIndex;
-  loadModel(FActu);
+    // Lecture de la carte dans la pile des undos :
+    assert(! FUndos.empty());
+    FActu = FUndos.front();
+    FUndos.pop_front();
+    --FLastFileIndex;
+    loadModel(FActu);
 
-  saveLastUndoOnFile();
-    
-  return true;
+    saveLastUndoOnFile();
+
+    return true;
 }
 //------------------------------------------------------------------------------
 bool CControler::basicRedo(int AStep)
 {
-  if (AStep == 0)
-    return true;
+    if (AStep == 0)
+        return true;
 
-  if (AStep < 0)
-    return basicUndo(-AStep);
+    if (AStep < 0)
+        return basicUndo(-AStep);
 
-  if (FRedos.empty())
-    return false;
+    if (FRedos.empty())
+        return false;
 
-  assert(FActu != NULL);
+    assert(FActu != NULL);
 
-  // Sauvegarde de l'état actuel dans la pile des undos :
-  FUndos.push_front(FActu);
+    // Sauvegarde de l'état actuel dans la pile des undos :
+    FUndos.push_front(FActu);
 
-  // Déplacement de AStep-1 éléments de la pile des redos vers celle des undos :
-  for (int i = 1; i < AStep && 1 < FUndos.size(); ++i)
+    // Déplacement de AStep-1 éléments de la pile des redos vers celle des undos :
+    for (int i = 1; i < AStep && 1 < FUndos.size(); ++i)
     {
-      FUndos.push_front(FRedos.front());
-      ++FLastFileIndex;
-      FRedos.pop_front();
+        FUndos.push_front(FRedos.front());
+        ++FLastFileIndex;
+        FRedos.pop_front();
     }
 
-  // Lecture de la carte dans la pile des undos :
-  assert(! FRedos.empty());
-  FActu = FRedos.front();
-  FRedos.pop_front();
-  loadModel(FActu);
-  ++FLastFileIndex;
-      
-  saveLastUndoOnFile();
-  
-  return true;
+    // Lecture de la carte dans la pile des undos :
+    assert(! FRedos.empty());
+    FActu = FRedos.front();
+    FRedos.pop_front();
+    loadModel(FActu);
+    ++FLastFileIndex;
+
+    saveLastUndoOnFile();
+
+    return true;
 }
 //******************************************************************************
 void CControler::undoRedoPreSave()
 {
-  basicPreSave();
+    basicPreSave();
 }
 //------------------------------------------------------------------------------
 void CControler::undoRedoPostSaveOk()
 {
-  basicPostSaveOk();
-  FLastOperation = FCurrentOperation;
+    basicPostSaveOk();
+    FLastOperation = FCurrentOperation;
 }
 //------------------------------------------------------------------------------
 void CControler::undoRedoPostSaveFailed()
 {
-  basicPostSaveFailed();
+    basicPostSaveFailed();
 }
 //******************************************************************************
 void CControler::basicPreSave()
 {
-  if (FNbMaxUndos==0) return;
+    if (FNbMaxUndos==0) return;
 
-  if ( FActu!=NULL )
+    if ( FActu!=NULL )
     {
-      if (FUndoOnFile) remove(FActu->str().c_str());
-      delete FActu;
-      --FLastFileIndex;
+        if (FUndoOnFile) remove(FActu->str().c_str());
+        delete FActu;
+        --FLastFileIndex;
     }
-    
-  FActu = saveModel();
+
+    FActu = saveModel();
 }
 //------------------------------------------------------------------------------
 void CControler::basicPostSaveOk()
 {
-  if (FNbMaxUndos==0) return;
-  
-  assert( FActu!=NULL );
+    if (FNbMaxUndos==0) return;
 
-  // Sauvegarde de FActu :
-  FUndos.push_front(FActu);
-  delete FActu;
-  FActu = NULL;
+    assert( FActu!=NULL );
 
-  emptyRedoList();
-  saveLastUndoOnFile();
+    // Sauvegarde de FActu :
+    FUndos.push_front(FActu);
+    FActu = NULL;
+
+    emptyRedoList();
+    saveLastUndoOnFile();
 }
 //------------------------------------------------------------------------------
 void CControler::basicPostSaveFailed()
 {
-  if (FNbMaxUndos==0) return;
-  
-  assert(FActu != NULL);
+    if (FNbMaxUndos==0) return;
+
+    assert(FActu != NULL);
 }
 //******************************************************************************
 string CControler::getUndoRedoStatus() const
 {
-  stringstream s;
-  s<< FUndos.size()<<" * "<<FRedos.size();
-  return s.str();
+    stringstream s;
+    s<< FUndos.size()<<" * "<<FRedos.size();
+    return s.str();
 }
 //******************************************************************************
 bool CControler::existsFile(const string & AFilename)
 {
-  FILE * f;
-  f=fopen(AFilename.c_str(), "r");
+    FILE * f;
+    f=fopen(AFilename.c_str(), "r");
 
-  if (f==NULL)
-    return false;
+    if (f==NULL)
+        return false;
 
-  fclose(f);
-  return true;
+    fclose(f);
+    return true;
 }
 //******************************************************************************
 void CControler::saveLastUndoOnFile()
 {
-  if (!FUndoOnFile) return;
-    
-  stringstream s;
-  s<<FConfigDirectory<<"/.moka-last-undo-file";
+    if (!FUndoOnFile) return;
 
-  ofstream os(s.str().c_str());
-  if (os.is_open())
+    stringstream s;
+    s<<FConfigDirectory<<"/.moka-last-undo-file";
+
+    ofstream os(s.str().c_str());
+    if (os.is_open())
     {
-      os<<FLastFileIndex<<endl;
-      os.close();
+        os<<FLastFileIndex<<endl;
+        os.close();
     }
 }
 //******************************************************************************
 void CControler::recupLastUndoFromFile()
 {
-  if (!FUndoOnFile) return;
+    if (!FUndoOnFile) return;
 
-  stringstream s;
-  s<<FConfigDirectory<<"/.moka-last-undo-file";
-  
-  ifstream is(s.str().c_str());;
-  if (is.is_open())
+    stringstream s;
+    s<<FConfigDirectory<<"/.moka-last-undo-file";
+
+    ifstream is(s.str().c_str());;
+    if (is.is_open())
     {
-      is>>FLastFileIndex;
-      is.close();
+        is>>FLastFileIndex;
+        is.close();
     }
-  else
+    else
     {
-      FLastFileIndex = 0;
+        FLastFileIndex = 0;
     }
 }
 //******************************************************************************
 void CControler::recupFromFiles()
 {
-  recupLastUndoFromFile();
+    recupLastUndoFromFile();
 
-  if (!FUndoOnFile || FNbMaxUndos==0 || FLastFileIndex==0) return;
-  
-  string filename;
-  int nbFilesRecup = 0;
-  
-  int current = FLastFileIndex;
-  bool undoFull = false;
-  ostringstream * os;
-  
-  filename = getFilename(current);
-  while (existsFile(filename) && !undoFull)
+    if (!FUndoOnFile || FNbMaxUndos==0 || FLastFileIndex==0) return;
+
+    string filename;
+    int nbFilesRecup = 0;
+
+    int current = FLastFileIndex;
+    bool undoFull = false;
+    ostringstream * os;
+
+    filename = getFilename(current);
+    while (existsFile(filename) && !undoFull)
     {
-      os = new ostringstream;
-      (*os)<<filename.c_str();
-      
-      FUndos.push_back(os);
-      delete os;
+        os = new ostringstream;
+        (*os)<<filename.c_str();
 
-      ++nbFilesRecup;
-      if ( nbFilesRecup==FNbMaxUndos )
-	undoFull = true;
-      
-      --current;
-      filename = getFilename(current);
-    }  
+        FUndos.push_back(os);
+
+        ++nbFilesRecup;
+        if ( nbFilesRecup==FNbMaxUndos )
+            undoFull = true;
+
+        --current;
+        filename = getFilename(current);
+    }
 }
 //******************************************************************************
