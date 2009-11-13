@@ -28,127 +28,125 @@ using namespace GMap3d;
 //******************************************************************************
 ostringstream* CControlerGMap::saveModel()
 {
-  updateModelIfNeeded    ();
-  updateSelectionIfNeeded();
+    updateModelIfNeeded    ();
+    updateSelectionIfNeeded();
 
-  ostream* os;
-  string filename = getFilename(getNewFileIndex());
+    ostream* os;
+    string filename = getFilename(getNewFileIndex());
 
-  if (FUndoOnFile)
-    os = new ofstream(filename.c_str());
-  else
-    os = new ostringstream;
+    if (FUndoOnFile)
+        os = new ofstream(filename.c_str());
+    else
+        os = new ostringstream;
 
-  assert( os!=NULL );
-  
-  int nbLevels = getNbSelectionLevels();
-  int* lasts   = new int[nbLevels];
+    assert( os!=NULL );
 
-  int i,j;
+    int nbLevels = getNbSelectionLevels();
+    int* lasts   = new int[nbLevels];
 
-  // Recherche de l'index des brins "last" dans la liste de tous les brins :
-  for (i=0; i<nbLevels; ++i)
-    lasts[i] = -1;
+    int i,j;
 
-  CDynamicCoverageAll it(FMap);
+    // Recherche de l'index des brins "last" dans la liste de tous les brins :
+    for (i=0; i<nbLevels; ++i)
+        lasts[i] = -1;
 
-  for (i=0; it.cont(); ++it, ++i)
-    for (j=0; j<nbLevels; ++j)
-      if (*it == getLastSelectedDart(j))
-	lasts[j] = i;
+    CDynamicCoverageAll it(FMap);
 
-  // On sauve les lasts
-  for (i=0; i<nbLevels; ++i)
-    (*os) << lasts[i] << " ";
+    for (i=0; it.cont(); ++it, ++i)
+        for (j=0; j<nbLevels; ++j)
+            if (*it == getLastSelectedDart(j))
+                lasts[j] = i;
 
-  // Puis les opérations
-  (*os) << FLastOperation << " ";
+    // On sauve les lasts
+    for (i=0; i<nbLevels; ++i)
+        (*os) << lasts[i] << " ";
 
-  // Et enfin la carte
-  if (! FMap->save(*os, BinaryFormat))
-    assert(false);
+    // Puis les opérations
+    (*os) << FLastOperation << " ";
 
-  delete [] lasts;
+    // Et enfin la carte
+    if (! FMap->save(*os, BinaryFormat))
+        assert(false);
 
-  ostringstream * res;
+    delete [] lasts;
 
-  if (FUndoOnFile)
+    ostringstream * res;
+
+    if (FUndoOnFile)
     {
-      os->flush();
-      delete os;
-      res = new ostringstream;
-      (*res) << filename;
+        os->flush();
+        delete os;
+        res = new ostringstream;
+        (*res) << filename;
     }
-  else
-    res = static_cast<ostringstream*>(os);
+    else
+        res = static_cast<ostringstream*>(os);
 
-  return res;
+    return res;
 }
 //------------------------------------------------------------------------------
 bool CControlerGMap::loadModel(ostringstream * AStream)
 {
-  istream * is;
+    istream * is;
 
-  if (FUndoOnFile)
+    if (FUndoOnFile)
     {
-      string temp = AStream->str();
-
-      is = new ifstream(temp.c_str());
-      if (!is->good())
-	{
-	  delete is;
-	  return false;
-	}
+        is = new ifstream(AStream->str().c_str());
+        if (!is->good())
+        {
+            delete is;
+            return false;
+        }
     }
-  else
-    is = new istringstream(AStream->str());
+    else
+        is = new istringstream(AStream->str());
 
-  int nbLevels = getNbSelectionLevels();
-  int* lasts   = new int[nbLevels];
-  int i,k,n;
+    int nbLevels = getNbSelectionLevels();
+    int* lasts   = new int[nbLevels];
+    int i,k,n;
 
-  // On charge les last
-  for (i=0; i<nbLevels; ++i)
-    (*is) >> lasts[i];
+    // On charge les last
+    for (i=0; i<nbLevels; ++i)
+        (*is) >> lasts[i];
 
-  // Puis les opérations
-  (*is) >> FLastOperation;
-  
-  is->get(); // Pour passer le dernier espace avant le contenu de la carte
+    // Puis les opérations
+    (*is) >> FLastOperation;
 
-  FMap->removeAllDarts();
+    is->get(); // Pour passer le dernier espace avant le contenu de la carte
 
-  setModelChanged    ();
-  setSelectionChanged();
-  
-  for (i=0; i<nbLevels; ++i)
-    unsetLastSelectedDart(i);
+    FMap->removeAllDarts();
 
-  // Et la carte
-  if ( FMap->load(*is, BinaryFormat)==NULL )
+    setModelChanged    ();
+    setSelectionChanged();
+
+    for (i=0; i<nbLevels; ++i)
+        unsetLastSelectedDart(i);
+
+    // Et la carte
+    if ( FMap->load(*is, BinaryFormat)==NULL )
     {
-      FMap->removeAllDarts();
-      delete [] lasts;
-      delete is;
-      return false;
+        FMap->removeAllDarts();
+        delete [] lasts;
+        delete is;
+        return false;
     }
 
-  CDynamicCoverageAll it(FMap);
+    CDynamicCoverageAll it(FMap);
 
-  for (n=0; it.cont(); ++it)
-    ++n;
+    for (n=0; it.cont(); ++it)
+        ++n;
 
-  for (i=0, it.reinit(); it.cont(); ++it, ++i)
-    for (k=0; k<nbLevels; ++k)
-      if (lasts[k] == n-i-1)
-	selectDart(*it, k); // Ce sera le dernier brin sélectionné
+    for (i=0, it.reinit(); it.cont(); ++it, ++i)
+        for (k=0; k<nbLevels; ++k)
+            if (lasts[k] == n-i-1)
+                selectDart(*it, k); // Ce sera le dernier brin sélectionné
 
-  delete [] lasts;
-  delete is;
+    delete [] lasts;
+    delete is;
 
-  assert(FMap->checkTopology());
-  assert(FMap->checkEmbeddings(ORBIT_VERTEX, ATTRIBUTE_VERTEX, true));
+    assert(FMap->checkTopology());
+    assert(FMap->checkEmbeddings(ORBIT_VERTEX, ATTRIBUTE_VERTEX, true));
 
-  return true;
+    return true;
 }
 //******************************************************************************
