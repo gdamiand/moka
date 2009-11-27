@@ -35,7 +35,7 @@
 #endif
 
 #ifdef __APPLE__
-#include <OpenGL/glut.h>
+#include <GLUT/glut.h>
 #else
 #include <GL/glut.h>
 #endif
