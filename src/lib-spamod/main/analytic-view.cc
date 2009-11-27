@@ -34,7 +34,12 @@
 #include <windows.h>
 #endif
 
+#ifdef __APPLE__
+#include <OpenGL/glut.h>
+#else
 #include <GL/glut.h>
+#endif
+
 #include "analytic-view.hh"
 #include "ineq-table-6.hh"
 #include "ineq-table-6-att.hh"

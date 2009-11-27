@@ -34,7 +34,12 @@
 #include <windows.h>
 #endif
 
+#ifdef __APPLE__
+#include <OpenGL/glut.h>
+#else
 #include <GL/glut.h>
+#endif
+
 #include "user.hh"
 #include "topologic-view.hh"
 #include "vertex.hh"
