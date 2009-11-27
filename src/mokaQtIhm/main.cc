@@ -30,7 +30,13 @@
 #ifdef _WINDOWS
 #include <windows.h>
 #endif
+
+#ifdef __APPLE__
+#include <OpenGL/glut.h>
+#else
 #include <GL/glut.h>
+#endif
+
 #endif // MODULE_SPAMOD
 
 //******************************************************************************

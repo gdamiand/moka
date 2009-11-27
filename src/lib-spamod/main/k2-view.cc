@@ -33,7 +33,12 @@
 #include <windows.h>
 #endif
 
+#ifdef __APPLE__
+#include <OpenGL/glut.h>
+#else
 #include <GL/glut.h>
+#endif
+
 #include "matrix.hh"
 #include "k2-view.hh"
 #include "user.hh"

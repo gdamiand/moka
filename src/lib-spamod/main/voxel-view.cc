@@ -33,7 +33,12 @@
 #include <windows.h>
 #endif
 
+#ifdef __APPLE__
+#include <OpenGL/glut.h>
+#else
 #include <GL/glut.h>
+#endif
+
 #include "voxel-view.hh"
 #include "ineq-op.hh"
 #include "definition.hh"
