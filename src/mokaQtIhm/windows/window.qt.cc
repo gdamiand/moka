@@ -1167,9 +1167,9 @@ void Window::callbackSave()
       int res = 0;
 
       switch (type)
-      {
-         case 0: res = getControler()->saveMapBinary(filename.c_str()); break;
-         case 1: res = getControler()->saveMapAscii(filename.c_str()); break;
+      { 
+         case 0: res = getControler()->saveMapAscii(filename.c_str()); break;
+         case 1: res = getControler()->saveMapBinary(filename.c_str()); break;
          default : break;
       }
 
