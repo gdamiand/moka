@@ -258,7 +258,7 @@ void Window::repaint()
       // Appel de la methode sur toutes les vues ouvertes
       QWidgetList vues = FWorkspace -> windowList() ;
       for (int i = 0 ; i < int (vues . count()) ; i++)
-         ((GLWindow *) vues.at(i))->update(); //repaint() ;
+	((GLWindow *) vues.at(i))->updateGL(); //paintGL(); //update(); //repaint() ;
 
       updateStatusBar();
       is_repainting = false;

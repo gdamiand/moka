@@ -107,17 +107,17 @@ public:
    */
   virtual TViewId getDoubleCliquedViewId ( ) const ;
   
+  /**
+   * Dessin de la scene
+   */
+  virtual void paintGL ( ) ;
+
 protected:
 
   /**
    * Initialisation d'OpenGL
    */
   virtual void initializeGL ( ) ;
-
-  /**
-   * Dessin de la scene
-   */
-  virtual void paintGL ( ) ;
 
   /**
    * Initialisation de la vue dans le controleur
