@@ -104,7 +104,7 @@ void writeChar(std::ostream& AStream, uint8_t AChar);
  * @param AStream Un flot
  * @param AInt Un entier non signé codé sur 4 octets
  */
-void writeInt(std::ostream& AStream, uint32_t AInt);
+void writeInt(std::ostream& AStream, unsigned long int AInt);
 
 /**
  * Écrit la valeur de ACoord dans le flot AStream, en tenant compte du mode de
@@ -140,7 +140,7 @@ uint8_t readChar(std::istream& AStream);
  * @param AStream Un flot
  * @return Un entier non signé codé sur 4 octets
  */
-long int readInt(std::istream& AStream);
+unsigned long int readInt(std::istream& AStream);
 
 /**
  * Lit un flottant dans le flot AStream, en tenant compte du mode de chargement
