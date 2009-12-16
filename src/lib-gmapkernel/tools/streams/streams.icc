@@ -83,10 +83,10 @@ void writeChar(std::ostream& AStream, uint8_t AChar)
 }
 //******************************************************************************
 INLINE
-void writeInt(std::ostream& AStream, uint32_t AInt)
+void writeInt(std::ostream& AStream, unsigned long int AInt)
 {
   if (bin)
-    AStream.write((char *) & AInt, sizeof(uint32_t));
+    AStream.write((char *) & AInt, sizeof(unsigned long int));
   else
     AStream << AInt;
 }
@@ -123,12 +123,12 @@ uint8_t readChar(std::istream& AStream)
 }
 //******************************************************************************
 INLINE
-long int readInt(std::istream& AStream)
+unsigned long int readInt(std::istream& AStream)
 {
-  long int i;
+  unsigned long int i;
 
   if (bin)
-    AStream.read((char *) & i, sizeof(long int));
+    AStream.read((char *) & i, sizeof(unsigned long int));
   else
     AStream >> i;
 
