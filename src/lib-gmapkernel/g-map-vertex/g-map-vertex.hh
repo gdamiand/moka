@@ -178,6 +178,11 @@ namespace GMap3d
 #include "gmv-isomorphisme.hh"
     // @}
 
+    // Calcul de groupes d'homologies
+    // @{
+#include "gmv-homology.hh"
+    // @}
+
   private:
     // @name Champs privés
     // @{

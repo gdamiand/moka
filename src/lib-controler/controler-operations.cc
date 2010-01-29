@@ -73,6 +73,31 @@ string CControler::getMessage() const
   return treatAccent(FMessage);
 }
 //******************************************************************************
+void CControler::setMessage(const string & AMessage)
+{ FMessage = AMessage; }
+//******************************************************************************
+void CControler::setMessage(int ANumber, const string & AMessage)
+{
+  stringstream s;
+  s<<ANumber<<AMessage;  
+  setMessage(s.str());
+}
+//******************************************************************************
+void CControler::setMessage(int ANumber1, int ANumber2, const string & AMessage)
+{
+  stringstream s;
+  s<<ANumber1<<" "<<ANumber2<<AMessage;
+  setMessage(s.str());
+}
+//******************************************************************************
+void CControler::setMessage(const string & AMessage1, int ANumber,
+			    const string & AMessage2)
+{
+  stringstream s;
+  s<<AMessage1<<ANumber<<AMessage2;  
+  setMessage(s.str());
+}
+//******************************************************************************
 bool CControler::lookAtOrigin(TViewId AView)
 {
   getParameterAimedPosition(AView)->setLookAt(0,0);

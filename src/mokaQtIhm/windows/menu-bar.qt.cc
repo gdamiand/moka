@@ -652,6 +652,15 @@ MenuBar :: MenuBar(Window * parent)
              FParent, SLOT(callbackBooleanOperations3d()), Qt::Key_At);
 #endif // MODULE_COREFINEMENT
 
+   QMenu * homology = operations -> addMenu("&Homology") ;
+
+   homology -> addAction("&Vertex incidence number" , FParent ,
+                           SLOT(callbackVertexIncidenceNumber())) ;
+   homology -> addAction("&Edge incidence number" , FParent ,
+                           SLOT(callbackEdgeIncidenceNumber())) ;
+   homology -> addAction("&Face incidence number" , FParent ,
+                           SLOT(callbackFaceIncidenceNumber())) ;
+
    //- Geologie
 #ifdef MODULE_GEOLOGY
    geologie = new QMenu(*HTML::decode("&G&eacute;ologie"));
