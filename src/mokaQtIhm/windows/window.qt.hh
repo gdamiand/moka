@@ -442,6 +442,12 @@ public slots:
   void callbackBooleanOperations3d ( ) ;
   //void callbackCorefineTest ( ) ;
 
+  // -- Homology
+  void callbackVertexIncidenceNumber();
+  void callbackEdgeIncidenceNumber();
+  void callbackFaceIncidenceNumber();
+  
+  
   // Slots Menu Geologie
   //********************
   void callbackUncertainZone                     ();

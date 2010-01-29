@@ -42,6 +42,19 @@ virtual bool applyOperation(const COperation& AOperation);
 /// Récupère le dernier message du controleur.
 std::string getMessage() const;
 
+/// Fixe le message "AMessage"
+void setMessage(const std::string & AMessage);
+
+/// Fixe le message "ANumber AMessage"
+void setMessage(int ANumber,  const std::string & AMessage);
+
+/// Fixe le message "ANumber1 ANumber2 AMessage"
+void setMessage(int ANumber1, int ANumber2, const std::string & AMessage);
+
+/// Fixe le message "AMessage1 ANumber AMessage2"
+void setMessage(const std::string & AMessage1,
+		int ANumber, const std::string & AMessage2);
+
 /// Pour enlever les accents (pour l'option NO_ACCENTED_CHARS)
 std::string treatAccent(const std::string& AString) const;
 //@}
