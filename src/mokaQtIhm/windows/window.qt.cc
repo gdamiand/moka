@@ -2385,43 +2385,6 @@ void Window :: callbackBooleanOperations3d()
 #endif // COREFINEMENT
 }
 //------------------------------------------------------------------------------
-void Window::callbackVertexIncidenceNumber()
-{
-  CDart* d = getControler()->getLastSelectedDart();
-  if (d!=NULL)
-    {
-      int n = getControler()->getMap()->computeIncidenceNumber(d,0,d);
-      getControler()->setMessage(string("Incidence number: "),n,"");
-    }
-  else
-    getControler()->setMessage(string("No last selected dart."));
-  
-  updateStatusBar();
-}
-void Window::callbackEdgeIncidenceNumber()
-{
-  CDart* d = getControler()->getLastSelectedDart();
-  if (d!=NULL)
-    {
-      int n = getControler()->getMap()->computeIncidenceNumber(d,1,d);
-      getControler()->setMessage(string("Incidence number: "),n,"");
-    }
-  else
-    getControler()->setMessage(string("No last selected dart."));
-  updateStatusBar();  
-}
-void Window::callbackFaceIncidenceNumber()
-{
-  CDart* d = getControler()->getLastSelectedDart();
-  if (d!=NULL)
-    {
-      int n = getControler()->getMap()->computeIncidenceNumber(d,2,d);
-      getControler()->setMessage(string("Incidence number: "),n,"");
-    }
-  else
-    getControler()->setMessage(string("No last selected dart."));
-  updateStatusBar();
-}
 void Window::callbackComputeHomology()
 {
   CHomology c(getControler()->getMap());

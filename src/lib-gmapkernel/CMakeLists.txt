@@ -34,7 +34,7 @@ add_library (gmapkernel
   g-map-vertex/gmv-primitive-mesh.cc g-map-vertex/gmv-export-pov.cc
   g-map-vertex/gmv-materialization.cc g-map-vertex/gmv-quadrangulation.cc
   g-map-vertex/gmv-extrusion.cc g-map-vertex/gmv-merge.cc
-  g-map-vertex/gmv-regression.cc g-map-vertex/gmv-homology.cc
+  g-map-vertex/gmv-regression.cc
 
   tools/geometry/geometry.cc tools/geometry/transformation-matrix.cc  
   tools/geometry/vertex.cc tools/geometry/math-extension.cc

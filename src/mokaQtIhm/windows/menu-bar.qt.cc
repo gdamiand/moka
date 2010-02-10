@@ -654,13 +654,6 @@ MenuBar :: MenuBar(Window * parent)
 
    QMenu * homology = operations -> addMenu("&Homology") ;
 
-   homology -> addAction("&Vertex incidence number" , FParent ,
-                           SLOT(callbackVertexIncidenceNumber())) ;
-   homology -> addAction("&Edge incidence number" , FParent ,
-                           SLOT(callbackEdgeIncidenceNumber())) ;
-   homology -> addAction("&Face incidence number" , FParent ,
-                           SLOT(callbackFaceIncidenceNumber())) ;
-   homology -> addSeparator() ;
    homology -> addAction("&Compute" , FParent ,
                            SLOT(callbackComputeHomology())) ;
 

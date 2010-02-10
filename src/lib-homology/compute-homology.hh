@@ -45,8 +45,27 @@ public:
   void computeHomology();
 
 protected:
-  /// Compute the incidence matric for cells of dimension ADim.
+  /** Compute the incidence matrix for cells of dimension ADim.
+   *  The incidence matrix FMatrix[ADim] is updated.
+   * @precondition (ADim >= 0) && (ADim < 3)
+   */
   void computeIncidence(int ADim);
+
+  /**
+   * Compute the incidence number of cell c=(ADart,ADim), relatively to the cell
+   * c2=(ADart2,ADim+1). Incidence number is the number of times c is incident to
+   * c2. This number is signed depending if the two cells have the same
+   * orientation (+) or not (-).
+   *
+   * @param ADart A dart of the cell c
+   * @param ADim The dimension of the cell c
+   * @param ADart A adart of the cell c2
+   * @param AIndex A direct info which number each ADim cell (+i or -i).
+   * @return The signed incidence number of c in c2
+   *
+   * @precondition (ADim >= 0) && (ADim < 3)
+   */
+  int computeIncidenceNumber(CDart* ADart, int ADim, CDart* ADart2, int AIndex);
 
 private:
   /// The gmap.
