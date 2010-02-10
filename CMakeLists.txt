@@ -140,9 +140,14 @@ if ( MODULE_COREFINEMENT )
 endif ( MODULE_COREFINEMENT )
 
 #-------------------------------------------------------------------------------
+# For Homology: TODO add an option to enable or disable the module
+include_directories (${CMAKE_SOURCE_DIR}/src/lib-homology)
+include_directories (${CMAKE_SOURCE_DIR}/src/lib-homology/matrices-pmq)
+#-------------------------------------------------------------------------------
 add_subdirectory (src/lib-gmapkernel lib-gmapkernel)
 add_subdirectory (src/lib-controler lib-controler)
 add_subdirectory (src/lib-controler-gmap lib-controler-gmap)
+add_subdirectory (src/lib-homology lib-homology)
 add_subdirectory (src/mokaQtIhm mokaQtIhm)
 
 add_subdirectory (src/example-basic example-basic EXCLUDE_FROM_ALL)
