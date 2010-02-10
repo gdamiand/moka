@@ -443,9 +443,6 @@ public slots:
   //void callbackCorefineTest ( ) ;
 
   // -- Homology
-  void callbackVertexIncidenceNumber();
-  void callbackEdgeIncidenceNumber();
-  void callbackFaceIncidenceNumber();
   void callbackComputeHomology();
   
   
