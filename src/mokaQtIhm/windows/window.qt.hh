@@ -446,6 +446,7 @@ public slots:
   void callbackVertexIncidenceNumber();
   void callbackEdgeIncidenceNumber();
   void callbackFaceIncidenceNumber();
+  void callbackComputeHomology();
   
   
   // Slots Menu Geologie

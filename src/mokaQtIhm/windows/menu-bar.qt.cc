@@ -660,6 +660,9 @@ MenuBar :: MenuBar(Window * parent)
                            SLOT(callbackEdgeIncidenceNumber())) ;
    homology -> addAction("&Face incidence number" , FParent ,
                            SLOT(callbackFaceIncidenceNumber())) ;
+   homology -> addSeparator() ;
+   homology -> addAction("&Compute" , FParent ,
+                           SLOT(callbackComputeHomology())) ;
 
    //- Geologie
 #ifdef MODULE_GEOLOGY

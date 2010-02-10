@@ -63,7 +63,7 @@ QT4_ADD_RESOURCES(RESOURCES_SRCS ${QT_RESOURCES})
 #-------------------------------------------------------------------------------
 add_executable(mokaQt ${IHM_SRCS} ${MOC_SRCS} ${RESOURCES_SRCS})
 
-target_link_libraries (mokaQt controler-gmap controler gmapkernel)
+target_link_libraries (mokaQt controler-gmap controler gmapkernel homology)
 
 target_link_libraries(mokaQt ${QT_LIBRARIES} ${QT_QT3SUPPORT_LIBRARY})
 target_link_libraries(mokaQt ${QT_QTOPENGL_LIBRARY})
