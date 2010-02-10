@@ -25,6 +25,7 @@
 #include "HtmlEntities.hh"
 //#include "icones.hh"
 #include "gl-multi-window.qt.hh"
+#include "compute-homology.hh"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -2420,6 +2421,11 @@ void Window::callbackFaceIncidenceNumber()
   else
     getControler()->setMessage(string("No last selected dart."));
   updateStatusBar();
+}
+void Window::callbackComputeHomology()
+{
+  CHomology c(getControler()->getMap());
+  c.computeHomology();
 }
 //------------------------------------------------------------------------------
 //- GEOLOGIE
