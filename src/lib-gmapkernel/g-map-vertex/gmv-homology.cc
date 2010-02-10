@@ -47,7 +47,7 @@ int CGMapVertex::computeIncidenceNumber(CDart* ADart, int ADim, CDart* ADart2)
   halfMarkOrbit(ADart2, ORBIT_INF[ADim+1], m1);
   //  halfMarkOrbit(ADart, ORBIT_CELL[ADim], m1);
   
- 
+
   int m2 = getNewMark();
   markOrbit(ADart2, ORBIT_CELL[ADim+1], m2);
 
@@ -58,24 +58,25 @@ int CGMapVertex::computeIncidenceNumber(CDart* ADart, int ADim, CDart* ADart2)
   
   CCoverage * cov = getDynamicCoverage(ADart, ORBIT_CELL[ADim]);
   for (; cov->cont(); ++(*cov))
+  {
+    if ( !isMarked(**cov,treated) && isMarked(**cov,m1)/* && isMarked(**cov,m2)*/ )
     {
-      if ( !isMarked(**cov,treated) && isMarked(**cov,m1)/* && isMarked(**cov,m2)*/ )
-	{
-	  if ( isMarked(**cov,m1oriented) ) ++incidenceNumber;
-	  else --incidenceNumber;
-	  
-	  markOrbit(**cov,ORBIT_INF[ADim],treated);
-	}
+      if ( isMarked(**cov,m1oriented) ) ++incidenceNumber;
+      else --incidenceNumber;
+
+      markOrbit(**cov,ORBIT_INF[ADim],treated);
     }
+  }
   
   for (cov->reinit(); cov->cont(); ++(*cov))
+  {
+    if ( isMarked(**cov,treated) )
     {
-      if ( isMarked(**cov,treated) )
-	{
-	  unmarkOrbit(**cov,ORBIT_INF[ADim],treated);
-	}
+      unmarkOrbit(**cov,ORBIT_INF[ADim],treated);
     }
-  
+  }
+  delete cov;
+
   halfUnmarkOrbit(ADart2, ORBIT_INF[ADim+1], m1);
   //halfUnmarkOrbit(ADart, ORBIT_CELL[ADim], m1);
   

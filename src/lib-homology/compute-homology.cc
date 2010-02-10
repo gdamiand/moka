@@ -28,11 +28,11 @@
 using namespace GMap3d;
 //******************************************************************************
 CHomology::CHomology(CGMapVertex* AMap) :
-  FMap(AMap),
-  FNbVertices(0),
-  FNbEdges(0),
-  FNbFaces(0),
-  FNbVolumes(0)
+    FMap(AMap),
+    FNbVertices(0),
+    FNbEdges(0),
+    FNbFaces(0),
+    FNbVolumes(0)
 {
   for (int i=0;i<3;++i)
     FMatrix[i]=NULL;
@@ -56,42 +56,43 @@ void CHomology::computeIncidence(int ADim)
   // 1) We number each (ADim-1)-cell of the map
   CDynamicCoverageAll it(FMap);
   for (; it.cont(); ++it)
+  {
+    if (!FMap->isMarked(*it, treated))
     {
-      if (!FMap->isMarked(*it, treated))
-  	{
-	  CCoverage* it2 = FMap->getDynamicCoverage(*it,ORBIT_CELL[ADim-1]);
-	  for(;it2->cont();++(*it2))
-	    {
-	      FMap->setDirectInfo(**it2,index,(void*)currentcell);
-	      FMap->setMark(**it2, treated);
-	    }
-	  delete it2;
-	  ++currentcell;	  
-	}
+      CCoverage* it2 = FMap->getDynamicCoverage(*it,ORBIT_CELL[ADim-1]);
+      for(;it2->cont();++(*it2))
+      {
+        FMap->setDirectInfo(**it2,index,(void*)currentcell);
+        FMap->setMark(**it2, treated);
+      }
+      delete it2;
+      ++currentcell;
     }
+  }
   FMap->negateMaskMark(treated);
 
   // 2) We run through all the ADim-cell of the map and compute the incidence
   //    number with (ADim-1)-cells
   currentcell = 0;
   for (it.reinit(); it.cont(); ++it)
+  {
+    if (!FMap->isMarked(*it, treated))
     {
-      if (!FMap->isMarked(*it, treated))
-  	{
-	  CCoverage* it2 = FMap->getDynamicCoverage(*it,ORBIT_CELL[ADim]);
-	  for(;it2->cont();++(*it2))
-	    {
-	      // On va calculer plusieurs fois les mêmes valeurs.
-	      // on pourrait marquer markOrbit(*it2,ORBIT_CELL[ADim]) pour éviter ça
-	      FMatrix[ADim-1]->setValPMQ( (long int)FMap->getDirectInfo(**it2, index),
-					  currentcell,
-					  FMap->computeIncidenceNumber(**it2,ADim-1,**it2));
-	      FMap->setMark(**it2, treated);
-	    }
-	  delete it2;
-	  ++currentcell;
-	}
+      CCoverage* it2 = FMap->getDynamicCoverage(*it,ORBIT_CELL[ADim]);
+      for(;it2->cont();++(*it2))
+      {
+        // On va calculer plusieurs fois les mêmes valeurs.
+        // on pourrait marquer markOrbit(*it2,ORBIT_CELL[ADim]) pour éviter ça
+        FMatrix[ADim-1]->setValPMQ( (long int)FMap->getDirectInfo(**it2, index),
+                                    currentcell,
+                                    FMap->computeIncidenceNumber(**it2,
+                                                                 ADim-1,**it2));
+        FMap->setMark(**it2, treated);
+      }
+      delete it2;
+      ++currentcell;
     }
+  }
   
   FMap->negateMaskMark(treated);
   FMap->freeMark(treated);
@@ -104,12 +105,13 @@ void CHomology::computeHomology()
   
   delete FMatrix[0]; FMatrix[0] = new MatricePMQ(FNbVertices, FNbEdges);
   delete FMatrix[1]; FMatrix[1] = new MatricePMQ(FNbEdges, FNbFaces);
-
+  std::cout<<"Nb marks1: "<<FMap->getNbUsedMarks()<<std::endl;
   computeIncidence(1);
   computeIncidence(2);
 
   FMatrix[0]->smithForm();
-  FMatrix[1]->getM()->setMatrice( FMatrix[1]->getM()->multGauche(FMatrix[0]->getQ()));
+  FMatrix[1]->getM()->setMatrice( FMatrix[1]->getM()->
+                                  multGauche(FMatrix[0]->getQ()));
   FMatrix[1]->getP()->setMatrice( FMatrix[0]->getQinv() );
   FMatrix[1]->getPinv()->setMatrice( FMatrix[0]->getQ() );
   FMatrix[1]->smithForm();
