@@ -110,11 +110,17 @@ void CHomology::computeHomology()
   computeIncidence(2);
 
   FMatrix[0]->smithForm();
+
+  FMatrix[1]->getM()->affiche();
+
+  
   FMatrix[1]->getM()->setMatrice( FMatrix[1]->getM()->
                                   multGauche(FMatrix[0]->getQ()));
   FMatrix[1]->getP()->setMatrice( FMatrix[0]->getQinv() );
   FMatrix[1]->getPinv()->setMatrice( FMatrix[0]->getQ() );
   FMatrix[1]->smithForm();
+
+  FMatrix[1]->getM()->affiche();
   
   //  FMatrix[2] = new MatricePMQ(FNbVolumes, FNbEdges);
 }

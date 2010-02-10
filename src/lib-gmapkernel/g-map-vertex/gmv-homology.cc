@@ -52,16 +52,16 @@ int CGMapVertex::computeIncidenceNumber(CDart* ADart, int ADim, CDart* ADart2)
   markOrbit(ADart2, ORBIT_CELL[ADim+1], m2);
 
   int m1oriented = getNewMark();
-  halfMarkOrbit(ADart, ORBIT_CELL[ADim], m1oriented);
+  halfMarkOrbit(ADart, ORBIT_INF[ADim], m1oriented);
 
   int treated = getNewMark();
   
   CCoverage * cov = getDynamicCoverage(ADart, ORBIT_CELL[ADim]);
   for (; cov->cont(); ++(*cov))
   {
-    if ( !isMarked(**cov,treated) && isMarked(**cov,m1)/* && isMarked(**cov,m2)*/ )
+    if ( !isMarked(**cov,treated) ) //&& isMarked(**cov,m1)/* && isMarked(**cov,m2)*/ )
     {
-      if ( isMarked(**cov,m1oriented) ) ++incidenceNumber;
+      if ( isMarked(**cov,m1oriented)==isMarked(**cov,m1) ) ++incidenceNumber;
       else --incidenceNumber;
 
       markOrbit(**cov,ORBIT_INF[ADim],treated);
