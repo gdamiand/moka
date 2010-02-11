@@ -35,7 +35,7 @@ int CGMapVertex::dualOfMarkedDarts(int ADim, int AMarkNumber)
   int treated         = getNewMark();
 
   // Duplication des brins:
-  duplicateMarkedDarts(AMarkNumber, directInfoIndex, false,
+  duplicateMarkedDarts(AMarkNumber, this, directInfoIndex, false,
 		       ADim>=0, ADim>=1, ADim>=2, ADim>=3);
 
   // Mise à jour des coutures (algo. local):
