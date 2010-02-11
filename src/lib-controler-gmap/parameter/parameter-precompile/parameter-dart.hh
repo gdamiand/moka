@@ -132,6 +132,14 @@ namespace GMap3d
 
     //@}
 
+    /// Brins non sélectionnés
+    float         getCLRemove(int ALevel, int AIndice) const;
+    void          setCLRemove(int ALevel, int AIndice, float AValue);
+    const float * getCLRemove(int ALevel) const;
+    void          setCLRemove(int ALevel,
+			     float AValue0, float AValue1, float AValue2);
+    void          setCLRemove(int ALevel,const float ATab[3]);
+
     /// Identificateur du type de paramètre.
     virtual int getType() const;
 
@@ -150,11 +158,15 @@ namespace GMap3d
     /// Taille pour les points représentant les brins 0-libre
     int FSAloneDarts;
 
+    /// The different possible colors
+    /// (unselected darts, selected, last, removed)
     float ** FCLUnsel;
 
     float ** FCLSel;
 
     float ** FCLLastSel;
+
+    float ** FCLRemove;
   };
 
 } // namespace GMap3d

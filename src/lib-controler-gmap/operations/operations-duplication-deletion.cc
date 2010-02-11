@@ -38,6 +38,8 @@ bool CControlerGMap::deleteSelection()
 
       int nb = FMap->deleteMarkedDarts(getSelectionMark());
 
+      assert(isMapOk());
+	    
       if (nb==0)
 	{
 	  setMessage("Aucun brin supprimé");
@@ -69,6 +71,8 @@ bool CControlerGMap::duplicateSelection()
 
       int nb= FMap->duplicateMarkedDarts(getSelectionMark());
 
+      assert(isMapOk());
+      
       if (nb==0)
 	{
 	  setMessage("Aucun brin dupliqué");

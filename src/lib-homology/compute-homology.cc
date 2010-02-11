@@ -25,6 +25,7 @@
 #include "g-map-vertex.hh"
 #include "MatricePMQ.hh"
 #include "compute-homology.hh"
+#include <cassert>
 using namespace GMap3d;
 //******************************************************************************
 CHomology::CHomology(CGMapVertex* AMap) :
@@ -169,20 +170,29 @@ void CHomology::computeIncidence(int ADim)
         // On va calculer plusieurs fois les mêmes valeurs.
         // on pourrait marquer markOrbit(*it2,ORBIT_CELL[ADim+1]) pour éviter ça
 	int i = (long int)FMap->getDirectInfo(**it2, index);
-	int val = computeIncidenceNumber(**it2, ADim, *it, index);
+	int icorrected = i;
 
-	std::cout<<"Val="<<val<<", puis ";
-	
-	if ( i<0 ) { i = -i; /*val = -val;*/ }
-	--i; // Car on commence la numérotation des cellules à 1.
+	if ( i<0 ) icorrected = -i;
+	--icorrected;	
 
-	std::cout<<"Val="<<val<<std::endl;
+	if ( FMatrix[ADim]->getValPMQ( icorrected, currentcell)==0 )
+	  {
+	    int val = computeIncidenceNumber(**it2, ADim, *it, index);
+	    
+	    std::cout<<"Val="<<val<<", puis ";
+	    
+	    //if ( i<0 ) {  val = -val; }
+	    
+	    std::cout<<"("<<i<<","<<currentcell<<")="<<val<<std::endl;
+	    
+	    FMatrix[ADim]->setValPMQ( icorrected, currentcell, val);
+	  }
 	
-        FMatrix[ADim]->setValPMQ( i, currentcell, val);
-        FMap->setMark(**it2, treated);
+	FMap->setMark(**it2, treated);
       }
       delete it2;
       ++currentcell;
+      std::cout<<"Next cell : "<<currentcell<<std::endl;
     }
   }
   
@@ -218,7 +228,7 @@ void CHomology::computeHomology()
 
   std::cout<<"Matrice Homologie H1:"<<std::endl;
   
-  //FMatrix[1]->getM()->affiche();
+  FMatrix[1]->getM()->affiche();
   
   //  FMatrix[2] = new MatricePMQ(FNbVolumes, FNbEdges);
 }

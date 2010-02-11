@@ -131,8 +131,8 @@ void CPrecompileFace::drawModel()
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-  bool bursted1 = ! areEqual(FParameterGMapV->getMap()->getBurstCoef(1), 1.0);
-  int treated   = FParameterGMapV->getMap()->getNewMark();
+  bool bursted1 = ! areEqual(FParameterGMapV->getDrawingMap()->getBurstCoef(1), 1.0);
+  int treated   = FParameterGMapV->getDrawingMap()->getNewMark();
 
 #ifdef _WINDOWS
 #define WINAPI __stdcall
@@ -158,20 +158,20 @@ void CPrecompileFace::drawModel()
 	      FParameterFace->getCLFace(2),
 	      FParameterFace->getBLFace());
 
-  for (CDynamicCoverageAll it(FParameterGMapV->getMap()); it.cont(); ++it)
-    if (! FParameterGMapV->getMap()->isMarked(*it, treated))
+  for (CDynamicCoverageAll it(FParameterGMapV->getDrawingMap()); it.cont(); ++it)
+    if (! FParameterGMapV->getDrawingMap()->isMarked(*it, treated))
       {
 	if ( FParameterFace->getRandomCLVolume() )
 	  setRandomColor(*it, 3);
 
-	for (CDynamicCoverage012 it2(FParameterGMapV->getMap(), *it);
+	for (CDynamicCoverage012 it2(FParameterGMapV->getDrawingMap(), *it);
 	     it2.cont(); ++it2)
-	  if (! FParameterGMapV->getMap()->isMarked(*it2, treated))
+	  if (! FParameterGMapV->getDrawingMap()->isMarked(*it2, treated))
 	    {
-	      if (FParameterGMapV->getMap()->isClosedPolyline(*it2))
+	      if (FParameterGMapV->getDrawingMap()->isClosedPolyline(*it2))
 		// && FParameterGMapV->getMap()->isPlanarPolyline(*it)
 		{
-		  int nbSommetsFace = FParameterGMapV->getMap()->
+		  int nbSommetsFace = FParameterGMapV->getDrawingMap()->
 		    getNbPolylineVertices(*it2);
 		  if (nbSommetsFace > 2)
 		    {
@@ -182,12 +182,12 @@ void CPrecompileFace::drawModel()
 		    }
 		}
 
-	      FParameterGMapV->getMap()->markOrbit(*it2, ORBIT_01, treated);
+	      FParameterGMapV->getDrawingMap()->markOrbit(*it2, ORBIT_01, treated);
 	    }
       }
 
-  FParameterGMapV->getMap()->negateMaskMark(treated);
-  FParameterGMapV->getMap()->freeMark(treated);
+  FParameterGMapV->getDrawingMap()->negateMaskMark(treated);
+  FParameterGMapV->getDrawingMap()->freeMark(treated);
   gluDeleteTess(FTess);
   
   glDisable(GL_BLEND);
@@ -240,11 +240,11 @@ void CPrecompileFace::drawFace(CDart* ADart, int ANbSommets, bool ABursted)
   int numeroSommet = 0;
   
   // Parcours de la face
-  for (CDynamicCoverage01 cov(FParameterGMapV->getMap(), ADart);
+  for (CDynamicCoverage01 cov(FParameterGMapV->getDrawingMap(), ADart);
        cov.cont(); ++cov)
     {
       // Récupérer les coordonnées associées au brins
-      CVertex & v = FParameterGMapV->getMap()->getBurstVertex(* cov);
+      CVertex & v = FParameterGMapV->getDrawingMap()->getBurstVertex(* cov);
       
       if (cov.prevOperationType() == OP_NONE || pred != v)
 	{

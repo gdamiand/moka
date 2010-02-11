@@ -40,12 +40,14 @@ CParameterDart::CParameterDart(int ANbSelectionLevels, int ANbRef) :
   FCLUnsel   = new float * [FNbSelectionLevels];
   FCLSel     = new float * [FNbSelectionLevels];
   FCLLastSel = new float * [FNbSelectionLevels];
+  FCLRemove  = new float * [FNbSelectionLevels];
 
   for (int i=0; i<FNbSelectionLevels; ++i)
     {
       FCLUnsel[i]   = new float[3];
       FCLSel[i]	    = new float[3];
       FCLLastSel[i] = new float[3];
+      FCLRemove[i]  = new float[3];
     }
 
   reinit();
@@ -62,6 +64,7 @@ CParameterDart::CParameterDart(const CParameterDart & AParam) :
   FCLUnsel   = new float * [FNbSelectionLevels];
   FCLSel     = new float * [FNbSelectionLevels];
   FCLLastSel = new float * [FNbSelectionLevels];
+  FCLRemove  = new float * [FNbSelectionLevels];
 
   for (int i=0; i<FNbSelectionLevels; ++i)
     {
@@ -73,6 +76,9 @@ CParameterDart::CParameterDart(const CParameterDart & AParam) :
 
       FCLLastSel[i] = new float[3];
       setCLLastSel(i, AParam.getCLLastSel(i));
+
+      FCLRemove[i]  = new float[3];
+      setCLRemove(i, AParam.getCLRemove(i));
     }
 }
 //******************************************************************************
@@ -83,11 +89,13 @@ CParameterDart::~CParameterDart()
       delete [] FCLUnsel  [i];
       delete [] FCLSel    [i];
       delete [] FCLLastSel[i];
+      delete [] FCLRemove [i];
     }
 
   delete [] FCLUnsel  ;
   delete [] FCLSel    ;
   delete [] FCLLastSel;
+  delete [] FCLRemove;
 }
 //******************************************************************************
 CParameter * CParameterDart::copy() const
@@ -118,6 +126,10 @@ void CParameterDart::reinit()
 	       DEFAULT_DART_COUL_1LAST_0,
 	       DEFAULT_DART_COUL_1LAST_1,
 	       DEFAULT_DART_COUL_1LAST_2);
+  setCLRemove(0,
+	       DEFAULT_DART_COUL_1REMOVE_0,
+	       DEFAULT_DART_COUL_1REMOVE_1,
+	       DEFAULT_DART_COUL_1REMOVE_2);
   
   putAllNeedToUpdate();
 
@@ -135,6 +147,10 @@ void CParameterDart::reinit()
 	       DEFAULT_DART_COUL_2LAST_0,
 	       DEFAULT_DART_COUL_2LAST_1,
 	       DEFAULT_DART_COUL_2LAST_2);
+  setCLRemove(1,
+	       DEFAULT_DART_COUL_2REMOVE_0,
+	       DEFAULT_DART_COUL_2REMOVE_1,
+	       DEFAULT_DART_COUL_2REMOVE_2);
 
   if (FNbSelectionLevels==2) return;
 
@@ -150,6 +166,10 @@ void CParameterDart::reinit()
 	       DEFAULT_DART_COUL_3LAST_0,
 	       DEFAULT_DART_COUL_3LAST_1,
 	       DEFAULT_DART_COUL_3LAST_2); 
+  setCLRemove(2,
+	      DEFAULT_DART_COUL_3REMOVE_0,
+	      DEFAULT_DART_COUL_3REMOVE_1,
+	      DEFAULT_DART_COUL_3REMOVE_2);
   
   for (int i=3; i<FNbSelectionLevels; ++i)
     {
@@ -165,6 +185,10 @@ void CParameterDart::reinit()
 		   DEFAULT_DART_COUL_nLAST_0,
 		   DEFAULT_DART_COUL_nLAST_1,
 		   DEFAULT_DART_COUL_nLAST_2);
+      setCLRemove(i,
+		  DEFAULT_DART_COUL_nREMOVE_0,
+		  DEFAULT_DART_COUL_nREMOVE_1,
+		  DEFAULT_DART_COUL_nREMOVE_2);
     }
 }
 //******************************************************************************
@@ -191,6 +215,9 @@ ostream& operator<<(ostream& AStream, const CParameterDart & AParameter)
       
       AStream<<"  ColorLast "<<i<<":          "<<AParameter.FCLLastSel[i][0]<<" "
 	     <<AParameter.FCLLastSel[i][1]<<" "<<AParameter.FCLLastSel[i][2]<<endl;
+
+      AStream<<"  ColorRemove "<<i<<":        "<<AParameter.FCLRemove[i][0]<<" "
+	     <<AParameter.FCLRemove[i][1]<<" "<<AParameter.FCLRemove[i][2]<<endl;
     }
   
   AStream<<endl;
@@ -231,6 +258,10 @@ istream& operator>>(istream& AStream, CParameterDart & AParameter)
       AStream>>tmp; assert( !strcmp(tmp,"ColorLast") ); AStream>>tmp;
       AStream>>AParameter.FCLLastSel[i][0]
 	     >>AParameter.FCLLastSel[i][1]>>AParameter.FCLLastSel[i][2];
+
+      AStream>>tmp; assert( !strcmp(tmp,"ColorRemove") ); AStream>>tmp;
+      AStream>>AParameter.FCLRemove[i][0]
+	     >>AParameter.FCLRemove[i][1]>>AParameter.FCLRemove[i][2];
     }
 
   for (i=0; i<toIgnore; ++i)
@@ -241,6 +272,8 @@ istream& operator>>(istream& AStream, CParameterDart & AParameter)
       AStream>>tmp; assert( !strcmp(tmp,"ColorSel") ); AStream>>tmp;
       AStream>>dummy>>dummy>>dummy;
       AStream>>tmp; assert( !strcmp(tmp,"ColorLast") ); AStream>>tmp;
+      AStream>>dummy>>dummy>>dummy;
+      AStream>>tmp; assert( !strcmp(tmp,"ColorRemove") ); AStream>>tmp;
       AStream>>dummy>>dummy>>dummy;
     }
 
@@ -391,6 +424,47 @@ void CParameterDart::setCLLastSel(int ALevel,
 }
 void CParameterDart::setCLLastSel(int ALevel,const float ATab[3])
 { setCLLastSel(ALevel,ATab[0],ATab[1],ATab[2]); }
+//******************************************************************************
+float CParameterDart::getCLRemove(int ALevel, int AIndice) const
+{
+  assert(0<=ALevel && ALevel<FNbSelectionLevels);
+  assert(0<=AIndice && AIndice<=2);
+  return FCLRemove[ALevel][AIndice];
+}
+
+void CParameterDart::setCLRemove(int ALevel, int AIndice, float AValue)
+{
+  assert(0<=ALevel && ALevel<FNbSelectionLevels);
+  assert(0<=AIndice && AIndice<=2);
+  if (FCLRemove[ALevel][AIndice]!=AValue)
+    {
+      putAllNeedToUpdate();
+      FCLRemove[ALevel][AIndice]= AValue;
+    }
+}
+
+const float * CParameterDart::getCLRemove(int ALevel) const
+{
+  assert(0<=ALevel && ALevel<FNbSelectionLevels);
+  return FCLRemove[ALevel];
+}
+
+void CParameterDart::setCLRemove(int ALevel,
+				float AValue0, float AValue1, float AValue2)
+{
+  assert(0<=ALevel && ALevel<FNbSelectionLevels);
+  if ( FCLRemove[ALevel][0]!=AValue0 ||
+       FCLRemove[ALevel][1]!=AValue1 ||
+       FCLRemove[ALevel][2]!=AValue2 )
+    {
+      putAllNeedToUpdate();
+      FCLRemove[ALevel][0]= AValue0;
+      FCLRemove[ALevel][1]= AValue1;
+      FCLRemove[ALevel][2]= AValue2;
+    }
+}
+void CParameterDart::setCLRemove(int ALevel,const float ATab[3])
+{ setCLRemove(ALevel,ATab[0],ATab[1],ATab[2]); }
 //******************************************************************************
 int CParameterDart::getType() const
 { return PARAMETER_DART; }

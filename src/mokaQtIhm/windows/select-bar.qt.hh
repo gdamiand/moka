@@ -60,6 +60,7 @@ private slots:
   void callbackSelectionLevel ( int id ) ;
   void setSelectionLevel ( int L , bool freeze = false ) ;
   void callbackToggleBlock(bool);
+  void callbackToggleSimplificationMode(bool);
   
 public slots:
 
@@ -84,6 +85,11 @@ private:
   
   // Bouton pour blocker le recalcul des coordonnées éclatées
   QPushButton* FBlock;
+
+  // Bouton pour passer un mode simplification, ie les suppression/contraction
+  // sont faite sur la carte, et on conserve une copie de la carte initiale
+  // pour le plongement.
+  QPushButton* FSimplif;
 } ;
 
 #endif
