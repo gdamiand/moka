@@ -31,13 +31,14 @@ public:
  * Duplique les brins marqués et respecte dans la mesure du possible les
  * coutures.
  * Si ADirectInfoIndex est positif ou nul, chaque brin dupliqué est pointé
- * par le brin à partir duquel il alpha été créé (par le biais du champ
+ * par le brin à partir duquel il a été créé (par le biais du champ
  * directInfo correspondant).
  *
  * Lorsqu'un champ A-Sew vaut 'faux', aucune couture de dimension A-Sew
  * n'est effectuée entre les brins créés.
  *
  * @param AMarkNumber Un numéro de marque
+ * @param AMap La carte dans laquelle créer la copie
  * @param ADirectInfoIndex Un indice de champ directInfo
  * @param ADuplicateEmbeddings Un booléen indiquant s'il faut ou non
  *   dupliquer les plongements des brins
@@ -45,7 +46,8 @@ public:
  *   préservées
  * @return Le nombre de brins dupliqués
  */
-int duplicateMarkedDarts(int AMarkNumber, int ADirectInfoIndex = -1,
+int duplicateMarkedDarts(int AMarkNumber, CGMapGeneric* AMap=NULL,
+			 int ADirectInfoIndex = -1,
 			 bool ADuplicateEmbeddings = true,
 			 bool A0Sew = true, bool A1Sew = true,
 			 bool A2Sew = true, bool A3Sew = true);
@@ -55,17 +57,19 @@ int duplicateMarkedDarts(int AMarkNumber, int ADirectInfoIndex = -1,
  * plongements et préservant les coutures qui peuvent l'être.
  *
  * Si ADirectInfoIndex est positif ou nul, chaque brin dupliqué est pointé
- * par le brin à partir duquel il alpha été créé (par le biais du champ
+ * par le brin à partir duquel il a été créé (par le biais du champ
  * directInfo correspondant).
  *
  * @param ADart Un brin de la carte
  * @param AOrbit Une orbite quelconque
+ * @param AMap La carte dans laquelle créer la copie
  * @param ADirectInfoIndex Un indice de champ directInfo
  * @param ADuplicateEmbeddings Un booléen indiquant s'il faut ou non
  *   dupliquer les plongements des brins
  * @return Le brin dupliqué correspondant à ADart
  */
 CDart* duplicateDarts(CDart* ADart, TOrbit AOrbit,
+		      CGMapGeneric* AMap=NULL,
 		      int ADirectInfoIndex = -1,
 		      bool ADuplicateEmbeddings = true);
 
@@ -79,11 +83,13 @@ protected:
  * @param ACoverage Un itérateur quelconque
  * @param AMarkNumber Un numéro de marque
  * @param ADirectInfoIndex Un indice de champ directInfo
+ * @param AMap La carte dans laquelle créer la copie
  * @param A-Sew Des booléens indiquant quelles coutures doivent être
- *   traitées
+ *        traitées
  */
 void sewDuplicatedDarts(CCoverage* ACoverage,
 			int AMarkNumber, int ADirectInfoIndex,
+			CGMapGeneric* AMap,
 			bool A0Sew = true, bool A1Sew = true,
 			bool A2Sew = true, bool A3Sew = true);
 
@@ -94,10 +100,12 @@ void sewDuplicatedDarts(CCoverage* ACoverage,
  * @param AMarkInitial Un numéro de marque
  * @param AMarkDuplicated Un numéro de marque
  * @param ADirectInfoIndex Un indice de champ directInfo
+ * @param AMap La carte dans laquelle créer la copie
  */
 void duplicateEmbeddingsOfDuplicatedDarts(CCoverage* ACoverage,
 					  int AMarkInitial,
 					  int AMarkDuplicated,
-					  int ADirectInfoIndex);
+					  int ADirectInfoIndex,
+					  CGMapGeneric* AMap);
 
 //******************************************************************************

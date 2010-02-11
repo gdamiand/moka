@@ -25,61 +25,67 @@
 #include "g-map-generic.hh"
 using namespace GMap3d;
 //******************************************************************************
-int CGMapGeneric::duplicateMarkedDarts(int AMarkNumber, int ADirectInfoIndex,
+int CGMapGeneric::duplicateMarkedDarts(int AMarkNumber, CGMapGeneric* AMap,
+				       int ADirectInfoIndex,
 				       bool ADuplicateEmbeddings,
 				       bool A0Sew, bool A1Sew,
 				       bool A2Sew, bool A3Sew)
 {
+  if (AMap==NULL) AMap=this;
+
   int nbDuplicated = 0;
-
-  int duplicated = getNewMark();
-
+  
+  int duplicated = AMap->getNewMark();
+  
   int directInfoIndex =
     ADirectInfoIndex<0 ? getNewDirectInfo() : ADirectInfoIndex;
-
+  
   CDynamicCoverageAll it(this);
-
+  
   // Duplication des brins:
   for (; it.cont(); ++it)
     if (isMarked(*it, AMarkNumber))
       {
-	CDart * newDart = addMapDart();
+	CDart * newDart = AMap->addMapDart();
 
 	if (ADuplicateEmbeddings)
-	  setMark(newDart, duplicated);
-
+	  AMap->setMark(newDart, duplicated);
+	
 	(*it)->setDirectInfo(directInfoIndex, newDart);
-
+	
 	++nbDuplicated;
       }
-
+  
   // Coutures:
   sewDuplicatedDarts(&it, AMarkNumber, directInfoIndex,
-		     A0Sew, A1Sew, A2Sew, A3Sew);
-
+		     AMap, A0Sew, A1Sew, A2Sew, A3Sew);
+  
   // Duplication des plongements:
   if (ADuplicateEmbeddings)
     duplicateEmbeddingsOfDuplicatedDarts(&it,
 					 AMarkNumber, duplicated,
-					 directInfoIndex);
-
+					 directInfoIndex, AMap);
+  
   // Libérations:
   if (ADirectInfoIndex<0)
     freeDirectInfo(directInfoIndex);
 
-  freeMark(duplicated);
+  assert(AMap->isWholeMapUnmarked(duplicated));
+  AMap->freeMark(duplicated);
 
   return nbDuplicated;
 }
 //******************************************************************************
 CDart * CGMapGeneric::duplicateDarts(CDart * ADart, TOrbit AOrbit,
-				    int ADirectInfoIndex,
-				    bool ADuplicateEmbeddings)
+				     CGMapGeneric* AMap,
+				     int ADirectInfoIndex,
+				     bool ADuplicateEmbeddings)
 {
   assert(ADart!=NULL);
-
+  if (AMap==NULL) AMap=this;
+  
   int selected = getNewMark();
-  int duplicated = getNewMark();
+  int duplicated = AMap->getNewMark();
 
   int directInfoIndex =
     ADirectInfoIndex<0 ? getNewDirectInfo() : ADirectInfoIndex;
@@ -89,14 +95,14 @@ CDart * CGMapGeneric::duplicateDarts(CDart * ADart, TOrbit AOrbit,
   // Duplication des brins:
   for (; cov->cont(); ++(*cov))
     {
-      CDart * newDart = addMapDart();
-      setMark(newDart, duplicated);
+      CDart * newDart = AMap->addMapDart();
+      AMap->setMark(newDart, duplicated);
       setMark(**cov, selected);
       (**cov)->setDirectInfo(directInfoIndex, newDart);
     }
 
   // Coutures:
-  sewDuplicatedDarts(cov, selected, directInfoIndex,
+  sewDuplicatedDarts(cov, selected, directInfoIndex, AMap,
 		     AND_ORBIT(AOrbit, ORBIT_0) != ORBIT_SELF,
 		     AND_ORBIT(AOrbit, ORBIT_1) != ORBIT_SELF,
 		     AND_ORBIT(AOrbit, ORBIT_2) != ORBIT_SELF,
@@ -106,7 +112,7 @@ CDart * CGMapGeneric::duplicateDarts(CDart * ADart, TOrbit AOrbit,
   if (ADuplicateEmbeddings)
     duplicateEmbeddingsOfDuplicatedDarts(cov,
 					 selected, duplicated,
-					 directInfoIndex);
+					 directInfoIndex, AMap);
 
   // Libérations:
   CDart * result = getDirectInfoAsDart(ADart, directInfoIndex);
@@ -120,7 +126,7 @@ CDart * CGMapGeneric::duplicateDarts(CDart * ADart, TOrbit AOrbit,
     freeDirectInfo(directInfoIndex);
 
   freeMark(selected);
-  freeMark(duplicated);
+  AMap->freeMark(duplicated);
 
   return result;
 }
@@ -129,13 +135,14 @@ CDart * CGMapGeneric::duplicateDarts(CDart * ADart, TOrbit AOrbit,
 //******************************************************************************
 void CGMapGeneric::sewDuplicatedDarts(CCoverage * ACoverage,
 				      int AMarkNumber, int ADirectInfoIndex,
+				      CGMapGeneric* AMap,
 				      bool A0Sew, bool A1Sew,
 				      bool A2Sew, bool A3Sew)
 {
   assert(ACoverage!=NULL);
   assert(AMarkNumber>=0);
   assert(ADirectInfoIndex>=0);
-
+  
   // 0 et 1 coutures:
   for (ACoverage->reinit(); ACoverage->cont(); ++(*ACoverage))
     {
@@ -145,13 +152,13 @@ void CGMapGeneric::sewDuplicatedDarts(CCoverage * ACoverage,
 	{
 	  if (A0Sew)
 	    if (!isFree0(d) && isMarked(alpha0(d), AMarkNumber) &&
-		isFree0(DUP(d)))
-	      linkAlpha0(DUP(d), DUP(alpha0(d)));
+		AMap->isFree0(DUP(d)))
+	      AMap->linkAlpha0(DUP(d), DUP(alpha0(d)));
 
 	  if (A1Sew)
 	    if (!isFree1(d) && isMarked(alpha1(d), AMarkNumber) &&
-		isFree1(DUP(d)))
-	      linkAlpha1(DUP(d), DUP(alpha1(d)));
+		AMap->isFree1(DUP(d)))
+	      AMap->linkAlpha1(DUP(d), DUP(alpha1(d)));
 	}
     }
 
@@ -164,13 +171,13 @@ void CGMapGeneric::sewDuplicatedDarts(CCoverage * ACoverage,
 	{
 	  if (A2Sew)
 	    if (!isFree2(d) && isMarked(alpha2(d), AMarkNumber) &&
-		canSew2(DUP(d), DUP(alpha2(d))))
-	      topoSew2(DUP(d), DUP(alpha2(d)));
+		AMap->canSew2(DUP(d), DUP(alpha2(d))))
+	      AMap->topoSew2(DUP(d), DUP(alpha2(d)));
 	
 	  if (A3Sew)
 	    if (!isFree3(d) && isMarked(alpha3(d), AMarkNumber) &&
-		canSew3(DUP(d), DUP(alpha3(d))))
-	      topoSew3(DUP(d), DUP(alpha3(d)));
+		AMap->canSew3(DUP(d), DUP(alpha3(d))))
+	      AMap->topoSew3(DUP(d), DUP(alpha3(d)));
 	}
     }
 }
@@ -178,7 +185,8 @@ void CGMapGeneric::sewDuplicatedDarts(CCoverage * ACoverage,
 void CGMapGeneric::duplicateEmbeddingsOfDuplicatedDarts(CCoverage * ACoverage,
 							int AMarkInitial,
 							int AMarkDuplicated,
-							int ADirectInfoIndex)
+							int ADirectInfoIndex,
+							CGMapGeneric* AMap)
 {
   assert(ACoverage!=NULL);
   assert(AMarkInitial>=0);
@@ -187,6 +195,7 @@ void CGMapGeneric::duplicateEmbeddingsOfDuplicatedDarts(CCoverage * ACoverage,
   assert(AMarkInitial!=AMarkDuplicated);
 
   int treated = getNewMark();
+  int treated2 = (AMap==this?treated:AMap->getNewMark());
 
   for (int i=ORBIT_0; i<=ORBIT_0123; ++i)
     if (isOrbitUsed(TOrbit(i)))
@@ -212,26 +221,30 @@ void CGMapGeneric::duplicateEmbeddingsOfDuplicatedDarts(CCoverage * ACoverage,
 			
 			for (; cov->cont(); setMark(**cov, treated), ++(*cov))
 			  if (isMarked(**cov, AMarkInitial) &&
-			      !isMarked(DUP(**cov), treated))
+			      !AMap->isMarked(DUP(**cov), treated2))
 			    {
 			      CEmbedding * dupE = E->copy();
 			      DUP(**cov)->addEmbedding(dupE);
 			      
-			      markOrbit(DUP(**cov), TOrbit(i), treated);
-			      unmarkOrbit(DUP(**cov), TOrbit(i), AMarkDuplicated);
+			      AMap->markOrbit(DUP(**cov), TOrbit(i), treated2);
+			      AMap->unmarkOrbit(DUP(**cov), TOrbit(i), AMarkDuplicated);
 			    }
 			
 			delete cov;
 		      }
 		  }
 		else
-		  if (!isMarked(d, AMarkDuplicated))
-		    setMark(d, treated);
+		  {
+		    // Le 2ème test est la que pour le cas this==AMap (car on
+		    // insère les brins dans la liste parcouru)
+		    if ( this!=AMap || !isMarked(d, AMarkDuplicated) )
+		      setMark(d, treated);
+		  }
 	      }
 	  }
 
 	// Démarquage:
-	if (ACoverage->type() == COVERAGE_ALL)
+	if (ACoverage->type() == COVERAGE_ALL && AMap==this)
 	  negateMaskMark(treated);
 	else
 	  for (ACoverage->reinit(); ACoverage->cont(); ++(*ACoverage))
@@ -239,12 +252,13 @@ void CGMapGeneric::duplicateEmbeddingsOfDuplicatedDarts(CCoverage * ACoverage,
 	      if (isMarked(**ACoverage, treated))
 		unmarkOrbit(**ACoverage, TOrbit(i), treated);
 
-	      if (isMarked(DUP(**ACoverage), treated))
-		unmarkOrbit(DUP(**ACoverage), TOrbit(i), treated);
+	      if (AMap->isMarked(DUP(**ACoverage), treated2))
+		AMap->unmarkOrbit(DUP(**ACoverage), TOrbit(i), treated2);
 	    }
       }
 
   freeMark(treated);
+  if ( AMap!=this ) AMap->freeMark(treated2);
 }
 //******************************************************************************
 #undef DUP
