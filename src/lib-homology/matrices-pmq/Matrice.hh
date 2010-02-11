@@ -44,7 +44,11 @@ public :
   void addLigne(int i,int j, int coeff);
   
   void addColonne(int i,int j, int coeff);
-  void affiche();
+  void affiche();  
+  
+  // Méthodes destinées à des matrices en forme de Smith.
+  int nbTorsion();
+  int nbCycle();  
 };
 
 #endif
