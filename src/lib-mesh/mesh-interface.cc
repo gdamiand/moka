@@ -109,7 +109,7 @@ int CMesh::meshMarkedEdges(int AMarkNumber, int ASx,
       else
 	// Duplication des cellules:
 	if (AMeshWithAdjacentSews)
-	  FMap->duplicateMarkedDarts(toMesh, assoc, false);
+	  FMap->duplicateMarkedDarts(toMesh, FMap, assoc, false);
     }
 
   // Maillage:
@@ -341,7 +341,7 @@ int CMesh::meshMarkedSquares(int AMarkNumber, int ASx, int ASy,
 				    toMesh2, toDuplicate);
 	
 	  if (AInitialMeshDim!=0 || AMeshWithAdjacentSews)
-	    FMap->duplicateMarkedDarts(toDuplicate, assoc, false,
+	    FMap->duplicateMarkedDarts(toDuplicate, FMap, assoc, false,
 				       true, true, AMeshWithAdjacentSews, true);
 
 	  FMap->unmarkAll(toDuplicate);
@@ -374,7 +374,7 @@ int CMesh::meshMarkedSquares(int AMarkNumber, int ASx, int ASy,
 	  for (it.reinit(); it.cont(); ++it)
 	    if (FMap->isMarked(*it, mark))
 	      {
-		CDart* square = FMap->duplicateDarts(*it, ORBIT_01, assoc);
+		CDart* square = FMap->duplicateDarts(*it, ORBIT_01, NULL, assoc);
 		
 		FMap->setDirectInfo(*it, assoc, square);
 		
@@ -588,7 +588,7 @@ int CMesh::meshMarkedCubes(int AMarkNumber, int ASx, int ASy, int ASz,
 	    FMap->markIncidentCells(ORBIT_VOLUME, toMesh3, toDuplicate);
 
 	  if (AInitialMeshDim!=0 || AMeshWithAdjacentSews)
-	    FMap->duplicateMarkedDarts(toDuplicate, assoc, false,
+	    FMap->duplicateMarkedDarts(toDuplicate, FMap, assoc, false,
 				       true, true, true, AMeshWithAdjacentSews);
 	
 	  FMap->unmarkAll(toDuplicate);
@@ -624,7 +624,7 @@ int CMesh::meshMarkedCubes(int AMarkNumber, int ASx, int ASy, int ASz,
 	  for (it.reinit(); it.cont(); ++it)
 	    if (FMap->isMarked(*it, mark))
 	      {
-		CDart* cube = FMap->duplicateDarts(*it, ORBIT_012, assoc);
+		CDart* cube = FMap->duplicateDarts(*it, ORBIT_012, NULL, assoc);
 		
 		FMap->setDirectInfo(*it, assoc, cube);
 		

@@ -136,10 +136,17 @@ SelectBar :: SelectBar(Window * parent)
    connect(FBlock, SIGNAL(toggled(bool)), this, 
            SLOT(callbackToggleBlock(bool))); 
    
+   // Le bouton Simplif
+   FSimplif = new QPushButton("Simplif");
+   FSimplif->setCheckable(true);
+   connect(FSimplif, SIGNAL(toggled(bool)), this, 
+           SLOT(callbackToggleSimplificationMode(bool))); 
+   
    // Ajout au layout principal
    bl -> addWidget(FGroupe) ;
    bl -> addWidget(sel) ;
    bl -> addWidget(FBlock) ;
+   bl -> addWidget(FSimplif) ;
 
    total -> setMaximumWidth(90);
    addWidget(total);
@@ -202,6 +209,12 @@ void SelectBar :: niveauSuivant()
 void SelectBar::callbackToggleBlock( bool ABlock )
 {
    FControler->toggleModelBlocked();
+   if ( !ABlock ) FParent->repaint(); 
+}      
+
+void SelectBar::callbackToggleSimplificationMode( bool ABlock )
+{
+   FControler->toggleModeSimplification();
    if ( !ABlock ) FParent->repaint(); 
 }      
 

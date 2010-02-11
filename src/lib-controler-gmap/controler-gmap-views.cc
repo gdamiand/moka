@@ -134,7 +134,7 @@ void CControlerGMap::setMapBurstCoef(int ADim, TCoordinate ACoef)
 }
 //******************************************************************************
 void CControlerGMap::setMapBurstCoefs(TCoordinate ACoef0, TCoordinate ACoef1,
-				  TCoordinate ACoef2,TCoordinate ACoef3)
+				      TCoordinate ACoef2,TCoordinate ACoef3)
 {
   if ( ACoef0!=FMap->getBurstCoef(0) ||  ACoef1!=FMap->getBurstCoef(1) ||
        ACoef2!=FMap->getBurstCoef(2) ||  ACoef3!=FMap->getBurstCoef(3) )
@@ -179,5 +179,29 @@ void CControlerGMap::toggleModelBlocked()
 {
   if ( isModelBlocked() ) unsetModelBlocked();
   else                    setModelBlocked();
+}
+//******************************************************************************
+bool CControlerGMap::isModeSimplification() const
+{
+  assert( getParameterGMapVertex()!=NULL );
+  return getParameterGMapVertex()->getModeSimplification();
+}
+//------------------------------------------------------------------------------
+void CControlerGMap::setModeSimplification()
+{
+  assert( getParameterGMapVertex()!=NULL );
+  getParameterGMapVertex()->setModeSimplification();
+}
+//------------------------------------------------------------------------------
+void CControlerGMap::unsetModeSimplification()
+{
+  assert( getParameterGMapVertex()!=NULL );
+  getParameterGMapVertex()->unsetModeSimplification();
+}
+//------------------------------------------------------------------------------
+void CControlerGMap::toggleModeSimplification()
+{
+  if ( isModeSimplification() ) unsetModeSimplification();
+  else                          setModeSimplification();
 }
 //******************************************************************************

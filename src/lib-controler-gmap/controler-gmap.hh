@@ -176,8 +176,9 @@ namespace GMap3d
     //@{
 
   protected:
+    /// The generalized map.
     CGMapVertex* FMap;
-    
+
   private:
     /// Le paramètre contenant la carte.
     CParameterGMapVertex       * FParameterGMapVertex;

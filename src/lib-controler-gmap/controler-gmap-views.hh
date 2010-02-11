@@ -49,4 +49,10 @@ void setModelBlocked   ();
 void unsetModelBlocked ();
 void toggleModelBlocked();
 
+/// Méthodes pour basculer en mode simplification
+bool isModeSimplification    () const;
+void setModeSimplification   ();
+void unsetModeSimplification ();
+void toggleModeSimplification();
+
 //******************************************************************************

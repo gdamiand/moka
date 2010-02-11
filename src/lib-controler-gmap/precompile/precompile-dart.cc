@@ -131,9 +131,9 @@ TPrecompile CPrecompileDart::getType() const
 //******************************************************************************
 void CPrecompileDart::drawOneDart(CDart * ADart)
 {
-   CVertex * v1 = &FParameterGMapV->getMap()->getBurstVertex(ADart);
+   CVertex * v1 = &FParameterGMapV->getDrawingMap()->getBurstVertex(ADart);
 
-   if (FParameterGMapV->getMap()->isFree0(ADart))
+   if (FParameterGMapV->getDrawingMap()->isFree0(ADart))
    {
       // Affichage d'un point pour les brins 0-libres
       glBegin(GL_POINTS);
@@ -143,7 +143,7 @@ void CPrecompileDart::drawOneDart(CDart * ADart)
    else
    {
       // Affichage de l'arête pour les brins 0-cousus
-      CVertex v2 = FParameterGMapV->getMap()->computeBurstExtremity(ADart);
+      CVertex v2 = FParameterGMapV->getDrawingMap()->computeBurstExtremity(ADart);
       glBegin(GL_LINES);
       LINE(v1, &v2);
       glEnd();
@@ -159,6 +159,7 @@ void CPrecompileDart::drawModel()
    const GLfloat * clSel   = NULL;
    const GLfloat * clUnsel = NULL;
    const GLfloat * clLast  = NULL;
+   const GLfloat * clRemove= NULL;
    int mark = -1;
 
    CDart * last = NULL;
@@ -168,15 +169,28 @@ void CPrecompileDart::drawModel()
       mark = FParameterSelection->getSelectionMark();
       last = FParameterSelection->getLastSelectedDart();
       
-      clSel = FParameterDart->
-              getCLSel(FParameterSelection->getSelectionLevel());
+      clSel   = FParameterDart->
+	getCLSel(FParameterSelection->getSelectionLevel());
       clUnsel = FParameterDart->
-                getCLUnsel(FParameterSelection->getSelectionLevel());
+	getCLUnsel(FParameterSelection->getSelectionLevel());
       clLast  = FParameterDart->
-                getCLLastSel(FParameterSelection->getSelectionLevel());
+	getCLLastSel(FParameterSelection->getSelectionLevel());
+      clRemove= FParameterDart->
+	getCLRemove(FParameterSelection->getSelectionLevel());
    }
    else
-      clSel = FParameterDart->getCLUnsel(0);
+     clSel = FParameterDart->getCLUnsel(0);
+
+   // 1) Draw the remove darts
+   if ( FParameterGMapV->getModeSimplification() )
+     {
+       glColor3fv(clRemove);
+       for (CDynamicCoverageAll it(FParameterGMapV->getMapEmbedding());
+	    it.cont(); ++it)
+	 {
+	   drawOneDart(*it);
+	 }
+     }
 
    CDynamicCoverageAll it(FParameterGMapV->getMap());
 
@@ -184,22 +198,22 @@ void CPrecompileDart::drawModel()
    glColor3fv(clUnsel);
    for (; it.cont(); ++it)
       if (mark == -1 || !FParameterGMapV->getMap()->isMarked(*it, mark))
-         drawOneDart(*it);
+         drawOneDart(FParameterGMapV->getDartWithEmbedding(*it));
 
    if (mark != -1)
    {
       // Dessin des brins sélectionnés différents du "last"
-      glColor3fv(clSel);
-      for (it.reinit(); it.cont(); ++it)
-         if (FParameterGMapV->getMap()->isMarked(*it, mark) && *it != last)
-            drawOneDart(*it);
+     glColor3fv(clSel);
+     for (it.reinit(); it.cont(); ++it)
+       if (FParameterGMapV->getMap()->isMarked(*it, mark) && *it != last)
+	 drawOneDart(FParameterGMapV->getDartWithEmbedding(*it));
    }
 
    // Dessin du dernier brin sélectionné
    if (last != NULL)
    {
       glColor3fv(clLast);
-      drawOneDart(last);
+      drawOneDart(FParameterGMapV->getDartWithEmbedding(last));
    }
 }
 //******************************************************************************

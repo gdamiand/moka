@@ -31,24 +31,66 @@
 using namespace std;
 using namespace GMap3d;
 //******************************************************************************
+bool CControlerGMap::
+isNonModifyingOperation(const COperation& AOperation) const
+{
+  return
+    AOperation.getType()==OPERATION_SELECT ||
+    AOperation.getType()==OPERATION_DEFORM ||
+    AOperation.getType()==OPERATION_EXPORT ||
+    AOperation.getType()==OPERATION_FIND_MOTIF_OFF ||
+    AOperation.getType()==OPERATION_FIND_MOTIF_MOKA;
+}
+//------------------------------------------------------------------------------
+bool CControlerGMap::
+isSimplificationOperation(const COperation& AOperation) const
+{
+  return
+    AOperation.getType()==OPERATION_MERGE ||
+    AOperation.getType()==OPERATION_MERGE_COLINEAR ||
+    AOperation.getType()==OPERATION_MERGE_FACE_NODISCONNECTION ||
+    AOperation.getType()==OPERATION_REMOVE_FACES_KEEP_BALLS ||
+    AOperation.getType()==OPERATION_SHIFT_EDGES_INCIDENT_TO_VERTEX ||
+    AOperation.getType()==OPERATION_REMOVE_DANGLING_EDGES ||
+    AOperation.getType()==OPERATION_CONTRACT ||
+    AOperation.getType()==OPERATION_DEL_FLAT_FACES ||
+    AOperation.getType()==OPERATION_DEL_FLAT_VOLUMES ||
+    AOperation.getType()==OPERATION_DEL_NULL_EDGE;
+}
+//******************************************************************************
 bool CControlerGMap::canApplyOperation(const COperation& AOperation)
 {
-  bool res =
-    !(FCurrentMode == MODE_TRANSLATION ||
+  // Pas d'opération en mode translation, rotation ou scale.
+  if (FCurrentMode == MODE_TRANSLATION ||
       FCurrentMode == MODE_ROTATION ||
-      FCurrentMode == MODE_SCALE);
+      FCurrentMode == MODE_SCALE)
+    {
+      setMessage("Operation possible only in selection mode");
+      return false;
+    }
 
   // Pas d'undo-redo en mode arrondi :
   if (FCurrentMode == MODE_ROUNDING &&
       AOperation.getType()==OPERATION_UNDO_REDO)
-    res = false;
+    {
+      setMessage("Undo/redo not possible in rounding mode");
+      return false;
+    }
 
-  if (!res)
-    setMessage("Opération possible uniquement en mode sélection");
 
+  if (isModelBlocked() || isModeSimplification())
+    {
+      if (!isNonModifyingOperation(AOperation) &&
+	  !isSimplificationOperation(AOperation))
+	{
+	  setMessage("Operation not possible in bloc of simplification mode");
+	  return false;
+	}
+    }
+  
   FCurrentOperation = AOperation;
 
-  return res;
+  return true;
 
   // Autre manière de gérer le canApplyOperation
   // setMode(MODE_SELECTION); return true;

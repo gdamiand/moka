@@ -80,6 +80,12 @@ namespace GMap3d
     /// @param  AMap la nouvelle carte.
     void         setMap(CGMapVertex* AMap);
   
+    ///@return la valeur de FMapEmbedding.
+    CGMapVertex* getMapEmbedding() const;
+
+    ///@return the map used for the drawind, depending on FModeSimplification
+    CGMapVertex* getDrawingMap() const;
+
     ///@return la valeur de FChanged.
     bool getChanged() const;
 
@@ -107,6 +113,22 @@ namespace GMap3d
     /// Met à faux la variable FBlocked et répercute aux précompiles concernés.
     void unsetBlocked();
 
+    ///@return la valeur de FModeSimplification.
+    bool getModeSimplification() const;
+
+    /// Met à vrai la variable FModeSimplification
+    /// sans répercution aux précompiles.
+    void setModeSimplification();
+
+    /// Met à faux la variable FModeSimplification et répercute
+    /// aux précompiles concernés.
+    void unsetModeSimplification();
+
+    /// Get the dart associated to ADart.
+    /// In "classical mode", this is ADart, in simplification mode
+    /// this is the dart linked with ADart by the direct info.
+    CDart* getDartWithEmbedding(CDart * ADart);
+    
     /// Accesseurs pour FMarkPartialChanged. Ce numéro contient la marque
     /// utilisée pour mettre à jour partiellement l'objet.
     /// Si FMarkPartialChanged=-1 => on met à jour toute la carte.
@@ -126,6 +148,13 @@ namespace GMap3d
     /// La carte.
     CGMapVertex* FMap;
 
+    /// In simplification mode, the map used for the embedding.
+    CGMapVertex* FMapEmbedding;
+
+    /// In simplification mode, the direct info used to link darts of FMap and
+    /// their corresponding darts in FMapEmbedding.
+    int FDirectIndex;
+    
     /// Booléen pour indiquer si le modèle à changé depuis la dernière mise à jour.
     bool FChanged;
 
@@ -137,6 +166,11 @@ namespace GMap3d
 
     /// Booléen permettant de bloquer le recalcul de l'affichage éclatée.
     int  FBlocked;
+
+    /// Booléen permettant de passer en mode simplification, cad de conserver 
+    /// une copie de la carte au moment du passage dans ce mode qui servira pour
+    /// l'affichage.
+    int  FModeSimplification;
   };
   
 } // namespace GMap3d

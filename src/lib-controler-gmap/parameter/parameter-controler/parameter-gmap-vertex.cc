@@ -34,7 +34,8 @@ CParameterGMapVertex::CParameterGMapVertex(CGMapVertex* AGMap, int ANbRef) :
   FChanged           (false),
   FPartialChanged    (false),
   FMarkPartialChanged(-1),
-  FBlocked           (false)
+  FBlocked           (false),
+  FModeSimplification(false)
 {}
 //******************************************************************************
 CParameterGMapVertex::
@@ -43,7 +44,8 @@ CParameterGMapVertex(const CParameterGMapVertex & AParam) :
   FChanged           (false),
   FPartialChanged    (false),
   FMarkPartialChanged(-1),
-  FBlocked           (false)
+  FBlocked           (false),
+  FModeSimplification(false)
 {}
 //******************************************************************************
 CParameterGMapVertex::~CParameterGMapVertex()
@@ -71,6 +73,15 @@ void CParameterGMapVertex::setMap(CGMapVertex* AMap)
       FMap = AMap;
       setChanged();
     }
+}
+//------------------------------------------------------------------------------
+CGMapVertex* CParameterGMapVertex::getMapEmbedding() const
+{ return FMapEmbedding; }
+//------------------------------------------------------------------------------
+CGMapVertex* CParameterGMapVertex::getDrawingMap() const
+{
+  if ( FModeSimplification ) return FMapEmbedding;
+  return FMap;
 }
 //******************************************************************************
 bool CParameterGMapVertex::getChanged() const
@@ -121,11 +132,63 @@ void CParameterGMapVertex::unsetBlocked()
     }
 }
 //******************************************************************************
+bool CParameterGMapVertex::getModeSimplification() const
+{ return FModeSimplification; }
+//------------------------------------------------------------------------------
+void CParameterGMapVertex::setModeSimplification()
+{
+  if ( !FModeSimplification )
+    {
+      FModeSimplification = true;
+      FMapEmbedding =  new CGMapVertex;
+      FDirectIndex = FMap->getNewDirectInfo();
+
+      // We copy FMap into the new map FMapEmbedding.
+      int mark = FMap->getNewMark();
+      FMap->negateMaskMark(mark);
+      FMap->duplicateMarkedDarts(mark,FMapEmbedding,FDirectIndex);
+
+      FMapEmbedding->setBurstMethod(FMap->getBurstMethod());
+      FMapEmbedding->setBurstCoef  (0, FMap->getBurstCoef(0));
+      FMapEmbedding->setBurstCoef  (1, FMap->getBurstCoef(1));
+      FMapEmbedding->setBurstCoef  (2, FMap->getBurstCoef(2));
+      FMapEmbedding->setBurstCoef  (3, FMap->getBurstCoef(3));
+      FMapEmbedding->updateAllBurstDarts();
+
+      FMap->negateMaskMark(mark);
+      FMap->freeMark(mark);
+    }
+}
+//------------------------------------------------------------------------------
+void CParameterGMapVertex::unsetModeSimplification()
+{
+  if ( FModeSimplification )
+    {
+      FModeSimplification = false;
+      FMap->freeDirectInfo(FDirectIndex);
+      delete FMapEmbedding; FMapEmbedding=NULL;
+      putAllNeedToUpdate();
+    }
+}
+//------------------------------------------------------------------------------
+CDart* CParameterGMapVertex::getDartWithEmbedding(CDart * ADart)
+{
+  if ( FModeSimplification )
+    {
+      assert(FMap->getDirectInfoAsDart(ADart, FDirectIndex)!=NULL);
+      return FMap->getDirectInfoAsDart(ADart, FDirectIndex);
+    }
+
+  return ADart;
+}
+//******************************************************************************
 void CParameterGMapVertex::setBurstMethod(TBurstMethod AMethod)
 {
   if (AMethod != getBurstMethod())
     {
       FMap->setBurstMethod(AMethod);
+      if (FMapEmbedding!=NULL) FMapEmbedding->setBurstMethod(AMethod);
+      
       FChanged = true;
       putAllNeedToUpdate();
     }
