@@ -216,21 +216,49 @@ void CHomology::computeHomology()
 
   FMatrix[0]->smithForm();
 
-  std::cout<<"Matrice d'incidence Arete-Face:"<<std::endl;
-  FMatrix[1]->getM()->affiche();
+  //  std::cout<<"Matrice d'incidence Arete-Face:"<<std::endl;
+  //  FMatrix[1]->getM()->affiche();
 
   
   FMatrix[1]->getM()->setMatrice( FMatrix[1]->getM()->
-                                  multGauche(FMatrix[0]->getQ()));
+                                  multGauche(FMatrix[0]->getQ()) );
   FMatrix[1]->getP()->setMatrice( FMatrix[0]->getQinv() );
   FMatrix[1]->getPinv()->setMatrice( FMatrix[0]->getQ() );
   FMatrix[1]->smithForm();
 
-  std::cout<<"Matrice Homologie H1:"<<std::endl;
-  
-  FMatrix[1]->getM()->affiche();
-  
-  //  FMatrix[2] = new MatricePMQ(FNbVolumes, FNbEdges);
+  //  std::cout<<"Matrice Homologie H1:"<<std::endl;  
+  //  FMatrix[1]->getM()->affiche();
+
+  int nb_t = FMatrix[1]->getM()->nbTorsion();
+  int nb_z0 = FMatrix[0]->getM()->nbCycle();
+  int nb_z1 = FMatrix[1]->getM()->nbCycle();
+  int nb_bf = FMatrix[1]->getM()->getnbcol()-nb_z1;
+  int nb_l=nb_z0-nb_bf;
+
+  //marquage des cellules faisant partie des générateurs de torsion
+  for (int j=0;j<nb_t;j++){
+    for(int i=0;i<FMatrix[1]->getP()->getnbcol();i++)
+      {
+	if(FMatrix[1]->getP()->getVal(i,j)!=0)
+	  {
+	    //marquerTorsion la d cellule numero i
+	  }
+      }
+  }
+
+  //marquage des cellules faisant partie des générateurs libres
+  int deb_libre=nb_bf;
+  int fin_libre=nb_bf+nb_l;
+  for (int j=deb_libre;j<fin_libre;j++)
+    {
+      for(int i=0;i<FMatrix[1]->getP()->getnbcol();i++)
+	{
+	  if(FMatrix[1]->getP()->getVal(i,j)!=0)
+	    {
+	      //marquerLibre la d cellule numero i
+	    }
+	}
+    }
 }
 //******************************************************************************
 /*void CHomology::displayMatrixes()

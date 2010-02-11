@@ -163,11 +163,11 @@ Matrice *  Matrice::multGauche(Matrice * op2)
 
 /*si les 2 matrices sont de meme dim
   alors le this devient la matrice M*/
-
-void Matrice::setMatrice(Matrice * m){
+void Matrice::setMatrice(Matrice * m)
+{
   int a=nb_lignes;
   int b=nb_colonnes;
-
+  
   for(int i=0;i<a;i++)
     {
       for(int j=0;j<b;j++)
@@ -192,12 +192,10 @@ int Matrice::getnbcol()
   return this->nb_colonnes;
 }
 
-
 void Matrice::setVal(int i,int j, int val)
 {
   this->mat[i][j]=val;
 }
-
 
 void Matrice::inverseColonne(int i, int j)
 {
@@ -269,3 +267,39 @@ void Matrice::affiche()
       std::cout << std::endl;
     }
 }
+
+int Matrice::nbCycle()
+{
+  int nb_z=0;
+  for (int j=0;j<nb_colonnes;j++)
+    {
+      if(mat[0][j]==0)
+	{
+	  nb_z+=1;    
+	}
+      else
+	{
+	  break;
+	}
+    }
+  return nb_z;
+}
+
+int Matrice::nbTorsion()
+{
+  int nb_z=this->nbCycle();
+  int nb_t=0;
+  for (int j=nb_z;j<nb_colonnes;j++)
+    {
+      if(mat[j-nb_z][j]>1)
+	{
+	  nb_t+=1;    
+	}
+      else
+	{
+	  break;
+	}
+    }
+  return nb_t;
+}
+
