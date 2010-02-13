@@ -2387,8 +2387,12 @@ void Window :: callbackBooleanOperations3d()
 //------------------------------------------------------------------------------
 void Window::callbackComputeHomology()
 {
-  CHomology c(getControler()->getMap());
+  CHomology c(getControler()->getMap(),
+	      getControler()->getSelectionMark(0),
+	      getControler()->getSelectionMark(1));
   c.computeHomology();
+  getControler()->setSelectionChanged();
+  repaint();
 }
 //------------------------------------------------------------------------------
 //- GEOLOGIE

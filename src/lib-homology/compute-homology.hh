@@ -25,6 +25,7 @@
 #ifndef COMPUTE_HOMOLOGY_HH
 #define COMPUTE_HOMOLOGY_HH
 //******************************************************************************
+#include <vector>
 class MatricePMQ;
 
 namespace GMap3d
@@ -36,7 +37,7 @@ class CHomology
 {
 public:
   /// Default constructor, itializing the gmap.
-  CHomology(CGMapVertex* AMap);
+  CHomology(CGMapVertex* AMap, int AMark1=-1, int AMark2=-1);
 
   /// Destructor.
   ~CHomology();
@@ -71,9 +72,18 @@ private:
   /// The gmap.
   CGMapVertex* FMap;
 
+  /// A mark to mark H1 free generators.
+  int FMark1;
+  
+  /// A mark to mark H1 torsion generators.
+  int FMark2;
+  
   /// The 3 incidence matrixes.
   MatricePMQ* FMatrix[3];
 
+  /// Array of cells keeping one dart of each cell.
+  std::vector<CDart*> FCells[3];
+  
   /// Number of vertices of the map
   int FNbVertices;
   
