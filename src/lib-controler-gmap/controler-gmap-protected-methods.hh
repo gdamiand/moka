@@ -25,26 +25,28 @@
 // Ce fichier est une partie de "controler-gmap.hh".
 //******************************************************************************
 
-protected:
-
-virtual CPrecompile* newPrecompile(TViewId AViewId,
-				   TPrecompile APrecompileType);
-
+public:
 bool isMapOk() const;
 
 bool isModelChanged   () const;
 void setModelChanged  ();
 void unsetModelChanged();
 
+bool isSelectionChanged     () const;
+void setSelectionChanged    ();
+void unsetSelectionChanged  ();
+
+
+protected:
+
+virtual CPrecompile* newPrecompile(TViewId AViewId,
+				   TPrecompile APrecompileType);
+
 bool isPartialModelChanged   () const;
 void setPartialModelChanged  ();
 void unsetPartialModelChanged();
 
 void updateModelIfNeeded();
-
-bool isSelectionChanged     () const;
-void setSelectionChanged    ();
-void unsetSelectionChanged  ();
 void updateSelectionIfNeeded();
 
 bool getDartsForSew(CDart** ADart1, CDart** ADart2);
