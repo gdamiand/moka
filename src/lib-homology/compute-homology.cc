@@ -267,6 +267,9 @@ void CHomology::computeHomology()
 //   std::cout<<"Matrice P pour dim 1:"<<std::endl;  
 //   FMatrix[1]->getP()->affiche();  
 
+  std::cout<<"Matrice Pinv pour dim 1:"<<std::endl;  
+  FMatrix[1]->getPinv()->affiche();  
+
   int nb_t  = FMatrix[1]->getM()->nbTorsion();
   int nb_z0 = FMatrix[0]->getM()->nbCycle();
   int nb_z1 = FMatrix[1]->getM()->nbCycle();
