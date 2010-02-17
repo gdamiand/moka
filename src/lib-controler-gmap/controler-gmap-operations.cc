@@ -43,7 +43,7 @@ isNonModifyingOperation(const COperation& AOperation) const
 }
 //------------------------------------------------------------------------------
 bool CControlerGMap::
-isSimplificationOperation(const COperation& AOperation) const
+isRemovalOperation(const COperation& AOperation) const
 {
   return
     AOperation.getType()==OPERATION_MERGE ||
@@ -51,7 +51,13 @@ isSimplificationOperation(const COperation& AOperation) const
     AOperation.getType()==OPERATION_MERGE_FACE_NODISCONNECTION ||
     AOperation.getType()==OPERATION_REMOVE_FACES_KEEP_BALLS ||
     AOperation.getType()==OPERATION_SHIFT_EDGES_INCIDENT_TO_VERTEX ||
-    AOperation.getType()==OPERATION_REMOVE_DANGLING_EDGES ||
+    AOperation.getType()==OPERATION_REMOVE_DANGLING_EDGES;  
+}
+//------------------------------------------------------------------------------
+bool CControlerGMap::
+isContractionOperation(const COperation& AOperation) const
+{
+  return
     AOperation.getType()==OPERATION_CONTRACT ||
     AOperation.getType()==OPERATION_DEL_FLAT_FACES ||
     AOperation.getType()==OPERATION_DEL_FLAT_VOLUMES ||
@@ -78,10 +84,14 @@ bool CControlerGMap::canApplyOperation(const COperation& AOperation)
     }
 
 
+  // In simplification mode, we can only apply non modifying operations,
+  // and removal operations (except the intuitive one which is not possible
+  // since we must know the dimension of removed cells)
   if (isModelBlocked() || isModeSimplification())
     {
-      if (!isNonModifyingOperation(AOperation) &&
-	  !isSimplificationOperation(AOperation))
+      if ( (!isNonModifyingOperation(AOperation) &&
+	    !isRemovalOperation(AOperation)) ||
+	   (AOperation.getSubType()==SUB_OPERATION_INTUITIVE_TOPO) ) 
 	{
 	  setMessage("Operation not possible in bloc of simplification mode");
 	  return false;

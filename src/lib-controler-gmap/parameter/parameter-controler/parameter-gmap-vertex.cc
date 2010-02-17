@@ -31,22 +31,32 @@ using namespace GMap3d;
 CParameterGMapVertex::CParameterGMapVertex(CGMapVertex* AGMap, int ANbRef) :
   CParameter         (ANbRef),
   FMap               (AGMap),
+  FMapEmbedding      (NULL),
+  FDirectIndex       (-1),
   FChanged           (false),
   FPartialChanged    (false),
   FMarkPartialChanged(-1),
   FBlocked           (false),
   FModeSimplification(false)
-{}
+{
+  FRemovedMark[0]=-1; FRemovedMark[1]=-1; FRemovedMark[2]=-1;
+}
 //******************************************************************************
 CParameterGMapVertex::
 CParameterGMapVertex(const CParameterGMapVertex & AParam) :
   FMap               (AParam.FMap),
+  FMapEmbedding      (AParam.FMapEmbedding),
+  FDirectIndex       (AParam.FDirectIndex),
   FChanged           (false),
   FPartialChanged    (false),
   FMarkPartialChanged(-1),
   FBlocked           (false),
   FModeSimplification(false)
-{}
+{
+  FRemovedMark[0]=AParam.FRemovedMark[0];
+  FRemovedMark[1]=AParam.FRemovedMark[1];
+  FRemovedMark[2]=AParam.FRemovedMark[2];
+}
 //******************************************************************************
 CParameterGMapVertex::~CParameterGMapVertex()
 {}
@@ -143,6 +153,10 @@ void CParameterGMapVertex::setModeSimplification()
       FMapEmbedding =  new CGMapVertex;
       FDirectIndex = FMap->getNewDirectInfo();
 
+      FRemovedMark[0] = FMapEmbedding->getNewMark();
+      FRemovedMark[1] = FMapEmbedding->getNewMark();
+      FRemovedMark[2] = FMapEmbedding->getNewMark();
+	    
       // We copy FMap into the new map FMapEmbedding.
       int mark = FMap->getNewMark();
       FMap->negateMaskMark(mark);
@@ -166,6 +180,11 @@ void CParameterGMapVertex::unsetModeSimplification()
     {
       FModeSimplification = false;
       FMap->freeDirectInfo(FDirectIndex);
+
+      FMapEmbedding->freeMark(FRemovedMark[0]);
+      FMapEmbedding->freeMark(FRemovedMark[1]);
+      FMapEmbedding->freeMark(FRemovedMark[2]);
+
       delete FMapEmbedding; FMapEmbedding=NULL;
       putAllNeedToUpdate();
     }
@@ -180,6 +199,19 @@ CDart* CParameterGMapVertex::getDartWithEmbedding(CDart * ADart)
     }
 
   return ADart;
+}
+//------------------------------------------------------------------------------
+int CParameterGMapVertex::getMarkRemoved(unsigned int ADim) const
+{
+  assert(ADim<3);
+  return FRemovedMark[ADim];
+}
+//------------------------------------------------------------------------------
+bool CParameterGMapVertex::isMarkedDeleted(CDart* ADart) const
+{
+  for (int i=0;i<3;++i)
+    if (FMapEmbedding->isMarked(ADart,FRemovedMark[i])) return true;
+  return false;
 }
 //******************************************************************************
 void CParameterGMapVertex::setBurstMethod(TBurstMethod AMethod)

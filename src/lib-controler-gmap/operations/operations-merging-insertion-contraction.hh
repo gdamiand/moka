@@ -27,6 +27,10 @@
 
 public:
 
+/// In simplification mode, update the removed marks after having
+/// ADim-removed some darts.
+void updateDartAfterRemovals(unsigned int ADim);
+  
 bool merge(int ADimension);
 bool intuitiveMerge();
 

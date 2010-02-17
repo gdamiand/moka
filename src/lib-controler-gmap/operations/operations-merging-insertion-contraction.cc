@@ -28,30 +28,63 @@
 
 using namespace GMap3d;
 //******************************************************************************
-bool CControlerGMap::merge(int ADimension)
+void CControlerGMap::updateDartAfterRemovals(unsigned int ADim)
 {
-   assert(1 <= ADimension && ADimension <= 3);
+  if ( !getParameterGMapVertex()->getModeSimplification() )
+    return;
+  
+  int deleted = getParameterGMapVertex()->getDrawingMap()->getNewMark();
+  getParameterGMapVertex()->getDrawingMap()->negateMaskMark(deleted);
+
+  //1) we unmark all surviving darts
+  for (CDynamicCoverageAll it(FMap); it.cont(); ++it)
+    {
+      getParameterGMapVertex()->getDrawingMap()->
+	unsetMark(getParameterGMapVertex()->getDartWithEmbedding(*it),deleted);
+    }
+  
+  // Now we run through all darts of the drawing map. Each dart marked with
+  // deleted and not yet marked with a removed mark was just being removed.
+  for (CDynamicCoverageAll it(getParameterGMapVertex()->getDrawingMap());
+       it.cont(); ++it)
+    {
+      if ( getParameterGMapVertex()->getDrawingMap()->isMarked(*it,deleted) &&
+	   ! getParameterGMapVertex()->isMarkedDeleted(*it) )
+	getParameterGMapVertex()->getDrawingMap()->
+	  setMark(*it,getParameterGMapVertex()->getMarkRemoved(ADim));
+      
+      getParameterGMapVertex()->getDrawingMap()->unsetMark(*it, deleted);
+    }
+  
+  getParameterGMapVertex()->getDrawingMap()->freeMark(deleted);
+}
+//******************************************************************************
+bool CControlerGMap::merge(int ADim)
+{
+   assert(1 <= ADim && ADim <= 3);
 
    bool res = false;
 
    if (canApplyOperation(COperation(OPERATION_MERGE,
-                                    SUB_OPERATION_TOPO, ADimension)))
+                                    SUB_OPERATION_TOPO, ADim)))
    {
       undoRedoPreSave();
 
-      int nb = FMap->mergeMarkedCells(getSelectionMark(), ADimension, true);
+      int nb = FMap->mergeMarkedCells(getSelectionMark(), ADim, true);
 
       if (nb == 0)
       {
-         setMessage(ADimension, "-fusion impossible");
+         setMessage(ADim, "-fusion impossible");
          undoRedoPostSaveFailed();
       }
       else
       {
-         undoRedoPostSaveOk();
-         unsetLastSelectedDart();
-         setModelChanged();
-         setMessage(nb, ADimension, (nb == 1 ? "-fusion effectuée" :
+	updateDartAfterRemovals(ADim-1);
+	
+	undoRedoPostSaveOk();
+	unsetLastSelectedDart();
+	setModelChanged();
+	setMessage(nb, ADim, (nb == 1 ? "-fusion effectuée" :
                                      "-fusions effectuées"));
          res = true;
       }
@@ -106,7 +139,9 @@ bool CControlerGMap::mergeColinearEdges()
       }
       else
       {
-         undoRedoPostSaveOk();
+	updateDartAfterRemovals(0);
+
+	undoRedoPostSaveOk();
          unsetLastSelectedDart();
          setModelChanged();
          setMessage(nb, (nb == 1 ?
@@ -135,7 +170,9 @@ bool CControlerGMap::mergeCoplanarFaces()
       }
       else
       {
-         undoRedoPostSaveOk();
+	updateDartAfterRemovals(1);
+
+	undoRedoPostSaveOk();
          unsetLastSelectedDart();
          setModelChanged();
          setMessage(nb, (nb == 1 ?
@@ -250,7 +287,9 @@ bool CControlerGMap::removeMarkedEdgesWithoutDisconnection()
       }
       else
       {
-         undoRedoPostSaveOk();
+	updateDartAfterRemovals(1);
+
+	undoRedoPostSaveOk();
          unsetLastSelectedDart();
          setModelChanged();
          setMessage(nb, (nb == 1 ? " 1-suppression effectuée" :
@@ -280,7 +319,9 @@ bool CControlerGMap::removeMarkedFacesButKeepBalls()
       }
       else
       {
-         undoRedoPostSaveOk();
+	updateDartAfterRemovals(2);
+
+        undoRedoPostSaveOk();
          unsetLastSelectedDart();
          setModelChanged();
          setMessage(nb, (nb == 1 ? " 2-suppression effectuée" :
@@ -339,7 +380,9 @@ bool CControlerGMap::removeDanglingEdges()
       }
       else
       {
-         undoRedoPostSaveOk();
+	updateDartAfterRemovals(1);
+
+	undoRedoPostSaveOk();
          unsetLastSelectedDart();
          setModelChanged();
          setMessage(nb, (nb == 1 ? " arête pendante supprimée" :
@@ -357,7 +400,7 @@ bool CControlerGMap::contract(int ADimension)
 
    bool res = false;
 
-   if (canApplyOperation(COperation(OPERATION_MERGE,
+   if (canApplyOperation(COperation(OPERATION_CONTRACT,
                                     SUB_OPERATION_TOPO, ADimension)))
    {
       undoRedoPreSave();

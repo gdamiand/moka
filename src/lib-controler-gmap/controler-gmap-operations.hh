@@ -33,8 +33,11 @@ public:
 /// Return true iff the operation does not modify the map.
 bool isNonModifyingOperation(const COperation& AOperation) const;
 
-/// Return true iff the operation is a simplification one.
-bool isSimplificationOperation(const COperation& AOperation) const;
+/// Return true iff the operation is a removal one.
+bool isRemovalOperation(const COperation& AOperation) const;
+
+/// Return true iff the operation is a contraction one.
+bool isContractionOperation(const COperation& AOperation) const;
 
 /**
  * Retourne si le mode courant permet de faire une opération (exemple couture,
