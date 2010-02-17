@@ -48,6 +48,8 @@ int main(int argc, char** argv)
     glutInit(&argc, argv);
 #endif // MODULE_SPAMOD
 
+    //    glutInitDisplayMode(AUX_SINGLE | AUX_RGBA | AUX_DEPTH);
+ 
     QApplication appli(argc, argv);
     Window moka;
 

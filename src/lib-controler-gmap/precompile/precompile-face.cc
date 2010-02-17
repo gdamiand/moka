@@ -128,9 +128,12 @@ gluTessCallback(FTess, GLU_TESS_EDGE_FLAG_DATA,
 //******************************************************************************
 void CPrecompileFace::drawModel()
 {
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
+  if (FParameterFace->getBLFace()<1)
+    {
+      glEnable(GL_BLEND);
+      glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    }
+  
   bool bursted1 = ! areEqual(FParameterGMapV->getDrawingMap()->getBurstCoef(1), 1.0);
   int treated   = FParameterGMapV->getDrawingMap()->getNewMark();
 
@@ -150,7 +153,7 @@ void CPrecompileFace::drawModel()
   gluTessCallback(FTess, GLU_TESS_COMBINE,
 		  (GLvoid (WINAPI *) ( )) & monCombine );
 
-  // Couleur globale :
+   // Couleur globale :
   if ( !FParameterFace->getRandomCLFace  () &&
        !FParameterFace->getRandomCLVolume() )
     glColor4f(FParameterFace->getCLFace(0),
@@ -175,13 +178,9 @@ void CPrecompileFace::drawModel()
 		    getNbPolylineVertices(*it2);
 		  if (nbSommetsFace > 2)
 		    {
-		      if (FParameterFace->getRandomCLFace())
-			setRandomColor(*it2, 2);
-
-		      drawFace(*it2, nbSommetsFace, bursted1);
+		      drawFilledFace(*it2, nbSommetsFace, bursted1);
 		    }
 		}
-
 	      FParameterGMapV->getDrawingMap()->markOrbit(*it2, ORBIT_01, treated);
 	    }
       }
@@ -229,7 +228,8 @@ void CPrecompileFace::setRandomColor(CDart* ADart, int ADimension)
 #undef FLT
 }
 //------------------------------------------------------------------------------
-void CPrecompileFace::drawFace(CDart* ADart, int ANbSommets, bool ABursted)
+void CPrecompileFace::drawFilledFace(CDart* ADart, int ANbSommets,
+				     bool ABursted)
 {
   gluTessBeginPolygon(FTess, NULL);
   gluTessBeginContour(FTess);
@@ -238,7 +238,7 @@ void CPrecompileFace::drawFace(CDart* ADart, int ANbSommets, bool ABursted)
   
   CVertex pred;
   int numeroSommet = 0;
-  
+
   // Parcours de la face
   for (CDynamicCoverage01 cov(FParameterGMapV->getDrawingMap(), ADart);
        cov.cont(); ++cov)
@@ -251,8 +251,8 @@ void CPrecompileFace::drawFace(CDart* ADart, int ANbSommets, bool ABursted)
 	  data[  (numeroSommet*3)] = v.getX();
 	  data[1+(numeroSommet*3)] = v.getY();
 	  data[2+(numeroSommet*3)] = v.getZ();
-	  
-	  gluTessVertex(FTess, &data[numeroSommet*3], &data[numeroSommet*3]);
+
+ 	  gluTessVertex(FTess, &data[numeroSommet*3], &data[numeroSommet*3]);
 	  ++ numeroSommet;
 	  pred = v;
 	}

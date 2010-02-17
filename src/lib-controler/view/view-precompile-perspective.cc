@@ -51,7 +51,7 @@ void CViewPrecompilePerspective::setScenePosition()
   float alpha = FParameterEyePosition->getRotationAlpha();
   float b = FParameterEyePosition->getRotationBeta ();
 
-  gluPerspective(45 /* angle*/, FRatio, 0.01, 10000);
+  gluPerspective(45 /* angle*/, FRatio, 0.1 /*0.01*/, 2000);
   gluLookAt(0,-d,0, 0,0,0, 0,0,1);
 
   glRotatef(-b, 1, 0, 0);

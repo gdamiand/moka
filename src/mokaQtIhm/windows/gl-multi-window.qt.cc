@@ -165,7 +165,7 @@ void GLMultiWindow :: paintGL ( )
       FOwner -> getControler ( ) -> viewDraw(FViewIds[i]);
     }
 
-  swapBuffers ( ) ;
+  // swapBuffers ( ) ;
 }
 
 //***************************************************
@@ -174,15 +174,17 @@ void GLMultiWindow :: paintGL ( )
 
 void GLMultiWindow :: initializeGL (  ) 
 {
-
   glEnable(GL_DEPTH_TEST); // z-buffer
   glDepthFunc(GL_LEQUAL);
 
-  glEnable(GL_NORMALIZE);  
+//   glEnable(GL_NORMALIZE);  
   glDisable(GL_BLEND);
   
-  //  glEnable(GL_POLYGON_MODE);
+  glEnable(GL_POLYGON_MODE);
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+  ::glEnable(GL_POLYGON_OFFSET_FILL);
+  ::glPolygonOffset(1.0f,1.0f);
 
   // Proprietes des surfaces ----------------------------------------------
   static const GLfloat Material_Ks[] = {0.5, 0.5, 0.5,  1.0};
