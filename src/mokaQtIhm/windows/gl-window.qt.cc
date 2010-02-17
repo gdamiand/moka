@@ -127,47 +127,74 @@ void GLWindow::closeEvent(QCloseEvent * e)
 //************************************************************
 void GLWindow::paintGL()
 {
-   QPainter p(this);
+  QPainter p(this);
 
-   glClear(GL_COLOR_BUFFER_BIT) ;
-   glLoadIdentity() ;
+  makeCurrent();
+  glPushAttrib(GL_ALL_ATTRIB_BITS);
+  glMatrixMode(GL_PROJECTION);
+  glPushMatrix();
+  glMatrixMode(GL_MODELVIEW);
+  glPushMatrix();
 
-   FOwner -> getControler() -> viewInit(FViewId) ;
+  // Reset OpenGL parameters
+  glEnable(GL_DEPTH_TEST); // z-buffer
+  glDepthFunc(GL_LEQUAL);
+  //  resizeGL(width(), height());  
+  
+  glClearColor(0,0,0, 1);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  glLoadIdentity() ;
+  
+  FOwner -> getControler() -> viewInit(FViewId);  
+  FOwner -> getControler() -> viewDraw(FViewId) ;
+  
+  glMatrixMode(GL_MODELVIEW);
+  glPopMatrix();
+  glMatrixMode(GL_PROJECTION);
+  glPopMatrix();
+  glPopAttrib();
 
-   if (FDragMode)
-   {
+  if (FDragMode)
+    {
       p.setPen(Qt::white) ;
       p.drawRect(FStartX, FStartY, FCurX - FStartX, FCurY - FStartY);
-      if (FOwner->getControler()->getModeDeselectionAtStop())
-         p.drawText(FStartX, FStartY, "Deselect");
+      if ( FOwner->getControler()->getModeDeselectionAtStop() )
+	p.drawText(FStartX, FStartY, "Deselect");
       else
-         p.drawText(FStartX, FStartY, "Select");
-   }
-
-   FOwner -> getControler() -> viewDraw(FViewId) ;
+	p.drawText(FStartX, FStartY, "Select");
+    }
+  p.end();
 }
 //************************************************************
 // Modif de la taille de la fenetre
 //************************************************************
-void GLWindow :: resizeGL(int W , int H)
+void GLWindow :: resizeGL(int width , int height)
 {
-   glViewport(0, 0, W, H);
-}
+  glViewport(0,0,width,height);
+  
+//   glMatrixMode(GL_PROJECTION);
+//   glLoadIdentity();
+//   glOrtho(-0.5, +0.5, +0.5, -0.5, 4.0, 15.0);
+//   glMatrixMode(GL_MODELVIEW);
+ }
 //************************************************************
 // Initialisation OpenGL
 //************************************************************
 void GLWindow :: initializeGL()
 {
-   glEnable(GL_DEPTH_TEST); // z-buffer
-   glDepthFunc(GL_LEQUAL);
+  glEnable(GL_DEPTH_TEST); // z-buffer
+  glDepthFunc(GL_LEQUAL);
 
-   glEnable(GL_NORMALIZE);
+  // glEnable(GL_NORMALIZE);
 
-   glDisable(GL_BLEND);
-   //glEnable(GL_CULL_FACE);
+  glDisable(GL_BLEND);
+  // glEnable(GL_CULL_FACE);
    
-   //   glEnable(GL_POLYGON_MODE);
+   glEnable(GL_POLYGON_MODE);
    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+   ::glEnable(GL_POLYGON_OFFSET_FILL);
+  ::glPolygonOffset(1.0f,1.0f);
 
    // Proprietes des surfaces ----------------------------------------------
    static const GLfloat Material_Ks[] = {0.5, 0.5, 0.5,  1.0};

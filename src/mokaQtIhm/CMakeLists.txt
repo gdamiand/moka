@@ -61,10 +61,15 @@ QT4_WRAP_CPP(MOC_SRCS ${NEED_MOCS})
 QT4_ADD_RESOURCES(RESOURCES_SRCS ${QT_RESOURCES})
 
 #-------------------------------------------------------------------------------
+# QGLViewer
+find_package(QGLViewer)
+include_directories (${QGLVIEWER_INCLUDE_DIR})
+
+#-------------------------------------------------------------------------------
 add_executable(mokaQt ${IHM_SRCS} ${MOC_SRCS} ${RESOURCES_SRCS})
 
 target_link_libraries (mokaQt controler-gmap controler gmapkernel homology)
 
 target_link_libraries(mokaQt ${QT_LIBRARIES} ${QT_QT3SUPPORT_LIBRARY})
-target_link_libraries(mokaQt ${QT_QTOPENGL_LIBRARY})
+target_link_libraries(mokaQt ${QT_QTOPENGL_LIBRARY} ${QGLVIEWER_LIBRARIES})
 #-------------------------------------------------------------------------------

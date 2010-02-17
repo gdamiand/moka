@@ -153,12 +153,14 @@ void CHomology::computeIncidence(int ADim)
       if ( ADim==1 ) FMap->markOrbit(*it,ORBIT_23,positive);
       else if ( ADim==2 )
 	{ FMap->halfMarkOrbit(*it,ORBIT_01,positive); }
-      
+
+      FCells[ADim][currentcell-1]=*it;
+//       if ( ADim==0 )
+// 	std::cout<<"sommet["<<currentcell-1<<"] : "<<*FMap->findVertex(*it)<<std::endl;      
+
       CCoverage* it2 = FMap->getDynamicCoverage(*it,ORBIT_CELL[ADim]);
       for(;it2->cont();++(*it2))
 	{
-	  FCells[ADim][currentcell-1]=**it2;
-	  
 	  if ( ADim==1 && !FMap->isMarked(**it2,positive) )
 	    number = -currentcell;
 	  else if (ADim==2 && !FMap->isMarked(**it2,positive) &&
@@ -208,7 +210,8 @@ void CHomology::computeIncidence(int ADim)
 	    //if ( i<0 ) {  val = -val; }
 	    
 	    // std::cout<<"("<<i<<","<<currentcell<<")="<<val<<std::endl;
-	    
+
+	    // if ( val!=0 ) val = 1;
 	    FMatrix[ADim]->setValPMQ( icorrected, currentcell, val);
 	  }
 	
@@ -243,32 +246,13 @@ void CHomology::computeHomology()
   computeIncidence(1);
 
   
-  std::cout<<"Matrice d'incidence Sommet-Arete:"<<std::endl;    
-  FMatrix[0]->getM()->affiche();
-  
-  std::cout<<"Matrice d'incidence Arete-Face:"<<std::endl;    
-  FMatrix[1]->getM()->affiche();
-
-  
   FMatrix[0]->smithForm();
   
   FMatrix[1]->getM()->setMatrice( FMatrix[1]->getM()->
-                                  multGauche(FMatrix[0]->getQ()) );
-  FMatrix[1]->getP()->setMatrice( FMatrix[0]->getQinv() );
-  FMatrix[1]->getPinv()->setMatrice( FMatrix[0]->getQ() );
+                                multGauche(FMatrix[0]->getQinv()) );
+  FMatrix[1]->getP()->setMatrice( FMatrix[0]->getQ() );
+  FMatrix[1]->getPinv()->setMatrice( FMatrix[0]->getQinv() );
   FMatrix[1]->smithForm();
-
-  std::cout<<"Matrice Homologie H0:"<<std::endl;  
-  FMatrix[0]->getM()->affiche();
-
-  std::cout<<"Matrice Homologie H1:"<<std::endl;  
-  FMatrix[1]->getM()->affiche();
-
-//   std::cout<<"Matrice P pour dim 1:"<<std::endl;  
-//   FMatrix[1]->getP()->affiche();  
-
-  std::cout<<"Matrice Pinv pour dim 1:"<<std::endl;  
-  FMatrix[1]->getPinv()->affiche();  
 
   int nb_t  = FMatrix[1]->getM()->nbTorsion();
   int nb_z0 = FMatrix[0]->getM()->nbCycle();
@@ -276,18 +260,25 @@ void CHomology::computeHomology()
   int nb_bf = FMatrix[1]->getM()->getnbcol()-nb_z1;
   int nb_l=nb_z0-nb_bf;
 
+
+std::cout<<"Bords faibles : "<<nb_bf<<std::endl;
+std::cout<<"gen tor : "<<nb_t<<std::endl;
+std::cout<<"gen libres : "<<nb_l<<std::endl;
+
+//FMatrix[1]->getP()->affiche();
+
   if ( FMark2!=-1 )
     {
       //marquage des cellules faisant partie des générateurs de torsion
       for (int j=0;j<nb_t;j++){
-	for(int i=0;i<FMatrix[1]->getP()->getnbcol();i++)
+	for(int i=0;i<FMatrix[1]->getP()->getnbli();i++)
 	  {
 	    if(FMatrix[1]->getP()->getVal(i,j)!=0)
 	      {
 		//marquerTorsion la d cellule numero i
 		FMap->markOrbit(FCells[1][i],ORBIT_EDGE,FMark2);
-		std::cout<<"Cellule torsion: "<<i<<" ("<<FCells[1][i]
-			 <<")"<<std::endl;
+//		std::cout<<"Cellule torsion: "<<i<<" ("<<FCells[1][i]
+//			 <<")"<<std::endl;
 	      }
 	  }
       }
@@ -300,14 +291,14 @@ void CHomology::computeHomology()
       int fin_libre=nb_bf+nb_l;
       for (int j=deb_libre;j<fin_libre;j++)
 	{
-	  for(int i=0;i<FMatrix[1]->getP()->getnbcol();i++)
+	  for(int i=0;i<FMatrix[1]->getP()->getnbli();i++)
 	    {
 	      if(FMatrix[1]->getP()->getVal(i,j)!=0)
 		{
 		  //marquerLibre la d cellule numero i
 		  FMap->markOrbit(FCells[1][i],ORBIT_EDGE,FMark1);
-		  std::cout<<"Cellule libre: "<<i<<" ("<<FCells[1][i]
-			   <<")"<<std::endl;
+//		  std::cout<<"Generateur libre "<<j<<" - Cellule libre: "<<i<<" ("<<FCells[1][i]
+//			   <<")"<<std::endl;
 		}
 	    }
 	}

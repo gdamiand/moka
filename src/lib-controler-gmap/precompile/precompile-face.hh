@@ -77,8 +77,8 @@ namespace GMap3d
     /// Sélection de la couleur aléatoire  :
     void setRandomColor(CDart* ADart, int ADimension);
     
-    /// Affichage d'une face :
-    void drawFace(CDart* ADart, int ANbSommets, bool ABursted1);
+    /// Draw the given face in filled mode.
+    void drawFilledFace(CDart* ADart, int ANbSommets, bool ABursted1);
     
   private:
     /// Les différents paramètres
