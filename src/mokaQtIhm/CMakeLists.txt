@@ -62,8 +62,8 @@ QT4_ADD_RESOURCES(RESOURCES_SRCS ${QT_RESOURCES})
 
 #-------------------------------------------------------------------------------
 # QGLViewer
-find_package(QGLViewer)
-include_directories (${QGLVIEWER_INCLUDE_DIR})
+# find_package(QGLViewer)
+# include_directories (${QGLVIEWER_INCLUDE_DIR})
 
 #-------------------------------------------------------------------------------
 add_executable(mokaQt ${IHM_SRCS} ${MOC_SRCS} ${RESOURCES_SRCS})
