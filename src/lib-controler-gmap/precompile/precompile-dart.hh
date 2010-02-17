@@ -89,6 +89,10 @@ namespace GMap3d
 
   protected:
 
+    /// Used in simplification mode: return the incident dart for ADim
+    /// by using connecting pathes.
+    CDart* nextDartAlpha(CDart* ADart, unsigned int ADim);
+    
     /** drawOneDart
      *
      *  @param ADart le brin à afficher
@@ -98,6 +102,12 @@ namespace GMap3d
      */
     void drawOneDart(CDart*);
 
+    /** Draw the edge associated with ADart. In simplification mode this is
+     *  the connecting path between ADart and its alpha0.
+     *  Otherwise, this is the dart.
+     */
+    void drawOneEdge(CDart * ADart);
+    
     /// Cette méthode affiche tout les brins de la carte.
     virtual void drawModel();
 

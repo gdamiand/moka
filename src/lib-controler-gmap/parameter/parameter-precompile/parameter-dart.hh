@@ -132,13 +132,21 @@ namespace GMap3d
 
     //@}
 
-    /// Brins non sélectionnés
-    float         getCLRemove(int ALevel, int AIndice) const;
-    void          setCLRemove(int ALevel, int AIndice, float AValue);
-    const float * getCLRemove(int ALevel) const;
-    void          setCLRemove(int ALevel,
+    /// Brins 0-supprimés
+    float         getCL0Remove(int ALevel, int AIndice) const;
+    void          setCL0Remove(int ALevel, int AIndice, float AValue);
+    const float * getCL0Remove(int ALevel) const;
+    void          setCL0Remove(int ALevel,
 			     float AValue0, float AValue1, float AValue2);
-    void          setCLRemove(int ALevel,const float ATab[3]);
+    void          setCL0Remove(int ALevel,const float ATab[3]);
+
+    /// Brins 1-supprimés
+    float         getCL1Remove(int ALevel, int AIndice) const;
+    void          setCL1Remove(int ALevel, int AIndice, float AValue);
+    const float * getCL1Remove(int ALevel) const;
+    void          setCL1Remove(int ALevel,
+			     float AValue0, float AValue1, float AValue2);
+    void          setCL1Remove(int ALevel,const float ATab[3]);
 
     /// Identificateur du type de paramètre.
     virtual int getType() const;
@@ -159,14 +167,16 @@ namespace GMap3d
     int FSAloneDarts;
 
     /// The different possible colors
-    /// (unselected darts, selected, last, removed)
+    /// (unselected darts, selected, last, 0removed, 1removed)
     float ** FCLUnsel;
 
     float ** FCLSel;
 
     float ** FCLLastSel;
 
-    float ** FCLRemove;
+    float ** FCL0Remove;
+
+    float ** FCL1Remove;
   };
 
 } // namespace GMap3d

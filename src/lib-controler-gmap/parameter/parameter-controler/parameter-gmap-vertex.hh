@@ -124,6 +124,12 @@ namespace GMap3d
     /// aux précompiles concernés.
     void unsetModeSimplification();
 
+    /// Return the mark used to mark ADim-removed darts in FMapEmbedding.
+    int getMarkRemoved(unsigned int ADim) const;
+      
+    /// Return true if the dart ADart is marked deleted (i.e. with a FRemovedMark).
+    bool isMarkedDeleted(CDart* ADart) const;
+      
     /// Get the dart associated to ADart.
     /// In "classical mode", this is ADart, in simplification mode
     /// this is the dart linked with ADart by the direct info.
@@ -154,6 +160,10 @@ namespace GMap3d
     /// In simplification mode, the direct info used to link darts of FMap and
     /// their corresponding darts in FMapEmbedding.
     int FDirectIndex;
+    
+    /// In simplification mode, the mark used to mark darts of FMapEmbedding which
+    /// are i-removed in FMap.
+    int FRemovedMark[3];
     
     /// Booléen pour indiquer si le modèle à changé depuis la dernière mise à jour.
     bool FChanged;

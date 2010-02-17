@@ -129,6 +129,44 @@ void CPrecompileDart::setSelection(CParameterSelection* ASelection)
 TPrecompile CPrecompileDart::getType() const
 { return PRECOMPILE_DART; }
 //******************************************************************************
+CDart* CPrecompileDart::nextDartAlpha(CDart* ADart, unsigned int ADim)
+{
+  assert(ADim<=3);
+  
+  if ( !FParameterGMapV->getModeSimplification() || ADim==3 )
+    return ADart->getAlpha(ADim);
+  
+  CDart* res = ADart->getAlpha(ADim);
+  while ( FParameterGMapV->getDrawingMap()->
+	  isMarked(res,FParameterGMapV->getMarkRemoved(ADim+1)) )
+    {
+      res = ADart->getAlpha(ADim+1)->getAlpha(ADim);
+    }
+  return res;
+}
+//******************************************************************************
+void CPrecompileDart::drawOneEdge(CDart * ADart)
+{
+  if  ( !FParameterGMapV->getModeSimplification() ||
+	FParameterGMapV->getDrawingMap()->isFree0(ADart) )
+    drawOneDart(ADart);
+  else
+    {
+      CDart* start = FParameterGMapV->getDartWithEmbedding(ADart);
+      CDart* end = FParameterGMapV->getDartWithEmbedding(ADart->getAlpha(0));
+      while ( start!=end )
+	{
+	  drawOneDart(start);
+	  start = nextDartAlpha(start,0);
+	  if (start!=end)
+	    {
+	      drawOneDart(start);
+	      start = nextDartAlpha(start,1);
+	    }
+	}
+    }
+}
+//******************************************************************************
 void CPrecompileDart::drawOneDart(CDart * ADart)
 {
    CVertex * v1 = &FParameterGMapV->getDrawingMap()->getBurstVertex(ADart);
@@ -159,7 +197,8 @@ void CPrecompileDart::drawModel()
    const GLfloat * clSel   = NULL;
    const GLfloat * clUnsel = NULL;
    const GLfloat * clLast  = NULL;
-   const GLfloat * clRemove= NULL;
+   const GLfloat * cl0Remove= NULL;
+   const GLfloat * cl1Remove= NULL;
    int mark = -1;
 
    CDart * last = NULL;
@@ -175,8 +214,10 @@ void CPrecompileDart::drawModel()
 	getCLUnsel(FParameterSelection->getSelectionLevel());
       clLast  = FParameterDart->
 	getCLLastSel(FParameterSelection->getSelectionLevel());
-      clRemove= FParameterDart->
-	getCLRemove(FParameterSelection->getSelectionLevel());
+      cl0Remove= FParameterDart->
+	getCL0Remove(FParameterSelection->getSelectionLevel());
+      cl1Remove= FParameterDart->
+	getCL1Remove(FParameterSelection->getSelectionLevel());
    }
    else
      clSel = FParameterDart->getCLUnsel(0);
@@ -184,11 +225,13 @@ void CPrecompileDart::drawModel()
    // 1) Draw the remove darts
    if ( FParameterGMapV->getModeSimplification() )
      {
-       glColor3fv(clRemove);
+       glColor3fv(cl1Remove);
        for (CDynamicCoverageAll it(FParameterGMapV->getMapEmbedding());
 	    it.cont(); ++it)
 	 {
-	   drawOneDart(*it);
+	   if ( FParameterGMapV->getMapEmbedding()->
+		isMarked(*it, FParameterGMapV->getMarkRemoved(1)))
+	     drawOneDart(*it);
 	 }
      }
 
@@ -198,7 +241,9 @@ void CPrecompileDart::drawModel()
    glColor3fv(clUnsel);
    for (; it.cont(); ++it)
       if (mark == -1 || !FParameterGMapV->getMap()->isMarked(*it, mark))
-         drawOneDart(FParameterGMapV->getDartWithEmbedding(*it));
+	{
+	  drawOneEdge(*it);
+	}
 
    if (mark != -1)
    {
@@ -206,14 +251,14 @@ void CPrecompileDart::drawModel()
      glColor3fv(clSel);
      for (it.reinit(); it.cont(); ++it)
        if (FParameterGMapV->getMap()->isMarked(*it, mark) && *it != last)
-	 drawOneDart(FParameterGMapV->getDartWithEmbedding(*it));
+	 drawOneEdge(*it);
    }
 
    // Dessin du dernier brin sélectionné
    if (last != NULL)
    {
       glColor3fv(clLast);
-      drawOneDart(FParameterGMapV->getDartWithEmbedding(last));
+      drawOneEdge(last);
    }
 }
 //******************************************************************************
@@ -261,7 +306,8 @@ void CPrecompileDart::pick(int AX, int AY, CView* AView)
    {
       CDart* current = *it;
 
-      CVertex& v1 = FParameterGMapV->getMap()->getBurstVertex(current);
+      CVertex& v1 = FParameterGMapV->getDrawingMap()->
+	getBurstVertex(FParameterGMapV->getDartWithEmbedding(current));
 
       float seg1[3], seg2[3];
 
@@ -274,7 +320,8 @@ void CPrecompileDart::pick(int AX, int AY, CView* AView)
       }
       else
       {
-         CVertex e = FParameterGMapV->getMap()->computeBurstExtremity(current);
+         CVertex e = FParameterGMapV->getDrawingMap()->
+	   computeBurstExtremity(FParameterGMapV->getDartWithEmbedding(current));
          AView->project(e.getX(), e.getY(), e.getZ(), seg2);
       }
 

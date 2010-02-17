@@ -192,7 +192,7 @@ void CGMapGeneric::duplicateEmbeddingsOfDuplicatedDarts(CCoverage * ACoverage,
   assert(AMarkInitial>=0);
   assert(AMarkDuplicated>=0);
   assert(ADirectInfoIndex>=0);
-  assert(AMarkInitial!=AMarkDuplicated);
+  assert(this!=AMap || AMarkInitial!=AMarkDuplicated);
 
   int treated = getNewMark();
   int treated2 = (AMap==this?treated:AMap->getNewMark());
