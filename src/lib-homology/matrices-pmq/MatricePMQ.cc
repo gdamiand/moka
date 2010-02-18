@@ -42,6 +42,9 @@ MatricePMQ::~MatricePMQ()
   delete M;
 }
 
+unsigned long MatricePMQ::size() const
+{ return P->size()+Pinv->size()+Q->size()+Qinv->size()+M->size(); }
+
 void MatricePMQ::deplacePMQ(coord c,int pos)
 {
   M->inverseLigne(c.i,pos);

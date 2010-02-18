@@ -135,12 +135,14 @@ CDart* CPrecompileDart::nextDartAlpha(CDart* ADart, unsigned int ADim)
   
   if ( !FParameterGMapV->getModeSimplification() || ADim==3 )
     return ADart->getAlpha(ADim);
-  
+ 
+  assert(!FParameterGMapV->getDrawingMap()->
+	 isMarked(ADart,FParameterGMapV->getMarkRemoved(ADim)));
   CDart* res = ADart->getAlpha(ADim);
   while ( FParameterGMapV->getDrawingMap()->
-	  isMarked(res,FParameterGMapV->getMarkRemoved(ADim+1)) )
+	  isMarked(res,FParameterGMapV->getMarkRemoved(ADim)) )
     {
-      res = ADart->getAlpha(ADim+1)->getAlpha(ADim);
+      res = res->getAlpha(ADim+1)->getAlpha(ADim);
     }
   return res;
 }
@@ -149,29 +151,27 @@ void CPrecompileDart::drawOneEdge(CDart * ADart)
 {
   if  ( !FParameterGMapV->getModeSimplification() ||
 	FParameterGMapV->getDrawingMap()->isFree0(ADart) )
-    drawOneDart(ADart);
-  else
+    return;
+  
+  CDart* start = FParameterGMapV->getDartWithEmbedding(ADart);
+  CDart* end = FParameterGMapV->getDartWithEmbedding(ADart->getAlpha(0));
+  while ( start!=end )
     {
-      CDart* start = FParameterGMapV->getDartWithEmbedding(ADart);
-      CDart* end = FParameterGMapV->getDartWithEmbedding(ADart->getAlpha(0));
-      while ( start!=end )
+      start = start->getAlpha(0);
+      if (start!=end)
 	{
 	  drawOneDart(start);
-	  start = nextDartAlpha(start,0);
-	  if (start!=end)
-	    {
-	      drawOneDart(start);
-	      start = nextDartAlpha(start,1);
-	    }
+	  start = nextDartAlpha(start,1);
+	  if (start!=end) drawOneDart(start);
 	}
     }
 }
 //******************************************************************************
 void CPrecompileDart::drawOneDart(CDart * ADart)
 {
-   CVertex * v1 = &FParameterGMapV->getDrawingMap()->getBurstVertex(ADart);
+  CVertex * v1 = &FParameterGMapV->getDrawingMap()->getBurstVertex(ADart);
 
-   if (FParameterGMapV->getDrawingMap()->isFree0(ADart))
+  if (FParameterGMapV->getDrawingMap()->isFree0(ADart))
    {
       // Affichage d'un point pour les brins 0-libres
       glBegin(GL_POINTS);
@@ -181,7 +181,8 @@ void CPrecompileDart::drawOneDart(CDart * ADart)
    else
    {
       // Affichage de l'arête pour les brins 0-cousus
-      CVertex v2 = FParameterGMapV->getDrawingMap()->computeBurstExtremity(ADart);
+     CVertex v2 = FParameterGMapV->getDrawingMap()->
+       computeBurstExtremity(ADart);
       glBegin(GL_LINES);
       LINE(v1, &v2);
       glEnd();
@@ -238,11 +239,16 @@ void CPrecompileDart::drawModel()
    CDynamicCoverageAll it(FParameterGMapV->getMap());
 
    // Dessin des brins non sélectionnés :
-   glColor3fv(clUnsel);
    for (; it.cont(); ++it)
       if (mark == -1 || !FParameterGMapV->getMap()->isMarked(*it, mark))
 	{
-	  drawOneEdge(*it);
+	  glColor3fv(clUnsel);
+	  drawOneDart(FParameterGMapV->getDartWithEmbedding(*it));
+	  if ( FParameterGMapV->getModeSimplification() )
+	    {
+	      glColor3fv(cl0Remove);
+	      drawOneEdge(*it);
+	    }
 	}
 
    if (mark != -1)
@@ -251,13 +257,17 @@ void CPrecompileDart::drawModel()
      glColor3fv(clSel);
      for (it.reinit(); it.cont(); ++it)
        if (FParameterGMapV->getMap()->isMarked(*it, mark) && *it != last)
-	 drawOneEdge(*it);
+	 {
+	   drawOneDart(FParameterGMapV->getDartWithEmbedding(*it));
+	   drawOneEdge(*it);
+	 }
    }
 
    // Dessin du dernier brin sélectionné
    if (last != NULL)
    {
       glColor3fv(clLast);
+      drawOneDart(FParameterGMapV->getDartWithEmbedding(last));
       drawOneEdge(last);
    }
 }

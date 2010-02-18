@@ -19,11 +19,17 @@ private :
   int nb_colonnes;
   int **mat;
 
+  /// The memory size used by the matrix.
+  unsigned int FSize;
+  
 public :
   Matrice();
   Matrice(int nbli,int nbcol); 
   Matrice(const Matrice & source);
   ~Matrice();
+
+  /// Return the memory size (in bytes) required for the matrixes.
+  unsigned long size() const;
   
   int getVal(int i,int j);
   int getnbcol();

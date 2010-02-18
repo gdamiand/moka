@@ -108,7 +108,8 @@ void CPrecompileVertex::drawModel()
 
   for (CDynamicCoverageAll it(FParameterGMapV->getMap()); it.cont(); ++it)
     {
-      CVertex * vertex = FParameterGMapV->getMap()->getVertex(*it);
+      CVertex * vertex = FParameterGMapV->getDrawingMap()
+	->getVertex(FParameterGMapV->getDartWithEmbedding(*it));
 
       if (vertex != NULL)
 	PLOT(vertex);

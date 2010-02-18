@@ -25,7 +25,6 @@
 #include "HtmlEntities.hh"
 //#include "icones.hh"
 #include "gl-multi-window.qt.hh"
-#include "compute-homology.hh"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -2387,11 +2386,7 @@ void Window :: callbackBooleanOperations3d()
 //------------------------------------------------------------------------------
 void Window::callbackComputeHomology()
 {
-  CHomology c(getControler()->getMap(),
-	      getControler()->getSelectionMark(0),
-	      getControler()->getSelectionMark(1));
-  c.computeHomology();
-  getControler()->setSelectionChanged();
+  getControler() ->computeHomology();
   repaint();
 }
 //------------------------------------------------------------------------------

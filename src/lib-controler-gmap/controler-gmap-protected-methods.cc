@@ -105,6 +105,9 @@ void CControlerGMap::updateModelIfNeeded()
   if ( isModelChanged() )
     {
       FMap->updateAllBurstDarts();
+      if ( FParameterGMapVertex->getMapEmbedding()!=NULL )
+	FParameterGMapVertex->getMapEmbedding()->updateAllBurstDarts();
+      
       unsetModelChanged();
     }
   else if ( isPartialModelChanged() )

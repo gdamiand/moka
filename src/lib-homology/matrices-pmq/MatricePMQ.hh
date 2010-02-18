@@ -17,6 +17,10 @@ public :
   MatricePMQ(const MatricePMQ & source);
   MatricePMQ(int i,int j);
   ~MatricePMQ();
+
+  /// Return the memory size (in bytes) required for the matrixes.
+  unsigned long size() const;
+  
   void affichePMQ();
   void inverseLignePMQ(int i ,int j);
   void inverseColonnePMQ(int i,int j);

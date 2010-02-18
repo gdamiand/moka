@@ -45,6 +45,8 @@ typedef enum
   _UNSEL_DART,
   _SEL_DART,
   _LAST_DART,
+  _0DELETE_DART,
+  _1DELETE_DART,
   _VERTEX,
   _0_SEW,
   _1_SEW,
@@ -59,13 +61,6 @@ typedef enum
   _OBJECT_TRANSFORMATION,
   _OBJECT_PREVIEW,
   _OBJECT_PREVIEW_BAD,
-  _BRIQUE,
-  _MONTANT,
-  _TAPISSERIE,
-  _MOQUETTE,
-  _FACADE,
-  _PLAQUE,
-  _MARCHE
 } TElement;
 
 class OptionCouleurs : public QToolBar

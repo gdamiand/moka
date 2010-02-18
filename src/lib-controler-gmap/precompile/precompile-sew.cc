@@ -122,27 +122,37 @@ void CPrecompileSew::drawSewsI(int AIndice, int AMark)
               FParameterGMapV->getMap()->setMark(darti, AMark);
               if (AIndice==0)
                 {
-		  m= (FParameterGMapV->getMap()->getBurstVertex(dart) +
-		      FParameterGMapV->getMap()->getBurstVertex(darti))/2;
+		  m= (FParameterGMapV->getDrawingMap()->
+		      getBurstVertex(FParameterGMapV->getDartWithEmbedding(dart)) +
+		      FParameterGMapV->getDrawingMap()->
+		      getBurstVertex(FParameterGMapV->getDartWithEmbedding(darti)))/2;
 
-                  e= WEIGHTING(kw, m, FParameterGMapV->getMap()->
-			       computeBurstExtremity(dart ));
+                  e= WEIGHTING(kw, m, FParameterGMapV->getDrawingMap()->
+			       computeBurstExtremity
+			       (FParameterGMapV->getDartWithEmbedding(dart)));
 		  PLOT(&e);
-                  e= WEIGHTING(kw, m, FParameterGMapV->getMap()->
-			       computeBurstExtremity(darti));
+                  e= WEIGHTING(kw, m, FParameterGMapV->getDrawingMap()->
+			       computeBurstExtremity
+			       (FParameterGMapV->getDartWithEmbedding(darti)));
 		  PLOT(&e);
                 }
               else
                 {
                   e= WEIGHTING(kw,
-			       FParameterGMapV->getMap()->getBurstVertex(dart ),
-			       FParameterGMapV->getMap()->
-			       computeBurstExtremity(dart ));
+			       FParameterGMapV->getDrawingMap()->
+			       getBurstVertex
+			       (FParameterGMapV->getDartWithEmbedding(dart)),
+			       FParameterGMapV->getDrawingMap()->
+			       computeBurstExtremity
+			       (FParameterGMapV->getDartWithEmbedding(dart)));
 		  PLOT(&e);
                   e= WEIGHTING(kw,
-			       FParameterGMapV->getMap()->getBurstVertex(darti),
-			       FParameterGMapV->getMap()->
-			       computeBurstExtremity(darti));
+			       FParameterGMapV->getDrawingMap()->
+			       getBurstVertex
+			       (FParameterGMapV->getDartWithEmbedding(darti)),
+			       FParameterGMapV->getDrawingMap()->
+			       computeBurstExtremity
+			       (FParameterGMapV->getDartWithEmbedding(darti)));
 		  PLOT(&e);
                 }
             }

@@ -129,6 +129,8 @@ void CControlerGMap::setMapBurstCoef(int ADim, TCoordinate ACoef)
   if ( ACoef!=FMap->getBurstCoef(ADim) )
     {
       FMap->setBurstCoef(ADim, ACoef);
+      if ( FParameterGMapVertex->getMapEmbedding()!=NULL )
+	FParameterGMapVertex->getMapEmbedding()->setBurstCoef(ADim, ACoef);
       setModelChanged();
     }
 }
@@ -143,6 +145,13 @@ void CControlerGMap::setMapBurstCoefs(TCoordinate ACoef0, TCoordinate ACoef1,
       FMap->setBurstCoef(1, ACoef1);
       FMap->setBurstCoef(2, ACoef2);
       FMap->setBurstCoef(3, ACoef3);
+      if ( FParameterGMapVertex->getMapEmbedding()!=NULL )
+	{
+	  FParameterGMapVertex->getMapEmbedding()->setBurstCoef(0, ACoef0);
+	  FParameterGMapVertex->getMapEmbedding()->setBurstCoef(1, ACoef1);
+	  FParameterGMapVertex->getMapEmbedding()->setBurstCoef(2, ACoef2);
+	  FParameterGMapVertex->getMapEmbedding()->setBurstCoef(3, ACoef3);
+	}
       setModelChanged();
     }  
 }
