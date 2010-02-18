@@ -27,10 +27,6 @@
 #include "controler-gmap.hh"
 #include <cassert>
 
-#ifndef _WINDOWS
-#include "chrono.hh"
-#endif
-
 using namespace GMap3d;
 using namespace std;
 //******************************************************************************
@@ -116,40 +112,5 @@ bool CControlerGMap::getSurfaceCharacteristics(string* AName,
     }
 
   return ok;
-}
-//******************************************************************************
-void CControlerGMap::computeHomology()
-{
-#ifndef _WINDOWS
-  CChrono c; c.setMode(PUS_MODE); c.start();
-#endif
-
-  CHomology h(getMap(), getSelectionMark(0), getSelectionMark(1));
-  h.computeHomology();
-
-  std::ostringstream os;
-  unsigned long s = h.size();
-  std::string unit(" bytes");
-  if ( s>8000 )
-    {
-      s/=1024;
-      unit = " kilo-bytes";
-      if ( s>8000 )
-	{
-	  s/=1024;
-	  unit = " mega-bytes";	  
-	}
-    }
-  
-  os<<"Compute homology: memory:"<<s<<unit;
-  
-#ifndef _WINDOWS
-   c.stop();
-   os<<c.getTime("; time:");
-#endif
-
-   setMessage(os.str());
-   
-  setSelectionChanged();
 }
 //******************************************************************************

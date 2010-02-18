@@ -1,6 +1,7 @@
 #include "Matrice.hh"
 #include "MatricePMQ.hh"
 #include <iostream>
+#include <cassert>
 
 MatricePMQ::MatricePMQ(int i,int j)
 {
@@ -9,29 +10,42 @@ MatricePMQ::MatricePMQ(int i,int j)
   Q=new Matrice(j,j);
   Qinv=new Matrice(j,j);
   M=new Matrice(i,j);
-  for(int n=0;n<i;n++)
-    {
-      Pinv->setVal(n,n,1);
-      P->setVal(n,n,1);
-    }
+
+  assert(P!=NULL);
+  assert(Pinv!=NULL);
+  assert(Q!=NULL);
+  assert(Qinv!=NULL);
+  assert(M!=NULL);
   
-  for(int n=0;n<j;n++)
+  
+  if ( valid() )
     {
-      Q->setVal(n,n,1);
-      Qinv->setVal(n,n,1);      
+      for(int n=0;n<i;n++)
+	{
+	  Pinv->setVal(n,n,1);
+	  P->setVal(n,n,1);
+	}
+      
+      for(int n=0;n<j;n++)
+	{
+	  Q->setVal(n,n,1);
+	  Qinv->setVal(n,n,1);      
+	}
     }
 }
 
+bool MatricePMQ::valid()
+{ return P->valid() && Pinv->valid() && Q->valid() && Qinv->valid() && M->valid(); }
 
-MatricePMQ::MatricePMQ(const MatricePMQ & source)
-{
-  Pinv=source.Pinv;
-  P=source.P;
-  Q=source.Q;
-  Qinv=source.Qinv;
-  
-  M=source.M;
-}
+// AIE AIE AIE !!!
+// MatricePMQ::MatricePMQ(const MatricePMQ & source)
+// {
+//   Pinv=source.Pinv;
+//   P=source.P;
+//   Q=source.Q;
+//   Qinv=source.Qinv;  
+//   M=source.M;
+// }
 
 MatricePMQ::~MatricePMQ()
 {
@@ -57,6 +71,8 @@ void MatricePMQ::deplacePMQ(coord c,int pos)
 
 void MatricePMQ::smithForm()
 {
+  if ( !valid() ) return;
+  
   int  a=M->getnbli();
   int  b=M->getnbcol();
   int min=a;

@@ -74,9 +74,5 @@ bool getSurfaceCharacteristics(std::string* AName,
 			       int* ANb2BordersWhenClosed,
 			       int* AEuler, int* AOrient, int* AGenus);
 
-/// Compute the homology generators of the whole map.
-/// Mark in selection1 edges that belong to free H1 generators,
-/// and in selection2 edges that belong to torsion H1 generators.
-void computeHomology();
 
 //******************************************************************************

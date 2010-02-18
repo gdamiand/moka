@@ -18,7 +18,7 @@ object-options/options-affichage.qt.cc  object-options/options-frame.qt.cc
 object-options/options-carac.qt.cc      object-options/options-interpolation.qt.cc
 object-options/options-couleurs.qt.cc   object-options/options-ponderation.qt.cc
 object-options/options-divers.qt.cc     object-options/options-vue.qt.cc
-object-options/options-extrusion.qt.cc
+object-options/options-extrusion.qt.cc  object-options/options-homology.qt.cc
 
 utils/floatSpinBox.qt.cc  utils/HtmlEntities.cc  
 utils/IdWidgets.qt.cc     utils/SpaceWidget.qt.cc
@@ -45,7 +45,7 @@ object-operations/dialog-operations.qt.hh  windows/gl-window.qt.hh
 object-operations/dialog-rotation.qt.hh    windows/menu-bar.qt.hh
 object-operations/dialog-moveto.qt.hh      windows/select-bar.qt.hh
 object-operations/dialog-translation.qt.hh windows/window.qt.hh
-)
+object-options/options-homology.qt.hh)
 
 set (QT_RESOURCES Icones/icones.qrc)
 

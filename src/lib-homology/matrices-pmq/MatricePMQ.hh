@@ -20,7 +20,11 @@ public :
 
   /// Return the memory size (in bytes) required for the matrixes.
   unsigned long size() const;
-  
+
+  /// Return true if the matrix is valid, ie if the allocation of
+  /// matrixes was successful.
+  bool valid();
+   
   void affichePMQ();
   void inverseLignePMQ(int i ,int j);
   void inverseColonnePMQ(int i,int j);

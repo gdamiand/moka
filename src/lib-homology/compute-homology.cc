@@ -237,7 +237,7 @@ void CHomology::computeIncidence(int ADim)
   FMap->freeDirectInfo(index);
 }
 //******************************************************************************
-void CHomology::computeHomology()
+bool CHomology::computeHomology()
 {
   FMap->countCells(-1,&FNbVertices,&FNbEdges,&FNbFaces,&FNbVolumes,NULL,NULL);  
   
@@ -248,7 +248,18 @@ void CHomology::computeHomology()
   FCells[0].clear(); FCells[0].reserve(FNbVertices);
   FCells[1].clear(); FCells[1].reserve(FNbEdges);  
   FCells[2].clear(); FCells[2].reserve(FNbFaces);  
-    
+
+  if (FCells[0].capacity()<FNbVertices ||
+      FCells[1].capacity()<FNbEdges ||
+      FCells[2].capacity()<FNbFaces ||
+      !FMatrix[0]->valid() ||
+      !FMatrix[1]->valid() ||
+      !FMatrix[2]->valid())
+    {
+      delete FMatrix[0]; delete FMatrix[1]; delete FMatrix[2];
+      return false;
+    }
+  
   computeIncidence(0);
   computeIncidence(1);
   computeIncidence(2);
@@ -309,5 +320,24 @@ void CHomology::computeHomology()
 	    }
 	}
     }
+  return true;
+}
+//******************************************************************************
+unsigned int CHomology::getH0FreeGenerators()
+{
+  assert(FMatrix[0]!=NULL);
+  return FMatrix[0]->getM()->nbCycle();
+}
+//******************************************************************************
+unsigned int CHomology::getH1FreeGenerators()
+{
+  assert(FMatrix[1]!=NULL);
+  return FMatrix[1]->getM()->nbCycle();
+}
+//******************************************************************************
+unsigned int CHomology::getH1TorsionGenerators()
+{
+  assert(FMatrix[1]!=NULL);
+  return FMatrix[1]->getM()->nbTorsion();
 }
 //******************************************************************************

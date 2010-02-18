@@ -43,10 +43,21 @@ public:
   ~CHomology();
   
   /// Compute the homology of the gmap.
-  void computeHomology();
+  /// @return true if the homology is computed,
+  ///         false otherwise (case of not enough memory)
+  bool computeHomology();
 
   /// Return the memory size (in bytes) required for the matrixes.
   unsigned long size() const;
+
+  /// Return the number of H0 free generators
+  unsigned int getH0FreeGenerators();
+  
+  /// Return the number of H1 free generators
+  unsigned int getH1FreeGenerators();
+  
+  /// Return the number of H1 torsion generators
+  unsigned int getH1TorsionGenerators();
   
 protected:
   /** Compute the incidence matrix for cells of dimension ADim.

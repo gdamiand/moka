@@ -40,7 +40,7 @@ OptionsCarac :: OptionsCarac(Window * parent)
       FUpdate(false)
 {
    // Modification du titre de la boite de dialogue
-   setWindowTitle(*HTML::decode("Caract&eacute;ristiques topologiques")) ;
+   setWindowTitle("Topological characteristics") ;
 
    // Definition du raccourci
 
@@ -51,15 +51,15 @@ OptionsCarac :: OptionsCarac(Window * parent)
    QHBoxLayout * placement = new QHBoxLayout(this) ;
 
    //-- global --
-   FGlobal = new QGroupBox("Globales") ;
+   FGlobal = new QGroupBox("Globals") ;
    QGridLayout * global = new QGridLayout(FGlobal) ;
 
-   global->addWidget(new QLabel("brins :") , 1 , 0) ;
-   global->addWidget(new QLabel("sommets :") , 2 , 0) ;
-   global->addWidget(new QLabel(*HTML::decode("ar&ecirc;tes :")) , 3 , 0);
-   global->addWidget(new QLabel("faces :") , 4 , 0) ;
-   global->addWidget(new QLabel("volumes :") , 5 , 0) ;
-   global->addWidget(new QLabel("composantes :") , 6 , 0) ;
+   global->addWidget(new QLabel("darts:") , 1 , 0) ;
+   global->addWidget(new QLabel("vertices:") , 2 , 0) ;
+   global->addWidget(new QLabel("edges:") , 3 , 0);
+   global->addWidget(new QLabel("faces:") , 4 , 0) ;
+   global->addWidget(new QLabel("volumes:") , 5 , 0) ;
+   global->addWidget(new QLabel("composants:") , 6 , 0) ;
 
    for (int i = 0 ; i < 6 ; i++)
    {
@@ -67,10 +67,10 @@ OptionsCarac :: OptionsCarac(Window * parent)
       global -> addWidget(FGlobalCells [ i ] , i + 1 , 1) ;
    }
 
-   global -> addWidget(new QLabel("0-bords :") , 2 , 2) ;
-   global -> addWidget(new QLabel("1-bords :") , 3 , 2) ;
-   global -> addWidget(new QLabel("2-bords :") , 4 , 2) ;
-   global -> addWidget(new QLabel("3-bords :") , 5 , 2) ;
+   global -> addWidget(new QLabel("0-borders:") , 2 , 2) ;
+   global -> addWidget(new QLabel("1-borders:") , 3 , 2) ;
+   global -> addWidget(new QLabel("2-borders:") , 4 , 2) ;
+   global -> addWidget(new QLabel("3-borders:") , 5 , 2) ;
 
    for (int i = 0 ; i < 4 ; i++)
    {
@@ -79,13 +79,13 @@ OptionsCarac :: OptionsCarac(Window * parent)
    }
 
    //-- volume --
-   FPointed = new QGroupBox(*HTML::decode("Volume d&eacute;sign&eacute;")) ;
+   FPointed = new QGroupBox("Volume incident to 'last'") ;
    QGridLayout * pointed = new QGridLayout(FPointed) ;
 
-   pointed->addWidget(new QLabel("brins :") , 1 , 0);
-   pointed->addWidget(new QLabel("sommets :") , 2 , 0);
-   pointed->addWidget(new QLabel(*HTML::decode("ar&ecirc;tes :")) , 3 , 0);
-   pointed->addWidget(new QLabel("faces :") , 4 , 0);
+   pointed->addWidget(new QLabel("darts:") , 1 , 0);
+   pointed->addWidget(new QLabel("vertices:") , 2 , 0);
+   pointed->addWidget(new QLabel("edges:") , 3 , 0);
+   pointed->addWidget(new QLabel("faces:") , 4 , 0);
 
    for (int i = 0 ; i < 4 ; i++)
       FPointedCells [i] = new QLabel("") ;
@@ -94,9 +94,9 @@ OptionsCarac :: OptionsCarac(Window * parent)
       pointed -> addWidget(FPointedCells [ i ] , i + 1 , 1) ;
 
 
-   pointed -> addWidget(new QLabel("0-bords :") , 1 , 2) ;
-   pointed -> addWidget(new QLabel("1-bords :") , 2 , 2) ;
-   pointed -> addWidget(new QLabel("2-bords :") , 3 , 2) ;
+   pointed -> addWidget(new QLabel("0-borders:") , 1 , 2) ;
+   pointed -> addWidget(new QLabel("1-borders:") , 2 , 2) ;
+   pointed -> addWidget(new QLabel("2-borders:") , 3 , 2) ;
 
    for (int i = 0 ; i < 3 ; i++)
       FPointedBorders [i]  = new QLabel("") ;
@@ -108,12 +108,10 @@ OptionsCarac :: OptionsCarac(Window * parent)
    QGridLayout * par = new QGridLayout(WPar) ;
 
    par->
-   addWidget(new QLabel(*HTML::decode("Caract&eacute;ristiques d'Euler :")),
-             1 , 0) ;
+   addWidget(new QLabel("Euler characteristic:"),1 , 0) ;
    par->
-   addWidget(new QLabel(*HTML::decode("Coefficient d'orientabilit&eacute; :")),
-             2 , 0) ;
-   par -> addWidget(new QLabel("Genre :") , 3 , 0) ;
+   addWidget(new QLabel("Orientability coefficient:"),2 , 0) ;
+   par -> addWidget(new QLabel("Genus:") , 3 , 0) ;
 
    FEulerLabel = new QLabel("") ;
    par -> addWidget(FEulerLabel , 1 , 1) ;
