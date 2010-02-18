@@ -46,13 +46,11 @@ Window :: Window() :
       LINK_COLOR(QColor(53, 200, 255)),
       FControler(new CControlerGMap),
       FCreationActive(NULL),
-#ifdef MODULE_ARCHITECTURE
-      FMeshActive(NULL) ,
-#endif // MODULE_ARCHITECTURE
       FOperationActive(NULL) ,
       FOptionsFrame(NULL),
       FOperationChanfreinage(NULL) ,
       FOptionsCarac(NULL) ,
+      FOptionsHomology(NULL) ,
       FDialogDo(NULL) ,
       FDoubleCliquee(NULL),
       FCouleurs(NULL),
@@ -84,14 +82,9 @@ Window :: Window() :
 
    // Fenetre mere
 
-#ifdef MODULE_ARCHITECTURE
-   FVueMere = new GLWindow(VIEW_XY , FWorkspace , this , FSelection) ;
-   initialisationModeArchi();
-#else
    FVueMere = new GLWindow(VIEW_XYZ , FWorkspace , this , FSelection) ;
-#endif
 
-   string str = "M&egrave;re : " + FVueMere->getViewTypeString();
+   string str = "Main window: " + FVueMere->getViewTypeString();
    FVueMere -> setWindowTitle(*HTML::decode(&str));
    FVueMere -> setMinimumSize(200 , 200) ;
    FVueMere -> showMaximized() ;
@@ -307,15 +300,15 @@ void Window::updateStatusBar()
    int selected = getControler()->getNbSelectedDarts();
    int vertices = getControler()->getNbVertices();
 
-   QString texte = "Brins :  " ;
+   QString texte = "Darts: " ;
    texte += QString :: number(darts) ;
-   texte += ";  S&eacute;lectionn&eacute;s :  " ;
+   texte += ";  Selected: " ;
    texte += QString :: number(selected) ;
-   texte += ";  Sommets :  " ;
+   texte += ";  Vertices: " ;
    texte += QString :: number(vertices) ;
    texte += ";  " ;
    texte += QString::fromUtf8(getControler()->getMessage().c_str()) ;
-   statusBar() -> showMessage(*HTML::decode(texte)) ;
+   statusBar() -> showMessage(texte) ;
 }
 
 //*****************************************
@@ -339,6 +332,11 @@ OptionCouleurs * Window :: getCouleurActive() const
 OptionsCarac * Window :: getOptionsCaracActive() const
 {
    return FOptionsCarac ;
+}
+
+OptionsHomology * Window :: getOptionsHomologyActive() const
+{
+   return FOptionsHomology ;
 }
 
 //*****************************************
@@ -449,91 +447,64 @@ void Window :: creationBoitesOutils()
    QIcon psel4(":/suppression_forcee.png");
 
    // Creation de la boite a outil fichier
-   fichier = new QToolBar("Fichier" , this) ;
-   fichier -> addAction(pf0, "Nouveau", this, SLOT(callbackNettoyage()));
-   charger_act = fichier -> addAction(pf1, "Charger", this,
+   fichier = new QToolBar("File" , this) ;
+   fichier -> addAction(pf0, "New", this, SLOT(callbackNettoyage()));
+   charger_act = fichier -> addAction(pf1, "Load", this,
                                       SLOT(callbackLoad()));
-   fichier -> addAction(pf4, "Ajouter", this, SLOT(callbackAdd()));
-   sauver_act = fichier -> addAction(pf2, "Sauver", this,
+   fichier -> addAction(pf4, "Add", this, SLOT(callbackAdd()));
+   sauver_act = fichier -> addAction(pf2, "Save", this,
                                      SLOT(callbackSave()));
-   exporter_act = fichier -> addAction(pf3, "Exporter", this,
+   exporter_act = fichier -> addAction(pf3, "Export", this,
                                        SLOT(callbackExport()));
-   importer_act = fichier -> addAction(pf5, "Importer", this,
+   importer_act = fichier -> addAction(pf5, "Import", this,
                                        SLOT(callbackImport()));
    addToolBar(fichier);
 
    // Creation de la boite a outil edition
-   edition = new QToolBar("Edition", this) ;
-   edition -> addAction(pe1, "Annuler", this, SLOT(callbackUndo()));
-   edition -> addAction(pe2, "Refaire", this, SLOT(callbackRedo()));
+   edition = new QToolBar("Undo/Redo", this) ;
+   edition -> addAction(pe1, "Undo", this, SLOT(callbackUndo()));
+   edition -> addAction(pe2, "Redo", this, SLOT(callbackRedo()));
    edition -> addSeparator() ;
-   edition -> addAction(pe3, "Vider la pile", this,
+   edition -> addAction(pe3, "Empty the stack", this,
                         SLOT(callbackEmptyUndoRedo()));
    addToolBar(edition);
 
    // Creation de la boite a outil creations
-   creation = new QToolBar(*HTML::decode("Cr&eacute;ation"), this) ;
-   creation -> addAction(pc1,
-                         *HTML::decode("Cr&eacute;er polyligne/brin/face"),
+   creation = new QToolBar("Creation", this) ;
+   creation -> addAction(pc1, "Create polyline/dart/face",
                          this, SLOT(callbackPolyline()));
-   creation -> addAction(pc2, *HTML::decode("Cr&eacute;er polygone"), this,
-                         SLOT(callbackPolygon()));
-   creation -> addAction(pc3, *HTML::decode("Cr&eacute;er maillage"), this,
-                         SLOT(callbackMeshCreation()));
-   creation -> addAction(pc4, *HTML::decode("Cr&eacute;er sph&egrave;re"),
-			 this, SLOT(callbackSphere()));
-   creation -> addAction(pc5, *HTML::decode("Cr&eacute;er cylindre"), this,
-                         SLOT(callbackCylinder()));
-   creation -> addAction(pc6,
-                         *HTML::decode("Cr&eacute;er c&ocirc;ne/pyramide"),
-                         this, SLOT(callbackPyramide()));
-   creation -> addAction(pc7, *HTML::decode("Cr&eacute;er tore"), this,
-                         SLOT(callbackTorus()));
+   creation -> addAction(pc2, "Create polygon", this, SLOT(callbackPolygon()));
+   creation -> addAction(pc3, "Create mesh",
+			 this, SLOT(callbackMeshCreation()));
+   creation -> addAction(pc4, "Create sphere",this, SLOT(callbackSphere()));
+   creation -> addAction(pc5, "Create cylinder",
+			 this,SLOT(callbackCylinder()));
+   creation -> addAction(pc6, "Create cone/pyramid",
+			 this, SLOT(callbackPyramide()));
+   creation -> addAction(pc7, "Create torus", this,SLOT(callbackTorus()));
    addToolBar(creation);
 
    // Creation de la boite a outils operations
-   operations = new QToolBar(*HTML::decode("Op&eacute;rations"), this) ;
+   operations = new QToolBar("Operations", this) ;
    operations -> addAction(pop2, "Translation", this,
                            SLOT(callbackTranslateWindow()));
    operations -> addAction(pop3, "Rotation", this,
                            SLOT(callbackRotateWindow()));
-   operations -> addAction(pop1, *HTML::decode("Homoth&eacute;tie"), this,
+   operations -> addAction(pop1, "Scale", this,
                            SLOT(callbackScaleWindow()));
    addToolBar(operations);
 
 
    // Creation de la boite a outils vues
-   vues = new QToolBar("Vue", this) ;
-   vues -> addAction(pv1, "Ajouter une vue 3D", this, SLOT(addView3D()));
-   vues -> addAction(pv2, "Supprimer la vue", this, SLOT(deleteView()));
+   vues = new QToolBar("View", this) ;
+   vues -> addAction(pv1, "Add a 3D view", this, SLOT(addView3D()));
+   vues -> addAction(pv2, "Remove the view", this, SLOT(deleteView()));
    vues -> addSeparator() ;
-   vues -> addAction(pv3, "Grouper vues", this,
+   vues -> addAction(pv3, "Group all the views", this,
                      SLOT(OperationGroupAllGeneral()));
-   vues -> addAction(pv4, *HTML::decode("D&eacute;grouper vue"), this,
+   vues -> addAction(pv4, "Ungroup all the views", this,
                      SLOT(OperationUngroupAllGeneral()));
    addToolBar(vues);
-
-   // Creation de la boite a outils de selection
-#ifdef MODULE_ARCHITECTURE
-   selection = new QToolBar(*HTML::decode("S&eacute;lection"), this) ;
-   selection -> addAction(psel1, *HTML::decode("Passer au brin "
-                          "prec&eacute;dent"), this,
-                          SLOT(callbackFocusPreviousSelection()));
-   selection -> addAction(psel2, "Passer au brin suivant", this,
-                          SLOT(callbackFocusNextSelection()));
-   suppression_act =
-      selection-> addAction(psel3,
-                            *HTML::decode("Supprimer la s&eacute;lection"),
-                            this,
-                            SLOT(callbackOperationSuppressionArchiIHM()));
-   selection -> addAction(psel4,  *HTML::decode("Suppression "
-                          "forc&eacute;e de la s&eacute;lection"),
-                          this,
-                          SLOT(callbackOperationSuppressionArchiForcee()));
-
-   selection -> setVisible(false);
-   addToolBar(selection);
-#endif
 
    // Creation de la boite a outils selection
    FSelection = new SelectBar(this) ;
@@ -1111,7 +1082,7 @@ void Window :: callbackLoad()
    QStringList type_load;
    type_load << "Moka file (*.moka)";
 
-   std::string filename = getOpenFileName("Chargement", type_load) ;
+   std::string filename = getOpenFileName("Load", type_load) ;
 
    // Si l'utilisateur n'a pas annule -> appel au controleur
    if (filename != "")
@@ -1126,13 +1097,9 @@ void Window::callbackAdd()
    int type;
    QStringList type_load;
 
-   type_load << "Moka file (*.moka)"
-#ifdef MODULE_ARCHITECTURE
-   << "Plan NFF (*.nff)"
-#endif
-   ;
+   type_load << "Moka file (*.moka)";
 
-   std::string filename = getOpenFileName("Ajout d'un fichier",
+   std::string filename = getOpenFileName("Add a file",
                                           type_load, &type) ;
 
    if (filename != "")
@@ -1159,8 +1126,8 @@ void Window::callbackSave()
    int type;
    QStringList type_save;
 
-   type_save << "Fichier ASCII (*.moka)" << "Fichier Binaire (*.moka)";
-   std::string filename = getSaveFileName("Sauvegarde", type_save, &type);
+   type_save << "ASCII format (*.moka)" << "Binary format (*.moka)";
+   std::string filename = getSaveFileName("Save", type_save, &type);
 
    if (filename != "")
    {
@@ -1185,7 +1152,7 @@ void Window::callbackImport()
 
    type_load << "Off (*.off)";
 
-   std::string filename = getOpenFileName("Import d'un fichier",
+   std::string filename = getOpenFileName("Import a file",
                                           type_load, &type) ;
 
    if (filename != "")
@@ -1209,13 +1176,13 @@ void Window :: callbackExport()
    int type;
    QStringList type_save;
 
-   type_save << "XFig G-carte (*.fig)"
-   << "XFig Carte (*.fig)"
+   type_save << "XFig G-map (*.fig)"
+   << "XFig map (*.fig)"
    << "XFig Intervoxel (*.fig)"
    << "Pov (*.pov)"
    << "Off (*.off)"
    << "Off3D (*.off)";
-   std::string filename = getSaveFileName("Exporter", type_save, &type);
+   std::string filename = getSaveFileName("Export", type_save, &type);
 
    // Si l'utilisateur n'a pas annule on exporte selon son choix
    if (filename != "")
@@ -1262,7 +1229,7 @@ void Window::callbackFindMotif()
 
    type_load << "Moka file (*.moka)" << "Off (*.off)";
 
-   std::string filename = getOpenFileName("Recherche d'un motif",
+   std::string filename = getOpenFileName("Search a sub-map",
                                           type_load, &type) ;
 
    if (filename != "")
@@ -1288,7 +1255,7 @@ void Window::callbackCountMotifs()
 
    type_load << "Moka file (*.moka)" << "Off (*.off)";
 
-   std::string filename = getOpenFileName("Compter les occurences d'un motif",
+   std::string filename = getOpenFileName("Count all the sub-maps",
                                           type_load, &type) ;
 
    if (filename != "")
@@ -1420,6 +1387,15 @@ void Window :: caracTopo()
       FOptionsCarac = new OptionsCarac(this) ;
 
    FOptionsCarac -> show_impl() ;
+}
+
+void Window::callbackComputeHomology()
+{
+  if (FOptionsHomology == NULL)
+    FOptionsHomology = new OptionsHomology(this) ;
+  
+  FOptionsHomology -> show_impl() ;
+  repaint();
 }
 
 void Window :: callback2Manifold()
@@ -2382,12 +2358,6 @@ void Window :: callbackBooleanOperations3d()
    if (getControler() ->booleanOperations3d()) repaint() ;
    else updateStatusBar() ;
 #endif // COREFINEMENT
-}
-//------------------------------------------------------------------------------
-void Window::callbackComputeHomology()
-{
-  getControler() ->computeHomology();
-  repaint();
 }
 //------------------------------------------------------------------------------
 //- GEOLOGIE

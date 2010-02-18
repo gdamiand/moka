@@ -10,64 +10,84 @@ bool no(coord c)
     {return false;}
 }
 
-Matrice::Matrice() : FSize(0)
+Matrice::Matrice() : FSize(0), FValid(false)
 {
   nb_lignes = 0;
   nb_colonnes = 0;
   mat = NULL;
 }
 
+bool Matrice::valid()
+{ return FValid; }
+
 unsigned long Matrice::size() const
 { return FSize; }
 
-Matrice::Matrice(int nbli,int nbcol) : FSize(0)
+void Matrice::desallocate()
 {
-  this->nb_lignes=nbli;
-  this->nb_colonnes=nbcol;
+  if ( mat==NULL ) return;
 
-  this->mat = new int*[nbli];
-  FSize += sizeof(this->mat);
+  for (int i = 0 ; mat[i]!=NULL && i < nb_lignes ; i++)
+    { delete []mat[i]; mat[i]=NULL; }
+
+  delete []mat; mat=NULL;
+
+  FValid=false;
+}
+
+bool Matrice::allocate(int nbli,int nbcol)
+{
+  desallocate();
+  
+  nb_lignes=nbli;
+  nb_colonnes=nbcol;
+
+  FSize = sizeof(int*)*nbli + sizeof(int)*nbcol*nbli;
+  FValid = false;
+  
+  mat = new int*[nbli];
+  if ( mat==NULL ) return false;
   
   for (int i = 0 ; i < nbli ; i++)
     {
-      this->mat[i] = new int [nbcol] ;
-      FSize += sizeof(this->mat[i]);
+      mat[i] = new int [nbcol] ;
+      if ( mat[i]==NULL )
+	{ desallocate(); return false; }
     }
+
+  FValid=true;
+}
+
+Matrice::Matrice(int nbli,int nbcol) : FSize(0), FValid(false)
+{
+  allocate(nbli,nbcol);
   
-  for(int i = 0 ; i < nbli ; i++)
-    {
-      for(int j = 0 ; j < nbcol ; j++)
-	{
-	  mat[i][j]=0;
-	}
-    }
+  if ( valid() )
+    for(int i = 0 ; i < nbli ; i++)
+      {
+	for(int j = 0 ; j < nbcol ; j++)
+	  {
+	    mat[i][j]=0;
+	  }
+      }
 }
 
 Matrice::Matrice(const Matrice & source) : FSize(source.FSize)
 {
-  this->nb_lignes=source.nb_lignes;
-  this->nb_colonnes=source.nb_colonnes;
-  this->mat = new int*[source.nb_lignes];
-  for (int i = 0 ; i < source.nb_lignes ; i++)
-    {
-      this->mat[i] = new int [source.nb_colonnes];
-    }
-  for (int i = 0 ; i < source.nb_lignes ; i++)
-    {
-      for (int j = 0 ; j < source.nb_colonnes ; j++)
-	{
-	  this->mat[i][j]=source.mat[i][j];
-	}
-    }
+  allocate(source.nb_lignes,source.nb_colonnes);
+
+  if ( valid() )
+    for (int i = 0 ; i < source.nb_lignes ; i++)
+      {
+	for (int j = 0 ; j < source.nb_colonnes ; j++)
+	  {
+	    this->mat[i][j]=source.mat[i][j];
+	  }
+      }
 }
 
 Matrice::~Matrice()
-{
-  for (int i = 0 ; i < nb_lignes ; i++)
-    { delete []this->mat[i]; }
-  
-  delete []mat;
-}
+{ desallocate(); }
 
 coord Matrice::verifyDiviseLigne(int pos)
 {

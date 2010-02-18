@@ -18,7 +18,8 @@ private :
   int nb_lignes;
   int nb_colonnes;
   int **mat;
-
+  bool FValid;
+  
   /// The memory size used by the matrix.
   unsigned int FSize;
   
@@ -30,7 +31,11 @@ public :
 
   /// Return the memory size (in bytes) required for the matrixes.
   unsigned long size() const;
-  
+
+  /// Return true if the matrix is valid, ie if the allocation of
+  /// matrixes was successful.
+  bool valid();   
+
   int getVal(int i,int j);
   int getnbcol();
   int getnbli();
@@ -54,7 +59,15 @@ public :
   
   // Méthodes destinées à des matrices en forme de Smith.
   int nbTorsion();
-  int nbCycle();  
+  int nbCycle();
+
+protected:
+  /// Allocate the matrix.
+  /// @return true iff all the arrays are correctly allocated.
+  bool allocate(int nbli, int nbcol);
+
+  /// Free all the arrays.
+  void desallocate();
 };
 
 #endif

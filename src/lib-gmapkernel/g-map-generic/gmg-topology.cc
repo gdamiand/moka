@@ -473,23 +473,23 @@ string CGMapGeneric::getSurfaceName(int AB2, int AQ, int AG)
 	  {
 	    switch (AB2)
 	      {
-	      case 0 : result << "Sphère"; break;
-	      case 1 : result << "Disque"; break;
-	      case 2 : result << "Ruban" ; break;
-	      default: result << "Sphère à " << AB2 << " bords";
+	      case 0 : result << "Sphere"; break;
+	      case 1 : result << "Disk"; break;
+	      case 2 : result << "Strip" ; break;
+	      default: result << "Sphere with " << AB2 << " borders";
 	      }
 	  }
 	else
 	  // Avec trou(s):
 	  {
-	    result << "Tore";
+	    result << "Torus";
 
 	    if (AG > 1)
-	      result << " à " << AG << " trous";
+	      result << " with " << AG << " tunnels";
 
 	    if (AB2 > 0)
-	      result << (AG > 1 ? " et" : " à")
-		     << " " << AB2 << " bord" << (AB2 > 1 ? "s" : "");
+	      result << (AG > 1 ? " and" : " with")
+		     << " " << AB2 << " border" << (AB2 > 1 ? "s" : "");
 	  }
       }
       break;
@@ -497,28 +497,28 @@ string CGMapGeneric::getSurfaceName(int AB2, int AQ, int AG)
       // Surface non orientable type "ruban de Möbius":
       {
 	if (AB2 == 0)
-	  result << "Plan projectif réel";
+	  result << "Projective plane";
 	else
-	  result << "Ruban de Möbius";
+	  result << "Möbius strip";
 
 	if (AG > 0)
-	  result << " à " << AG << " trou" << (AG > 1 ? "s" : "");
+	  result << " with " << AG << " tunnel" << (AG > 1 ? "s" : "");
 
 	if (AB2 > 1)
-	  result << (AG > 0 ? " et " : " à ") << AB2 << " bords";
+	  result << (AG > 0 ? " and " : " with ") << AB2 << " borders";
       }
       break;
     case 2:
       // Surface non orientable type "bouteille de Klein":
       {
-	result << "Bouteille de Klein";
+	result << "Klein bottle";
 
 	if (AG > 0)
-	  result << " à " << AG << " trou" << (AG > 1 ? "s" : "");
+	  result << " with " << AG << " tunnel" << (AG > 1 ? "s" : "");
 
 	if (AB2 > 0)
-	  result << (AG > 0 ? " et " : " à ")
-		 << AB2 << " bord" << (AB2 > 1 ? "s" : "");
+	  result << (AG > 0 ? " and " : " with ")
+		 << AB2 << " border" << (AB2 > 1 ? "s" : "");
       }
       break;
     default:
@@ -558,8 +558,8 @@ bool CGMapGeneric::checkTopology()
     for (CDynamicCoverageAll it(this); it.cont(); ++it)
       if (!isFree(*it, dim) && *it != alpha(alpha(*it,dim),dim))
 	{
-	  cerr << "CGMapGeneric::integrity: Le brin " << *it
-	       << " ne vérifie pas la contrainte "
+	  cerr << "CGMapGeneric::integrity: The dart " << *it
+	       << " does not satisfy the constraint "
 	       << "alpha" << dim << "(alpha" << dim << "(brin)) == brin." << endl;
 
 	  return false;
@@ -592,9 +592,9 @@ bool CGMapGeneric::checkTopology()
 
 		if (!ok)
 		  {
-		    cerr << "CGMapGeneric::checkTopology: L'involution "
+		    cerr << "CGMapGeneric::checkTopology: The involution "
 			 << (invoIndex==0 ? "02" : invoIndex==1 ? "03" : "13")
-			 << " n'est pas respectée pour le brin " << *it
+			 << " is not satisfied for dart " << *it
 			 << "." << endl;
 		  }
 
@@ -643,17 +643,17 @@ bool CGMapGeneric::checkEmbeddings(TOrbit AOrbit, int AAttributeIdentity,
 	  {
 	    static const char * ORBIT_NAMES[16] =
 	    {
-	      "brin","0","1","01","2","02","12","volume","3","03","13","face",
-	      "23","arête","sommet","composante connexe"
+	      "dart","0","1","01","2","02","12","volume","3","03","13","face",
+	      "23","edge","vertex","connected component"
 	    };
 
-	    cerr << "CGMapGeneric::checkEmbeddings: La cellule '"
-		 << ORBIT_NAMES[AOrbit] << "' incidente au brin " << *it << " ";
+	    cerr << "CGMapGeneric::checkEmbeddings: The cell '"
+		 << ORBIT_NAMES[AOrbit] << "' incident to dart " << *it << " ";
 	
 	    if (i==0)
-	      cerr << "n'est pas plongée!" << endl;
+	      cerr << "has no embedding!" << endl;
 	    else
-	      cerr << " est plongée " << i << " fois!" << endl;
+	      cerr << " has " << i << " embeddings!" << endl;
 	
 	    ok = false;
 	  }

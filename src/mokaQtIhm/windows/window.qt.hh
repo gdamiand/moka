@@ -60,17 +60,8 @@ namespace GMap3d
 #include "options-frame.qt.hh"
 #include "menu-bar.qt.hh"
 #include "options-carac.qt.hh"
+#include "options-homology.qt.hh"
 #include "options-couleurs.qt.hh"
-
-#ifdef MODULE_ARCHITECTURE
-#include "toolbar-archi.qt.hh"
-#include "window-raytracing.qt.hh"
-#include "flap-ameublement.qt.hh"
-class DialogAmeublement;
-class ToolbarArchi;
-class WindowRayTracing;
-class FlapSelection;
-#endif
 
 //----------------- Include std ------------------
 using namespace std ;
@@ -139,6 +130,12 @@ public:
    * @return Pointeur sur la boite active
    */
   virtual OptionsCarac * getOptionsCaracActive ( ) const ;
+
+  /**
+   * Accesseur sur la fenetre du calcul de l'homologie
+   * @return Pointeur sur la boite active
+   */
+  virtual OptionsHomology * getOptionsHomologyActive ( ) const ;
 
   /**
    * Accesseur sur le numero de la fenetre active
@@ -993,6 +990,9 @@ private:
 
   // Pointeur sur la boite de dialogue des caracteristiques topologiques
   OptionsCarac * FOptionsCarac ;
+
+  // Pointeur sur la boite de dialogue de calcul de l'homology
+  OptionsHomology * FOptionsHomology ;
 
   // Pointeur sur la boite de dialogue de configuration des Undo/Redo
   DialogDo * FDialogDo ;

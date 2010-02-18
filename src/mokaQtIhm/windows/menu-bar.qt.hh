@@ -69,7 +69,6 @@ private:
   QMenu * materialiser;
   QMenu * selection;
   QMenu * vues;
-  QMenu * architecture;
   
   // Les actions associees a chaque sous-menu.
   
@@ -82,7 +81,6 @@ private:
   QAction * materialiser_act;
   QAction * selection_act;
   QAction * vues_act;
-  QAction * architecture_act;
   
   // Les actions dynamiques du menu.
   
@@ -94,20 +92,6 @@ private:
   
   QAction * supprimer1_act;
   QAction * supprimer2_act;
- 
-
-  #ifdef MODULE_ARCHITECTURE
-  
-    QAction * ajout_etage_act;
-    QAction * ajout_plan2D_act;
-  
-  public :
-
-    void switchModeArchi(bool active);
-
-    
-  #endif
-  
 } ;
 
 #endif
