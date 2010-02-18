@@ -45,6 +45,9 @@ public:
   /// Compute the homology of the gmap.
   void computeHomology();
 
+  /// Return the memory size (in bytes) required for the matrixes.
+  unsigned long size() const;
+  
 protected:
   /** Compute the incidence matrix for cells of dimension ADim.
    *  The incidence matrix FMatrix[ADim] is updated.
@@ -94,7 +97,10 @@ private:
   int FNbFaces;
 
   /// Number of volumes of the map
-  int FNbVolumes;  
+  int FNbVolumes;
+
+  /// Memory size of the different matrixes.
+  int FSize;
 };
 //******************************************************************************
 } // end namespace GMap3d

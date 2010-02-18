@@ -36,33 +36,26 @@
 static QString elementLabs [ 27 ] =
 {
    "Faces",
-   "Fond",
-   *HTML::decode("Brins non s&eacute;lectionn&eacute;s"),
-   *HTML::decode("Brins s&eacute;lectionn&eacute;s"),
-   *HTML::decode("Dernier brin s&eacute;lectionn&eacute;"),
-   "Sommets",
-   "0-coutures",
-   "1-coutures",
-   "2-coutures",
-   "3-coutures",
-   "Grille",
-   "Axe Ox",
-   "Axe Oy",
-   "Axe Oz",
-   "Origine",
-   "Vecteur normal",
+   "Background",
+   "Unselected darts",
+   "Selected darts",
+   "Last selected dart",
+   "0-removed darts",
+   "1-removed darts",
+   "Vertices",
+   "0-sews",
+   "1-sews",
+   "2-sews",
+   "3-sews",
+   "Grid",
+   "Ox Axis",
+   "Oy Axis",
+   "Oz Axis",
+   "Origin",
+   "Normal vector",
    "Transformation",
-   *HTML::decode("Pr&eacute;visualisation"),
-   *HTML::decode("Pr&eacute;visualisation 2"),
-#ifdef MODULE_ARCHITECTURE
-   "Brique",
-   "Montant",
-   "Tapisserie",
-   "Moquette",
-   *HTML::decode("Fa&ccedil;ade"),
-   "Plaque",
-   "Marche",
-#endif
+   "Preview",
+   "Preview2",
 } ;
 
 //************************************************************
@@ -246,6 +239,40 @@ void OptionCouleurs :: colorButton()
                      getParameterDart(FLastClikedViewId)->
                      getCLLastSel(FParent->getControler()->getSelectionLevel(),
                                   2));
+         FEpaisseur->setValue(FParent->getControler()->
+                              getParameterDart(FLastClikedViewId)->
+                              getLWDarts());
+         break;
+      case _0DELETE_DART :
+         color[0] = (FParent->getControler()->
+                     getParameterDart(FLastClikedViewId)->
+                     getCL0Remove(FParent->getControler()->getSelectionLevel(),
+                                0));
+         color[1] = (FParent->getControler()->
+                     getParameterDart(FLastClikedViewId)->
+                     getCL0Remove(FParent->getControler()->getSelectionLevel(),
+                                1));
+         color[2] = (FParent->getControler()->
+                     getParameterDart(FLastClikedViewId)->
+                     getCL0Remove(FParent->getControler()->getSelectionLevel(),
+                                2));
+         FEpaisseur->setValue(FParent->getControler()->
+                              getParameterDart(FLastClikedViewId)->
+                              getLWDarts());
+         break;
+      case _1DELETE_DART :
+         color[0] = (FParent->getControler()->
+                     getParameterDart(FLastClikedViewId)->
+                     getCL1Remove(FParent->getControler()->getSelectionLevel(),
+                                0));
+         color[1] = (FParent->getControler()->
+                     getParameterDart(FLastClikedViewId)->
+                     getCL1Remove(FParent->getControler()->getSelectionLevel(),
+                                1));
+         color[2] = (FParent->getControler()->
+                     getParameterDart(FLastClikedViewId)->
+                     getCL1Remove(FParent->getControler()->getSelectionLevel(),
+                                2));
          FEpaisseur->setValue(FParent->getControler()->
                               getParameterDart(FLastClikedViewId)->
                               getLWDarts());
@@ -455,85 +482,6 @@ void OptionCouleurs :: colorButton()
                   getParameterPreview(FLastClikedViewId)->
                   getLWPreview());
          break;
-#ifdef MODULE_ARCHITECTURE
-      case _BRIQUE:
-         color[0] = FParent->getControler()->
-                    getParameterFace(FParent->getCurrentViewId())
-                    ->getR_BRIQUE();
-         color[1] = FParent->getControler()->
-                    getParameterFace(FParent->getCurrentViewId())
-                    ->getV_BRIQUE();
-         color[2] = FParent->getControler()->
-                    getParameterFace(FParent->getCurrentViewId())
-                    ->getB_BRIQUE();
-         break;
-      case _MONTANT:
-         color[0] = FParent->getControler()->
-                    getParameterFace(FParent->getCurrentViewId())
-                    ->getR_MONTANT();
-         color[1] = FParent->getControler()->
-                    getParameterFace(FParent->getCurrentViewId())
-                    ->getV_MONTANT();
-         color[2] = FParent->getControler()->
-                    getParameterFace(FParent->getCurrentViewId())
-                    ->getB_MONTANT();
-         break;
-      case _TAPISSERIE:
-         color[0] = FParent->getControler()->
-                    getParameterFace(FParent->getCurrentViewId())
-                    ->getR_TAPISSERIE();
-         color[1] = FParent->getControler()->
-                    getParameterFace(FParent->getCurrentViewId())
-                    ->getV_TAPISSERIE();
-         color[2] = FParent->getControler()->
-                    getParameterFace(FParent->getCurrentViewId())
-                    ->getB_TAPISSERIE();
-         break;
-      case _MOQUETTE:
-         color[0] = FParent->getControler()->
-                    getParameterFace(FParent->getCurrentViewId())
-                    ->getR_MOQUETTE();
-         color[1] = FParent->getControler()->
-                    getParameterFace(FParent->getCurrentViewId())
-                    ->getV_MOQUETTE();
-         color[2] = FParent->getControler()->
-                    getParameterFace(FParent->getCurrentViewId())
-                    ->getB_MOQUETTE();
-         break;
-      case _FACADE:
-         color[0] = FParent->getControler()->
-                    getParameterFace(FParent->getCurrentViewId())
-                    ->getR_FACADE();
-         color[1] = FParent->getControler()->
-                    getParameterFace(FParent->getCurrentViewId())
-                    ->getV_FACADE();
-         color[2] = FParent->getControler()->
-                    getParameterFace(FParent->getCurrentViewId())
-                    ->getB_FACADE();
-         break;
-      case _PLAQUE:
-         color[0] = FParent->getControler()->
-                    getParameterFace(FParent->getCurrentViewId())
-                    ->getR_PLAQUE();
-         color[1] = FParent->getControler()->
-                    getParameterFace(FParent->getCurrentViewId())
-                    ->getV_PLAQUE();
-         color[2] = FParent->getControler()->
-                    getParameterFace(FParent->getCurrentViewId())
-                    ->getB_PLAQUE();
-         break;
-      case _MARCHE:
-         color[0] = FParent->getControler()->
-                    getParameterFace(FParent->getCurrentViewId())
-                    ->getR_MARCHE();
-         color[1] = FParent->getControler()->
-                    getParameterFace(FParent->getCurrentViewId())
-                    ->getV_MARCHE();
-         color[2] = FParent->getControler()->
-                    getParameterFace(FParent->getCurrentViewId())
-                    ->getB_MARCHE();
-         break;
-#endif // MODULE_ARCHITECTURE
    }
 
    QPixmap * coul = new QPixmap(30 , 30) ;
@@ -570,6 +518,16 @@ void OptionCouleurs :: setColor(int num , float value)
       case _LAST_DART :
          FParent -> getControler()->getParameterDart(FLastClikedViewId)->
          setCLLastSel(FParent -> getControler()->getSelectionLevel(),
+                      num, value);
+         break;
+      case _0DELETE_DART :
+         FParent -> getControler()->getParameterDart(FLastClikedViewId)->
+         setCL0Remove(FParent -> getControler()->getSelectionLevel(),
+                      num, value);
+         break;
+      case _1DELETE_DART :
+         FParent -> getControler()->getParameterDart(FLastClikedViewId)->
+         setCL1Remove(FParent -> getControler()->getSelectionLevel(),
                       num, value);
          break;
       case _VERTEX :
@@ -631,43 +589,6 @@ void OptionCouleurs :: setColor(int num , float value)
          FParent -> getControler()->getParameterPreview(FLastClikedViewId)->
          setCLPreviewBad(num, value);
          break;
-#ifdef MODULE_ARCHITECTURE
-      case _BRIQUE:
-         FParent->getControler()->
-         getParameterFace(FParent->getCurrentViewId())
-         ->setColorBRIQUE(num, value);
-         break;
-      case _MONTANT:
-         FParent->getControler()->
-         getParameterFace(FParent->getCurrentViewId())
-         ->setColorMONTANT(num, value);
-         break;
-      case _TAPISSERIE:
-         FParent->getControler()->
-         getParameterFace(FParent->getCurrentViewId())
-         ->setColorTAPISSERIE(num, value);
-         break;
-      case _MOQUETTE:
-         FParent->getControler()->
-         getParameterFace(FParent->getCurrentViewId())
-         ->setColorMOQUETTE(num, value);
-         break;
-      case _FACADE:
-         FParent->getControler()->
-         getParameterFace(FParent->getCurrentViewId())
-         ->setColorFACADE(num, value);
-         break;
-      case _PLAQUE:
-         FParent->getControler()->
-         getParameterFace(FParent->getCurrentViewId())
-         ->setColorPLAQUE(num, value);
-         break;
-      case _MARCHE:
-         FParent->getControler()->
-         getParameterFace(FParent->getCurrentViewId())
-         ->setColorMARCHE(num, value);
-         break;
-#endif // MODULE_ARCHITECTURE
    }
 }
 

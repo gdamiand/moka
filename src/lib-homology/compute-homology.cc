@@ -37,7 +37,7 @@ CHomology::CHomology(CGMapVertex* AMap, int AMark1, int AMark2) :
     FNbFaces(0),
     FNbVolumes(0)
 {
-  std::cout<<"Marks: "<<AMark1<<", "<<AMark2<<std::endl;
+  // std::cout<<"Marks: "<<AMark1<<", "<<AMark2<<std::endl;
   for (int i=0;i<3;++i)
     FMatrix[i]=NULL;
 }
@@ -46,6 +46,12 @@ CHomology::~CHomology()
 {
   for (int i=0;i<3;++i)
     delete FMatrix[i];
+}
+//******************************************************************************
+unsigned long CHomology::size() const
+{
+  return FMatrix[0]->size() + FMatrix[1]->size() + FMatrix[2]->size() +
+    FCells[0].size() + FCells[1].size() + FCells[2].size();
 }
 //******************************************************************************
 int CHomology::computeIncidenceNumber(CDart* ADart, int ADim,
@@ -236,20 +242,21 @@ void CHomology::computeHomology()
   FMap->countCells(-1,&FNbVertices,&FNbEdges,&FNbFaces,&FNbVolumes,NULL,NULL);  
   
   delete FMatrix[0]; FMatrix[0] = new MatricePMQ(FNbVertices, FNbEdges);
-  delete FMatrix[1]; FMatrix[1] = new MatricePMQ(FNbEdges, FNbFaces);
-
+  delete FMatrix[1]; FMatrix[1] = new MatricePMQ(FNbEdges,    FNbFaces);
+  delete FMatrix[2]; FMatrix[2] = new MatricePMQ(FNbFaces,    FNbVolumes);
 
   FCells[0].clear(); FCells[0].reserve(FNbVertices);
   FCells[1].clear(); FCells[1].reserve(FNbEdges);  
+  FCells[2].clear(); FCells[2].reserve(FNbFaces);  
     
   computeIncidence(0);
   computeIncidence(1);
-
+  computeIncidence(2);
   
   FMatrix[0]->smithForm();
   
   FMatrix[1]->getM()->setMatrice( FMatrix[1]->getM()->
-                                multGauche(FMatrix[0]->getQinv()) );
+                                  multGauche(FMatrix[0]->getQinv()) );
   FMatrix[1]->getP()->setMatrice( FMatrix[0]->getQ() );
   FMatrix[1]->getPinv()->setMatrice( FMatrix[0]->getQinv() );
   FMatrix[1]->smithForm();
@@ -260,10 +267,9 @@ void CHomology::computeHomology()
   int nb_bf = FMatrix[1]->getM()->getnbcol()-nb_z1;
   int nb_l=nb_z0-nb_bf;
 
-
-std::cout<<"Bords faibles : "<<nb_bf<<std::endl;
-std::cout<<"gen tor : "<<nb_t<<std::endl;
-std::cout<<"gen libres : "<<nb_l<<std::endl;
+  std::cout<<"Bords faibles : "<<nb_bf<<std::endl;
+  std::cout<<"gen tor : "<<nb_t<<std::endl;
+  std::cout<<"gen libres : "<<nb_l<<std::endl;
 
 //FMatrix[1]->getP()->affiche();
 
@@ -304,10 +310,4 @@ std::cout<<"gen libres : "<<nb_l<<std::endl;
 	}
     }
 }
-//******************************************************************************
-/*void CHomology::displayMatrixes()
-{
-  for (int i=0;i<3;++i)
-    if ( FMatrix[i]!=NULL ) 
-    }*/
 //******************************************************************************

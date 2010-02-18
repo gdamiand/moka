@@ -10,21 +10,29 @@ bool no(coord c)
     {return false;}
 }
 
-Matrice::Matrice()
+Matrice::Matrice() : FSize(0)
 {
   nb_lignes = 0;
   nb_colonnes = 0;
   mat = NULL;
 }
 
-Matrice::Matrice(int nbli,int nbcol)
+unsigned long Matrice::size() const
+{ return FSize; }
+
+Matrice::Matrice(int nbli,int nbcol) : FSize(0)
 {
   this->nb_lignes=nbli;
   this->nb_colonnes=nbcol;
 
   this->mat = new int*[nbli];
+  FSize += sizeof(this->mat);
+  
   for (int i = 0 ; i < nbli ; i++)
-    this->mat[i] = new int [nbcol] ;
+    {
+      this->mat[i] = new int [nbcol] ;
+      FSize += sizeof(this->mat[i]);
+    }
   
   for(int i = 0 ; i < nbli ; i++)
     {
@@ -35,7 +43,7 @@ Matrice::Matrice(int nbli,int nbcol)
     }
 }
 
-Matrice::Matrice(const Matrice & source)
+Matrice::Matrice(const Matrice & source) : FSize(source.FSize)
 {
   this->nb_lignes=source.nb_lignes;
   this->nb_colonnes=source.nb_colonnes;
