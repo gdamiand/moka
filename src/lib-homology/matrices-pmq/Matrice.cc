@@ -1,6 +1,7 @@
 #include "Matrice.hh"
 #include <cstdlib>
 #include <cstdio>
+#include <cassert>
 
 bool no(coord c)
 {
@@ -58,7 +59,7 @@ bool Matrice::allocate(int nbli,int nbcol)
   FValid=true;
 }
 
-Matrice::Matrice(int nbli,int nbcol) : FSize(0), FValid(false)
+Matrice::Matrice(int nbli,int nbcol) : FSize(0), FValid(false), mat(NULL)
 {
   allocate(nbli,nbcol);
   
@@ -168,11 +169,13 @@ coord Matrice::getMinElemNonZero(int pos)
 }
 
 
-Matrice *  Matrice::multGauche(Matrice * op2)
+void  Matrice::multGauche(Matrice * op2)
 {
   int a=op2->nb_lignes;
   int b=op2->nb_colonnes;
   int c=nb_colonnes;
+
+  assert( a==nb_lignes );
   
   Matrice *mattmp=new Matrice(a,c);
   
@@ -186,19 +189,25 @@ Matrice *  Matrice::multGauche(Matrice * op2)
 	    }
 	}
     }
-  return mattmp;
+
+  // TODO copy mattmp  dans this: setMatrice(mattmp) ou + optimisé
+  desallocate(); 
+  mat = mattmp->mat;
+  mattmp->mat = NULL;
+  FValid = mattmp->FValid;
+  delete mattmp;
 }
 
 /*si les 2 matrices sont de meme dim
   alors le this devient la matrice M*/
 void Matrice::setMatrice(Matrice * m)
 {
-  int a=nb_lignes;
-  int b=nb_colonnes;
+  assert(nb_lignes==m->nb_lignes);
+  assert(nb_colonnes==m->nb_colonnes);
   
-  for(int i=0;i<a;i++)
+  for(int i=0;i<nb_lignes;i++)
     {
-      for(int j=0;j<b;j++)
+      for(int j=0;j<nb_colonnes;j++)
 	{
 	  mat[i][j]=m->mat[i][j];
 	}

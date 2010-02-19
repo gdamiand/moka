@@ -244,10 +244,6 @@ void Window::repaint()
       is_repainting = true;
       QMainWindow::repaint() ;      // Appel de la methode de la classe mere
 
-#ifdef MODULE_ARCHITECTURE
-      toolbar_archi -> updateToolbar();
-#endif
-
       // Appel de la methode sur toutes les vues ouvertes
       QWidgetList vues = FWorkspace -> windowList() ;
       for (int i = 0 ; i < int (vues . count()) ; i++)
@@ -260,11 +256,6 @@ void Window::repaint()
 
 void Window::closeEvent(QCloseEvent *)
 {
-#ifdef MODULE_ARCHITECTURE
-   FDialogAmeublement -> close();
-   win_ray_tracing -> close();
-#endif
-
    FControler -> saveAllParameters(getCurrentViewId());
 }
 
@@ -700,15 +691,8 @@ void Window::setCoulFacesGlobale()
 
 bool Window::getCoulGeometry() const
 {
-#ifdef MODULE_ARCHITECTURE
-   return (!(getControler()->getParameterFace(getCurrentViewId())
-             ->getSemantiqueColorGeometry()) &&
-           (getControler()->getParameterFace(getCurrentViewId())
-            ->getRandomColorGeometry()));
-#else
    return getControler()->getParameterFace(getCurrentViewId())
           ->getRandomColorGeometry();
-#endif // MODULE_ARCHITECTURE
 }
 
 void Window::setCoulGeometry()
@@ -722,35 +706,10 @@ void Window::setCoulGeometry()
    }
 }
 
-#ifdef MODULE_ARCHITECTURE
-bool Window::getCoulSemantique() const
-{
-   return getControler()->getParameterFace(getCurrentViewId())
-          ->getSemantiqueColorGeometry();
-}
-
-void Window::setCoulSemantique()
-{
-   if (!getCoulSemantique())
-   {
-      getControler()->getParameterFace(getCurrentViewId())
-      ->setSemantiqueColorGeometry(true);
-      toggleDarts(true);
-   }
-}
-#endif // MODULE_ARCHITECTURE
-
 bool Window::getCoulTopologie() const
 {
-#ifdef MODULE_ARCHITECTURE
-   return (!(getControler()->getParameterFace(getCurrentViewId())
-             ->getSemantiqueColorGeometry()) &&
-           (!getControler()->getParameterFace(getCurrentViewId())
-            ->getRandomColorGeometry()));
-#else
    return (!getControler()->getParameterFace(getCurrentViewId())
            ->getRandomColorGeometry());
-#endif // MODULE_ARCHITECTURE
 }
 
 void Window::setCoulTopologie()
@@ -816,8 +775,7 @@ void Window :: toggleDarts(bool b)
 {
 #ifdef MODULE_SPAMOD
    // Si on est en vue spamod et qu'on affiche les coutures ou les faces
-   // pleines,
-   // alors on affiche egalement les brins.
+   // pleines, alors on affiche egalement les brins.
    if (getParameterSpamod()->getViewMode() != SPAMOD_NONE &&
          getControler()->viewIsEnabledPrecompile(getCurrentViewId(),
                                                  PRECOMPILE_SPAMOD))
@@ -846,10 +804,6 @@ void Window :: callbackKeyUp()
       {
          FControler -> moveEye(view, true);
          repaint();
-#ifdef MODULE_ARCHITECTURE
-         if (win_ray_tracing -> isVisible())
-            win_ray_tracing -> updateRayTracing(true);
-#endif
          break;
       }
       case VIEW_XY  : FControler -> moveEyeY(view, true); repaint(); break;
@@ -868,10 +822,6 @@ void Window :: callbackKeyDown()
       {
          FControler -> moveEye(view, false);
          repaint();
-#ifdef MODULE_ARCHITECTURE
-         if (win_ray_tracing -> isVisible())
-            win_ray_tracing -> updateRayTracing(true);
-#endif
          break;
       }
       case VIEW_XY  : FControler -> moveEyeY(view, false); repaint(); break;
@@ -890,10 +840,6 @@ void Window :: callbackKeyLeft()
       {
          FControler -> horizontalRotationEye(view, true);
          repaint();
-#ifdef MODULE_ARCHITECTURE
-         if (win_ray_tracing -> isVisible())
-            win_ray_tracing -> updateRayTracing(true);
-#endif
          break;
       }
       case VIEW_XY  :
@@ -912,10 +858,6 @@ void Window :: callbackKeyRight()
       {
          FControler -> horizontalRotationEye(view, false);
          repaint();
-#ifdef MODULE_ARCHITECTURE
-         if (win_ray_tracing -> isVisible())
-            win_ray_tracing -> updateRayTracing(true);
-#endif
          break;
       }
       case VIEW_XY  :
@@ -930,10 +872,6 @@ void Window :: callbackKeyCtrlUp()
    {
       FControler -> verticalRotationEye(getCurrentViewId(), true);
       repaint();
-#ifdef MODULE_ARCHITECTURE
-      if (win_ray_tracing -> isVisible())
-         win_ray_tracing -> updateRayTracing(true);
-#endif
    }
 }
 
@@ -943,10 +881,6 @@ void Window :: callbackKeyCtrlDown()
    {
       FControler -> verticalRotationEye(getCurrentViewId(), false);
       repaint();
-#ifdef MODULE_ARCHITECTURE
-      if (win_ray_tracing -> isVisible())
-         win_ray_tracing -> updateRayTracing(true);
-#endif
    }
 }
 
@@ -956,10 +890,6 @@ void Window :: callbackKeyCtrlLeft()
    {
       FControler -> moveEyeLateral(getCurrentViewId(), false);
       repaint();
-#ifdef MODULE_ARCHITECTURE
-      if (win_ray_tracing -> isVisible())
-         win_ray_tracing -> updateRayTracing(true);
-#endif
    }
 }
 
@@ -969,10 +899,6 @@ void Window :: callbackKeyCtrlRight()
    {
       FControler -> moveEyeLateral(getCurrentViewId(), true);
       repaint();
-#ifdef MODULE_ARCHITECTURE
-      if (win_ray_tracing -> isVisible())
-         win_ray_tracing -> updateRayTracing(true);
-#endif
    }
 }
 
@@ -985,10 +911,6 @@ void Window :: callbackKeyShiftUp()
          FControler -> getParameterEyePosition(AView) -> getPasAvancement();
       FControler -> moveEye(AView, true, coeff * 5);
       repaint();
-#ifdef MODULE_ARCHITECTURE
-      if (win_ray_tracing -> isVisible())
-         win_ray_tracing -> updateRayTracing(true);
-#endif
    }
 }
 
@@ -1001,10 +923,6 @@ void Window :: callbackKeyShiftDown()
          FControler -> getParameterEyePosition(AView) -> getPasAvancement();
       FControler -> moveEye(AView, false, coeff * 5);
       repaint();
-#ifdef MODULE_ARCHITECTURE
-      if (win_ray_tracing -> isVisible())
-         win_ray_tracing -> updateRayTracing(true);
-#endif
    }
 }
 
@@ -1014,10 +932,6 @@ void Window :: callbackKeyShiftLeft()
    {
       FControler -> horizontalRotationEye(getCurrentViewId(), true, 90);
       repaint();
-#ifdef MODULE_ARCHITECTURE
-      if (win_ray_tracing -> isVisible())
-         win_ray_tracing -> updateRayTracing(true);
-#endif
    }
 }
 
@@ -1027,10 +941,6 @@ void Window :: callbackKeyShiftRight()
    {
       FControler -> horizontalRotationEye(getCurrentViewId(), false, 90);
       repaint();
-#ifdef MODULE_ARCHITECTURE
-      if (win_ray_tracing -> isVisible())
-         win_ray_tracing -> updateRayTracing(true);
-#endif
    }
 }
 
@@ -1110,9 +1020,6 @@ void Window::callbackAdd()
       {
          case 0 :
          case 1 : res = getControler()->addMap(filename.c_str()); break;
-#ifdef MODULE_ARCHITECTURE
-         case 2 : res = getControler()->addMapNff(filename.c_str()); break;
-#endif
          default : break;
       }
 
@@ -1479,18 +1386,17 @@ void Window :: resetActiveOperations()
       FOperationActive -> close() ;
       FOperationActive = NULL ;
    }
-#ifdef MODULE_ARCHITECTURE
-   else if (FMeshActive != NULL)
-   {
-      FMeshActive -> reject() ;
-      FMeshActive = NULL ;
-   }
-#endif // MODULE_ARCHITECTURE
    else if (color_active)
    {
       FCouleurs -> close();
       color_active = false;
    }
+   else if (getOptionsHomologyActive() )
+     {
+       FOptionsHomology->close();
+       delete FOptionsHomology;
+     }
+   
 }
 
 // Slots Menu Creer

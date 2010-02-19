@@ -37,7 +37,7 @@ class CHomology
 {
 public:
   /// Default constructor, itializing the gmap.
-  CHomology(CGMapVertex* AMap, int AMark1=-1, int AMark2=-1);
+  CHomology(CGMapVertex* AMap, int AMark=-1);
 
   /// Destructor.
   ~CHomology();
@@ -58,6 +58,30 @@ public:
   
   /// Return the number of H1 torsion generators
   unsigned int getH1TorsionGenerators();
+
+  /// Get the value of FShowH0
+  bool getShowH0() const;
+  
+  /// Get the value of FShowH1free
+  bool getShowH1free() const;
+  
+  /// Get the value of FShowH1torsion
+  bool getShowH1torsion() const;
+  
+  /// Get the value of FShowH2
+  bool getShowH2() const;
+  
+  /// Set the value of FShowH0 and update the selected darts accordingly.
+  void setShowH0(bool AValue);
+  
+  /// Set the value of FShowH1free and update the selected darts accordingly.
+  void setShowH1free(bool AValue);
+  
+  /// Set the value of FShowH1torsion and update the selected darts accordingly.
+  void setShowH1torsion(bool AValue);
+  
+  /// Set the value of FShowH2 and update the selected darts accordingly.
+  void setShowH2(bool AValue);
   
 protected:
   /** Compute the incidence matrix for cells of dimension ADim.
@@ -82,15 +106,15 @@ protected:
    */
   int computeIncidenceNumber(CDart* ADart, int ADim, CDart* ADart2, int AIndex);
 
+  /// Update the marked darts depending on which generators are drawn.
+  void updateSelectedDarts();
+  
 private:
   /// The gmap.
   CGMapVertex* FMap;
 
-  /// A mark to mark H1 free generators.
-  int FMark1;
-  
-  /// A mark to mark H1 torsion generators.
-  int FMark2;
+  /// The mark used to select darts.
+  int FMark;
   
   /// The 3 incidence matrixes.
   MatricePMQ* FMatrix[3];
@@ -112,6 +136,12 @@ private:
 
   /// Memory size of the different matrixes.
   int FSize;
+
+  /// Informations on generators
+  int FNbTorsion, FNbZO, FNbZ1, FNbBordFaible, FNbLibre;
+
+  /// Boolean indicating which generators are drawn.
+  bool FShowH0, FShowH1free, FShowH1torsion, FShowH2;
 };
 //******************************************************************************
 } // end namespace GMap3d

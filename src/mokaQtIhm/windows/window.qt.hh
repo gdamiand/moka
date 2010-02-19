@@ -544,237 +544,6 @@ public slots:
   void callbackGoAlpha2 ( ) ;
   void callbackGoAlpha3 ( ) ;
 
-   /*************************************************************************/
-  #ifdef MODULE_ARCHITECTURE
-  /* Slots menu Archi */
-  /********************/
- //sauvegarde et chargement
-  void callbackLoadArchi () ;
-  void callbackSaveArchi () ;
-
-  void callbackAddNff                          ();
-  void callbackImportNff3D                     ();
-
-  void callbackExportRenduSortie               ();
-  void callbackBuildStructADI                  (); 
-  void callbackSaveAmeublementRendu            (); 
-
-  void callbackEtage3D                         ();
-
-  //void callbackNettoyageOk                     ();
- 
-  void callbackArchiTopo                       ();
-  void callbackArchiTopoOk                     ();
-  void callbackAreteFictive                    ();
-
-  //void callbackSelectionBrin                   ();
-  void callbackSelectionPendante               ();
-  void callbackSelectionOrientation            ();
-  //void callbackSelectionBrinOk                 ();
-  void callbackSelectionTest                   ();
-  void callbackDeSelectionBrin                 ();
-  void callbackDetecteFictive                  ();
-  void callbackAffectFictive                   ();
-
-  // heuristique
-  void callbackCalculPerimetre                 ();
-  void callbackCalculSurface                   ();
-  void callbackCalculPerimetreMur              ();
-  void callbackCalculSurfaceMur                ();
-  void callbackCalculPerimetrePiece            ();
-  void callbackCalculSurfacePiece              ();
-  void callbackCalculRapportPiece              ();
-  void callbackCalculRapportMur                ();
-
-  // Gestion de l'ameublement auto
-  void callbackSaveAmeublement                 ();
-  void callbackLoadAmeublement                 ();
-  void callbackAmeublement2D                   ();
-  void callbackAmeublement3D                   ();
-  void callbackAmeublementSel2D                ();
-  void callbackAmeublementSel3D                ();
-  void callbackAmeublementConvexe2D            (); 
-  void callbackAmeublementConvexe3D            (); 
-  void callbackAmeublementSemiAutomatiqueSel3D ();
-  void callbackAmeublementAddMeuble            (std::string meuble);
-  void callbackAmeublementRemoveMeuble         (std::string meuble);
-  void callbackinitListMeubles                 ();
-
-  // heuristique
-  void callbackConvexificationE1               ();
-  void callbackConvexificationE2               ();
-  void callbackConvexificationE3               ();
-  void callbackConvexificationMur              ();
-  void callbackConvexificationPiece            ();
-
-  void callbackTriangulation                   ();
-  void callbackTriangulationRapide             ();
-  void callbackTriangulationMur                ();
-  void callbackTriangulationPiece              ();
-
-  void callbackSelectionNonConvexe             ();
-  void callbackSelectionFaceSemFaux            ();
-  void callbackSelectionVolumeSemFaux          ();
-  void callbackIsConvexe                       ();
-  void callbackSelectionIncoherenceVoisinage   (); 
-
-  void callbackIsTransparent                   ();
-  void callbackSelectionTransparent            ();
-  void callbackAffectTranspSel                 ();
-  void callbackAffectTransp2D                  ();
-  void callbackAffectTransp3D                  ();
-
-  // semantique 3D VOLUME
-  void callbackSelectionPorte                  ();
-  void callbackSelectionMur                    ();
-  void callbackSelectionCut                    ();
-  void callbackSelectionPiece                  ();
-  void callbackSelectionFenetre                ();
-  void callbackSelectionEscalier               ();
-  void callbackSelectionConfondu               ();
-  void callbackSelectionIntersection           ();
-  void callbackSelectionContour                ();
-  void callbackSelectionContourEscalier        ();
-  void callbackSelectionFictive                ();
-  void callbackSelectionSol                    ();
-  void callbackSelectionPlafond                ();
-  void callbackSelectionAutre                  ();
-
-  // semantique 3D FACE 
-  void callbackSelectionBrique                 ();
-  void callbackSelectionOuverture              ();
-  void callbackSelectionMoquette               ();
-  void callbackSelectionPlaque                 ();
-  void callbackSelectionFacade                 ();
-  void callbackSelectionTapisserie             ();
-  void callbackSelectionMarche                 ();
-  void callbackSelectionIntMarche              ();
-  void callbackSelectionDoublons3D             ();
-
-  // semantique 2D ARETE 
-  void callbackSelectionBrique2D               ();
-  void callbackSelectionOuverture2D            ();
-  //void callbackSelectionCrepi2D                ();
-  void callbackSelectionTapisserie2D           ();
-  void callbackSelectionFacade2D               ();
-  void callbackSelectionMarche2D               ();
-  void callbackSelectionIntMarche2D            ();
-  void callbackSelectionDoublons2D             ();
-
-  // recherche automatique de semantique 2D 
-  // recherche 1 semantique
-  void callbackFindFacade                      ();
-  void callbackFindMur                         ();
-  void callbackFindPiece                       ();
-  void callbackFindPorte                       ();
-  void callbackFindFenetre                     ();
-  void callbackFindEscalier                    ();
-
-  // Deduction a partir des donnees connues
-  void callbackFindSemPorteFenetre             ();
-
-  void callbackEraseSem                        ();
-  void callbackEraseSemSel                     ();
-
-  // gestion d'orientation 2D 
-  void callbackAfficheOrientation              ();
-  void callbackDefineOrientation               ();
-  void callbackReverseOrientation              ();
-  void callbackReverseOrientationCC            ();
-  void callbackTestOrientation                 ();
-
-  // semantique 2D ARETE 
-  void callbackDetectErrorSem2D                ();
-  void callbackDetectErrorSem3D                ();
-  void callbackSelectionAlpha1                 ();
-  void callbackSelectionAlpha2                 ();
-  void callbackSelectionAlpha3                 ();
-
-  // gestion de la semantique
-  void callbackAfficheSemantique               ();
-  void callbackAfficheSansSem                  ();
-  void callbackAffectMur                       ();
-  void callbackAffectPorte                     ();
-  void callbackAffectFenetre                   ();
-  void callbackAffectPiece                     ();
-  void callbackAffectEscalier                  ();
-  void callbackAffectContourEscalier           ();
-  void callbackAffectContour                   ();
-  //void callbackAffectSol                       ();
-  //void callbackAffectPlafond                   ();
-
-  void callbackExtrudeAll                      ();
-  void callbackExtrudeSelect                   ();
-  void callbackExtrudeMur                      ();
-  void callbackExtrudePorte                    ();
-  void callbackExtrudeFenetre                  ();
-  void callbackExtrudeEscalierDroit            ();
-  void callbackExtrudeEscalierCollimacon       ();
-  void callbackExtrudeSol                      ();
-  void callbackExtrudePlafond                  ();
-
-  void callbackFonctionTest                    ();
-
-  //operation
-  void callbackOperationAffichage              ();
-  void callbackOperationCouture                ();
-
-  void callbackOperationPorte                  ();
-  void callbackOperationFenetre                (); 
-  void callbackOperationMur                    ();
-  void callbackEpaissirMur                     ();
-  void callbackCreateMurEpais2D                ();
-  void callbackCreateMurEpais3D                ();
-  void callbackEpaissirPorte                   ();
-  void callbackInsertPorte2D                   ();
-  void callbackInsertPorte3D                   ();
-  void callbackEpaissirFenetre                 ();
-  void callbackInsertFenetre2D                 ();
-  void callbackInsertFenetre3D                 ();
-
-  void callbackOperationSuppression            (); 
-  void callbackOperationSuppressionSel2D       (); 
-  void callbackOperationSuppressionSel3D       (); 
-  void callbackOperationSuppressionCut2D       (); 
-  void callbackOperationSuppressionCut3D       (); 
-  void callbackOperationSuppressionDoublons2D  (); 
-  void callbackOperationSuppressionDoublons3D  (); 
-  void callbackOperationSuppressionTransp2D    (); 
-  void callbackOperationSuppressionTransp3D    (); 
-
-  //operations d'edition
-  void callbackSuppressionFaceMur2D            ();
-  void callbackSuppressionFaceOuvertureMur2D   ();
-  void callbackSuppressionFaceOuverturePiece2D ();
-  void callbackSuppressionVolumeMur3D          ();
-  void callbackDialogTranslationMur            ();
-  void callbackTranslation2D                   (float percent);
-  void callbackTranslation3D                   (float percent);
-  void callbackTranslation2D_1                 ();
-  void callbackTranslation2D_2                 ();
-  void callbackTranslation3D_1                 ();
-  void callbackTranslation3D_2                 ();
-  void callbackConstructionToit                ();
-  void callbackConstructionToitBiso            ();
-  void callbackConstructionToitArrondi         ();
-  void callbackBisoToit                        ();
-  void callbackArrondirToit                    ();
-  void callbackArrondi3D                       ();
-
-  //operations de simplification 
-  void callbackSuppressionDoublons(); 
-  void callbackSuppressionSommetDeg2(); 
-  void callbackSuppressionAreteDeg2(); 
-  void callbackSuppressionFaceDeg2(); 
-  void callbackSimplification(); 
-
-  // RENDU ARCHI
-  void callbackPositionCamera (); 
-  void callbackCheminOrigine  (); 
-  void callbackRayTracingDI   ();
-  void calculPosCamera(CVertex *&V_mire, CVertex *&V_camera);
-   #endif //MODULE_ARCHITECTURE
-
   // Slots Menu Vues
   //****************
   void tile ( ) ;
@@ -852,31 +621,6 @@ public slots:
   void roundVertices(bool ADig);
   void roundEdges ( bool A3D, bool ADig, bool ASetback);
 
-#ifdef MODULE_ARCHITECTURE
-  // Center le point de mire sur des brins selectionnes.
-  void callbackFocusNextSelection();
-  void callbackFocusPreviousSelection();  
-  
-  void callbackSetMode3D(bool enable);
-  void callbackSetModeToolbar(int mode);
-
-  //Affichage etages
-  void callbackAffichageEtage();
-  void callbackAffichageTousEtage();
-  void callbackSwitchAffichageFacade();
-  void callbackAffichageDernierEtage();
-
-  void callbackExtrudeandMerge2DPlan();
-  void callbackAjoutPlan2D();
-
-  void callbackSwitchModeArchi();
-  void callbackSwitchModeToolbarArchi();
-  void callbackOperationSuppressionArchiIHM();
-  void callbackOperationSuppressionArchiForcee();
-  
-  void callbackAfficherDialogAmeublement();
-#endif
-
   /***************************************************************************/
 public:
   // Parametres d'affichage
@@ -901,11 +645,6 @@ public:
   bool getCoulTopologie () const;
   void setCoulTopologie ();
   
-#ifdef MODULE_ARCHITECTURE
-  bool getCoulSemantique () const;
-  void setCoulSemantique ();
-#endif
-
   bool getCoulGeometry () const;
   void setCoulGeometry ();
 
@@ -939,10 +678,6 @@ public:
   
   GMap3d::CParameterVertex*     getParameterVertex() const;
   
-#ifdef MODULE_ARCHITECTURE
-  CParameterArchi * getParameterArchi() const;
-#endif
-
 #ifdef MODULE_SPAMOD
   GMap3d::CParameterSpamod*     	  getParameterSpamod		  () const;
 #endif // MODULE_SPAMOD
@@ -1031,31 +766,9 @@ private:
   // Le repertoire courant.
   QDir current_dir;
   
-  // LA boite de dialogue de sélection de fichier en cours.
-  QFileDialog* FileDialog;
-  
-  #ifdef MODULE_ARCHITECTURE
-    ToolbarArchi* toolbar_archi;
-    WindowRayTracing * win_ray_tracing;
-    QToolBar * architecture;
-    QAction * suppression_act;
-    QAction * active_archi_act;
-    QAction * add_etage_archi;
-    QAction * add_plan2D;
-    QAction * extrude_plan2D;
-    QAction * add_sep1;
-    
-    DialogAmeublement * FDialogAmeublement;
-    dialogOperations * FDialogTranslationMur;
-    
-    void initialisationModeArchi();    
-    void createTopToolBarArchi();
-    
-  public:  
-    
-    FlapSelection * getFlapSelection() const;
-  #endif
-} ;
+  // La boite de dialogue de sélection de fichier en cours.
+  QFileDialog* FileDialog;  
+};
 
 #endif
 
