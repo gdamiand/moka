@@ -46,7 +46,7 @@ public :
   void inverseLigne(int i,int j);
   void multiplyLigne(int i, int coeff);
   void multiplyColonne(int i,int coeff);
-  Matrice * multGauche(Matrice * op2);
+  void multGauche(Matrice * op2);
   coord verifyDiviseLigne(int pos);
   coord verifyDiviseColonne(int pos);
   coord verifyOthers(int pos);

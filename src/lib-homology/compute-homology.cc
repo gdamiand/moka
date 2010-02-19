@@ -28,14 +28,22 @@
 #include <cassert>
 using namespace GMap3d;
 //******************************************************************************
-CHomology::CHomology(CGMapVertex* AMap, int AMark1, int AMark2) :
+CHomology::CHomology(CGMapVertex* AMap, int AMark) :
     FMap(AMap),
-    FMark1(AMark1),
-    FMark2(AMark2),
+    FMark(AMark),
     FNbVertices(0),
     FNbEdges(0),
     FNbFaces(0),
-    FNbVolumes(0)
+    FNbVolumes(0),
+    FNbTorsion(0),
+    FNbZO(0),
+    FNbZ1(0),
+    FNbBordFaible(0),
+    FNbLibre(0),
+    FShowH0(false),
+    FShowH1free(true),
+    FShowH1torsion(true),
+    FShowH2(false)
 {
   // std::cout<<"Marks: "<<AMark1<<", "<<AMark2<<std::endl;
   for (int i=0;i<3;++i)
@@ -150,10 +158,6 @@ void CHomology::computeIncidence(int ADim)
   CDynamicCoverageAll it(FMap);
   for (; it.cont(); ++it)
   {
-    // We take this coverage to unmark all darts.
-    if ( FMark1!=-1 ) FMap->unsetMark(*it,FMark1);
-    if ( FMark2!=-1 ) FMap->unsetMark(*it,FMark2);
-    
     if (!FMap->isMarked(*it, treated))
     {
       if ( ADim==1 ) FMap->markOrbit(*it,ORBIT_23,positive);
@@ -257,43 +261,108 @@ bool CHomology::computeHomology()
       !FMatrix[2]->valid())
     {
       delete FMatrix[0]; delete FMatrix[1]; delete FMatrix[2];
+      FMatrix[0]=NULL; FMatrix[1]=NULL; FMatrix[2]=NULL; 
       return false;
     }
   
   computeIncidence(0);
   computeIncidence(1);
-  computeIncidence(2);
+  // computeIncidence(2); MARCHE PAS pour objet non orientable (ex Klein)
   
   FMatrix[0]->smithForm();
   
-  FMatrix[1]->getM()->setMatrice( FMatrix[1]->getM()->
-                                  multGauche(FMatrix[0]->getQinv()) );
+  FMatrix[1]->getM()-> multGauche(FMatrix[0]->getQinv());
   FMatrix[1]->getP()->setMatrice( FMatrix[0]->getQ() );
   FMatrix[1]->getPinv()->setMatrice( FMatrix[0]->getQinv() );
   FMatrix[1]->smithForm();
 
-  int nb_t  = FMatrix[1]->getM()->nbTorsion();
-  int nb_z0 = FMatrix[0]->getM()->nbCycle();
-  int nb_z1 = FMatrix[1]->getM()->nbCycle();
-  int nb_bf = FMatrix[1]->getM()->getnbcol()-nb_z1;
-  int nb_l=nb_z0-nb_bf;
-
-  std::cout<<"Bords faibles : "<<nb_bf<<std::endl;
-  std::cout<<"gen tor : "<<nb_t<<std::endl;
-  std::cout<<"gen libres : "<<nb_l<<std::endl;
+  FNbTorsion  = FMatrix[1]->getM()->nbTorsion();
+  FNbZO = FMatrix[0]->getM()->nbCycle();
+  FNbZ1 = FMatrix[1]->getM()->nbCycle();
+  FNbBordFaible = FMatrix[1]->getM()->getnbcol()-FNbZ1;
+  FNbLibre=FNbZO-FNbBordFaible;
 
 //FMatrix[1]->getP()->affiche();
+  updateSelectedDarts();
+  
+  return true;
+}
+//******************************************************************************
+unsigned int CHomology::getH0FreeGenerators()
+{
+  return 0; // ??? FMatrix[0]->getM()->nbCycle();
+}
+//------------------------------------------------------------------------------
+unsigned int CHomology::getH1FreeGenerators()
+{ return FNbLibre; }
+//------------------------------------------------------------------------------
+unsigned int CHomology::getH1TorsionGenerators()
+{ return FNbTorsion; }
+//******************************************************************************
+bool CHomology::getShowH0() const
+{ return FShowH0; }
+bool CHomology::getShowH1free() const
+{ return FShowH1free; }
+bool CHomology::getShowH1torsion() const
+{ return FShowH1torsion; }
+bool CHomology::getShowH2() const
+{ return FShowH2; }
+//******************************************************************************
+void CHomology::setShowH0(bool AValue)
+{
+  if ( AValue!=FShowH0 )
+    {
+      FShowH0=AValue;
+      updateSelectedDarts();
+    }
+}
+//------------------------------------------------------------------------------
+void CHomology::setShowH1free(bool AValue)
+{
+  if ( AValue!=FShowH1free )
+    {
+      FShowH1free=AValue;
+      updateSelectedDarts();
+    }
+}
+//------------------------------------------------------------------------------
+void CHomology::setShowH1torsion(bool AValue)
+{
+  if ( AValue!=FShowH1torsion )
+    {
+      FShowH1torsion=AValue;
+      updateSelectedDarts();
+    }
+}
+//------------------------------------------------------------------------------
+void CHomology::setShowH2(bool AValue)
+{
+  if ( AValue!=FShowH2 )
+    {
+      FShowH2=AValue;
+      updateSelectedDarts();
+    }
+}
+//******************************************************************************
+void CHomology::updateSelectedDarts()
+{
+  if ( FMatrix[0]==NULL || FMark==-1 ) return;
 
-  if ( FMark2!=-1 )
+  // 1) We unmark all the darts
+  for (CDynamicCoverageAll it(FMap); it.cont(); ++it)
+    FMap->unsetMark(*it,FMark);
+  
+  // 2) we mark the required generators.
+  if ( FShowH1torsion )
     {
       //marquage des cellules faisant partie des générateurs de torsion
-      for (int j=0;j<nb_t;j++){
-	for(int i=0;i<FMatrix[1]->getP()->getnbli();i++)
+      for (int j=0;j<FNbTorsion;j++){
+	for(int i=0;i<FMatrix[1]->getP()->getnbli();++i)
 	  {
 	    if(FMatrix[1]->getP()->getVal(i,j)!=0)
 	      {
 		//marquerTorsion la d cellule numero i
-		FMap->markOrbit(FCells[1][i],ORBIT_EDGE,FMark2);
+		FMap->markOrbit(FCells[1][i],ORBIT_EDGE,FMark);
 //		std::cout<<"Cellule torsion: "<<i<<" ("<<FCells[1][i]
 //			 <<")"<<std::endl;
 	      }
@@ -301,43 +370,26 @@ bool CHomology::computeHomology()
       }
     }
 
-  if ( FMark1!=-1 )
+  if ( FShowH1free )
     {
       //marquage des cellules faisant partie des générateurs libres
-      int deb_libre=nb_bf;
-      int fin_libre=nb_bf+nb_l;
-      for (int j=deb_libre;j<fin_libre;j++)
+      //int deb_libre=nb_bf;
+      //int fin_libre=nb_bf+nb_l;
+      for (int j=FNbBordFaible;j<FNbBordFaible+FNbLibre;++j)
 	{
-	  for(int i=0;i<FMatrix[1]->getP()->getnbli();i++)
+	  for(int i=0;i<FMatrix[1]->getP()->getnbli();++i)
 	    {
 	      if(FMatrix[1]->getP()->getVal(i,j)!=0)
 		{
 		  //marquerLibre la d cellule numero i
-		  FMap->markOrbit(FCells[1][i],ORBIT_EDGE,FMark1);
+		  FMap->markOrbit(FCells[1][i],ORBIT_EDGE,FMark);
 //		  std::cout<<"Generateur libre "<<j<<" - Cellule libre: "<<i<<" ("<<FCells[1][i]
 //			   <<")"<<std::endl;
 		}
 	    }
 	}
     }
-  return true;
+
 }
 //******************************************************************************
-unsigned int CHomology::getH0FreeGenerators()
-{
-  assert(FMatrix[0]!=NULL);
-  return FMatrix[0]->getM()->nbCycle();
-}
-//******************************************************************************
-unsigned int CHomology::getH1FreeGenerators()
-{
-  assert(FMatrix[1]!=NULL);
-  return FMatrix[1]->getM()->nbCycle();
-}
-//******************************************************************************
-unsigned int CHomology::getH1TorsionGenerators()
-{
-  assert(FMatrix[1]!=NULL);
-  return FMatrix[1]->getM()->nbTorsion();
-}
-//******************************************************************************
+
