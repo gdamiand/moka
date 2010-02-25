@@ -47,6 +47,7 @@ unsigned int CControlerGMap::countNonLocalDegreeTwoEdges()
 	setMessage(nb," edges with local degre > 2: "
 		   "the map is NOT a 2D quasi manifold.");
     }
+  return nb;
 }
 //******************************************************************************
 void CControlerGMap::getMapGlobalCharacteristics(int* ANbDarts,
