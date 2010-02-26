@@ -46,13 +46,13 @@ void debutComposante(std::ofstream &os,
 		     const CVertex & min, const CVertex & max);
 int computeProf(const CVertex & V);
 int computeProf(const CVertex & V1, const CVertex & V2);
-void sauvePoint(std::ofstream &os, const CVertex & v, int coul, int larg);
+void sauvePoint(std::ofstream &os, const CVertex & v, int coul, int larg, int AProf=-1);
 void sauveLine(std::ofstream &os, const CVertex & p1, const CVertex & p2,
 	       int coul, int larg, bool arrow, int AProf = -1);
 void sauveTriangle(std::ofstream & os, int coulFill, int larg,
 		   CVertex & PC, CVertex & P1, CVertex & P2);
 void sauveFace(std::ofstream &os, CVertex *p, int nbPts,
-	       int coulFill, int larg);
+	       int coulFill, int larg, int AProf);
 
 void sauveDartVertex(std::ofstream &os, const CVertex & v, const CVertex & v2);
 
@@ -66,7 +66,7 @@ void treatFilledFace(std::ofstream& /*fout*/, CDart* /*dart*/,
 		     int /*mark*/, int /*mark2*/ );
 
 void treatDartWithArrow(std::ofstream& /*fout*/, CDart* /*dart*/,
-			int /*mark*/, int /*mark2*/);
+			int /*mark*/, int /*mark2*/, int AProf=-1);
 
 void treatDartNoArrow(std::ofstream& /*fout*/, CDart* /*dart*/,
 		      int /*mark*/, int /*mark2*/ );

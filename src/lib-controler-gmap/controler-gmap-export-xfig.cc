@@ -182,10 +182,11 @@ int CControlerGMap::computeProf(const CVertex & V1, const CVertex & V2)
 }
 //******************************************************************************
 void CControlerGMap::sauvePoint(ofstream &os, const CVertex & v,
-				int coul, int larg)
+				int coul, int larg, int AProf)
 {
-  os<<"1 4 0 "<<larg<<" "<<32+coul<<" "<<32+coul<<" "
-    <<computeProf(v)<<" 0 20 0.000 1 0.0000 ";
+  os<<"1 4 0 "<<larg<<" "<<32+coul<<" "<<32+coul<<" ";
+  if ( AProf==-1 ) os<<computeProf(v); else os << AProf;
+  os <<" 0 20 0.000 1 0.0000 ";
 
   os<<int(RINT(v.getX()+decalageX))<<" "  // Centre x et y
     <<int(RINT(v.getY()+decalageY))<<" "
@@ -219,10 +220,8 @@ void CControlerGMap::sauveLine(ofstream &os,
 {
   int prof;
 
-  if (AProf<0)
-    prof = computeProf(p1,p2);
-  else
-    prof = AProf;
+  if (AProf<0) prof = computeProf(p1,p2);
+  else         prof = AProf;
 
   os<<"2 1 0 "<<larg<<" "<<32+coul<<" 0 "<< prof <<" 0 -1 0.000 1 0 7 ";
   if (arrow)
@@ -258,26 +257,18 @@ void CControlerGMap::sauveTriangle(ofstream & os, int coulFill, int larg,
 }
 //******************************************************************************
 void CControlerGMap::sauveFace(ofstream &os, CVertex *p, int nbPts,
-			       int coulFill, int larg )
+			       int coulFill, int larg, int AProf )
 {
   assert(nbPts>=3); // 3 => polygone à 2 arêtes...
-
-  CVertex baryFace;
-  int i;
-
-  for (i=0; i<nbPts-1; ++i)
-    baryFace += p[i];
-
-  baryFace /= nbPts-1;
 
   bool compactFaces = isZero(FMap->getBurstCoef(1) - 1.0);
 
   os<<"2 1 0 " << (compactFaces&&!drawArrows?larg:0) << " "
     << 32+COUL_DART << " " << 32+coulFill << " "
-    << (1+computeProf(baryFace)) <<" 0 20 0.000 1 0 7 0 0 "
+    << (1+AProf) <<" 0 20 0.000 1 0 7 0 0 "
     << nbPts << endl;
 
-  for (i=0; i<nbPts; ++i)
+  for (int i=0; i<nbPts; ++i)
     {      
       os << int(RINT(p[i].getX()+decalageX)) << " "
 	 << int(RINT(p[i].getY()+decalageY)) << endl;
@@ -428,7 +419,7 @@ void CControlerGMap::treatSews( ofstream & fout, CDart * dart,
 
 //******************************************************************************
 void CControlerGMap::treatDartWithArrow( ofstream & fout, CDart * dart,
-					 int /*mark*/, int mark2 )
+					 int /*mark*/, int mark2, int AProf )
 {
   CVertex v1;
   CVertex v2,p1,p2;
@@ -439,7 +430,7 @@ void CControlerGMap::treatDartWithArrow( ofstream & fout, CDart * dart,
   transfo3dTo2d(v1, p1);
 
   if (FMap->isFree0(dart))
-    sauvePoint(fout,p1,COUL_DART_NO_SEW0,LARG_DART);
+    sauvePoint(fout,p1,COUL_DART_NO_SEW0,LARG_DART, AProf);
   else
     {
       CDart *dart0=FMap->alpha0(dart);
@@ -468,13 +459,13 @@ void CControlerGMap::treatDartWithArrow( ofstream & fout, CDart * dart,
 
       if (FMap->isMarked(dart,mark2))
 	{
-	  sauveLine(fout,p1,p2,coul,larg,true);
+	  sauveLine(fout,p1,p2,coul,larg,true, AProf);
  	  if ( drawVertices )
 	    sauveDartVertex( fout, p1, p2 );
 	}
       else
 	{
-	  sauveLine(fout,p2,p1,coul,larg,true);
+	  sauveLine(fout,p2,p1,coul,larg,true, AProf);
  	  if ( drawVertices )
 	    sauveDartVertex( fout, p2, p1 );
 	}
@@ -598,7 +589,7 @@ void CControlerGMap::treatFilledFace( ofstream & fout, CDart * dart,
 {
   int nbPts=0;
   CVertex v1;
-
+  
   if (drawArrows && FMap->isMarked(dart,mark2))
     dart=FMap->alpha0(dart);
 
@@ -620,6 +611,7 @@ void CControlerGMap::treatFilledFace( ofstream & fout, CDart * dart,
   if (compactFaces)
     nbPts/=2;  //car en g carte donc on alpha compte les sommets 2 fois
 
+  CVertex baryFace;
   CVertex * tabV = new CVertex[nbPts+1];
   nbPts=0;
 
@@ -627,11 +619,27 @@ void CControlerGMap::treatFilledFace( ofstream & fout, CDart * dart,
     {
       v1= FMap->getBurstVertex(*covF);
       transfo3dTo2d(v1, tabV[nbPts++]);
+      baryFace += tabV[nbPts-1];
 
+      if (compactFaces && covF.cont())
+	++covF;
+      
+      if (covF.cont())
+	++covF;
+    }
+
+  baryFace -= tabV[nbPts-1];
+  baryFace /= nbPts-1;
+
+  for (covF.reinit(); covF.cont();)
+    {
       if ( compactFaces ) // Ici on marque, sinon c'est fait dans la méthode treatFace
 	{
-	  if (drawArrows) treatDartWithArrow(fout,*covF,mark,mark2);
-
+	  if (drawArrows)
+	    {
+	      treatDartWithArrow(fout,*covF,mark,mark2,computeProf(baryFace));
+	    }
+	  
           if (drawSews)
             {
               treatSews(fout,*covF,mark,mark2);
@@ -641,11 +649,11 @@ void CControlerGMap::treatFilledFace( ofstream & fout, CDart * dart,
 	  
 	  FMap->setMark(*covF,mark);
           FMap->setMark(FMap->alpha0(*covF),mark);
-	}
-      
+	}      
+
       if (compactFaces && covF.cont())
 	++covF;
-
+      
       if (covF.cont())
 	++covF;
     }
@@ -656,7 +664,7 @@ void CControlerGMap::treatFilledFace( ofstream & fout, CDart * dart,
   if ( !compactFaces )
     treatFace(fout,dart,mark,mark2);
   
-  sauveFace(fout,tabV,nbPts,COUL_FILL_FACE,LARG_FILL_FACE);
+  sauveFace(fout,tabV,nbPts,COUL_FILL_FACE,LARG_FILL_FACE,computeProf(baryFace));
 
   delete []tabV;
 }
