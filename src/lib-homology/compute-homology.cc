@@ -193,6 +193,9 @@ void CHomology::computeIncidence(int ADim)
       ++currentcell;
     }
   }
+
+  
+  
   FMap->negateMaskMark(treated);
 
   // 2) We run through all the (ADim+1)-cell of the map and compute the incidence
@@ -267,7 +270,23 @@ bool CHomology::computeHomology()
   
   computeIncidence(0);
   computeIncidence(1);
-  // computeIncidence(2); MARCHE PAS pour objet non orientable (ex Klein)
+  //computeIncidence(2); // MARCHE PAS pour objet non orientable (ex Klein)
+  {
+    int treated = FMap->getNewMark();
+    int currentcell=1;
+    for (CDynamicCoverageAll it(FMap); it.cont(); ++it)
+      {
+	if (!FMap->isMarked(*it, treated))
+	  {
+	    FMap->markOrbit(*it,ORBIT_FACE,treated);
+	    FCells[2][currentcell-1]=*it;
+	    ++currentcell;
+	  }
+      }
+    FMap->negateMaskMark(treated);
+    FMap->freeMark(treated);
+  }
+
   
   FMatrix[0]->smithForm();
   
@@ -281,7 +300,9 @@ bool CHomology::computeHomology()
   FNbZ1 = FMatrix[1]->getM()->nbCycle();
   FNbBordFaible = FMatrix[1]->getM()->getnbcol()-FNbZ1;
   FNbLibre=FNbZO-FNbBordFaible;
-
+  FNbGenH0 = FMatrix[0]->getM()->getnbli() - (FMatrix[0]->getM()->getnbcol()-FNbZO);
+  FNbZ2 = FMatrix[1]->getM()->getnbcol()-FNbBordFaible;
+    
 //FMatrix[1]->getP()->affiche();
   updateSelectedDarts();
   
@@ -289,15 +310,16 @@ bool CHomology::computeHomology()
 }
 //******************************************************************************
 unsigned int CHomology::getH0FreeGenerators()
-{
-  return 0; // ??? FMatrix[0]->getM()->nbCycle();
-}
+{ return FNbGenH0; }
 //------------------------------------------------------------------------------
 unsigned int CHomology::getH1FreeGenerators()
 { return FNbLibre; }
 //------------------------------------------------------------------------------
 unsigned int CHomology::getH1TorsionGenerators()
 { return FNbTorsion; }
+//------------------------------------------------------------------------------
+unsigned int CHomology::getH2Generators()
+{ return FNbZ2; }
 //******************************************************************************
 bool CHomology::getShowH0() const
 { return FShowH0; }
@@ -383,6 +405,43 @@ void CHomology::updateSelectedDarts()
 		{
 		  //marquerLibre la d cellule numero i
 		  FMap->markOrbit(FCells[1][i],ORBIT_EDGE,FMark);
+//		  std::cout<<"Generateur libre "<<j<<" - Cellule libre: "<<i<<" ("<<FCells[1][i]
+//			   <<")"<<std::endl;
+		}
+	    }
+	}
+    }
+
+  if ( FShowH0 )
+    {
+      int deb = FMatrix[0]->getM()->getnbcol()-FNbZO;
+      //marquage des cellules faisant partie des H0
+      for (int j=deb;j<deb+FNbGenH0;++j)
+	{
+	  for(int i=0;i<FMatrix[0]->getP()->getnbli();++i)
+	    {
+	      if(FMatrix[0]->getP()->getVal(i,j)!=0)
+		{
+		  //marquerLibre la d cellule numero i
+		  FMap->markOrbit(FCells[0][i],ORBIT_VERTEX,FMark);
+//		  std::cout<<"Generateur libre "<<j<<" - Cellule libre: "<<i<<" ("<<FCells[1][i]
+//			   <<")"<<std::endl;
+		}
+	    }
+	}
+    }
+
+  if ( FShowH2 )
+    {
+      //marquage des cellules faisant partie des H0
+      for ( int j=0;j<FNbZ2;++j )
+	{
+	  for(int i=0;i<FMatrix[1]->getQ()->getnbli();++i)
+	    {
+	      if(FMatrix[1]->getQ()->getVal(i,j)!=0)
+		{
+		  //marquerLibre la d cellule numero i
+		  FMap->markOrbit(FCells[2][i],ORBIT_FACE,FMark);
 //		  std::cout<<"Generateur libre "<<j<<" - Cellule libre: "<<i<<" ("<<FCells[1][i]
 //			   <<")"<<std::endl;
 		}

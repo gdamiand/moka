@@ -59,6 +59,9 @@ public:
   /// Return the number of H1 torsion generators
   unsigned int getH1TorsionGenerators();
 
+  /// Return the number of H2 generators
+  unsigned int getH2Generators();
+  
   /// Get the value of FShowH0
   bool getShowH0() const;
   
@@ -138,7 +141,7 @@ private:
   int FSize;
 
   /// Informations on generators
-  int FNbTorsion, FNbZO, FNbZ1, FNbBordFaible, FNbLibre;
+  int FNbGenH0,FNbTorsion, FNbZO, FNbZ1, FNbZ2, FNbBordFaible, FNbLibre;
 
   /// Boolean indicating which generators are drawn.
   bool FShowH0, FShowH1free, FShowH1torsion, FShowH2;

@@ -96,8 +96,8 @@ OptionsHomology :: OptionsHomology(Window * parent) :
    global->addWidget(Fh1torsion , 2 , 4) ;
       
    global->addWidget(FButtonH2 , 3 , 0) ;
-   global->addWidget(Fh2 , 3 , 1) ;
-
+   global->addWidget(Fh2 , 3 , 1) ;   
+   
    //-- volume --
    FInfo = new QGroupBox("Performances") ;
    QGridLayout * pointed = new QGridLayout(FInfo) ;
@@ -146,7 +146,7 @@ void OptionsHomology::update()
 
    // Ho
    os.str("-");
-   //os<<FHomology->getH0FreeGenerators();
+   os<<FHomology->getH0FreeGenerators();
    Fh0->setText(os.str().c_str()) ;
    
    // H1free
@@ -161,7 +161,7 @@ void OptionsHomology::update()
 
    // H2
    os.str("-");
-   // os<<FHomology->getH2Generators();
+   os<<FHomology->getH2Generators();
    Fh2->setText(os.str().c_str()) ;
 
    // Memory
