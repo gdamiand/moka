@@ -331,6 +331,88 @@ int CGMapGeneric::removeMarkedEdgesWithoutDisconnection( int AMarkNumber )
   int  nbRemove	   = 0;
   CDart* current   = NULL;
   CDart* aDart     = NULL;
+  
+  // On propage les marques pour ne pas avoir de problèmes.
+  markIncidentCells(ORBIT_EDGE, AMarkNumber);
+
+  // We initialise one uf-tree for each face to detect efficiently if the degree of
+  // an edge is 1 or 2.
+  int index = getNewDirectInfo();
+  if ( index!=-1 ) initUnionFindTrees(index, ORBIT_FACE);
+  else std::cout<<"Not enough directInfo to use union-find trees."<<std::endl;
+	 
+  CDynamicCoverageAll cov(this);
+
+  // On commence par marquer les faces fictives et on en profite pour en
+  // même temps supprimer les arêtes de degré deux.
+  while ( cov.cont() )
+    {
+      current = cov++;
+
+      // Si c'est une arête de degré deux et pas une sphère, on la supprime
+	if ( isMarked(current, AMarkNumber) &&
+	   !isMarked(current, toDelete) &&
+	   ( (alpha1(current) !=alpha2(current) ||
+	      alpha01(current)!=alpha02(current)) &&
+	     alpha23(current)==alpha32(current) ) &&
+	     (index!=-1?(findUnionFindTrees(current, index)!=
+			 findUnionFindTrees(alpha2(current),index)):
+	      (!isSameOrbit(current, alpha2(current), ORBIT_FACE))) )
+	  {
+	    markOrbit(current, ORBIT_EDGE, toDelete);
+	    remove(current, 1, false);
+	    ++nbRemove;
+
+	    if ( index!=-1 )
+	      mergeUnionFindTrees(current, alpha2(current), index);
+	  }
+      else
+	if ( !isMarked(current, toDelete) && !isMarked(current, treated) )
+	  // Ici on utilise la marque treated pour marquer les
+	  // brins déjà traités.
+	  {
+	    markOrbit( current, ORBIT_FACE, treated);
+	  }
+    }  
+  
+  // On détruit les brins et enlève les marques.
+  for ( cov.reinit(); cov.cont(); )
+    {
+      unsetMark(*cov, treated);
+      
+      if ( isMarked(*cov, toDelete) ) delMapDart(cov++);
+      else ++cov;
+    }
+
+  freeMark(toDelete);
+  freeMark(treated);
+
+  if ( index!=-1 ) freeDirectInfo(index);
+  
+  {
+    // temporaire pour tester la 0-suppression : TODO ajouter une
+    // entrée dans le menu
+    if ( nbRemove==0 )
+      {
+	treated=getNewMark();
+	negateMaskMark(treated);
+	nbRemove=removeMarkedVerticesWithFictiveEdgeShifting(treated);
+	negateMaskMark(treated);
+	freeMark(treated);	
+      }
+  }
+  
+  return nbRemove;
+}
+//******************************************************************************
+int CGMapGeneric::
+removeMarkedEdgesWithoutDisconnectionWithFaceShifting( int AMarkNumber )
+{
+  int  toDelete	   = getNewMark();
+  int  treated	   = getNewMark();
+  int  nbRemove	   = 0;
+  CDart* current   = NULL;
+  CDart* aDart     = NULL;
   int fictiveFaces = getNewMark();
   int markFace     = getNewMark();
   int res;
@@ -367,9 +449,9 @@ int CGMapGeneric::removeMarkedEdgesWithoutDisconnection( int AMarkNumber )
 	  // brins déjà traités.
 	  {
 	    markOrbit( current, ORBIT_FACE, treated);
-	    if ( !isFree3(current) &&
-		 isSameOrbit(current, alpha3(current), ORBIT_VOLUME) )
-	      markOrbit( current, ORBIT_FACE, fictiveFaces);
+ 	    if ( !isFree3(current) &&
+ 		 isSameOrbit(current, alpha3(current), ORBIT_VOLUME) )
+ 	      markOrbit( current, ORBIT_FACE, fictiveFaces);
 	  }
     }
   
@@ -402,7 +484,7 @@ int CGMapGeneric::removeMarkedEdgesWithoutDisconnection( int AMarkNumber )
 	    }
 	}
     }
-
+  
   // On va marquer les arêtes ayant un nombre impair de brins.
   negateMaskMark(treated);
   

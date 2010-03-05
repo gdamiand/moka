@@ -105,4 +105,26 @@ void freeMemoryFromDirectInfo(CDart* ADart, TOrbit AOrbit,
  */
 void saveAlphaInDirectInfo(int AAlphaIndex, int ADirectInfoIndex);
 
+/** Point each dart of a same AOrbit to the first dart of this orbit. This
+ *  dart point to itself. Allows to use union-find trees on this orbit.
+ *  @param AIndex the direct info index to use.
+ *  @param AOrbit the orbit for whith initialize union find trees.
+ */
+void initUnionFindTrees(int AIndex, TOrbit AOrbit);
+
+/** Return the root of the uf-tree containing ADart.
+ *  @param ADart the dart to find the root.
+ *  @param AIndex the direct info index to use.
+ */
+CDart* findUnionFindTrees(CDart* ADart,int AIndex);
+
+/** Merge the two uf-trees containing ADart1 and ADart2.
+ *  @param ADart1 the dart of a first uf-tree.
+ *  @param ADart2 the dart of a second uf-tree.
+ *  @param AIndex the direct info index to use.
+ *  @todo we can improve this by counting the size of the tree and putting
+ *  the small one under the big one. 
+ */
+void mergeUnionFindTrees(CDart* ADart1, CDart* ADart2, int AIndex);
+
 //******************************************************************************
