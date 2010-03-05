@@ -41,14 +41,14 @@ bool CControlerGMap::thicken()
 
       if (nb==0)
 	{
-	  setMessage("Aucun objet à épaissir");
+	  setMessage("No object to thicken");
 	  undoRedoPostSaveFailed();
 	}
       else
 	{
 	  undoRedoPostSaveOk();
 	  setModelChanged();
-	  setMessage(nb, nb==1 ? " brin épaissi" : " brins épaissis");
+	  setMessage(nb, nb==1 ? " dart thicken" : " darts thicken");
 	  res = true;
 	}
     }
@@ -74,7 +74,7 @@ bool CControlerGMap::extrudeByNormal(int ADim)
       
       if (nb==0)
 	{
-	  setMessage("Aucune extrusion effectuée");
+	  setMessage("No extrusion possible");
 	  undoRedoPostSaveFailed();
 	}
       else
@@ -84,13 +84,13 @@ bool CControlerGMap::extrudeByNormal(int ADim)
 	  switch (ADim)
 	    {
 	    case 0:
-	      setMessage(nb, nb==1 ? " sommet extrudé" : " sommets extrudés");
+	      setMessage(nb, nb==1? " vertex extruded": " vertices extruded");
 	      break;
 	    case 1:
-	      setMessage(nb, nb==1 ? " arête extrudée" : " arêtes extrudées");
+	      setMessage(nb, nb==1? " edge extruded" : " edges extruded");
 	      break;
 	    case 2:
-	      setMessage(nb, nb==1 ? " face extrudée"  : " faces extrudées" );
+	      setMessage(nb, nb==1? " face extruded"  : " faces extruded" );
 	      break;
 	    }
 
@@ -120,7 +120,7 @@ bool CControlerGMap::intuitiveExtrudeByNormal()
       
       if (nb==0)
 	{
-	  setMessage("Aucune extrusion effectuée");
+	  setMessage("No extrusion possible");
 	  undoRedoPostSaveFailed();
 	}
       else
@@ -128,7 +128,7 @@ bool CControlerGMap::intuitiveExtrudeByNormal()
 	  undoRedoPostSaveOk();
 
 	  setModelChanged();
-	  setMessage(nb, nb==1 ? " cellule extrudée"  : " cellules extrudées" );
+	  setMessage(nb, nb==1 ? " cell extruded"  : " cells extruded" );
 	  res = true;
 	}
     }
@@ -158,14 +158,16 @@ bool CControlerGMap::extrudeByPath(int ADim)
 	  if (last2==NULL && n>1)
 	    {
 	      ok = false;
-	      setMessage("Extrusion impossible: Ambiguïté sur l'origine du chemin de pondération");
+	      setMessage("Extrusion impossible: "
+			 "ambiguity on the ponderation path");
 	    }
 
 	  if (ok && pathPonderation!=NULL &&
 	      FMap->isClosedPolyline(pathPonderation))
 	    {
 	      ok = false;
-	      setMessage("Extrusion impossible: Le chemin de pondération est fermé");
+	      setMessage("Extrusion impossible: "
+			 "the ponderation path is closed");
 	    }
 	}
 
@@ -174,23 +176,28 @@ bool CControlerGMap::extrudeByPath(int ADim)
 	  if (pathStart==NULL &&
 	      FMap->getMarkedCells(ORBIT_SELF, getNextSelectionMark(1),
 				   NULL, &pathStart) != 1)
-	    setMessage("Extrusion impossible: Aucun chemin sélectionné");
+	    setMessage("Extrusion impossible: no path selected");
 	  else
 	    {
 	      undoRedoPreSave();
 
 	      int nb =
 		FMap->extrudeByPathMarkedCells(getSelectionMark(), ADim, pathStart,
-					       getParameterOperations()->getExtrusionAdjacentSews(),
-					       getParameterOperations()->getExtrusionInitialPositionMode(),
-					       getParameterOperations()->getExtrusionInitialDirectionMode(),
-					       getParameterOperations()->getExtrusionDirection(),
-					       getParameterOperations()->getExtrusionScale(),
+					       getParameterOperations()->
+					       getExtrusionAdjacentSews(),
+					       getParameterOperations()->
+					       getExtrusionInitialPositionMode(),
+					       getParameterOperations()->
+					       getExtrusionInitialDirectionMode(),
+					       getParameterOperations()->
+					       getExtrusionDirection(),
+					       getParameterOperations()->
+					       getExtrusionScale(),
 					       pathPonderation);
 
 	      if (nb==0)
 		{
-		  setMessage("Aucune extrusion effectuée");
+		  setMessage("No extrusion done");
 		  undoRedoPostSaveFailed();
 		}
 	      else
@@ -200,14 +207,12 @@ bool CControlerGMap::extrudeByPath(int ADim)
 		  switch (ADim)
 		    {
 		    case 1:
-		      setMessage(nb, nb==1 ?
-				 " arête extrudée" :
-				 " arêtes extrudées");
+		      setMessage(nb, nb==1 ? " edge extruded" :
+				 " edges extruded");
 		      break;
 		    case 2:
-		      setMessage(nb, nb==1 ?
-				 " face extrudée" :
-				 " faces extrudées" );
+		      setMessage(nb, nb==1 ? " face extruded" :
+				 " faces extruded" );
 		      break;
 		    }
 
@@ -237,7 +242,7 @@ bool CControlerGMap::extrudeByRevolution(int ADim)
 
       if (found!=2 && (found!=1 || FMap->isFree0(d2)))
 	{
-	  setMessage("Désignation de l'axe incohérente");
+	  setMessage("Selection of the axis not correct: we need two darts");
 	  ok = false;
 	}
 
@@ -257,7 +262,7 @@ bool CControlerGMap::extrudeByRevolution(int ADim)
 
 	  if (axeDirection.isNull())
 	    {
-	      setMessage("Extrusion impossible: Axe de longueur nulle");
+	      setMessage("Extrusion impossible: axis of length zero");
 	      ok = false;
 	    }
 	}
@@ -272,13 +277,16 @@ bool CControlerGMap::extrudeByRevolution(int ADim)
 	  if (last2==NULL && n>1)
 	    {
 	      ok = false;
-	      setMessage("Extrusion impossible: Ambiguïté sur l'origine du chemin de pondération");
+	      setMessage("Extrusion impossible: "
+			 "ambiguity on the ponderation path");
 	    }
 
-	  if (ok && pathPonderation!=NULL && FMap->isClosedPolyline(pathPonderation))
+	  if (ok && pathPonderation!=NULL &&
+	      FMap->isClosedPolyline(pathPonderation))
 	    {
 	      ok = false;
-	      setMessage("Extrusion impossible: Le chemin de pondération est fermé");
+	      setMessage("Extrusion impossible: "
+			 "the ponderation path is closed");
 	    }
 	}
 
@@ -293,17 +301,23 @@ bool CControlerGMap::extrudeByRevolution(int ADim)
 	    FMap->extrudeByRevolutionMarkedCells(getSelectionMark(),
 						 ADim, axeVertex, axeDirection,
 						 angle,
-						 getParameterOperations()->getExtrusionRevolutionNbEdges(),
-						 getParameterOperations()->getExtrusionAdjacentSews(),
-						 getParameterOperations()->getExtrusionInitialPositionMode(),
-						 getParameterOperations()->getExtrusionInitialDirectionMode(),
-						 getParameterOperations()->getExtrusionDirection(),
-						 getParameterOperations()->getExtrusionScale(),
+						 getParameterOperations()->
+						 getExtrusionRevolutionNbEdges(),
+						 getParameterOperations()->
+						 getExtrusionAdjacentSews(),
+						 getParameterOperations()->
+						 getExtrusionInitialPositionMode(),
+						 getParameterOperations()->
+						 getExtrusionInitialDirectionMode(),
+						 getParameterOperations()->
+						 getExtrusionDirection(),
+						 getParameterOperations()->
+						 getExtrusionScale(),
 						 pathPonderation);
 
 	  if (nb==0)
 	    {
-	      setMessage("Aucune extrusion effectuée");
+	      setMessage("No extrusion done");
 	      undoRedoPostSaveFailed();
 	    }
 	  else
@@ -314,11 +328,11 @@ bool CControlerGMap::extrudeByRevolution(int ADim)
 		{
 		case 1:
 		  setMessage(nb, nb==1
-			     ? " arête extrudée" : " arêtes extrudées");
+			     ? " edge extruded" : " edges extruded");
 		  break;
 		case 2:
 		  setMessage(nb, nb==1
-			     ? " face extrudée"  : " faces extrudées" );
+			     ? " face extruded"  : " faces extruded" );
 		  break;
 		}
 	

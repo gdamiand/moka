@@ -37,14 +37,14 @@ bool CControlerGMap::dual2d()
 
       if (FMap->dualOfMarkedDarts(2, getSelectionMark()) <= 0)
 	{
-	  setMessage("Dual 2D impossible. Sélectionnez des brins");
+	  setMessage("Dual 2D impossible: no selected darts");
 	  undoRedoPostSaveFailed();
 	}
       else
 	{
 	  undoRedoPostSaveOk();
 	  setModelChanged();
-	  setMessage("Dual 2D effectué");
+	  setMessage("Dual 2D done");
 	  res = true;
 	}
     }
@@ -61,14 +61,14 @@ bool CControlerGMap::dual3d()
 
       if (FMap->dualOfMarkedDarts(3, getSelectionMark()) <= 0)
 	{
-	  setMessage("Dual 3D impossible. Sélectionnez des brins");
+	  setMessage("Dual 3D impossible: no selected darts");
 	  undoRedoPostSaveFailed();
 	}
       else
 	{
 	  undoRedoPostSaveOk();
 	  setModelChanged();
-	  setMessage("Dual 3D effectué");
+	  setMessage("Dual 3D done");
 	  res = true;
 	}
     }

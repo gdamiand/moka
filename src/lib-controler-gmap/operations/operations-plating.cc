@@ -40,7 +40,7 @@ bool CControlerGMap::intuitivePlate()
       if (FMap->getMarkedCells(ORBIT_SELF, getSelectionMark(),
 			       getLastSelectedDart(), &d2,&d1) != 2)
 	{
-	  setMessage("Sélection incohérente");
+	  setMessage("Selection not correct: you need two darts");
 	  return false;
 	}
 
@@ -54,12 +54,12 @@ bool CControlerGMap::intuitivePlate()
 	  undoRedoPostSaveOk();
 	  unmarkAllCurrentSelectionLevel();
 	  setModelChanged();
-	  setMessage("Cellules plaquées");
+	  setMessage("Cells plated");
 	  res = true;
 	}
       else
 	{
-	  setMessage("Cellules impossible à plaquer");
+	  setMessage("Cells not possible to plate");
 	  undoRedoPostSaveFailed();
 	}
     }
@@ -78,13 +78,13 @@ bool CControlerGMap::plate(int ADimension)
       if (FMap->getMarkedCells(ORBIT_SELF, getSelectionMark(),
 			       getLastSelectedDart(), &d2,&d1) != 2)
 	{
-	  setMessage("Sélection incohérente");
+	  setMessage("Selection not correct: you need two darts");
 	  return false;
 	}
 
       if (!FMap->canPlate(d1,d2))
 	{
-	  setMessage(ADimension, "-cellules impossible à plaquer");
+	  setMessage(ADimension, "-cells impossible to plate");
 	  return false;
 	}
 
@@ -97,7 +97,7 @@ bool CControlerGMap::plate(int ADimension)
       unmarkAllCurrentSelectionLevel();
 
       setModelChanged();
-      setMessage(ADimension, "-cellules plaquées");
+      setMessage(ADimension, "-cells plated");
       return true;
     }
   
@@ -116,13 +116,13 @@ bool CControlerGMap::plateBorders(int ADimension)
       if (FMap->getMarkedCells(ORBIT_SELF, getSelectionMark(),
 			       getLastSelectedDart(), &d2,&d1) != 2)
 	{
-	  setMessage("Sélection incohérente");
+	  setMessage("Selection not correct: you need two darts");
 	  return false;
 	}
 
       if (!FMap->canPlate(d1,d2))
 	{
-	  setMessage(ADimension, "-bords impossible à plaquer");
+	  setMessage(ADimension, "-borders impossible to plate");
 	  return false;
 	}
 
@@ -135,7 +135,7 @@ bool CControlerGMap::plateBorders(int ADimension)
       unmarkAllCurrentSelectionLevel();
 
       setModelChanged();
-      setMessage(ADimension, "-bords plaqués");
+      setMessage(ADimension, "-borders plated");
       return true;
     }
 

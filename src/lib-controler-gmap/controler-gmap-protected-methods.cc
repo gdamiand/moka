@@ -252,7 +252,7 @@ bool CControlerGMap::getDartsForSew(CDart** ADart1, CDart** ADart2)
   if (last == NULL ||
       FMap->getMarkedCells(ORBIT_SELF, mark, last, ADart2, ADart1) != 2)
     {
-      setMessage("Sélection incohérente");
+      setMessage("No correct selection: you need two darts");
       return false;
     }
 

@@ -48,7 +48,7 @@ bool CControlerGMap::triangulateTopoFaces()
     undoRedoPostSaveOk();
     
     setModelChanged();
-    setMessage("Faces triangulées");
+    setMessage("Faces triangulated");
     return true;
   }
   
@@ -66,14 +66,14 @@ bool CControlerGMap::markNonUniformFaces()
     CDart *d;
     
     if (FMap->getMarkedCells(ORBIT_CC, getSelectionMark(), NULL, &d) != 1) {
-      setMessage("Sélection de maillage incohérante");
+      setMessage("Selected mesh not correct");
       return false;
     }
 
     FMap->unmarkOrbit(d, ORBIT_CC, getSelectionMark());
     api.markNonUniformFaces(d, getSelectionMark(), 50);
     
-    setMessage("Faces non uniformes marquées");
+    setMessage("Non uniform faces marked");
     setSelectionChanged();
     return true;
   }
@@ -94,7 +94,7 @@ bool CControlerGMap::optimizeSelectedEdges()
     undoRedoPostSaveOk();
     
     setModelChanged();
-    setMessage("Positions des arêtes optimisées");
+    setMessage("Edges positions optimized");
     return true;
   }
   
@@ -114,7 +114,7 @@ bool CControlerGMap::createDelaunayTriangulation()
     undoRedoPostSaveOk();
     
     setModelChanged();
-    setMessage("Triangulation de Delaunay effectuée");
+    setMessage("Delaunay triangulation done");
     return true;
   }
   
@@ -134,7 +134,7 @@ bool CControlerGMap::createOptimizedDelaunayTriangulation()
     undoRedoPostSaveOk();
     
     setModelChanged();
-    setMessage("Triangulation de Delaunay effectuée");
+    setMessage("Delaunay triangulation done");
     return true;
   }
   

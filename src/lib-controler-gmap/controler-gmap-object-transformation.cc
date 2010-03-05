@@ -310,14 +310,14 @@ void CControlerGMap::modeObjectTransformationBegin(bool APonderation)
 void CControlerGMap::modeTranslationBegin()
 {
   modeObjectTransformationBegin(FParameterTranslation->getPonderation());
-  setMessage("Mode translation");
+  setMessage("Translation mode");
   FParameterTranslation->setVector(ORIGIN);
 }
 //------------------------------------------------------------------------------
 void CControlerGMap::modeRotationBegin()
 {
   modeObjectTransformationBegin(FParameterRotation->getPonderation());
-  setMessage("Mode rotation");
+  setMessage("Rotation mode");
   CVertex bary = FMap->directInfoBarycenter(FDirectInfoVertex);
   FParameterRotation->setAxeVertex(bary);
 }
@@ -325,7 +325,7 @@ void CControlerGMap::modeRotationBegin()
 void CControlerGMap::modeScaleBegin()
 {
   modeObjectTransformationBegin(FParameterScale->getPonderation());
-  setMessage("Mode homothétie");
+  setMessage("Scaling mode");
   FParameterScale->setIsoCoef(1.0);
   FParameterScale->setCenter(FMap->directInfoBarycenter(FDirectInfoVertex));
 }

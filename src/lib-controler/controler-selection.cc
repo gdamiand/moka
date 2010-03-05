@@ -27,7 +27,7 @@
 //******************************************************************************
 void CControler::modeSelectionBegin()
 {
-  setMessage("Mode sélection");
+  setMessage("Selection mode");
 }
 //******************************************************************************
 void CControler::modeSelectionEnd()

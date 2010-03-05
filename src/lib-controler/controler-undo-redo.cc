@@ -130,7 +130,7 @@ bool CControler::emptyUndoRedo()
     emptyRedoList();
     emptyUndoList();
 
-    setMessage("Pile des undo / redo réinitialisée");
+    setMessage("Undo/redo stack is now empty");
     return true;
 }
 //******************************************************************************

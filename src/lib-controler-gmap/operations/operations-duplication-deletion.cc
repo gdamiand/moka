@@ -42,7 +42,7 @@ bool CControlerGMap::deleteSelection()
 	    
       if (nb==0)
 	{
-	  setMessage("Aucun brin supprimé");
+	  setMessage("No dart removed");
 	  undoRedoPostSaveFailed();
 	}
       else
@@ -53,7 +53,7 @@ bool CControlerGMap::deleteSelection()
 	  setModelChanged();
 	  res = true;
 	
-	  setMessage(nb, (nb==1 ? " brin supprimé" : " brins supprimés"));
+	  setMessage(nb, (nb==1 ? " dart removed" : " darts removed"));
 	}
     }
 
@@ -75,14 +75,14 @@ bool CControlerGMap::duplicateSelection()
       
       if (nb==0)
 	{
-	  setMessage("Aucun brin dupliqué");
+	  setMessage("No dart duplicated");
 	  undoRedoPostSaveFailed();
 	}
       else
 	{
 	  undoRedoPostSaveOk();
 	  setModelChanged();
-	  setMessage(nb, (nb==1 ? " brin dupliqué" : " brins dupliqués"));
+	  setMessage(nb, (nb==1 ? " dart duplicated" : " darts duplicated"));
 	  res = true;
 	}
     }

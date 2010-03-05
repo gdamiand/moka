@@ -83,11 +83,12 @@ bool CControlerGMap::canApplyOperation(const COperation& AOperation)
       return false;
     }
 
+  if (isModelBlocked()) return true;  
 
   // In simplification mode, we can only apply non modifying operations,
   // and removal operations (except the intuitive one which is not possible
   // since we must know the dimension of removed cells)
-  if (isModelBlocked() || isModeSimplification())
+  if (/*isModelBlocked() ||*/ isModeSimplification())
     {
       if ( (!isNonModifyingOperation(AOperation) &&
 	    !isRemovalOperation(AOperation)) ||

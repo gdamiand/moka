@@ -74,7 +74,7 @@ bool CControlerGMap::merge(int ADim)
 
       if (nb == 0)
       {
-         setMessage(ADim, "-fusion impossible");
+         setMessage(ADim, "-merge impossible");
          undoRedoPostSaveFailed();
       }
       else
@@ -84,8 +84,8 @@ bool CControlerGMap::merge(int ADim)
 	undoRedoPostSaveOk();
 	unsetLastSelectedDart();
 	setModelChanged();
-	setMessage(nb, ADim, (nb == 1 ? "-fusion effectuée" :
-                                     "-fusions effectuées"));
+	setMessage(nb, ADim, (nb == 1 ? "-merge done" :
+                                     "-merges done"));
          res = true;
       }
    }
@@ -105,7 +105,7 @@ bool CControlerGMap::intuitiveMerge()
 
       if (nb == 0)
       {
-         setMessage("Fusion intuitive impossible");
+         setMessage("Intuitive merge impossible");
          undoRedoPostSaveFailed();
       }
       else
@@ -113,8 +113,8 @@ bool CControlerGMap::intuitiveMerge()
          undoRedoPostSaveOk();
          unsetLastSelectedDart();
          setModelChanged();
-         setMessage(nb, (nb == 1 ? " fusion effectuée" : 
-               " fusions effectuées"));
+         setMessage(nb, (nb == 1 ? " merge done" : 
+               " merges done"));
          res = true;
       }
    }
@@ -134,7 +134,7 @@ bool CControlerGMap::mergeColinearEdges()
 
       if (nb == 0)
       {
-         setMessage("Fusion d'arêtes alignées impossible");
+         setMessage("No colinear edges exist");
          undoRedoPostSaveFailed();
       }
       else
@@ -144,9 +144,8 @@ bool CControlerGMap::mergeColinearEdges()
 	undoRedoPostSaveOk();
          unsetLastSelectedDart();
          setModelChanged();
-         setMessage(nb, (nb == 1 ?
-                         " fusion d'arêtes alignées effectuée" :
-                         " fusions d'arêtes alignées effectuées"));
+         setMessage(nb, (nb == 1 ? " edge merged" :
+                         " edges merged"));
          res = true;
       }
    }
@@ -165,7 +164,7 @@ bool CControlerGMap::mergeCoplanarFaces()
 
       if (nb == 0)
       {
-         setMessage("Fusion de faces coplanaires impossible");
+         setMessage("Coplanar face merging impossible");
          undoRedoPostSaveFailed();
       }
       else
@@ -173,12 +172,12 @@ bool CControlerGMap::mergeCoplanarFaces()
 	updateDartAfterRemovals(1);
 
 	undoRedoPostSaveOk();
-         unsetLastSelectedDart();
-         setModelChanged();
-         setMessage(nb, (nb == 1 ?
-                         " fusion de faces coplanaires effectuée" :
-                         " fusions de faces coplanaires effectuées"));
-         res = true;
+	unsetLastSelectedDart();
+	setModelChanged();
+	setMessage(nb, (nb == 1 ?
+			" edge removed between coplanar faces" :
+			" edges removed between coplanar faces"));
+	res = true;
       }
    }
 
@@ -196,7 +195,7 @@ bool CControlerGMap::delNullEdges()
 
       if (nb == 0)
       {
-         setMessage("Pas d'arête de longueur nulle");
+         setMessage("No null length edge");
          undoRedoPostSaveFailed();
       }
       else
@@ -204,8 +203,8 @@ bool CControlerGMap::delNullEdges()
          undoRedoPostSaveOk();
          setModelChanged();
          setMessage(nb, nb == 1 ?
-                    " arête de longueur nulle supprimée" :
-                    " arêtes de longueur nulle supprimées");
+                    " null length edge removed" :
+                    " null length edges removed");
          res = true;
       }
    }
@@ -224,7 +223,7 @@ bool CControlerGMap::delFlatFaces()
 
       if (nb == 0)
       {
-         setMessage("Pas de face composée uniquement de deux arêtes");
+         setMessage("No face made of only two edges");
          undoRedoPostSaveFailed();
       }
       else
@@ -232,8 +231,8 @@ bool CControlerGMap::delFlatFaces()
          undoRedoPostSaveOk();
          setModelChanged();
          setMessage(nb, nb == 1 ?
-                    " face composée uniquement de deux arêtes supprimée" :
-                    " face composée uniquement de deux arêtes supprimées");
+                    " face made of two edges removed" :
+                    " faces made of two edges removed");
          res = true;
       }
    }
@@ -252,7 +251,7 @@ bool CControlerGMap::delFlatVolumes()
 
       if (nb == 0)
       {
-         setMessage("Pas de volume composé uniquement de deux faces");
+         setMessage("No volume made of only two faces");
          undoRedoPostSaveFailed();
       }
       else
@@ -260,8 +259,8 @@ bool CControlerGMap::delFlatVolumes()
          undoRedoPostSaveOk();
          setModelChanged();
          setMessage(nb, nb == 1 ?
-                    " volume composé uniquement de deux faces supprimée" :
-                    " volume composé uniquement de deux faces supprimées");
+                    " volume made of two faces removed" :
+                    " volumes made of two faces removed");
          res = true;
       }
    }
@@ -282,7 +281,7 @@ bool CControlerGMap::removeMarkedEdgesWithoutDisconnection()
 
       if (nb == 0)
       {
-         setMessage("Aucune 1-suppression possible");
+         setMessage("No 1-removal possible");
          undoRedoPostSaveFailed();
       }
       else
@@ -292,8 +291,7 @@ bool CControlerGMap::removeMarkedEdgesWithoutDisconnection()
 	undoRedoPostSaveOk();
          unsetLastSelectedDart();
          setModelChanged();
-         setMessage(nb, (nb == 1 ? " 1-suppression effectuée" :
-                         " 1-suppressions effectuées"));
+         setMessage(nb, (nb == 1 ? " 1-removal done" : " 1-removals done"));
          res = true;
       }
    }
@@ -314,7 +312,7 @@ bool CControlerGMap::removeMarkedFacesButKeepBalls()
 
       if (nb == 0)
       {
-         setMessage("Aucune 2-suppression possible");
+         setMessage("No 2-removal possible");
          undoRedoPostSaveFailed();
       }
       else
@@ -324,8 +322,7 @@ bool CControlerGMap::removeMarkedFacesButKeepBalls()
         undoRedoPostSaveOk();
          unsetLastSelectedDart();
          setModelChanged();
-         setMessage(nb, (nb == 1 ? " 2-suppression effectuée" :
-                         " 2-suppressions effectuées"));
+         setMessage(nb, (nb == 1 ? " 2-removal done" : " 2-removals done"));
          res = true;
       }
    }
@@ -339,7 +336,7 @@ bool CControlerGMap::shiftAllEdgesIncidentToVertex()
 
    if (getLastSelectedDart() == NULL)
    {
-      setMessage("Dernier brin sélectionné introuvable");
+      setMessage("No last selected dart");
       return false;
    }
 
@@ -355,8 +352,7 @@ bool CControlerGMap::shiftAllEdgesIncidentToVertex()
       undoRedoPostSaveOk();
 
       setModelChanged();
-      setMessage(nb, (nb == 1 ? " arête décallée." :
-                      " arêtes décallées."));
+      setMessage(nb, (nb == 1 ? " edge shifted." : " edges shifted."));
       res = true;
    }
 
@@ -375,7 +371,7 @@ bool CControlerGMap::removeDanglingEdges()
 
       if (nb == 0)
       {
-         setMessage("Aucune arête pendante supprimée");
+         setMessage("No dangling edge removed");
          undoRedoPostSaveFailed();
       }
       else
@@ -385,8 +381,8 @@ bool CControlerGMap::removeDanglingEdges()
 	undoRedoPostSaveOk();
          unsetLastSelectedDart();
          setModelChanged();
-         setMessage(nb, (nb == 1 ? " arête pendante supprimée" :
-                         " arêtes pendantes supprimées"));
+         setMessage(nb, (nb == 1 ? " dangling edge removed" :
+                         " dangling edges removed"));
          res = true;
       }
    }
@@ -409,7 +405,7 @@ bool CControlerGMap::contract(int ADimension)
 
       if (nb == 0)
       {
-         setMessage(ADimension, "-contraction impossible");
+         setMessage(ADimension, "-contraction not possible");
          undoRedoPostSaveFailed();
       }
       else
@@ -417,8 +413,8 @@ bool CControlerGMap::contract(int ADimension)
          undoRedoPostSaveOk();
          unsetLastSelectedDart();
          setModelChanged();
-         setMessage(nb, ADimension, (nb == 1 ? "-contraction effectuée" :
-                                     "-contractions effectuées"));
+         setMessage(nb, ADimension, (nb == 1 ? "-contraction done" :
+                                     "-contractions done"));
          res = true;
       }
    }
@@ -440,7 +436,7 @@ bool CControlerGMap::contextContract()
          case ORBIT_EDGE   : dim = 1; break;
          case ORBIT_FACE   : dim = 2; break;
          case ORBIT_VOLUME : dim = 3; break;
-         default: setMessage("Orbite de sélection incohérente"); return false;
+         default: setMessage("Selected orbit not correct"); return false;
       }
 
       int nb = FMap->contractMarkedCells(getSelectionMark(), dim, true);
@@ -455,8 +451,8 @@ bool CControlerGMap::contextContract()
          undoRedoPostSaveOk();
          unsetLastSelectedDart();
          setModelChanged();
-         setMessage(nb, dim, (nb == 1 ? "-contraction effectuée" :
-                              "-contractions effectuées"));
+         setMessage(nb, dim, (nb == 1 ? "-contraction done" :
+                              "-contractions done"));
          res = true;
       }
    }
@@ -475,14 +471,14 @@ bool CControlerGMap::insertVertex()
 
       if (nb == 0)
       {
-         setMessage("Aucun sommet inséré");
+         setMessage("No vertex inserted");
          undoRedoPostSaveFailed();
       }
       else
       {
          undoRedoPostSaveOk();
          setModelChanged();
-         setMessage(nb, nb == 1 ? " sommet inséré" : " sommets insérés");
+         setMessage(nb, nb == 1 ? " vertex inserted" : " vertices inserted");
          res = true;
       }
    }
@@ -516,14 +512,14 @@ bool CControlerGMap::insertEdge()
 
       if (nb == 0)
       {
-         setMessage("Aucune arête insérée");
+         setMessage("No edge inserted");
          undoRedoPostSaveFailed();
       }
       else
       {
          undoRedoPostSaveOk();
          setModelChanged();
-         setMessage(nb, nb == 1 ? " arête insérée" : " arêtes insérées");
+         setMessage(nb, nb == 1 ? " edge inserted" : " edges inserted");
          res = true;
       }
    }
@@ -543,14 +539,14 @@ bool CControlerGMap::insertFace()
 
       if (nb == 0)
       {
-         setMessage("Aucune face insérée");
+         setMessage("No face inserted");
          undoRedoPostSaveFailed();
       }
       else
       {
          undoRedoPostSaveOk();
          setModelChanged();
-         setMessage(nb, nb == 1 ? " face insérée" : " faces insérées");
+         setMessage(nb, nb == 1 ? " face inserted" : " faces inserted");
          res = true;
       }
    }
@@ -570,14 +566,14 @@ bool CControlerGMap::intuitiveStopUp()
 
       if (nb == 0)
       {
-         setMessage("Aucun bord fermé");
+         setMessage("No border closed");
          undoRedoPostSaveFailed();
       }
       else
       {
          undoRedoPostSaveOk();
          setModelChanged();
-         setMessage(nb, nb == 1 ? " bord fermé" : " bords fermés");
+         setMessage(nb, nb == 1 ? " border closed" : " borders closed");
          res = true;
       }
    }
@@ -596,15 +592,15 @@ bool CControlerGMap::stopUp(int ADimension)
 
       if (nb == 0)
       {
-         setMessage("Aucun ", ADimension, "-bord bouché");
+         setMessage("No ", ADimension, "-border closed");
          undoRedoPostSaveFailed();
       }
       else
       {
          undoRedoPostSaveOk();
          setModelChanged();
-         setMessage(nb, ADimension, nb == 1 ? "-bord bouché" : 
-               "-bords bouchés");
+         setMessage(nb, ADimension, nb == 1 ? "-border closed" : 
+               "-borders closed");
          res = true;
       }
    }
