@@ -40,7 +40,7 @@ void CControlerGMap::setSelectionLevel(int ALevel)
       FParameterSelection->setSelectionLevel(ALevel);
 
       std::stringstream s;
-      s<<"Selection level number :"<<ALevel + 1;
+      s<<"Selection level number: "<<ALevel + 1;
       setSelectionChanged();
       setMessage(s.str());
    }
@@ -59,7 +59,7 @@ bool CControlerGMap::unmarkAllCurrentSelectionLevel()
       FMap->unmarkAll(getSelectionMark());
       unsetLastSelectedDart();
       setSelectionChanged();
-      setMessage("Brins démarqués");
+      setMessage("Darts unmarked");
       return true;
    }
 
@@ -80,7 +80,7 @@ bool CControlerGMap::negateAllCurrentSelectionLevel()
          unsetLastSelectedDart();
 
       setSelectionChanged();
-      setMessage("Marque inversée");
+      setMessage("Marked darts negated");
       return true;
    }
 
@@ -129,7 +129,7 @@ bool CControlerGMap::selectIncidents()
                                     SUB_OPERATION_SELECT_INCIDENTS, -1)))
    {
       FMap->markIncidentCells(getSelectionOrbit(), getSelectionMark());
-      setMessage("Cellules incidentes marquées");
+      setMessage("Incident cells marked");
       setSelectionChanged();
       return true;
    }
@@ -148,12 +148,12 @@ bool CControlerGMap::selectBorders(int ADimension)
       {
          setSelectionChanged();
          setMessage(ADimension, 
-                    "-bords incidents aux brins sélectionnés marqués");
+                    "-borders incident to selected darts marked");
          return true;
       }
       else
       {
-         setMessage("Aucun bord marqué");
+         setMessage("No border marked");
          return false;
       }
    }
@@ -169,12 +169,12 @@ bool CControlerGMap::intuitiveSelectBorders()
       if (FMap->markBorders(getSelectionMark()))
       {
          setSelectionChanged();
-         setMessage("Bords incidents aux brins sélectionnés marqués");
+         setMessage("Borders incident to selected darts marked");
          return true;
       }
       else
       {
-         setMessage("Aucun bord marqué");
+         setMessage("No border marked");
          return false;
       }
    }
@@ -190,13 +190,13 @@ bool CControlerGMap::selectNonPlanarFaces()
    {
       if (FMap->markNonPlanarPolylines(getSelectionMark()))
       {
-         setMessage("Faces non planes ajoutées à la sélection");
+         setMessage("Non-planar faces marked");
          setSelectionChanged();
          return true;
       }
       else
       {
-         setMessage("Pas de face non plane");
+         setMessage("There is no non-planar face");
          return false;
       }
    }
@@ -212,7 +212,7 @@ bool CControlerGMap::markInterior(int ADimension)
    {
       if (getLastSelectedDart() == NULL)
       {
-         setMessage("Un brin 'last' doit être sélectionné");
+         setMessage("A 'last' dart must be selected");
          return false;
       }
 
@@ -220,7 +220,7 @@ bool CControlerGMap::markInterior(int ADimension)
                          ADimension, getSelectionMark());
 
       setSelectionChanged();
-      setMessage("Intérieur sélectionné");
+      setMessage("Interior marked");
       return true;
    }
 
@@ -236,7 +236,7 @@ bool CControlerGMap::markIntersection(int AInitialDim, int AFinalDim)
             (0 <= AFinalDim   && AFinalDim   <= 2) &&
             (AInitialDim != AFinalDim)))
       {
-         setMessage("Sélection de l'intersection impossible");
+         setMessage("Selection of the intersection not possible");
          return false;
       }
 
@@ -253,7 +253,7 @@ bool CControlerGMap::markIntersection(int AInitialDim, int AFinalDim)
       undoRedoPostSaveOk();
 
       setSelectionChanged();
-      setMessage("Intersection sélectionnée");
+      setMessage("Intersection selected");
       return true;
    }
 
@@ -267,7 +267,7 @@ bool CControlerGMap::findMotifOff(const char* AFilename)
       CGMapVertex motif;
       if (!motif.importOff(AFilename))
       {
-         setMessage("Erreur de chargement du fichier Off.");
+         setMessage("Error to import the Off file");
          return false;
       }
       undoRedoPreSave();
@@ -275,10 +275,10 @@ bool CControlerGMap::findMotifOff(const char* AFilename)
       undoRedoPostSaveOk();
 
       if (index == -1)
-         setMessage("Motif non trouvé dans la carte courante.");
+         setMessage("Motif not founded in the current map");
       else
       {
-         setMessage("Motif trouvé.");
+         setMessage("Motif founded");
          for (CDynamicCoverageAll it(&motif); it.cont(); ++it)
          {
             assert(motif.getDirectInfo(*it, index) != NULL);
@@ -301,7 +301,7 @@ bool CControlerGMap::findMotifMoka(const char* AFilename)
       TSaveFormat format = CGMapVertex::getFileFormat(AFilename);
       if (motif.load(AFilename, format)==NULL)
       {
-         setMessage("Erreur de chargement du fichier.");
+         setMessage("Error to load the file");
          return false;
       }
       undoRedoPreSave();
@@ -309,10 +309,10 @@ bool CControlerGMap::findMotifMoka(const char* AFilename)
       undoRedoPostSaveOk();
 
       if (index == -1)
-         setMessage("Motif non trouvé dans la carte courante.");
+         setMessage("Motif not founded in the current map");
       else
       {
-         setMessage("Motif trouvé.");
+         setMessage("Motif founded");
          for (CDynamicCoverageAll it(&motif); it.cont(); ++it)
          {
             assert(motif.getDirectInfo(*it, index) != NULL);
@@ -335,7 +335,7 @@ bool CControlerGMap::countNumberOfMotifsMoka(const char* AFilename)
       TSaveFormat format = CGMapVertex::getFileFormat(AFilename);
       if (motif.load(AFilename, format)==NULL)
       {
-         setMessage("Erreur de chargement du fichier.");
+         setMessage("Error to load the file");
          return false;
       }
       undoRedoPreSave();
@@ -343,10 +343,10 @@ bool CControlerGMap::countNumberOfMotifsMoka(const char* AFilename)
       undoRedoPostSaveOk();
 
       if (res == 0)
-         setMessage("Motif non trouvé dans la carte courante.");
+         setMessage("Motif not founded in the current map");
       else
       {
-         setMessage("Motif trouvé ", res, " fois.");
+	setMessage("Motif founded ", res, (res>1?"times":"time"));
       }
       return true;
    }
@@ -360,7 +360,7 @@ bool CControlerGMap::countNumberOfMotifsOff(const char* AFilename)
       CGMapVertex motif;
       if (!motif.importOff(AFilename))
       {
-         setMessage("Erreur de chargement du fichier Off.");
+         setMessage("Error to import the Off file");
          return false;
       }
       undoRedoPreSave();
@@ -368,10 +368,10 @@ bool CControlerGMap::countNumberOfMotifsOff(const char* AFilename)
       undoRedoPostSaveOk();
 
       if (res == 0)
-         setMessage("Motif non trouvé dans la carte courante.");
+         setMessage("Motif not founded in the current map");
       else
       {
-         setMessage("Motif trouvé ", res, " fois.");
+         setMessage("Motif founded ", res, (res>1?"times":"time"));
       }
       return true;
    }

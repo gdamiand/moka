@@ -31,10 +31,10 @@ using namespace GMap3d;
 //******************************************************************************
 static string textOrbit[16] =
 {
-   "Brin", "0", "1", "01",
+   "Dart", "0", "1", "01",
    "2", "02", "12", "Volume",
    "3", "03", "13", "Face",
-   "23", "Arête", "Sommet", "Composante connexe"
+   "23", "Edge", "Vertex", "Connected component"
 };
 //******************************************************************************
 int CControlerGMap::getNbSelectionLevels() const
@@ -53,7 +53,7 @@ void CControlerGMap::setSelectionOrbit(TOrbit AOrbit)
 {
    FParameterSelection->setSelectionOrbit(AOrbit);
 
-   string message("Orbite sélectionnée : Orbite ");
+   string message("Selected orbit: orbit ");
    setMessage(message + textOrbit[getSelectionOrbit()]);
 }
 //------------------------------------------------------------------------------
@@ -61,7 +61,7 @@ void CControlerGMap::setNextSelectionOrbit()
 {
    FParameterSelection->setNextSelectionOrbit();
 
-   string message("Orbite sélectionnée : Orbite ");
+   string message("Selected orbit: orbit ");
    setMessage(message + textOrbit[getSelectionOrbit()]);
 }
 //------------------------------------------------------------------------------

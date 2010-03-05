@@ -43,25 +43,25 @@ bool CControlerGMap::check2dCorefinability(CDart ** d1, CDart ** d2,
 
   if (FMap->getMarkedCells(ORBIT_CC, getSelectionMark(), NULL, d1) != 1)
     {
-      setMessage("Sélection maillage 1 incohérente");
+      setMessage("Selection 1 not correct");
       return false;
     }
 
   if (!FMap->isIFreeOrbit(*d1, 3, ORBIT_CC))
     {
-      setMessage("Maillage 1 invalide: tous les brins doivent être 3-libres");
+      setMessage("Mesh 1 invalid: all the darts must be 3-free");
       return false;
     }
 
   if (FMap->getMarkedCells(ORBIT_CC, getNextSelectionMark(1), NULL, d2) != 1)
     {
-      setMessage("Sélection maillage 2 incohérente");
+      setMessage("Selection 2 not correct");
       return false;
     }
 
   if (!FMap->isIFreeOrbit(*d2, 3, ORBIT_CC))
     {
-      setMessage("Maillage 2 invalide: tous les brins doivent être 3-libres");
+      setMessage("Mesh 2 invalid: all the darts must be 3-free");
       return false;
     }
 
@@ -75,7 +75,7 @@ bool CControlerGMap::check2dCorefinability(CDart ** d1, CDart ** d2,
 
   if (fabs(angle) > 0.5)
     {
-      setMessage("Les deux maillages ne sont pas parallèles");
+      setMessage("The two meshes are not parallel");
       return false;
     }
 
@@ -84,7 +84,7 @@ bool CControlerGMap::check2dCorefinability(CDart ** d1, CDart ** d2,
 
   if (!(bary1 - CGeometry::orthoProjectVertexOnPlane(bary1, bary2,n2)).isNull())
     {
-      setMessage("Les deux maillages ne sont pas coplanaires");
+      setMessage("The two meshes are not coplanar");
       return false;
     }
 
@@ -118,7 +118,7 @@ bool CControlerGMap::corefine2dSegmentsSweeping()
       undoRedoPostSaveOk();
 
       setModelChanged();
-      setMessage("Co-raffinement 2D par balayage effectué");
+      setMessage("Co-refinement by sweeping line done");
       return true;
     }
 
@@ -142,7 +142,7 @@ bool CControlerGMap::corefine2dSegmentsPropagation()
       undoRedoPostSaveOk();
 
       setModelChanged();
-      setMessage("Co-raffinement 2D par propagation effectué");
+      setMessage("Co-refinement 2D by propagation done");
       return true;
     }
 
@@ -158,13 +158,13 @@ bool CControlerGMap::booleanOperations2d()
     CVertex normal;
     
     if (FMap->getMarkedCells(ORBIT_CC, getSelectionMark(), NULL, &d1) != 1) {
-      setMessage("Sélection maillage 1 incohérente");
+      setMessage("Selection 1 not correct");
       return false;
     }
     
     if (FMap->getMarkedCells(ORBIT_CC, getNextSelectionMark(1),
 			     NULL, &d2) != 1) {
-      setMessage("Sélection maillage 2 incohérente");
+      setMessage("Selection 2 not correct");
       return false;
     }
 
@@ -179,7 +179,7 @@ bool CControlerGMap::booleanOperations2d()
     undoRedoPostSaveOk();
     
     setModelChanged();
-    setMessage("Opérations booléennes 2D effectuées");
+    setMessage("2D boolean operations done");
     return true;
   }
   
@@ -196,14 +196,14 @@ bool CControlerGMap::corefine3dFaces()
 
       if (FMap->getMarkedCells(ORBIT_CC, getSelectionMark(), NULL, &d1) != 1)
 	{
-	  setMessage("Sélection maillage 1 incohérente");
+	  setMessage("Selection 1 not correct");
 	  return false;
 	}
 
       if (FMap->getMarkedCells(ORBIT_CC, getNextSelectionMark(1),
 			       NULL, &d2) != 1)
 	{
-	  setMessage("Sélection maillage 2 incohérente");
+	  setMessage("Selection 2 not correct");
 	  return false;
 	}
 
@@ -212,7 +212,7 @@ bool CControlerGMap::corefine3dFaces()
       undoRedoPostSaveOk();
 
       setModelChanged();
-      setMessage("Co-raffinement 3D effectué");
+      setMessage("Co-refinement 3D done");
       return true;
     }
 
@@ -230,7 +230,7 @@ bool CControlerGMap::corefineMarked3dMeshesWith()
       if (FMap->getMarkedCells(ORBIT_CC, getNextSelectionMark(1),
 			       NULL, &d) != 1)
 	{
-	  setMessage("Sélection maillage 2 incohérente");
+	  setMessage("Selection 1 not correct");
 	  return false;
 	}
 
@@ -239,7 +239,7 @@ bool CControlerGMap::corefineMarked3dMeshesWith()
       undoRedoPostSaveOk();
 
       setModelChanged();
-      setMessage("Co-raffinement 3D effectué");
+      setMessage("Co-refinement 3D done");
       return true;
     }
 
@@ -254,13 +254,13 @@ bool CControlerGMap::booleanOperations3d()
     CDart *d1, *d2;
     
     if (FMap->getMarkedCells(ORBIT_CC, getSelectionMark(), NULL, &d1) != 1) {
-      setMessage("Sélection maillage 1 incohérente");
+      setMessage("Selection 1 not correct");
       return false;
     }
     
     if (FMap->getMarkedCells(ORBIT_CC, getNextSelectionMark(1),
 			     NULL, &d2) != 1) {
-      setMessage("Sélection maillage 2 incohérente");
+      setMessage("Selection 2 not correct");
       return false;
     }
 
@@ -272,7 +272,7 @@ bool CControlerGMap::booleanOperations3d()
     undoRedoPostSaveOk();
     
     setModelChanged();
-    setMessage("Opérations booléennes 3D effectuées");
+    setMessage("3D boolean operations done");
     return true;
   }
   
@@ -289,14 +289,14 @@ bool CControlerGMap::corefine3dMeshes()
 
       if (FMap->getMarkedCells(ORBIT_CC, getSelectionMark(), NULL, &d1) != 1)
 	{
-	  setMessage("Sélection maillage 1 incohérente");
+	  setMessage("Selection 1 not correct");
 	  return false;
 	}
 
       if (FMap->getMarkedCells(ORBIT_CC, getNextSelectionMark(1),
 			       NULL, &d2) != 1)
 	{
-	  setMessage("Sélection maillage 2 incohérente");
+	  setMessage("Selection 2 not correct");
 	  return false;
 	}
 
@@ -305,7 +305,7 @@ bool CControlerGMap::corefine3dMeshes()
       undoRedoPostSaveOk();
 
       setModelChanged();
-      setMessage("Co-raffinement 3D effectué");
+      setMessage("Co-refinement 3D done");
       return true;
     }
 
@@ -325,7 +325,7 @@ bool CControlerGMap::corefineMarked3dFaces()
       undoRedoPostSaveOk();
 
       setModelChanged();
-      setMessage("Co-raffinement 3D effectué");
+      setMessage("Co-refinement 3D done");
       return true;
     }
 

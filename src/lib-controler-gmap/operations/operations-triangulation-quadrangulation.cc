@@ -35,7 +35,7 @@ bool CControlerGMap::contextTriangulate()
     case ORBIT_EDGE   : return triangulate(1); break;
     case ORBIT_FACE   : return triangulate(2); break;
     case ORBIT_VOLUME : return triangulate(3); break;
-    default: setMessage("Orbite de sélection incohérente");
+    default: setMessage("Selected orbit not correct");
     }
   return false;
 }
@@ -52,7 +52,7 @@ bool CControlerGMap::triangulate(int ADimension)
       
       if (nb==0)
 	{
-	  setMessage("Aucune ",ADimension,"-cellule triangulée");
+	  setMessage("No ",ADimension,"-cell triangulated");
 	  undoRedoPostSaveFailed();
 	}
       else
@@ -61,8 +61,8 @@ bool CControlerGMap::triangulate(int ADimension)
 
 	  setModelChanged();
 	  setMessage(nb, ADimension, nb==1 ?
-		     "-cellule triangulée" :
-		     "-cellules triangulées");
+		     "-cell triangulated" :
+		     "-cells triangulated");
 	  res = true;
 	}
     }
@@ -83,7 +83,7 @@ bool CControlerGMap::quadrangulateFaces()
       
       if (nb==0)
 	{
-	  setMessage("Aucune face quadrangulée");
+	  setMessage("No face quadrangulated");
 	  undoRedoPostSaveFailed();
 	}
       else
@@ -91,7 +91,8 @@ bool CControlerGMap::quadrangulateFaces()
 	  undoRedoPostSaveOk();
 
 	  setModelChanged();	  
-	  setMessage(nb, nb==1 ? " face quadrangulée" : " faces quadrangulées");
+	  setMessage(nb, nb==1 ? " face quadrangulated" :
+		     " faces quadrangulated");
 	  res = true;
 	}
     }
@@ -112,7 +113,7 @@ bool CControlerGMap::basicQuadrangulateFaces()
       
       if (nb==0)
 	{
-	  setMessage("Aucune face quadrangulée");
+	  setMessage("No face quadrangulated");
 	  undoRedoPostSaveFailed();
 	}
       else
@@ -120,7 +121,8 @@ bool CControlerGMap::basicQuadrangulateFaces()
 	  undoRedoPostSaveOk();
 
 	  setModelChanged();
-	  setMessage(nb, nb==1 ? " face quandrangulée" : " faces quadrangulées");
+	  setMessage(nb, nb==1 ? " face quadrangulated" :
+		     " faces quadrangulated");
 	  res = true;
 	}
     }
@@ -137,7 +139,7 @@ bool CControlerGMap::swapEdge()
     CDart *d;
     
     if (FMap->getMarkedCells(ORBIT_EDGE, getSelectionMark(), NULL, &d) != 1) {
-      setMessage("Sélection d'arête incohérente");
+      setMessage("Selected edge not correct: you need one edge");
       return false;
     }
 
@@ -146,12 +148,12 @@ bool CControlerGMap::swapEdge()
     if (FMap->swapEdge(d)) {
       undoRedoPostSaveOk();
       setModelChanged();
-      setMessage("Arête tournée");
+      setMessage("No edge swapped");
       res = true;
     }
     else {
       undoRedoPostSaveFailed();
-      setMessage("Impossible de tourner l'arête");
+      setMessage("Not possible to swap the edge");
     }
     
     assert(isMapOk());
@@ -175,7 +177,7 @@ bool CControlerGMap::triangulateGeoFaces()
       // freeDirectInfo(vertexDI);
 
       setModelChanged();
-      setMessage("Faces triangulées");
+      setMessage("Faces triangulated");
       return true;
     }
   

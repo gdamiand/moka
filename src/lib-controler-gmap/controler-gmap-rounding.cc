@@ -144,14 +144,14 @@ bool CControlerGMap::modeRoundingRoundVertices(bool ADig, bool /*ASurfacic*/)
 
   if (nb==0)
     {
-      setMessage("Aucun sommet arrondi");
+      setMessage("No vertex rounded");
       undoRedoPostSaveFailed();
       return false;
     }
 
   undoRedoPostSaveOk();
   setModelChanged();
-  setMessage(nb, nb==1 ? " sommet arrondi" : " sommets arrondis");
+  setMessage(nb, nb==1 ? " vertex rounded" : " vertices rounded");
   modeRoundingReinitAllCoefs();
   return true;
 }
@@ -180,14 +180,14 @@ bool CControlerGMap::modeRoundingRoundEdges(bool A3D, bool ADig, bool ASetback,
       
   if (nb==0)
     {
-      setMessage("Aucune arête arrondie");
+      setMessage("No edge rounded");
       undoRedoPostSaveFailed();
       return false;
     }
 
   undoRedoPostSaveOk();
   setModelChanged();
-  setMessage(nb, nb==1 ? " arête arrondie" : " arêtes arrondies");
+  setMessage(nb, nb==1 ? " edge rounded" : " edges rounded");
   modeRoundingReinitAllCoefs();
   return true;
 }

@@ -56,7 +56,7 @@ bool CControlerGMap::createPolyline()
   undoRedoPostSaveOk();
   
   setModelChanged();
-  setMessage("Polyline créé");
+  setMessage("Polyline created");
   return true;
 }
 //******************************************************************************
@@ -76,7 +76,7 @@ bool CControlerGMap::createPolygon()
   undoRedoPostSaveOk();
 
   setModelChanged();
-  setMessage("Polygone créé");
+  setMessage("Polygone created");
   return true;
 }
 //******************************************************************************
@@ -107,8 +107,8 @@ bool CControlerGMap::createMesh()
 
       switch (SD)
 	{
-	case 0: setMessage("Arête simple créée"); break;
-	case 1: setMessage("Arête 1-maillée créée"); break;
+	case 0: setMessage("Edge created"); break;
+	case 1: setMessage("Edge meshed created"); break;
 	default: return false;
 	}
 
@@ -120,9 +120,9 @@ bool CControlerGMap::createMesh()
 
       switch (SD)
 	{
-	case 0: setMessage("Carré simple créé"); break;
-	case 1: setMessage("Carré 1-maillé créé"); break;
-	case 2: setMessage("Carré 2-maillé créé"); break;
+	case 0: setMessage("Square created"); break;
+	case 1: setMessage("Square 1-meshed created"); break;
+	case 2: setMessage("Square 2-meshed created"); break;
 	default: return false;
 	}
 
@@ -133,7 +133,7 @@ bool CControlerGMap::createMesh()
 	{
 	  handle1 = FMap->createMesh3(SX, SY, SZ);
 	  handle2 = NULL;
-	  setMessage("Cube 3-maillé créé");
+	  setMessage("Cube 3-meshed created");
 	}
       else
 	{
@@ -150,9 +150,9 @@ bool CControlerGMap::createMesh()
 
 	  switch (SD)
 	    {
-	    case 0: setMessage("Cube simple créé"); break;
-	    case 1: setMessage("Cube 1-maillé créé"); break;
-	    case 2: setMessage("Cube 2-maillé créé"); break;
+	    case 0: setMessage("Cube created"); break;
+	    case 1: setMessage("Cube 1-meshed created"); break;
+	    case 2: setMessage("Cube 2-meshed created"); break;
 	    default: return false;
 	    }
 	}
@@ -191,7 +191,7 @@ bool CControlerGMap::createCylinder()
   undoRedoPostSaveOk();
 
   setModelChanged();
-  setMessage("Cylindre créé");
+  setMessage("Cylindre created");
   return true;
 }
 //******************************************************************************
@@ -213,7 +213,7 @@ bool CControlerGMap::createPyramid()
   undoRedoPostSaveOk();
 
   setModelChanged();
-  setMessage("Pyramide créée");
+  setMessage("Pyramide created");
   return true;
 }
 //******************************************************************************
@@ -234,7 +234,7 @@ bool CControlerGMap::createSphere()
   undoRedoPostSaveOk();
 
   setModelChanged();
-  setMessage("Sphère créée");
+  setMessage("Sphere created");
   return true;
 }
 //******************************************************************************
@@ -256,7 +256,7 @@ bool CControlerGMap::createTorus()
   undoRedoPostSaveOk();
 
   setModelChanged();
-  setMessage("Tore créé");
+  setMessage("Torus created");
   return true;
 }
 //******************************************************************************
@@ -286,7 +286,7 @@ void CControlerGMap::setPolygonEdgesNumber(int AValue)
 bool CControlerGMap::randomizeDarts()
 {  
   FMap->randomizeDarts();
-  setMessage("Ordre des brins mélangé");
+  setMessage("Order of darts was randomized");
   return true;
 }
 //******************************************************************************

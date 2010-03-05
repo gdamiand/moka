@@ -38,7 +38,7 @@ bool CControlerGMap::materializeBarycenter()
       undoRedoPostSaveOk();
 
       setModelChanged();
-      setMessage("Barycentre matérialisé");
+      setMessage("Barycenter materialized");
       return true;
     }
 
@@ -55,7 +55,7 @@ bool CControlerGMap::materializeAxe()
       if (FMap->getMarkedCells(ORBIT_VERTEX, getSelectionMark(),
 			       getLastSelectedDart(), &d2,&d1) != 2)
 	{
-	  setMessage("Sélection incohérente");
+	  setMessage("Selection not correct: we need two darts");
 	  return false;
 	}
 
@@ -67,7 +67,7 @@ bool CControlerGMap::materializeAxe()
       selectDart(d);
 
       setModelChanged();
-      setMessage("Axe matérialisé");
+      setMessage("Axis materialized");
       return true;
     }
   return false;
@@ -83,7 +83,7 @@ bool CControlerGMap::materializePlane()
       if (FMap->getMarkedCells(ORBIT_VERTEX, getSelectionMark(),
 			       getLastSelectedDart(), &d3,&d2,&d1) != 3)
 	{
-	  setMessage("Sélection incohérente");
+	  setMessage("Selection not correct: we need three darts");
 	  return false;
 	}
       
@@ -95,7 +95,7 @@ bool CControlerGMap::materializePlane()
       selectDart(d);
 
       setModelChanged();
-      setMessage("Plan matérialisé");
+      setMessage("Plane materialized");
       return true;
     }
   return false;
@@ -112,7 +112,7 @@ bool CControlerGMap::materializeNormalVector()
 	  FMap->getMarkedCells(ORBIT_FACE, getSelectionMark()) != 1 ||
 	  FMap->getNbPolylineVertices(last) < 3)
 	{
-	  setMessage("Sélection incohérente");
+	  setMessage("Selection not correct");
 	  return false;
 	}
       
@@ -124,7 +124,7 @@ bool CControlerGMap::materializeNormalVector()
       selectDart(d);
 
       setModelChanged();
-      setMessage("Vecteur normal matérialisé");
+      setMessage("Normal vector materialized");
       return true;
     }
   return false;
@@ -143,7 +143,7 @@ bool CControlerGMap::materializeOrthoPlane()
 	  FMap->getMarkedCells(ORBIT_VERTEX, getSelectionMark(),
 			       last, &d2, &d1) != 2)
 	{
-	  setMessage("Sélection incohérente");
+	  setMessage("Selection not correct");
 	  return false;
 	}
 
@@ -155,7 +155,7 @@ bool CControlerGMap::materializeOrthoPlane()
       selectDart(d);
 
       setModelChanged();
-      setMessage("Plan normal matérialisé");
+      setMessage("Normal plane materialized");
       return true;
     }
   return false;
@@ -171,7 +171,7 @@ bool CControlerGMap::materializeReferential()
       undoRedoPostSaveOk();
 
       setModelChanged();
-      setMessage("Référentiel matérialisé");
+      setMessage("Referential materialized");
       return false;
     }
   return false;

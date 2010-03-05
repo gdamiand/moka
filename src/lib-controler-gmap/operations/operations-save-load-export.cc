@@ -382,7 +382,7 @@ bool CControlerGMap::exportOff3D(const char* AFilename)
       }
       else
       {
-	setMessage(string("Erreur during export OFF")+AFilename);
+	setMessage(string("Error during export OFF")+AFilename);
       }
    }
 

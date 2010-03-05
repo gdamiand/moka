@@ -41,13 +41,13 @@ bool CControlerGMap::canExtendSelection()
 
   if (!ok)
     {
-      setMessage("Mode de sélection incohérent");
+      setMessage("Selection orbit not correct");
       return false;
     }
 
   if (getLastSelectedDart()==NULL)
     {
-      setMessage("Dernier brin sélectionné introuvable");
+      setMessage("No last selected dart");
       return false;
     }
 
@@ -62,7 +62,7 @@ bool CControlerGMap::goForward1()
   CDart* next = FMap->go(CGMapGeneric::Forward, getLastSelectedDart(),
 			 getSelectionOrbit(), getSelectionMark(), true);
   selectDart(next);
-  setMessage("Sélection en avant effectuée");
+  setMessage("Forward selection done");
   return true;
 }
 //******************************************************************************
@@ -74,7 +74,7 @@ bool CControlerGMap::goForward0()
   CDart* next = FMap->go(CGMapGeneric::Forward, getLastSelectedDart(),
 			 getSelectionOrbit(), getSelectionMark(), false);
   selectDart(next);
-  setMessage("Désélection en avant effectuée");
+  setMessage("Forward deselection done");
   return true;
 }
 //******************************************************************************
@@ -86,7 +86,7 @@ bool CControlerGMap::goBackward1()
   CDart* next = FMap->go(CGMapGeneric::Backward, getLastSelectedDart(),
 			 getSelectionOrbit(), getSelectionMark(), true);
   selectDart(next);
-  setMessage("Sélection en arrière effectuée");
+  setMessage("Backward selection done");
   return true;
 }
 //******************************************************************************
@@ -98,7 +98,7 @@ bool CControlerGMap::goBackward0()
   CDart* next = FMap->go(CGMapGeneric::Backward, getLastSelectedDart(),
 			 getSelectionOrbit(), getSelectionMark(), false);
   selectDart(next);
-  setMessage("Désélection en arrière effectuée");
+  setMessage("Backward deselection done");
   return true;
 }
 //******************************************************************************
@@ -110,7 +110,7 @@ bool CControlerGMap::goLeft1()
   CDart* next = FMap->go(CGMapGeneric::Left, getLastSelectedDart(),
 			 getSelectionOrbit(), getSelectionMark(), true);
   selectDart(next);
-  setMessage("Sélection à gauche effectuée");
+  setMessage("Left selection done");
   return true;
 }
 //******************************************************************************
@@ -122,7 +122,7 @@ bool CControlerGMap::goLeft0()
   CDart* next = FMap->go(CGMapGeneric::Left, getLastSelectedDart(),
 			 getSelectionOrbit(), getSelectionMark(), false);
   selectDart(next);
-  setMessage("Désélection à gauche effectuée");
+  setMessage("Left deselection done");
   return true;
 }
 //******************************************************************************
@@ -134,7 +134,7 @@ bool CControlerGMap::goRight1()
   CDart* next = FMap->go(CGMapGeneric::Right, getLastSelectedDart(),
 			 getSelectionOrbit(), getSelectionMark(), true);
   selectDart(next);
-  setMessage("Sélection à droite effectuée");
+  setMessage("Right selection done");
   return true;
 }
 //******************************************************************************
@@ -146,7 +146,7 @@ bool CControlerGMap::goRight0()
   CDart* next = FMap->go(CGMapGeneric::Right, getLastSelectedDart(),
 			 getSelectionOrbit(), getSelectionMark(), false);
   selectDart(next);
-  setMessage("Désélection à droite effectuée");
+  setMessage("Right deselection done");
   return true;
 }
 //******************************************************************************
@@ -160,7 +160,7 @@ bool CControlerGMap::goForward1Rep()
 					getSelectionOrbit(),
 					getSelectionMark(), true);
   selectDart(next);
-  setMessage("Sélection en avant effectuée");
+  setMessage("Forward selection done");
   return true;
 }
 //******************************************************************************
@@ -174,7 +174,7 @@ bool CControlerGMap::goForward0Rep()
 					getSelectionOrbit(),
 					getSelectionMark(), false);
   selectDart(next);
-  setMessage("Désélection en avant effectuée");
+  setMessage("Forward deselection done");
   return true;
 }
 //******************************************************************************
@@ -188,7 +188,7 @@ bool CControlerGMap::goBackward1Rep()
 					getSelectionOrbit(),
 					getSelectionMark(), true);
   selectDart(next);
-  setMessage("Sélection en arrière effectuée");
+  setMessage("Backward selection done");
   return true;
 }
 //******************************************************************************
@@ -202,7 +202,7 @@ bool CControlerGMap::goBackward0Rep()
 					getSelectionOrbit(),
 					getSelectionMark(), false);
   selectDart(next);
-  setMessage("Désélection en arrière effectuée");
+  setMessage("Backward deselection done");
   return true;
 }
 //******************************************************************************
@@ -216,7 +216,7 @@ bool CControlerGMap::goLeft1Rep()
 					getSelectionOrbit(),
 					getSelectionMark(), true);
   selectDart(next);
-  setMessage("Sélection à gauche effectuée");
+  setMessage("Left selection done");
   return true;
 }
 //******************************************************************************
@@ -230,7 +230,7 @@ bool CControlerGMap::goLeft0Rep()
 					getSelectionOrbit(),
 					getSelectionMark(), false);
   selectDart(next);
-  setMessage("Désélection à gauche effectuée");
+  setMessage("Left deselection done");
   return true;
 }
 //******************************************************************************
@@ -244,7 +244,7 @@ bool CControlerGMap::goRight1Rep()
 					getSelectionOrbit(),
 					getSelectionMark(), true);
   selectDart(next);
-  setMessage("Sélection à droite effectuée");
+  setMessage("Right selection done");
   return true;
 }
 //******************************************************************************
@@ -258,7 +258,7 @@ bool CControlerGMap::goRight0Rep()
 					getSelectionOrbit(),
 					getSelectionMark(), false);
   selectDart(next);
-  setMessage("Désélection à droite effectuée");
+  setMessage("Right deselection done");
   return true;
 }
 //******************************************************************************
@@ -269,24 +269,24 @@ bool CControlerGMap::goAlphai( unsigned int ADim )
   if (!canApplyOperation(COperation(OPERATION_SELECT,
 				    SUB_OPERATION_MOVE_SELECTION, -1)))
     {
-      setMessage("Mode de sélection incohérent");
+      setMessage("Selecion mode not correct");
       return false;
     }
 
   if (getLastSelectedDart()==NULL)
     {
-      setMessage("Dernier brin sélectionné introuvable");
+      setMessage("No last selected dart");
       return false;
     }
 
   if ( !FMap->isFree(getLastSelectedDart(),ADim) )
     {
       selectDart(FMap->alpha(getLastSelectedDart(),ADim));
-      setMessage("Sélection par alpha", ADim, " effectuée");
+      setMessage("Selection by alpha", ADim, " done");
     }
   else
     {
-      setMessage("Le dernier brin sélectionné est ", ADim, " libre");
+      setMessage("Last selected dart is ", ADim, "-free");
       return false;
     }
   

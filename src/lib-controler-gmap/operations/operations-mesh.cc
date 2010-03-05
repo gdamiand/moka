@@ -51,14 +51,14 @@ bool CControlerGMap::meshEdges()
       
       if (nb==0)
 	{
-	  setMessage("Aucune arête maillée");
+	  setMessage("No edge meshed");
 	  undoRedoPostSaveFailed();
 	}
       else
 	{
 	  undoRedoPostSaveOk();
 	  setModelChanged();	  
-	  setMessage(nb, nb==1 ? " arête maillée" : " arêtes maillées");
+	  setMessage(nb, nb==1 ? " edge meshed" : " edges meshed");
 	  res = true;
 	}
     }
@@ -91,7 +91,7 @@ bool CControlerGMap::meshSquares(int ADimFrom, int ADimTo)
       if (nb==0) s<<"Aucun";
       else s<<nb;
 
-      s<<(nb<2 ? "carré maillé" : "carrés maillés");
+      s<<(nb<2 ? "square meshed" : "squared meshed");
       s<<" ["<<ADimFrom<<" -> "<<ADimTo<<"]";
     
       if (nb==0)
@@ -121,7 +121,8 @@ bool CControlerGMap::meshCubes(int ADimFrom, int ADimTo)
 					
       if (! getParameterOperations()->getInterpolationMerges())
 	{
-	  setMessage("Non implémenté!!! (le maillage à créer doit être fusionné à l'objet initial)");
+	  setMessage("Not yet developed!!! (the created mesh must "
+		     "be merged with the original object)");
 	  return false;
 	}
 
@@ -138,10 +139,10 @@ bool CControlerGMap::meshCubes(int ADimFrom, int ADimTo)
 
       std::stringstream s;
       
-      if (nb==0) s<<"Aucun";
+      if (nb==0) s<<"No";
       else s<<nb;
       
-      s<<(nb<2 ? "cube maillé" : "cubes maillés");
+      s<<(nb<2 ? "cube meshed" : "cubes meshed");
       s<<" ["<<ADimFrom<<" -> "<<ADimTo<<"]";
 
       if (nb==0)
@@ -175,14 +176,14 @@ bool CControlerGMap::smoothEdges()
 
       if (nb==0)
 	{
-	  setMessage("Aucune arête lissée");
+	  setMessage("No edge smoothed");
 	  undoRedoPostSaveFailed();
 	}
       else
 	{
 	  undoRedoPostSaveOk();
 	  setModelChanged();
-	  setMessage(nb, nb==1 ? " arête lissée" : " arêtes lissées");
+	  setMessage(nb, nb==1 ? " edge smoothed" : " edges smoothed");
 	  res = true;
 	}
     }
@@ -211,14 +212,14 @@ bool CControlerGMap::smoothSquares()
 
       if (nb==0)
 	{
-	  setMessage("Aucun carré lissé");
+	  setMessage("No square smoothed");
 	  undoRedoPostSaveFailed();
 	}
       else
 	{
 	  undoRedoPostSaveOk();
 	  setModelChanged();
-	  setMessage(nb, nb==1 ? " carré lissé" : " carrés lissés");
+	  setMessage(nb, nb==1 ? " square smoothed" : " squares smoothed");
 	  res = true;
 	}
     }
@@ -233,7 +234,8 @@ bool CControlerGMap::smoothCubes()
     {
       if (!getParameterOperations()->getSmoothMerges())
 	{
-	  setMessage("Non implémenté!!! (le maillage à créer doit être fusionné à l'objet initial)");
+	  setMessage("Not yet developed!!! (the created mesh must "
+		     "be merged with the original object)");
 	  return false;
 	}
       
@@ -251,14 +253,14 @@ bool CControlerGMap::smoothCubes()
       
       if (nb==0)
 	{
-	  setMessage("Aucun cube lissé");
+	  setMessage("No cube smoothed");
 	  undoRedoPostSaveFailed();
 	}
       else
 	{
 	  undoRedoPostSaveOk();
 	  setModelChanged();
-	  setMessage(nb, nb==1 ? " cube lissé" : " cubes lissés");
+	  setMessage(nb, nb==1 ? " cube smoothed" : " cubes smoothed");
 	  res = true;
 	}
     }

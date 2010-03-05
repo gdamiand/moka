@@ -46,7 +46,7 @@ bool CControlerGMap::intuitiveTopoSew()
 	      unmarkAllCurrentSelectionLevel();
 
 	      setModelChanged();
-	      setMessage("Couture intuitive effectuée");
+	      setMessage("Intuitive sew done");
 	      return true;
 	    }
 	}
@@ -74,7 +74,7 @@ bool CControlerGMap::topoSew(int ADimension)
 	      unmarkAllCurrentSelectionLevel();
 
 	      setModelChanged();
-	      setMessage("Couture effectuée");
+	      setMessage("Sew done");
 	      return true;
 	    }
 	}
@@ -104,7 +104,7 @@ bool CControlerGMap::intuitiveGeoSew()
 	      unmarkAllCurrentSelectionLevel();
 
 	      setModelChanged();
-	      setMessage("Couture intuitive avec placage effectuée");
+	      setMessage("Intuitive sew with plating done");
 	      return true;
 	    }
 	}
@@ -135,7 +135,7 @@ bool CControlerGMap::geoSew(int ADimension)
 	      unmarkAllCurrentSelectionLevel();
 
 	      setModelChanged();
-	      setMessage("Couture avec placage effectuée");
+	      setMessage("Sew with plating done");
 	      return true;
 	    }
 	}
@@ -157,7 +157,7 @@ bool CControlerGMap::intuitiveUnsew()
       
       if (nb==0)
 	{
-	  setMessage("Aucune décousure effectuée");
+	  setMessage("No unsew done");
 	  undoRedoPostSaveFailed();
 	}
       else
@@ -166,9 +166,8 @@ bool CControlerGMap::intuitiveUnsew()
 
 	  setModelChanged();
 	  res = true;
-	  setMessage(nb, (nb==1 ?
-			  " décousure intuitive effectuée" :
-			  " décousures intuitive effectuées"));
+	  setMessage(nb, (nb==1 ? " intuitive unsew done" :
+			  " intuitive unsews done"));
 	}
     }
 
@@ -190,7 +189,7 @@ bool CControlerGMap::unsew(int ADimension)
 
       if (nb==0)
 	{
-	  setMessage("Aucune décousure effectuée");
+	  setMessage("No unsew done");
 	  undoRedoPostSaveFailed();
 	}
       else
@@ -199,9 +198,8 @@ bool CControlerGMap::unsew(int ADimension)
 
 	  setModelChanged();
 	  res = true;
-	  setMessage(nb, (nb==1 ?
-			  " décousure effectuée" :
-			  " décousures effectuées"));
+	  setMessage(nb, (nb==1 ? " unsew done" :
+			  " unsews done"));
 	}
     }
 
@@ -218,7 +216,7 @@ bool CControlerGMap::invertLastOperation()
   if (FLastOperation.getType()!=OPERATION_SEW &&
       FLastOperation.getType()!=OPERATION_PLATE)
     {
-      setMessage("Dernière opération effectuée non inversible");
+      setMessage("Last operation not reversible");
       return false;
     }
 
@@ -229,7 +227,7 @@ bool CControlerGMap::invertLastOperation()
   if (FMap->getMarkedCells(ORBIT_SELF, getSelectionMark(),
 			   getLastSelectedDart(), &d2,&d1) != 2)
     {
-      setMessage("Sélection incohérente [???]");
+      setMessage("Selection not correct [???]");
       basicRedo();
       return false;
     }
@@ -239,11 +237,11 @@ bool CControlerGMap::invertLastOperation()
 
   if (!applyOperation(toReevaluate))
     {
-      setMessage("Inversion de la dernière opération impossible");
+      setMessage("Not possible to revert the last operation");
       return false;
     }
 
-  setMessage("Inversion de la dernière opération effectuée");
+  setMessage("Last operation reversed");
   return true;
 }
 //******************************************************************************
@@ -256,7 +254,7 @@ bool CControlerGMap::invertLastOperationGeometry()
   if (FLastOperation.getType()!=OPERATION_SEW &&
       FLastOperation.getType()!=OPERATION_PLATE)
     {
-      setMessage("Dernière opération effectuée non inversible");
+      setMessage("Last operation not reversible");
       return false;
     }
 
@@ -267,7 +265,7 @@ bool CControlerGMap::invertLastOperationGeometry()
   if (FMap->getMarkedCells(ORBIT_SELF, getSelectionMark(),
 			   getLastSelectedDart(), &d2,&d1) != 2)
     {
-      setMessage("Sélection incohérente [???]");
+      setMessage("Selection not correct [???]");
       basicRedo();
       return false;
     }
@@ -276,11 +274,11 @@ bool CControlerGMap::invertLastOperationGeometry()
 
   if (!applyOperation(toReevaluate))
     {
-      setMessage("Inversion de la dernière opération impossible");
+      setMessage("Not possible to revert the last operation");
       return false;
     }
 
-  setMessage("Inversion de la dernière opération effectuée");
+  setMessage("Last operation reversed");
   return true;
 }
 //******************************************************************************
@@ -296,14 +294,14 @@ bool CControlerGMap::topoSewBorders(int ADimension)
       if (FMap->getMarkedCells(ORBIT_SELF, getSelectionMark(),
 			       getLastSelectedDart(), &d2,&d1) != 2)
 	{
-	  setMessage("Sélection incohérente");
+	  setMessage("Selection not correct: you need two darts");
 	  return false;
 	}
       
       if (FMap->getBorderDimension(d1)!=ADimension ||
 	  !FMap->canSewBorders(d1,d2, ADimension))
 	{
-	  setMessage("Bords impossible à coudre");
+	  setMessage("Borders not possible to sew");
 	  return false;
 	}
       
@@ -313,7 +311,7 @@ bool CControlerGMap::topoSewBorders(int ADimension)
       unmarkAllCurrentSelectionLevel();
 
       setModelChanged();
-      setMessage("Bords cousus");
+      setMessage("Borders sewn");
       return true;
     }
 
@@ -332,14 +330,14 @@ bool CControlerGMap::geoSewBorders(int ADimension)
       if (FMap->getMarkedCells(ORBIT_SELF, getSelectionMark(),
 			       getLastSelectedDart(), &d2,&d1) != 2)
 	{
-	  setMessage("Sélection incohérente");
+	  setMessage("Selection not correct");
 	  return false;
 	}
       
       if (FMap->getBorderDimension(d1)!=ADimension ||
 	  !FMap->canSewBorders(d1,d2, ADimension))
 	{
-	  setMessage("Bords impossible à coudre");
+	  setMessage("Borders impossible to sew");
 	  return false;
 	}
 
@@ -352,7 +350,7 @@ bool CControlerGMap::geoSewBorders(int ADimension)
       unmarkAllCurrentSelectionLevel();
 
       setModelChanged();
-      setMessage("Bords cousus");
+      setMessage("Borders sewn");
       return true;
     }
 
