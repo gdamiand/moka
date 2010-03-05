@@ -77,8 +77,19 @@ int removeMarkedEdgesWithoutDisconnectionForSurface(int AMarkNumber);
 
 /**
  * Supprime lorsque cela est possible les arêtes dont un brin au moins
+ * est marqué, tout en évitant les déconnexions, sans se préoccuper des faces
+ * fictives éventuelles.
+ *
+ * @param AMarkNumber Un numéro de marque
+ * @return Le nombre de suppressions effectuées
+ */
+int removeMarkedEdgesWithoutDisconnection(int AMarkNumber);
+
+/**
+ * Supprime lorsque cela est possible les arêtes dont un brin au moins
  * est marqué, tout en évitant les déconnexions.
- * Marche pour une surface avec des faces fictives 
+ * Marche pour une surface avec des faces fictives, en décalant les faces
+ * fictives pour obtenir l'objet minimal. TODO vérifier ?
  * ATTENTION : Pour le moment, version en O(n²) avec n nombre d'arêtes...
  * TODO : Améliorer la complexité (par exemple avec des arbre union-find, mais
  *        aussi en décallant les arêtes fictives ?)
@@ -86,7 +97,7 @@ int removeMarkedEdgesWithoutDisconnectionForSurface(int AMarkNumber);
  * @param AMarkNumber Un numéro de marque
  * @return Le nombre de suppressions effectuées
  */
-int removeMarkedEdgesWithoutDisconnection(int AMarkNumber);
+int removeMarkedEdgesWithoutDisconnectionWithFaceShifting(int AMarkNumber);
 
 /**
  * Supprime lorsque cela est possible les faces dont un brin au moins est

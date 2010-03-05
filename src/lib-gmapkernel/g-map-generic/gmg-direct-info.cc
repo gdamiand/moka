@@ -138,3 +138,50 @@ void CGMapGeneric::saveAlphaInDirectInfo(int AAlphaIndex, int ADirectInfoIndex)
     setDirectInfo(*it, ADirectInfoIndex, alpha(*it, AAlphaIndex));
 }
 //******************************************************************************
+void CGMapGeneric::initUnionFindTrees(int AIndex, TOrbit AOrbit)
+{
+  int treated = getNewMark();
+  for (CDynamicCoverageAll it(this); it.cont(); ++it)
+    {
+      if ( !isMarked(*it,treated) )
+	{
+	  CCoverage* it2 = getDynamicCoverage(*it,AOrbit);
+	  for ( ; it2->cont(); ++(*it2) )
+	    {
+	      setDirectInfo(**it2, AIndex, *it);
+	      setMark(**it2,treated);
+	    }
+	  delete it2;
+	}
+    }
+  negateMaskMark(treated);
+  freeMark(treated);
+}
+//******************************************************************************
+CDart* CGMapGeneric::findUnionFindTrees(CDart* ADart,int AIndex)
+{
+  CDart *res = ADart, *cur = ADart;
+  
+  while (getDirectInfo(res, AIndex)!=res)
+    res = static_cast<CDart*>(getDirectInfo(res,AIndex));
+  
+  while (getDirectInfo(cur, AIndex)!=res)
+    {
+      ADart=static_cast<CDart*>(getDirectInfo(cur,AIndex));
+      setDirectInfo(cur, AIndex, res);
+      cur=ADart;
+    }
+
+  return res;
+}
+//******************************************************************************
+void CGMapGeneric::mergeUnionFindTrees(CDart* ADart1,CDart* ADart2,int AIndex)
+{
+  CDart *root1 = findUnionFindTrees(ADart1,AIndex);
+  CDart *root2 = findUnionFindTrees(ADart2,AIndex);
+  
+  if ( root1==root2 ) return;
+
+  setDirectInfo(root1, AIndex, root2);  
+}
+//******************************************************************************
