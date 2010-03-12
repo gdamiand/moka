@@ -35,7 +35,7 @@
 dialogHomothetie :: dialogHomothetie ( Window * parent ,
 				       GMap3d :: CControlerGMap * controler ) 
   :
-  dialogOperations ( parent , HTML::decode("Homoth&eacute;tie" ) ,
+  dialogOperations ( parent , HTML::decode("Homothety" ) ,
 		     controler , Qt::BottomToolBarArea ) 
 {
   
@@ -45,12 +45,12 @@ dialogHomothetie :: dialogHomothetie ( Window * parent ,
   bgauche -> setSpacing(0);
   bgauche -> setContentsMargins(0,0,0,0); 
   
-  FAffParam = new QLabel ( *HTML::decode("  Homoth&eacute;tie par rapport  ")) ;
-  QLabel* FRapport = new QLabel (*HTML::decode("&agrave; : ")) ;
+  FAffParam = new QLabel ( *HTML::decode("  Homothety with respect  ")) ;
+  QLabel* FRapport = new QLabel (*HTML::decode("to: ")) ;
   FSaisieParam = new QComboBox ;
-  FSaisieParam -> addItem ( "Sommet" ) ;
-  FSaisieParam -> addItem ( "Droite" ) ;
-  FSaisieParam -> addItem ( "Plan" ) ;  
+  FSaisieParam -> addItem ( "Vertex" ) ;
+  FSaisieParam -> addItem ( "Line" ) ;
+  FSaisieParam -> addItem ( "Plane" ) ;  
   
   bgauche -> addWidget ( FAffParam, 0, 0, 1, 4 );
   bgauche -> addWidget ( FRapport, 1, 0, Qt::AlignRight | Qt::AlignTop);
@@ -63,9 +63,9 @@ dialogHomothetie :: dialogHomothetie ( Window * parent ,
   bhaut -> setSpacing(0);
   bhaut -> setContentsMargins(0,0,0,0); 
   
-  FAffSommet = new QLabel ( "  Sommet : " ) ;
+  FAffSommet = new QLabel ( "  Vertex : " ) ;
   FSaisiePonderation = new QCheckBox 
-        ( *HTML::decode("Homoth&eacute;tie pond&eacute;r&eacute;e") , haut ) ;
+        ( *HTML::decode("Weighted Homothety") , haut ) ;
   
   FSaisie = new champsOperations ( this , bhaut ) ;
   bhaut -> addSpacing ( SPACE_PIX_SIZE ) ;
@@ -80,14 +80,14 @@ dialogHomothetie :: dialogHomothetie ( Window * parent ,
   bbas -> setContentsMargins(0,0,0,0); 
 
   FAffVecteur = new QLabel ;
-  FAffCoef = new QLabel ( "Coefficient : " );
+  FAffCoef = new QLabel ( "Weight : " );
 
   FSaisieCoef = new FloatSpinBox (0.2);
   FSaisieCoef -> setWrapping ( true ) ;
 
   FSaisieIso = new QCheckBox ( "iso" ) ;
   QIcon p2 ( ":/boutonAnnuler.png" ) ;
-  FClose = new QPushButton ( p2 , "Fermer" ) ;
+  FClose = new QPushButton ( p2 , "Close" ) ;
   FClose -> setShortcut ( Qt :: Key_Space ) ;
   
   bbas -> addWidget ( FAffVecteur ) ;
@@ -107,7 +107,7 @@ dialogHomothetie :: dialogHomothetie ( Window * parent ,
   bbas2 -> setSpacing(0);
   bbas2 -> setContentsMargins(0,0,0,0); 
   
-  FAffCoeffs = new QLabel ( "Coefficients : " );
+  FAffCoeffs = new QLabel ( "Weights: " );
   
   FAffX = new QLabel ( "  X : " ) ;
   FSaisieX = new FloatSpinBox (0.2) ;
@@ -224,9 +224,9 @@ void dialogHomothetie :: update ( )
     FAffVecteur -> setText ( "  " ) ; 
     // setIso ( true ); break ;
   case 1 : // droite
-    FAffVecteur -> setText ( "  Vecteur directeur : " ) ; break ;
+    FAffVecteur -> setText ( "  Directing Vector: " ) ; break ;
   case 2 : // plan
-    FAffVecteur -> setText ( "  Vecteur normal : " ) ; break ;
+    FAffVecteur -> setText ( "  Normal Vector: " ) ; break ;
   default : { }
   }
 

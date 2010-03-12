@@ -40,7 +40,7 @@ OptionsDivers :: OptionsDivers ( Window * parent , QTabWidget *  parentTab )
   QVBoxLayout * glo_hbl = new QVBoxLayout(this) ;
   
   QGroupBox * gb_dep = 
-        new QGroupBox(*HTML::decode("D&eacute;placement de la cam&eacute;ra"));
+        new QGroupBox(*HTML::decode("Camera moves"));
   QVBoxLayout * dep_vbl = new QVBoxLayout(gb_dep);
   
   
@@ -50,7 +50,7 @@ OptionsDivers :: OptionsDivers ( Window * parent , QTabWidget *  parentTab )
   saisie_angle = new FloatSpinBox (5,0,360,2,4) ;
   saisie_angle -> setWrapping ( true ) ;
 
-  rot_hbl -> addWidget (new QLabel ("Angle de rotation : "), 0, Qt::AlignLeft);
+  rot_hbl -> addWidget (new QLabel ("Rotation angle: "), 0, Qt::AlignLeft);
   rot_hbl -> addWidget (saisie_angle, 1, Qt::AlignLeft);
   
   
@@ -59,7 +59,7 @@ OptionsDivers :: OptionsDivers ( Window * parent , QTabWidget *  parentTab )
   
   saisie_pas = new FloatSpinBox (1,0,200,2,4) ;
   
-  pas_hbl -> addWidget (new QLabel ("Pas d'avancement : "), 0, Qt::AlignLeft);
+  pas_hbl -> addWidget (new QLabel ("Step: "), 0, Qt::AlignLeft);
   pas_hbl -> addWidget (saisie_pas, 1, Qt::AlignLeft);
   
   

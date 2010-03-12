@@ -39,13 +39,13 @@ CreationPolygone :: CreationPolygone ( Window * parent ,
 				       GMap3d :: CControlerGMap * controler )
   :
   CreationObjet ( parent , 
-                  HTML::decode("Cr&eacute;ation Polygone R&eacute;gulier" ),
+                  HTML::decode("Create Regular Polygon" ),
                   controler ),
   FModifie ( true )
 {
   
   // Creation des widgets
-  FAffNom = new QLabel ( *HTML::decode("  Nombre d'ar&ecirc;tes : ") , this ) ;
+  FAffNom = new QLabel ( *HTML::decode(" Edge number: ") , this ) ;
   
   FSaisieNom = new QSpinBox ( this ) ;
   FSaisieNom -> setMinimum ( 3 );
@@ -54,7 +54,7 @@ CreationPolygone :: CreationPolygone ( Window * parent ,
   FSaisieNom -> setAccelerated(true);
   
   FAffLon = 
-        new QLabel ( *HTML::decode("Longueur des ar&ecirc;tes : ") , this ) ;
+        new QLabel ( *HTML::decode("Edge length: ") , this ) ;
   FSaisieLon = new FloatSpinBox ( 0.2 , 0 , 1000 , 3 , 0.5 ) ;
   
   addWidget(FAffNom);

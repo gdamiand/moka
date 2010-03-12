@@ -39,7 +39,7 @@ OperationChanfreinage :: OperationChanfreinage ( Window * parent )
   FUpdate ( false )
 {
   // Modifie le titre de la boite de dialogue
-  setWindowTitle ( "Chanfreinage" ) ;
+  setWindowTitle ( "chamfering" ) ;
 
   // Definition des raccourcis claviers
 
@@ -55,7 +55,7 @@ OperationChanfreinage :: OperationChanfreinage ( Window * parent )
   QWidget * WidgetHaut = new QWidget ( this ) ;
   QBoxLayout * haut = new QBoxLayout ( QBoxLayout::LeftToRight, WidgetHaut );
   
-  FAffSommet = new QLabel ( "Coefficient des sommets" , WidgetHaut ) ;
+  FAffSommet = new QLabel ( "Weights of vertices" , WidgetHaut ) ;
  
   FSaisie[0] = new FloatSpinBox ( 0.1 ) ;
   
@@ -73,7 +73,7 @@ OperationChanfreinage :: OperationChanfreinage ( Window * parent )
   QWidget * WidgetBas = new QWidget ( this ) ;
   QBoxLayout * bas = new QBoxLayout ( QBoxLayout::LeftToRight, WidgetBas ) ;
 
-  FAffArete = new QLabel ( *HTML::decode("Coefficient des ar&ecirc;tes") ,
+  FAffArete = new QLabel ( *HTML::decode("Weights of edges") ,
                             WidgetBas ) ;
   FSaisie[1] = new FloatSpinBox ( 0.1 ) ;
   FGetArete = new QPushButton ( "Get" , WidgetBas ) ;
@@ -86,7 +86,7 @@ OperationChanfreinage :: OperationChanfreinage ( Window * parent )
   bas -> addWidget ( FSetArete ) ;
   bas -> addWidget ( FNextArete ) ;
 
-  FClose = new QPushButton ( "fermer" , this ) ;
+  FClose = new QPushButton ( "Close" , this ) ;
   QObject :: connect ( FClose ,
 		       SIGNAL ( clicked ( ) ) ,
 		       this ,

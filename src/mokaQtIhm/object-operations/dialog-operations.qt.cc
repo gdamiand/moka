@@ -54,7 +54,7 @@ champsOperations :: champsOperations(QToolBar * parent ,
    FSaisieZ -> setWrapping(true) ;
 
    if ( WithRecuperer )
-     FRecuperer = new QPushButton(*HTML::decode("R&eacute;cuperer")) ;
+     FRecuperer = new QPushButton(*HTML::decode("Recover")) ;
    else
      FRecuperer = NULL;
    

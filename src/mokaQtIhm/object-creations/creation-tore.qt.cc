@@ -35,7 +35,7 @@
 
 CreationTore ::  CreationTore ( Window * parent ,
 				GMap3d :: CControlerGMap * controler ) :
-  CreationObjet ( parent , HTML::decode("Cr&eacute;ation tore") , 
+  CreationObjet ( parent , HTML::decode("Create torus") , 
                   controler )
 {
   QWidget * widget = new QWidget ;  
@@ -44,20 +44,20 @@ CreationTore ::  CreationTore ( Window * parent ,
   wid_hbl -> setSpacing(0);
   wid_hbl -> setContentsMargins (0,0,0,0);
   
-  FAffSub = new QLabel ( "  Subdivisions : " ) ;
-  FAffPar = new QLabel ( *HTML::decode("Parall&egrave;les : ") ) ;  
+  FAffSub = new QLabel ( "  Subdivisions: " ) ;
+  FAffPar = new QLabel ( *HTML::decode("Parallels: ") ) ;  
   FSaisiePar = new QSpinBox ;  
   FSaisiePar -> setMinimum ( 3 );
   FSaisiePar -> setMaximum ( 100000 );
   FSaisiePar -> setAccelerated(true);
   
-  FAffMer = new QLabel ( *HTML::decode("M&eacute;ridiens : ") ) ;
+  FAffMer = new QLabel ( *HTML::decode("Meridians: ") ) ;
   FSaisieMer = new QSpinBox ;
   FSaisieMer -> setMinimum ( 3 );
   FSaisieMer -> setMaximum ( 100000 );
   FSaisieMer -> setAccelerated(true);
 
-  FAffRayon = new QLabel ( "Petit Rayon / Grand Rayon : " ) ;
+  FAffRayon = new QLabel ( "Small radius/Large radius : " ) ;
   
   FSaisieRayon = new QSlider ( Qt::Horizontal ) ;
   FSaisieRayon -> setTickPosition ( QSlider::TicksBothSides ) ;

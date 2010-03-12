@@ -63,7 +63,7 @@ static QString elementLabs [ 27 ] =
 //************************************************************
 OptionCouleurs :: OptionCouleurs(Window * parent)
       :
-      QToolBar("Couleurs", parent),
+      QToolBar("Colors", parent),
       FParent(parent),
       FUpdate(false)
 {
@@ -91,7 +91,7 @@ OptionCouleurs :: OptionCouleurs(Window * parent)
 
    FTransparence = new FloatSpinBox(0.1 , 0.0 , 1.0) ;
 
-   FFin = new QPushButton(QIcon(":/boutonAnnuler.png"), "Fermer" , this) ;
+   FFin = new QPushButton(QIcon(":/boutonAnnuler.png"), "Close" , this) ;
 
    // Mise en place des ecoutes
    QObject :: connect(FCouleur , SIGNAL(clicked()) , this ,

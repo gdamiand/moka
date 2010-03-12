@@ -35,8 +35,8 @@
 
 static QString elementLabs [ 2 ] =
 {
-  "Par barycentre",
-  *HTML::decode("Par d&eacute;calage"),
+  "By barycenter",
+  *HTML::decode("By offset"),
 };
 
 // Constructeur
@@ -54,7 +54,7 @@ OptionsVue :: OptionsVue ( Window * parent , OptionsFrame *  parentTab )
   QGridLayout * haut = new QGridLayout ( WidgetHaut ) ;
   
   //-------------------------
-  FTypeEclatement=new QGroupBox ( *HTML::decode("Vue &eacute;clat&eacute;e" ) );
+  FTypeEclatement=new QGroupBox ( *HTML::decode("Splitted view" ) );
   QVBoxLayout* tet_vbl = new QVBoxLayout(FTypeEclatement);  
   
   for (int i=0;i<2;i++)
@@ -69,15 +69,15 @@ OptionsVue :: OptionsVue ( Window * parent , OptionsFrame *  parentTab )
   haut -> addWidget ( FTypeEclatement, 0, 0 ) ;
   
   //-------- Interactivite -----------------
-  FInteractivite = new QGroupBox ( "Modifications interactives" ) ;
+  FInteractivite = new QGroupBox ( "Interactives modifications" ) ;
   FInteractivite -> setCheckable (true);
   FInteractivite -> setChecked (true) ;
   
   QVBoxLayout* int_vbl = new QVBoxLayout(FInteractivite);  
-  FIAppliquer = new QPushButton ( "Appliquer Modifications" ) ;
+  FIAppliquer = new QPushButton ( "Apply Modifications" ) ;
   FIAppliquer -> setEnabled ( false ) ;
   FIRecuperer = new QPushButton ( *HTML::decode(
-                                   "R&eacute;cup&eacute;rer Valeurs") ) ;
+                                   "Recover Values") ) ;
   FIRecuperer -> setEnabled ( false ) ;
 
   int_vbl -> addWidget(FIAppliquer);
@@ -95,18 +95,18 @@ OptionsVue :: OptionsVue ( Window * parent , OptionsFrame *  parentTab )
   haut -> addWidget ( FInteractivite, 1, 0 ) ;
 
   //-------------------------
-  FPrereglages = new QGroupBox ( *HTML::decode("Pr&eacute;r&eacute;glages") ) ;
+  FPrereglages = new QGroupBox ( *HTML::decode("Presets") ) ;
   QGridLayout * prereglage = new QGridLayout ( FPrereglages ) ;
 
-  FPCompacte = new QPushButton ( "Vue Compacte (Shift-F8)") ;
+  FPCompacte = new QPushButton ( "Compacted view (Shift-F8)") ;
   FPSemiEclatee = 
-        new QPushButton ( *HTML::decode("Vue Semi-Eclat&eacute;e (Shift-F9)")) ;
+        new QPushButton ( *HTML::decode("Semi-splitted view (Shift-F9)")) ;
   FPMoka=new QPushButton(*HTML::decode(
-                          "Vue Eclat&eacute;e, style \"moKa\" (Shift-F10)")) ;  
-  FPTopofil=new QPushButton(*HTML::decode("Vue Eclat&eacute;e, style "
+                          "Splitted view, style \"moKa\" (Shift-F10)")) ;  
+  FPTopofil=new QPushButton(*HTML::decode("Splitted View, style "
         "\"Topofil\" (Shift-F11)")) ;
-  FPSommets = new QPushButton ( "Sommets" ) ;
-  FPAretes = new QPushButton ( *HTML::decode("Ar&ecirc;tes") ) ;
+  FPSommets = new QPushButton ( "Vertices" ) ;
+  FPAretes = new QPushButton ( *HTML::decode("Edges") ) ;
   FPFaces = new QPushButton ( "Faces"  ) ;
   FPVolumes = new QPushButton ( "Volumes" ) ;
   
@@ -122,20 +122,20 @@ OptionsVue :: OptionsVue ( Window * parent , OptionsFrame *  parentTab )
   haut -> addWidget ( FPrereglages, 0, 1, 2, 1 ) ;
 
   //-------------------------
-  FParametres = new QGroupBox ( *HTML::decode("Param&egrave;tres") ) ;
+  FParametres = new QGroupBox ( *HTML::decode("Parameters") ) ;
   QGridLayout * parametre = new QGridLayout ( FParametres ) ;
 
-  FAffEclatement = new QLabel ( "Eclatement" ) ;
+  FAffEclatement = new QLabel ( "Splitting" ) ;
   FAffPosition = new QLabel ( "Position" ) ;
-  FAffEpaisseur = new QLabel ( "Epaisseur" ) ;
+  FAffEpaisseur = new QLabel ( "Thickening" ) ;
 
   parametre -> addWidget ( FAffEclatement , 1 , 1 ) ;
   parametre -> addWidget ( FAffPosition , 1 , 4 ) ;
   parametre -> addWidget ( FAffEpaisseur , 1 , 6 ) ;
 
   const char * alpha [] = { "Alpha0 :", "Alpha1 :", "Alpha2 :", "Alpha3 :" };
-  const char * couture [] = { "0-Coutures" , "1-Coutures" , "2-Coutures" ,
-     "3-Coutures" } ;
+  const char * couture [] = { "0-Sews" , "1-Sews" , "2-Sews" ,
+     "3-Sews" } ;
       
   for (int i = 0 ; i < 4 ; i++ ) 
   {

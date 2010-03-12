@@ -39,43 +39,43 @@ OptionsExtrusion :: OptionsExtrusion ( Window * parent ,
 {
   QBoxLayout * placement = new QBoxLayout ( QBoxLayout :: TopToBottom, this ) ;
 
-  FCoudre = new QCheckBox ( *HTML::decode("Coudre entre elles les cellules"
-        " extrud&eacute;es adjacentes") , this ) ;
+  FCoudre = new QCheckBox ( *HTML::decode("Sew cells"
+        " adjacent extruded") , this ) ;
 
   // ---------------------------
   FAffVecteur = 
-        new QGroupBox ( "Extrusion selon vecteur normal / Epaississement" ) ;
+        new QGroupBox ( "Extrusion following normal vector / thickening" ) ;
   QHBoxLayout * avt_hbl = new QHBoxLayout ( FAffVecteur ) ;
   
   
-  FAffCoef = new QLabel ( "Coefficient :" ) ;
+  FAffCoef = new QLabel ( "Coefficient:" ) ;
   FSaisieCoef = new FloatSpinBox ( 0.1 ) ;
   
   avt_hbl -> addWidget (FAffCoef, 0, Qt::AlignLeft);
   avt_hbl -> addWidget (FSaisieCoef, 1, Qt::AlignLeft);
   
   // ---------------------------
-  FAffRevolutionChemin = new QGroupBox(*HTML::decode("Extrusion selon "
-        "chemin / Extrusion par r&eacute;volution"));
+  FAffRevolutionChemin = new QGroupBox(*HTML::decode("Extrusion following "
+        "path / Extrusion by revolution"));
   QVBoxLayout* arc_vbl = new QVBoxLayout(FAffRevolutionChemin);
 
   QWidget * WidgetOrientation = new QWidget ( FAffRevolutionChemin ) ;
   QHBoxLayout * Orientation = new QHBoxLayout ( WidgetOrientation ) ;
 
-  FAffOrientation = new QLabel ( "Orientation initiale :" ) ;
+  FAffOrientation = new QLabel ( "Initial Orientation :" ) ;
   FChoixOrientation = new QComboBox ;
-  FChoixOrientation -> addItem ( "Pas de rotation" ) ;
-  FChoixOrientation -> addItem ( "Cellules -> Chemin" ) ;
-  FChoixOrientation -> addItem ( "Chemin -> Cellules" ) ;
+  FChoixOrientation -> addItem ( "No rotation" ) ;
+  FChoixOrientation -> addItem ( "Cells -> Path" ) ;
+  FChoixOrientation -> addItem ( "Path -> Cells" ) ;
 
   Orientation -> addWidget ( FAffOrientation, 0, Qt::AlignLeft ) ;
   Orientation -> addWidget ( FChoixOrientation, 1, Qt::AlignLeft ) ;  
 
   FOrienter =
-     new QCheckBox(*HTML::decode("Orienter les cellules extrud&eacute;es"));
-  FRedimensionner = new QCheckBox(*HTML::decode("Redimensionner les "
-        "cellules extrud&eacute;es")) ;
-  FPonderer = new QCheckBox(*HTML::decode("Pond&eacute;rer le rayon de la"
+     new QCheckBox(*HTML::decode("Orientate extruded cells "));
+  FRedimensionner = new QCheckBox(*HTML::decode("Resize "
+        "extruded cells ")) ;
+  FPonderer = new QCheckBox(*HTML::decode("Weight radius of the "
         " section")) ;
   
   arc_vbl -> addWidget (WidgetOrientation);
@@ -85,27 +85,27 @@ OptionsExtrusion :: OptionsExtrusion ( Window * parent ,
   
   //--------------------------------
   
-  FAffChemin = new QGroupBox ( "Extrusion selon chemin" );
+  FAffChemin = new QGroupBox ( "Extrusion from path " );
   QHBoxLayout * acm_hbl = new QHBoxLayout ( FAffChemin ) ;
 			       
-  FAffPlacement = new QLabel ( "Placement initial :" ) ;
+  FAffPlacement = new QLabel ( "Original Position:" ) ;
   FChoixPlacement = new QComboBox ;
-  FChoixPlacement -> addItem ( "Pas de translation" ) ;
-  FChoixPlacement -> addItem ( "Cellules -> Chemin" ) ;
-  FChoixPlacement -> addItem ( "Chemin -> Cellules" ) ;
+  FChoixPlacement -> addItem ( "No translation" ) ;
+  FChoixPlacement -> addItem ( "Cells -> Path" ) ;
+  FChoixPlacement -> addItem ( "Path -> Cells" ) ;
 
   acm_hbl -> addWidget(FAffPlacement, 0, Qt::AlignLeft);
   acm_hbl -> addWidget(FChoixPlacement, 1, Qt::AlignLeft);
   
   //---------------------------------
   FAffRevolution = 
-        new QGroupBox ( *HTML::decode("Extrusion par r&eacute;volution"));
+        new QGroupBox ( *HTML::decode("Extrusion by revolution"));
   QHBoxLayout * arv_hbl = new QHBoxLayout ( FAffRevolution ) ;
   
   QWidget * Widgetdiv = new QWidget ;
   QHBoxLayout * div = new QHBoxLayout ( Widgetdiv ) ;
 
-  FNbSubdivisions = new QLabel ( "Nombre de subdivisions :" , Widgetdiv ) ;
+  FNbSubdivisions = new QLabel ( "Number of subdivisions:" , Widgetdiv ) ;
   FSaisieNbSubdivisions = new QSpinBox ( Widgetdiv ) ;
   FSaisieNbSubdivisions -> setMinimum ( 3 );
   FSaisieNbSubdivisions -> setMaximum ( 1000 );
@@ -117,7 +117,7 @@ OptionsExtrusion :: OptionsExtrusion ( Window * parent ,
   QWidget * WidgetAngle = new QWidget ( FAffRevolution ) ;
   QHBoxLayout * Angle = new QHBoxLayout ( WidgetAngle ) ;
  
-  FAffAngle = new QLabel ( *HTML::decode("Angle de r&eacute;volution :") ) ;
+  FAffAngle = new QLabel ( *HTML::decode("Angle of revolution:") ) ;
   FSaisieAngle = new FloatSpinBox ( 5 , -360 , 360 , 2 , 5 ) ;
   FSaisieAngle -> setWrapping ( true ) ;
 

@@ -36,19 +36,19 @@
 
 CreationSphere :: CreationSphere(Window * parent ,
                                  GMap3d :: CControlerGMap * controler) :
-      CreationObjet(parent , HTML::decode("Cr&eacute;ation sph&egrave;re") ,
+      CreationObjet(parent , HTML::decode("Create sphere") ,
                     controler)
 {
    // Creation des widgets
-   FAffCar = new QLabel(*new QString("  Subdivisions : ") , this) ;
-   FAffPar = new QLabel(*HTML::decode("Parall&egrave;les : ") , this) ;
+   FAffCar = new QLabel(*new QString("  Subdivisions: ") , this) ;
+   FAffPar = new QLabel(*HTML::decode("Parallels: ") , this) ;
 
    FSaisiePar = new QSpinBox(this) ;
    FSaisiePar -> setMinimum(1);
    FSaisiePar -> setMaximum(1000);
    FSaisiePar -> setAccelerated(true);
    
-   FAffMer = new QLabel("Meridiens : " , this) ;
+   FAffMer = new QLabel("Meridians : " , this) ;
 
    FSaisieMer = new QSpinBox(this) ;
    FSaisieMer -> setMinimum(3);

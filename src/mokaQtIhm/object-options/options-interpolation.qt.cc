@@ -38,7 +38,7 @@ OptionsInterpolation :: OptionsInterpolation ( Window * parent , QTabWidget *  p
 {
   QBoxLayout * placement = new QBoxLayout ( QBoxLayout::TopToBottom, this ) ; 
 
-  FNbSubdivision = new QGroupBox("Nombre de subdivisions");
+  FNbSubdivision = new QGroupBox("Number of subdivisions");
   QVBoxLayout* nsd_vbl = new QVBoxLayout(FNbSubdivision);
 
   /** 1ere subdivision **/
@@ -46,7 +46,7 @@ OptionsInterpolation :: OptionsInterpolation ( Window * parent , QTabWidget *  p
   QBoxLayout * sub0 = new QBoxLayout ( QBoxLayout::LeftToRight, WidgetSub0 ) ;
 
   FNbDiv [0] = 
-        new QLabel ( *HTML::decode("Selon la premi&egrave;re dimension : ") ) ;
+        new QLabel ( *HTML::decode("Following the first dimension : ") ) ;
   FSaisieNbDiv [0] = new QSpinBox ;
   FSaisieNbDiv [0] -> setMinimum ( 1 );
   FSaisieNbDiv [0] -> setMaximum ( 1000 );
@@ -59,7 +59,7 @@ OptionsInterpolation :: OptionsInterpolation ( Window * parent , QTabWidget *  p
   QWidget * WidgetSub1 = new QWidget ( this ) ;
   QBoxLayout * sub1 = new QBoxLayout ( QBoxLayout::LeftToRight, WidgetSub1 ) ;
   FNbDiv [1] = 
-        new QLabel ( *HTML::decode("Selon la deuxi&egrave;me dimension :") ) ;
+        new QLabel ( *HTML::decode("Following the second dimension :") ) ;
   FSaisieNbDiv [1] = new QSpinBox ;
   FSaisieNbDiv [1] -> setMinimum ( 1 );
   FSaisieNbDiv [1] -> setMaximum ( 1000 );
@@ -72,7 +72,7 @@ OptionsInterpolation :: OptionsInterpolation ( Window * parent , QTabWidget *  p
   QWidget * WidgetSub2 = new QWidget ( this ) ;
   QBoxLayout * sub2 = new QBoxLayout ( QBoxLayout::LeftToRight, WidgetSub2 ) ;
   FNbDiv [2] = 
-        new QLabel ( *HTML::decode("Selon la troisi&egrave;me dimension : ")) ;
+        new QLabel ( *HTML::decode("Following the third dimension : ")) ;
   FSaisieNbDiv [2] = new QSpinBox ;
   FSaisieNbDiv [2] -> setMinimum ( 1 );
   FSaisieNbDiv [2] -> setMaximum ( 1000 );
@@ -90,20 +90,20 @@ OptionsInterpolation :: OptionsInterpolation ( Window * parent , QTabWidget *  p
   FAffInterpolation = new QGroupBox ( "Interpolation" ) ;
   QVBoxLayout* aip_vbl = new QVBoxLayout(FAffInterpolation);
   
-  FFusionInterpolation = new QCheckBox ( *HTML::decode("Fusionner le maillage cr&eacute;&eacute; avec l'objet initial") ) ;
-  FCoudreInterpolation = new QCheckBox ( *HTML::decode("Coudre les maillages cr&eacute;&eacute;s qui correspondent &agrave; des cellules adjacentes") ) ;
+  FFusionInterpolation = new QCheckBox ( *HTML::decode("Merge created mesh with the initial objet") ) ;
+  FCoudreInterpolation = new QCheckBox ( *HTML::decode("Sew created meshes corresponding to adjacent cells") ) ;
   
   aip_vbl -> addWidget(FFusionInterpolation);
   aip_vbl -> addWidget(FCoudreInterpolation);
 
   /** lissage **/
-  FAffLissage = new QGroupBox ("Lissage") ;
+  FAffLissage = new QGroupBox ("Smoothing") ;
   QVBoxLayout* als_vbl = new QVBoxLayout(FAffLissage);
 
   QWidget * WidgetMethode = new QWidget ;
   QBoxLayout * methode = new QBoxLayout ( QBoxLayout::LeftToRight, WidgetMethode ) ;
 
-  FAffMethode = new QLabel ( *HTML::decode("M&eacute;thode : ") ) ;
+  FAffMethode = new QLabel ( *HTML::decode("Method: ") ) ;
   FSaisieMethode = new QComboBox ;
   FSaisieMethode -> addItem ( "Hermite" ) ;
   FSaisieMethode -> addItem ( "Bezier" ) ;
@@ -113,8 +113,8 @@ OptionsInterpolation :: OptionsInterpolation ( Window * parent , QTabWidget *  p
   methode -> addWidget ( FAffMethode , 0, Qt::AlignLeft) ;
   methode -> addWidget ( FSaisieMethode , 1, Qt::AlignLeft) ;
 
-  FFusionLissage = new QCheckBox ( *HTML::decode("Fusionner le maillage cr&eacute;&eacute; avec l'objet initial") ) ;
-  FCoudreLissage = new QCheckBox ( *HTML::decode("Coudre les maillages cr&eacute;&eacute;s qui correspondent &agrave; des cellules adjacentes") ) ;
+  FFusionLissage = new QCheckBox ( *HTML::decode("Merge created mesh with the initial objet") ) ;
+  FCoudreLissage = new QCheckBox ( *HTML::decode("Sew created meshes corresponding to adjacent cells") ) ;
 
   als_vbl -> addWidget ( WidgetMethode );
   als_vbl -> addWidget ( FFusionLissage ) ;

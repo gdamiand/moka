@@ -37,25 +37,25 @@
 //-------------
 CreationCylindre :: CreationCylindre(Window * parent ,
                                      GMap3d :: CControlerGMap * controler) :
-      CreationObjet(parent , HTML::decode("Cr&eacute;ation cylindre") ,
+      CreationObjet(parent , HTML::decode("Create cylinder") ,
                     controler)
 {
    // creation des widget
-   FAffSub = new QLabel("  Subdivisions : " , this) ;
-   FAffPar = new QLabel(*HTML::decode("Parall&egrave;les : ") , this) ;
+   FAffSub = new QLabel("  Subdivisions: " , this) ;
+   FAffPar = new QLabel(*HTML::decode("Parallels: ") , this) ;
 
    FSaisiePar = new QSpinBox(this) ;
    FSaisiePar -> setMinimum(1);
    FSaisiePar -> setMaximum(1000);
    FSaisiePar -> setAccelerated(true);
 
-   FAffMer = new QLabel(*HTML::decode("M&eacute;ridiens : ") , this) ;
+   FAffMer = new QLabel(*HTML::decode("Meridians : ") , this) ;
    FSaisieMer = new QSpinBox(this) ;
    FSaisieMer -> setMinimum(3);
    FSaisieMer -> setMaximum(1000);
    FSaisieMer -> setAccelerated(true);
 
-   FAffFaces = new QLabel(*HTML::decode("Faces cr&eacute;&eacute;es : ") ,
+   FAffFaces = new QLabel(*HTML::decode("Faces created: ") ,
                           this) ;
    FFace1 = new QCheckBox("Face 1" , this) ;
    FFace2 = new QCheckBox("Face 2" , this) ;
