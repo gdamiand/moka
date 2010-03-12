@@ -39,24 +39,24 @@ OptionsPonderation :: OptionsPonderation ( Window * parent , QTabWidget *  paren
   QBoxLayout * placement = new QBoxLayout ( QBoxLayout::TopToBottom, this ) ; 
 
   /** Partie haute : Distance a **/
-  FAffDistance = new QGroupBox ( *HTML::decode("Distance &agrave; ..."));
+  FAffDistance = new QGroupBox ( *HTML::decode("Distance to..."));
   QVBoxLayout* afd_vbl = new QVBoxLayout(FAffDistance);
 
   FSaisieDistance = new QComboBox ;
-  FSaisieDistance -> addItem ( "Sommet" ) ;
-  FSaisieDistance -> addItem ( "Droite" ) ;
-  FSaisieDistance -> addItem ( "Plan" ) ;
+  FSaisieDistance -> addItem ( "Vertice" ) ;
+  FSaisieDistance -> addItem ( "Line" ) ;
+  FSaisieDistance -> addItem ( "Plane" ) ;
   
   QWidget * WidgetDistance2 = new QWidget ;
   QBoxLayout * distance2 = new QBoxLayout ( QBoxLayout::LeftToRight,
                                             WidgetDistance2 ) ;
 
-  FAffSommet = new QLabel ( "Sommet :" ) ;
+  FAffSommet = new QLabel ( "Vertex :" ) ;
   
   for (int i = 0 ; i < 3 ; i++ ) {
     FSaisieCoefSommet [i] = new FloatSpinBox ( 0.5 ) ;
   }
-  FRecupSommet = new QPushButton ( "Recuperer" ) ;
+  FRecupSommet = new QPushButton ( "Recover" ) ;
   
   FAffCoefSommet [0] = new QLabel ( "X :" ) ;
   FAffCoefSommet [1] = new QLabel ( "Y :" ) ;
@@ -77,12 +77,12 @@ OptionsPonderation :: OptionsPonderation ( Window * parent , QTabWidget *  paren
   QWidget * WidgetDistance3 = new QWidget ;
   QBoxLayout * distance3 = new QBoxLayout ( QBoxLayout::LeftToRight, WidgetDistance3 ) ;
 
-  FAffVecteur = new QLabel ( "Vecteur :" ) ;
+  FAffVecteur = new QLabel ( "Vector :" ) ;
   
   for (int i = 0 ; i < 3 ; i++ ) 
      FSaisieCoefVecteur [i] = new FloatSpinBox ( 0.5 ) ;
   
-  FRecupVecteur = new QPushButton ( "Recuperer" ) ;
+  FRecupVecteur = new QPushButton ( "Recover" ) ;
   
   FAffCoefVecteur [0] = new QLabel ( "X :" ) ;
   FAffCoefVecteur [1] = new QLabel ( "Y :" ) ;
@@ -112,7 +112,7 @@ OptionsPonderation :: OptionsPonderation ( Window * parent , QTabWidget *  paren
 
   /** etalonnage des distances **/
   
-  FAffEtalonnageDistance = new QGroupBox ( "Etalonnage des distances" );
+  FAffEtalonnageDistance = new QGroupBox ( "Distances calibration" );
   FAffEtalonnageDistance -> setCheckable(true);
   FAffEtalonnageDistance -> setChecked(false);
 
@@ -143,20 +143,20 @@ OptionsPonderation :: OptionsPonderation ( Window * parent , QTabWidget *  paren
   QBoxLayout * centre = new QBoxLayout ( QBoxLayout::LeftToRight, WidgetCentre ) ;
 
   FSaisieFonction = new QComboBox ;
-  FSaisieFonction -> addItem ( *HTML::decode("lin&eacute;aire") ) ;
-  FSaisieFonction -> addItem ( "quadratique" ) ;
-  FSaisieFonction -> addItem ( "exponentielle" ) ;
-  FSaisieFonction -> addItem ( "logarithmique" ) ;
-  FSaisieFonction -> addItem ( "sinusoidale" ) ;
-  FSaisieFonction -> addItem ( "cosinusoidale" ) ;
+  FSaisieFonction -> addItem ( *HTML::decode("linear") ) ;
+  FSaisieFonction -> addItem ( "quadratic" ) ;
+  FSaisieFonction -> addItem ( "exponential" ) ;
+  FSaisieFonction -> addItem ( "logarithmic" ) ;
+  FSaisieFonction -> addItem ( "sinusoidal" ) ;
+  FSaisieFonction -> addItem ( "cosinusoidal" ) ;
   
-  centre -> addWidget( new QLabel ( *HTML::decode("Fonction appliqu&eacute;e : ") ), 0 , Qt::AlignLeft );
+  centre -> addWidget( new QLabel ( *HTML::decode("Applied function: ") ), 0 , Qt::AlignLeft );
   centre -> addWidget( FSaisieFonction , 1 , Qt::AlignLeft ) ;
   
   /** Etalonnage des resultats **/
   
   FAffEtalonnageResultat = 
-        new QGroupBox ( *HTML::decode("Etalonnage des r&eacute;sultats") );
+        new QGroupBox ( *HTML::decode("Calibration of results") );
   FAffEtalonnageResultat -> setCheckable(true);
   FAffEtalonnageResultat -> setChecked(false);
   
@@ -164,7 +164,7 @@ OptionsPonderation :: OptionsPonderation ( Window * parent , QTabWidget *  paren
 
   QWidget * WidgetMin2 = new QWidget ;
   QHBoxLayout * min2 = new QHBoxLayout ( WidgetMin2) ;
-  FAffMinResultat = new QLabel ( "Minimum :" ) ;
+  FAffMinResultat = new QLabel ( "Minimum:" ) ;
   FSaisieMinResultat = new  FloatSpinBox ( 0.5 ) ;
   
   min2 -> addWidget (  FAffMinResultat, 0, Qt::AlignRight ) ;
@@ -172,7 +172,7 @@ OptionsPonderation :: OptionsPonderation ( Window * parent , QTabWidget *  paren
 
   QWidget * WidgetMax2 = new QWidget ;
   QHBoxLayout * max2 = new QHBoxLayout ( WidgetMax2 ) ;
-  FAffMaxResultat = new QLabel ( "Maximum :" ) ;  
+  FAffMaxResultat = new QLabel ( "Maximum:" ) ;  
   FSaisieMaxResultat = new  FloatSpinBox ( 0.5 ) ;
   
   max2 -> addWidget (  FAffMaxResultat, 0, Qt::AlignRight ) ;
@@ -272,7 +272,7 @@ void OptionsPonderation :: update ( )
   // Pour distancetype 
   FSaisieDistance -> setCurrentIndex ( p->getPonderationType ( ) ) ;
 
-  const char * vectorLabs [] = {"", "Vecteur directeur: ", "Vecteur normal: "};
+  const char * vectorLabs [] = {"", "Direction Vector: ", "Normal Vector: "};
 
   for ( int i = 0 ; i < 3 ; ++i )
     if ( i == p -> getPonderationType ( ) )

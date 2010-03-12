@@ -40,7 +40,7 @@
 
 CreationMaillage :: CreationMaillage(Window * parent , 
                                      GMap3d :: CControlerGMap * controler) :
-      CreationObjet(parent , HTML::decode("Cr&eacute;ation Maillage") ,
+      CreationObjet(parent , HTML::decode("Create Mesh") ,
                     controler),
       FModifie(true)
 {
@@ -53,20 +53,20 @@ CreationMaillage :: CreationMaillage(Window * parent ,
 
    FAffCel =
       new QLabel(*HTML::decode
-                 ("  Dimension de la cellule &agrave; cr&eacute;er : ")) ;
+                 ("  Dimension of the cell to create: ")) ;
 
    FDimCell = new QComboBox ;
-   FDimCell -> addItem(*HTML::decode("1 (ar&ecirc;te/polyligne)")) ;
-   FDimCell -> addItem("2 (face/grille)") ;
-   FDimCell -> addItem("3 (maillage/volume 3D)") ;
+   FDimCell -> addItem(*HTML::decode("1 (edge/polyline)")) ;
+   FDimCell -> addItem("2 (face/grid)") ;
+   FDimCell -> addItem("3 (mesh/3D volume)") ;
 
-   FAffMai = new QLabel("Dimension du maillage : ") ;
+   FAffMai = new QLabel("Mesh dimension: ") ;
 
    FDimMail = new QComboBox ;
-   FDimMail -> addItem("0 (pas de maillage)") ;
-   FDimMail -> addItem(*HTML::decode("1 (maillage d'ar&ecirc;te)")) ;
-   FDimMail -> addItem("2 (maillage de face)") ;
-   FDimMail -> addItem("3 (maillage de volume)") ;
+   FDimMail -> addItem("0 (no mesh)") ;
+   FDimMail -> addItem(*HTML::decode("1 (edge mesh)")) ;
+   FDimMail -> addItem("2 (face mesh)") ;
+   FDimMail -> addItem("3 (volume mesh)") ;
 
    QObject :: connect(FDimCell , SIGNAL(activated(int)) , this ,
                       SLOT(callbackDimCell())) ;
@@ -126,13 +126,13 @@ CreationMaillage :: CreationMaillage(Window * parent ,
    bh -> setSpacing(0);
    bh -> setContentsMargins(0, 0, 0, 0);
 
-   FAffFac = new QLabel(*HTML::decode("  Faces cr&eacute;&eacute;es : ")) ;
-   FGauche = new QCheckBox("Gauche  ") ;
-   FDroite = new QCheckBox("Droite  ") ;
-   FDevant = new QCheckBox("Devant  ") ;
-   FDerriere = new QCheckBox(*HTML::decode("Derri&egrave;re  ")) ;
-   FBas = new QCheckBox("Bas  ") ;
-   FHaut = new QCheckBox("Haut  ") ;
+   FAffFac = new QLabel(*HTML::decode("  Faces created: ")) ;
+   FGauche = new QCheckBox("Left  ") ;
+   FDroite = new QCheckBox("Right  ") ;
+   FDevant = new QCheckBox("Front  ") ;
+   FDerriere = new QCheckBox(*HTML::decode("Back  ")) ;
+   FBas = new QCheckBox("Down  ") ;
+   FHaut = new QCheckBox("Up  ") ;
 
    // Ajout au layout bas
    bh -> addWidget(FAffFac) ;

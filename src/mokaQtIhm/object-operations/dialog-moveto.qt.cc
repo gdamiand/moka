@@ -42,10 +42,10 @@ dialogMoveto:: dialogMoveto(Window * parent ,
 
 {
    QIcon p1(":/boutonReinit.png") ;
-   FReinit = new QPushButton(p1 , *HTML::decode("R&eacute;initialiser")) ;
+   FReinit = new QPushButton(p1 , *HTML::decode("Reset")) ;
 
    QIcon p2(":/boutonAnnuler.png") ;
-   FClose = new QPushButton(p2 , "Fermer") ;
+   FClose = new QPushButton(p2 , "Close") ;
    FClose -> setShortcut(Qt :: Key_Space) ;
 
    FSaisie = new champsOperations(this,NULL,false) ;

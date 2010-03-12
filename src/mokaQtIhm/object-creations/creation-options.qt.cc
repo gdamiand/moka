@@ -68,7 +68,7 @@ BoitePositionnement ::  BoitePositionnement(CreationObjet * lien ,
    QWidget * widFacteur = new QWidget(this) ;
    QBoxLayout * boxFacteur = new QBoxLayout(QBoxLayout :: LeftToRight,
          widFacteur);
-   FTitreFacteur = new QLabel(" Facteur d'agrandissement : " , widFacteur) ;
+   FTitreFacteur = new QLabel(" Growing coefficient: " , widFacteur) ;
    boxFacteur -> addWidget(FTitreFacteur) ;
 
    FSaisieFacteur = new FloatSpinBox(0.2, -1000 , 1000);
@@ -81,7 +81,7 @@ BoitePositionnement ::  BoitePositionnement(CreationObjet * lien ,
    QBoxLayout * boxProportions = new QBoxLayout(QBoxLayout :: LeftToRight,
          widProportions) ;
 
-   FTitreProportions = new QLabel(" Proportions : " , widProportions) ;
+   FTitreProportions = new QLabel(" Proportions: " , widProportions) ;
    boxProportions -> addWidget(FTitreProportions) ;
 
    for (int i = 0 ; i < 3 ; i++)
@@ -102,7 +102,7 @@ BoitePositionnement ::  BoitePositionnement(CreationObjet * lien ,
    QBoxLayout * boxDimensions =
       new QBoxLayout(QBoxLayout :: LeftToRight, widDimensions);
 
-   FTitreDimensions = new QLabel(" Dimensions : " , widDimensions) ;
+   FTitreDimensions = new QLabel(" Dimensions: " , widDimensions) ;
    boxDimensions -> addWidget(FTitreDimensions) ;
 
    for (int i = 0 ; i < 3 ; i++)
@@ -121,7 +121,7 @@ BoitePositionnement ::  BoitePositionnement(CreationObjet * lien ,
    QBoxLayout * boxRotations = new QBoxLayout(QBoxLayout :: LeftToRight,
          widRotations) ;
 
-   FTitreRotations = new QLabel(" Rotations : " , widRotations) ;
+   FTitreRotations = new QLabel(" Rotations: " , widRotations) ;
    boxRotations -> addWidget(FTitreRotations) ;
 
    for (int i = 0 ; i < 3 ; i++)
@@ -159,7 +159,7 @@ BoitePositionnement ::  BoitePositionnement(CreationObjet * lien ,
    QBoxLayout * boxEquateur = new QBoxLayout(QBoxLayout :: LeftToRight,
          widEquateur);
 
-   FTitreEquateur = new QLabel(" Equateur : " , widEquateur) ;
+   FTitreEquateur = new QLabel(" Equator: " , widEquateur) ;
    boxEquateur -> addWidget(FTitreEquateur) ;
 
    for (int i = 0 ; i < 3 ; i++)
@@ -179,7 +179,7 @@ BoitePositionnement ::  BoitePositionnement(CreationObjet * lien ,
          widMasquer) ;
 
    QIcon p1(":/masquer.png");
-   FMasquer = new QPushButton(p1 , "Masquer" , widMasquer) ;
+   FMasquer = new QPushButton(p1 , "Hide" , widMasquer) ;
    FMasquer -> setFixedSize(110 , 30) ;
    FMasquer -> setShortcut(Qt::CTRL + Qt::Key_P) ;
    FMasquer -> setFocus() ;

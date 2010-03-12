@@ -44,10 +44,10 @@ BoutonsCreation::BoutonsCreation(CreationObjet * parent , QBoxLayout * layout)
    QIcon p4(":/boutonOptions.png") ;
 
    // Creation des boutons
-   FReinitialiser = new QPushButton(p3 , *HTML::decode("R&eacute;initialiser"),
+   FReinitialiser = new QPushButton(p3 , *HTML::decode("Reset"),
                                     this) ;
-   FAnnuler = new QPushButton(p2 , "Fermer" , this) ;
-   FCreer = new QPushButton(p1 , *HTML::decode("Cr&eacute;er") , this) ;
+   FAnnuler = new QPushButton(p2 , "Close" , this) ;
+   FCreer = new QPushButton(p1 , *HTML::decode("Create") , this) ;
    FOptions = new QPushButton(p4 , "Options" , this) ;
 
    // Raccourcis claviers

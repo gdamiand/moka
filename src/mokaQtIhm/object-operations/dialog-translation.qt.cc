@@ -41,12 +41,12 @@ dialogTranslation :: dialogTranslation(Window * parent ,
 
 {
    QIcon p1(":/boutonReinit.png") ;
-   FReinit = new QPushButton(p1 , *HTML::decode("R&eacute;initialiser")) ;
+   FReinit = new QPushButton(p1 , *HTML::decode("Reset")) ;
    FSaisieTranslate = 
-         new QCheckBox(*HTML::decode("Translation pond&eacute;r&eacute;e")) ;
+         new QCheckBox(*HTML::decode("Weighted Translation")) ;
 
    QIcon p2(":/boutonAnnuler.png") ;
-   FClose = new QPushButton(p2 , "Fermer") ;
+   FClose = new QPushButton(p2 , "Close") ;
    FClose -> setShortcut(Qt :: Key_Space) ;
 
    FSaisie = new champsOperations(this) ;

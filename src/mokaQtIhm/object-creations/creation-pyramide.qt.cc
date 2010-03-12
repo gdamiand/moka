@@ -34,18 +34,18 @@
 CreationPyramide ::  CreationPyramide(Window * parent ,
                                       GMap3d :: CControlerGMap * controler)
       :
-      CreationObjet(parent , HTML::decode("Cr&eacute;ation cylindre") ,
+      CreationObjet(parent , HTML::decode("Create cylinder") ,
                     controler)
 {
-   FAffSub = new QLabel("  Subdivisions : " , this) ;
-   FAffPar = new QLabel(*HTML::decode("Parall&egrave;les : ") , this) ;
+   FAffSub = new QLabel("  Subdivisions: " , this) ;
+   FAffPar = new QLabel(*HTML::decode("Parallels: ") , this) ;
 
    FSaisiePar = new QSpinBox(this) ;
    FSaisiePar -> setMinimum(1);
    FSaisiePar -> setMaximum(1000);
    FSaisiePar -> setAccelerated(true);
 
-   FAffMer = new QLabel(*HTML::decode("M&eacute;ridiens : ") , this) ;
+   FAffMer = new QLabel(*HTML::decode("Meridians: ") , this) ;
 
    FSaisieMer = new QSpinBox(this) ;
    FSaisieMer -> setMinimum(3);
@@ -53,8 +53,8 @@ CreationPyramide ::  CreationPyramide(Window * parent ,
    FSaisieMer -> setAccelerated(true);
    
    FAffFaces =
-      new QLabel(*HTML::decode("Faces cr&eacute;&eacute;es : ") , this) ;
-   FBase = new QCheckBox("Base" , this) ;
+      new QLabel(*HTML::decode("Faces created: ") , this) ;
+   FBase = new QCheckBox("Basis" , this) ;
 
    addWidget(FAffSub);
    addWidget(FAffPar);

@@ -43,25 +43,25 @@ OptionsFrame :: OptionsFrame ( Window * parent )
   main_tab = new QTabWidget(this);  
     
   FAffichage = new OptionsAffichage ( parent , main_tab ) ;
-  main_tab -> addTab ( FAffichage , "&Affichage") ;
+  main_tab -> addTab ( FAffichage , "&Display") ;
   
   FVue = new OptionsVue ( parent , this ) ;  
-  main_tab -> addTab ( FVue , *HTML::decode("&Vue Eclat&eacute;e") ) ;
+  main_tab -> addTab ( FVue , *HTML::decode("&Splitted View") ) ;
 
   FPonderation = new OptionsPonderation ( parent , main_tab) ;
-  main_tab -> addTab ( FPonderation , *HTML::decode("Pond&eacute;ration "
-        "des &d&eacute;formations") ) ;
+  main_tab -> addTab ( FPonderation , *HTML::decode("Weights "
+        "of &deformations") ) ;
 
   FExtrusion = new OptionsExtrusion ( parent , main_tab ) ;
-  main_tab -> addTab ( FExtrusion , "&Extrusions/Epaississement" ) ;
+  main_tab -> addTab ( FExtrusion , "&Extrusions/thickening" ) ;
 
 #ifdef MODULE_MESH
   FInterpolation = new OptionsInterpolation ( parent , main_tab ) ;
-  main_tab -> addTab ( FInterpolation , "&Interpolations/Lissages" ) ;
+  main_tab -> addTab ( FInterpolation , "&Interpolations/Smoothing" ) ;
 #endif //MODULE_MESH
 
   FDivers = new OptionsDivers ( parent , main_tab ) ;
-  main_tab -> addTab ( FDivers , "&Divers" ) ;
+  main_tab -> addTab ( FDivers , "&Misc" ) ;
 
   // Definition des raccourcis
   Q3Accel * Raccourci = new Q3Accel ( this ) ;

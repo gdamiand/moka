@@ -46,13 +46,13 @@ dialogRotation :: dialogRotation(Window * parent ,
    bb -> setSpacing(0);
    bb -> setContentsMargins(0, 0, 0, 0);
 
-   FAffSaisie = new QLabel("  Centre : ") ;
-   FAffAngle = new QLabel("Angle : ") ;
+   FAffSaisie = new QLabel("  Center: ") ;
+   FAffAngle = new QLabel("Angle: ") ;
    FSaisieAngle = new FloatSpinBox(5 , -180.0 , 180.0 , 0 , 5.0);
    FSaisieAngle -> setWrapping(true) ;
    QIcon p3(":/boutonReinit.png") ;
    FReinitAngle =
-      new QPushButton(p3, *HTML::decode("R&eacute;initialiser angle")) ;
+      new QPushButton(p3, *HTML::decode("Reset angle")) ;
 
    // Ajout du layout haut
    FSaisie = new champsOperations(this , bb) ;
@@ -69,11 +69,11 @@ dialogRotation :: dialogRotation(Window * parent ,
    bh -> setSpacing(0);
    bh -> setContentsMargins(0, 0, 0, 0);
 
-   FAffAxe = new QLabel("  Vecteur Axe : ") ;
+   FAffAxe = new QLabel(" Axis Vector: ") ;
    FPonderation = new QCheckBox
-   (*HTML::decode("Rotation pond&eacute;r&eacute;e")) ;
+   (*HTML::decode("Weighted Rotation")) ;
    QIcon p2(":/boutonAnnuler.png") ;
-   FClose = new QPushButton(p2 , "Fermer") ;
+   FClose = new QPushButton(p2 , "Close") ;
    FClose -> setShortcut(Qt :: Key_Space) ;
 
    // Ajout au layout bas

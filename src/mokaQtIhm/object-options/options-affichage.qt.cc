@@ -44,31 +44,31 @@ OptionsAffichage :: OptionsAffichage ( Window * parent ,
   QVBoxLayout * placement = new QVBoxLayout ( this ) ;
 
   //--------- Elements ----------------
-  FElements = new QGroupBox(*HTML::decode("El&eacute;ments"));
+  FElements = new QGroupBox(*HTML::decode("Elements"));
   QHBoxLayout * elmts_hbl = new QHBoxLayout ( FElements ) ;
   
   QWidget * pElmts = new QWidget ();
   QVBoxLayout * pElmtsLayout = new QVBoxLayout ( pElmts ) ;
 
-  FENormale = new QCheckBox ( "Normale ( Meta-F9 )" ) ;
+  FENormale = new QCheckBox ( "Normal ( Meta-F9 )" ) ;
   pElmtsLayout -> addWidget( FENormale );
 
   connect ( FENormale , SIGNAL ( clicked ( ) ) ,
             this , SLOT ( callbackToggleNormal ( ) ) ) ;
 
-  FECoutures = new QCheckBox ( "Coutures (F9)" ) ;
+  FECoutures = new QCheckBox ( "Sews (F9)" ) ;
   pElmtsLayout -> addWidget( FECoutures );
 
   connect ( FECoutures , SIGNAL ( clicked ( ) ) ,
             this , SLOT ( callbackToggleSews ( ) ) ) ;
 
-  FESommets = new QCheckBox ( "Sommets (F10)" ) ;
+  FESommets = new QCheckBox ( "Vertices (F10)" ) ;
   pElmtsLayout -> addWidget( FESommets );
 
   connect ( FESommets , SIGNAL ( clicked  ( ) ) ,
             this , SLOT ( callbackToggleVertices ( ) ) ) ;
   
-  FEFacesPleines = new QCheckBox ( "Faces pleines (F11)" );
+  FEFacesPleines = new QCheckBox ( "Faces filled (F11)" );
   pElmtsLayout -> addWidget( FEFacesPleines );
   
   connect ( FEFacesPleines , SIGNAL ( clicked ( ) ) ,
@@ -78,15 +78,15 @@ OptionsAffichage :: OptionsAffichage ( Window * parent ,
  //--------------------------
 
    // Pour les couleurs aleatoires
-   bgroup = new QGroupBox(*HTML::decode("Couleurs Al&eacute;atoires"));
+   bgroup = new QGroupBox(*HTML::decode("Random colors"));
    QHBoxLayout * grp_hbl = new QHBoxLayout ( bgroup ) ;
    
    QWidget * pAffich = new QWidget ();
    QVBoxLayout * plcmtAffich = new QVBoxLayout ( pAffich ) ;
 
-   FECoulGlobale          = new QRadioButton( "inactif" );
-   FECouleursAleatoire    = new QRadioButton( "des faces" );
-   FECoulVolumesAleatoire = new QRadioButton( "des volumes" );
+   FECoulGlobale          = new QRadioButton( "inactive" );
+   FECouleursAleatoire    = new QRadioButton( "of faces" );
+   FECoulVolumesAleatoire = new QRadioButton( "of volumes" );
    
    FECouleursAleatoire -> setChecked(true);
    
@@ -108,16 +108,16 @@ OptionsAffichage :: OptionsAffichage ( Window * parent ,
 
    // Couleurs aleatoire base sur la topologie ou la geometrie
    bgroup2 = 
-         new QGroupBox( *HTML::decode("Calcul&eacute;es &agrave; partir de"));
+         new QGroupBox( *HTML::decode("Calculated from "));
    QVBoxLayout * grp2_hbl = new QVBoxLayout ( bgroup2 ) ;
    
-   FECoulTopologie = new QRadioButton( "la Topologie" );
-   FECoulGeometry = new QRadioButton( *HTML::decode("la G&eacute;ometrie") );
+   FECoulTopologie = new QRadioButton( "topology" );
+   FECoulGeometry = new QRadioButton( *HTML::decode("geometry") );
    
    grp2_hbl -> addWidget( FECoulTopologie );
    
 #ifdef MODULE_ARCHITECTURE
-   FECoulSemantique = new QRadioButton( *HTML::decode("la S&eacute;mantique") );
+   FECoulSemantique = new QRadioButton( *HTML::decode("semantic") );
    grp2_hbl -> addWidget( FECoulSemantique );
    connect (FECoulSemantique , SIGNAL ( clicked ( ) ) ,
             this , SLOT (callbackCoulSemantique( ) ) ) ; 
@@ -146,7 +146,7 @@ OptionsAffichage :: OptionsAffichage ( Window * parent ,
    QHBoxLayout* wid_hbl = new QHBoxLayout(widget); 
    
   //-------- Grille -------------
-  FGrille = new QGroupBox ( "Grille (F12)" ) ;
+  FGrille = new QGroupBox ( "Grid (F12)" ) ;
   FGrille -> setCheckable ( true );
   
   QVBoxLayout* gri_vbl = new QVBoxLayout(FGrille);
@@ -160,21 +160,21 @@ OptionsAffichage :: OptionsAffichage ( Window * parent ,
   FSaisieTaille -> setMaximum ( 1000 );
   FSaisieTaille -> setAccelerated(true);
   
-  plcmtTaille -> addWidget ( new QLabel ( "Taille : " ), 0, Qt::AlignLeft ) ;
+  plcmtTaille -> addWidget ( new QLabel ( "Size: " ), 0, Qt::AlignLeft ) ;
   plcmtTaille -> addWidget ( FSaisieTaille, 1, Qt::AlignLeft ) ;
   gri_vbl -> addWidget( pTaille );
 
   QWidget * pPlan = new QWidget ( FGrille ) ;
   QGridLayout * plcmtPlan = new QGridLayout ( pPlan );
   
-  FPlanXY  = new QCheckBox ( "Plan XY" ) ;
-  FValOx = new QCheckBox ( "Valeurs positives sur Ox" ) ;
+  FPlanXY  = new QCheckBox ( "Plane XY" ) ;
+  FValOx = new QCheckBox ( "Positive values over Ox" ) ;
 
   FPlanXZ = new QCheckBox ( "Plan XZ" ) ;
-  FValOy = new QCheckBox ( "Valeurs positives sur Oy" ) ;
+  FValOy = new QCheckBox ( "Positive values over Oy" ) ;
 
   FPlanYZ = new QCheckBox ( "Plan YZ" ) ;
-  FValOz = new QCheckBox ( "Valeurs positives sur Oz" ) ;
+  FValOz = new QCheckBox ( "Positive values over Oz" ) ;
 
   plcmtPlan -> addWidget ( FPlanXY , 0 , 0 ) ;
   plcmtPlan -> addWidget ( FValOx , 0 , 1 ) ;
@@ -190,7 +190,7 @@ OptionsAffichage :: OptionsAffichage ( Window * parent ,
   QVBoxLayout * plc_vbl = new QVBoxLayout(FPlacage); 
   
   FOrientation = new QCheckBox ( "Orientation    " ) ;
-  FTaille = new QCheckBox ( "Taille    " ) ;
+  FTaille = new QCheckBox ( "Size    " ) ;
   FPosition = new QCheckBox ( "Position    " ) ;
   
   plc_vbl -> setSpacing ( 0 ) ;
@@ -199,7 +199,7 @@ OptionsAffichage :: OptionsAffichage ( Window * parent ,
   plc_vbl -> addWidget ( FPosition ) ;
   
   // Placement des widget
-  FAffAxes   = new QCheckBox ( "Afficher les axes (F12)" ) ;
+  FAffAxes   = new QCheckBox ( "Display axis (F12)" ) ;
   
   wid_hbl -> addWidget ( FGrille ) ;
   wid_hbl -> addWidget ( FPlacage ) ;

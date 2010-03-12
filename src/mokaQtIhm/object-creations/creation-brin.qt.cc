@@ -39,7 +39,7 @@
 
 CreationBrin :: CreationBrin ( Window * parent ,
 			       GMap3d :: CControlerGMap * controler ) :
-  CreationObjet(parent , HTML::decode("Cr&eacute;ation Brin/Polyligne/Face" ),
+  CreationObjet(parent , HTML::decode("Creation Dart/Polyline/Face" ),
                 controler ),
   FSouris ( false )
 {
@@ -65,9 +65,9 @@ CreationBrin :: CreationBrin ( Window * parent ,
   QIcon p1 ( ":/boutonCreer.png" ) ;
   QIcon p2 ( ":/boutonSupprimer.png" ) ;
   
-  FNouveau = new QPushButton ( p1 , *HTML::decode("Cr&eacute;er nouveau") , 
+  FNouveau = new QPushButton ( p1 , *HTML::decode("Create new") , 
                                this ) ;
-  FSupprimer = new QPushButton ( p2 , "Supprimer dernier" , this ) ;
+  FSupprimer = new QPushButton ( p2 , "Delete last" , this ) ;
   
   QObject::connect ( FNouveau , SIGNAL ( clicked ( ) ) , this,
  		     SLOT ( prolong ( ) ) ) ;
