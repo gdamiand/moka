@@ -14,12 +14,9 @@ cas général, ces méthodes feront juste respectivement un "new CVertex"
 faire des attributs partages, avec un compteur de référence sans
 problème.
 
-Il y a 3 options de compilation importantes, que l'on peut passer
-comme une option du compilateur respectivement avec -DUSE_STL,
+Il y a 2 options de compilation importantes, que l'on peut passer
+comme une option du compilateur respectivement avec 
 -DINLINE_FLAG et -DNDEBUG.
-
-USE_STL : si on veut utiliser la stl au lieu de nos classes "list",
-"bitset" et "queue".
 
 INLINE_FLAG : si on ne veut pas compiler les méthodes en inline. La
 compilation est dans ce cas beaucoup plus rapide, la version inline
