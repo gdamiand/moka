@@ -111,4 +111,17 @@ int removeMarkedEdgesWithoutDisconnectionWithFaceShifting(int AMarkNumber);
  * @return Le nombre de suppressions effectuées
  */
 int removeMarkedFacesButKeepBalls(int AMarkNumber);
+
+/** Simplify the map by removing each degree two edge, each dangling edge, and
+ *  then each degree two vertex. There is no fictive edge shifting.
+ *  @return the number of removed darts.
+ */
+unsigned int simplify2DObject();
+
+/** Simplify the map by removing each degree two face, each dangling face,
+ *  then each degree two edge, each dangling edge, and then
+ *  each degree two vertex. There is no fictive face or edge shifting.
+ *  @return the number of removed darts.
+ */
+unsigned int simplify3DObject();
 //******************************************************************************

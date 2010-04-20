@@ -1748,6 +1748,12 @@ void Window :: callbackRemoveDanglingEdges()
    else updateStatusBar() ;
 }
 
+void Window::callbackSimplify3DObject()
+{
+   if (getControler() -> simplify3DObject()) repaint() ;
+   else updateStatusBar() ;
+}
+
 // -- Contracter
 void Window :: callbackIntuitiveContract()
 {

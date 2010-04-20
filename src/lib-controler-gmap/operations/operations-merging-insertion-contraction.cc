@@ -26,6 +26,10 @@
 #include "controler-gmap.hh"
 #include <cassert>
 
+#ifndef _WINDOWS
+#include "chrono.hh"
+#endif
+
 using namespace GMap3d;
 //******************************************************************************
 void CControlerGMap::updateDartAfterRemovals(unsigned int ADim)
@@ -61,291 +65,291 @@ void CControlerGMap::updateDartAfterRemovals(unsigned int ADim)
 //******************************************************************************
 bool CControlerGMap::merge(int ADim)
 {
-   assert(1 <= ADim && ADim <= 3);
+  assert(1 <= ADim && ADim <= 3);
 
-   bool res = false;
+  bool res = false;
 
-   if (canApplyOperation(COperation(OPERATION_MERGE,
-                                    SUB_OPERATION_TOPO, ADim)))
-   {
+  if (canApplyOperation(COperation(OPERATION_MERGE,
+				   SUB_OPERATION_TOPO, ADim)))
+    {
       undoRedoPreSave();
 
       int nb = FMap->mergeMarkedCells(getSelectionMark(), ADim, true);
 
       if (nb == 0)
-      {
-         setMessage(ADim, "-merge impossible");
-         undoRedoPostSaveFailed();
-      }
+	{
+	  setMessage(ADim, "-merge impossible");
+	  undoRedoPostSaveFailed();
+	}
       else
-      {
-	updateDartAfterRemovals(ADim-1);
+	{
+	  updateDartAfterRemovals(ADim-1);
 	
-	undoRedoPostSaveOk();
-	unsetLastSelectedDart();
-	setModelChanged();
-	setMessage(nb, ADim, (nb == 1 ? "-merge done" :
-                                     "-merges done"));
-         res = true;
-      }
-   }
+	  undoRedoPostSaveOk();
+	  unsetLastSelectedDart();
+	  setModelChanged();
+	  setMessage(nb, ADim, (nb == 1 ? "-merge done" :
+				"-merges done"));
+	  res = true;
+	}
+    }
 
-   return res;
+  return res;
 }
 //******************************************************************************
 bool CControlerGMap::intuitiveMerge()
 {
-   bool res = false;
-   if (canApplyOperation(COperation(OPERATION_MERGE,
-                                    SUB_OPERATION_INTUITIVE_TOPO, -1)))
-   {
+  bool res = false;
+  if (canApplyOperation(COperation(OPERATION_MERGE,
+				   SUB_OPERATION_INTUITIVE_TOPO, -1)))
+    {
       undoRedoPreSave();
 
       int nb = FMap->intuitiveMergeMarkedCells(getSelectionMark(), true);
 
       if (nb == 0)
-      {
-         setMessage("Intuitive merge impossible");
-         undoRedoPostSaveFailed();
-      }
+	{
+	  setMessage("Intuitive merge impossible");
+	  undoRedoPostSaveFailed();
+	}
       else
-      {
-         undoRedoPostSaveOk();
-         unsetLastSelectedDart();
-         setModelChanged();
-         setMessage(nb, (nb == 1 ? " merge done" : 
-               " merges done"));
-         res = true;
-      }
-   }
+	{
+	  undoRedoPostSaveOk();
+	  unsetLastSelectedDart();
+	  setModelChanged();
+	  setMessage(nb, (nb == 1 ? " merge done" : 
+			  " merges done"));
+	  res = true;
+	}
+    }
 
-   return res;
+  return res;
 }
 //******************************************************************************
 bool CControlerGMap::mergeColinearEdges()
 {
-   bool res = false;
+  bool res = false;
 
-   if (canApplyOperation(COperation(OPERATION_MERGE_COLINEAR, 1)))
-   {
+  if (canApplyOperation(COperation(OPERATION_MERGE_COLINEAR, 1)))
+    {
       undoRedoPreSave();
 
       int nb = FMap->mergeMarkedColinearEdges(getSelectionMark(), true);
 
       if (nb == 0)
-      {
-         setMessage("No colinear edges exist");
-         undoRedoPostSaveFailed();
-      }
+	{
+	  setMessage("No colinear edges exist");
+	  undoRedoPostSaveFailed();
+	}
       else
-      {
-	updateDartAfterRemovals(0);
+	{
+	  updateDartAfterRemovals(0);
 
-	undoRedoPostSaveOk();
-         unsetLastSelectedDart();
-         setModelChanged();
-         setMessage(nb, (nb == 1 ? " edge merged" :
-                         " edges merged"));
-         res = true;
-      }
-   }
+	  undoRedoPostSaveOk();
+	  unsetLastSelectedDart();
+	  setModelChanged();
+	  setMessage(nb, (nb == 1 ? " edge merged" :
+			  " edges merged"));
+	  res = true;
+	}
+    }
 
-   return res;
+  return res;
 }
 //******************************************************************************
 bool CControlerGMap::mergeCoplanarFaces()
 {
-   bool res = false;
-   if (canApplyOperation(COperation(OPERATION_MERGE_COLINEAR, 2)))
-   {
+  bool res = false;
+  if (canApplyOperation(COperation(OPERATION_MERGE_COLINEAR, 2)))
+    {
       undoRedoPreSave();
 
       int nb = FMap->mergeMarkedCoplanarFaces(getSelectionMark(), true);
 
       if (nb == 0)
-      {
-         setMessage("Coplanar face merging impossible");
-         undoRedoPostSaveFailed();
-      }
+	{
+	  setMessage("Coplanar face merging impossible");
+	  undoRedoPostSaveFailed();
+	}
       else
-      {
-	updateDartAfterRemovals(1);
+	{
+	  updateDartAfterRemovals(1);
 
-	undoRedoPostSaveOk();
-	unsetLastSelectedDart();
-	setModelChanged();
-	setMessage(nb, (nb == 1 ?
-			" edge removed between coplanar faces" :
-			" edges removed between coplanar faces"));
-	res = true;
-      }
-   }
+	  undoRedoPostSaveOk();
+	  unsetLastSelectedDart();
+	  setModelChanged();
+	  setMessage(nb, (nb == 1 ?
+			  " edge removed between coplanar faces" :
+			  " edges removed between coplanar faces"));
+	  res = true;
+	}
+    }
 
-   return res;
+  return res;
 }
 //******************************************************************************
 bool CControlerGMap::delNullEdges()
 {
-   bool res = false;
-   if (canApplyOperation(COperation(OPERATION_DEL_NULL_EDGE)))
-   {
+  bool res = false;
+  if (canApplyOperation(COperation(OPERATION_DEL_NULL_EDGE)))
+    {
       undoRedoPreSave();
 
       int nb = FMap->deleteNullLengthEdges();
 
       if (nb == 0)
-      {
-         setMessage("No null length edge");
-         undoRedoPostSaveFailed();
-      }
+	{
+	  setMessage("No null length edge");
+	  undoRedoPostSaveFailed();
+	}
       else
-      {
-         undoRedoPostSaveOk();
-         setModelChanged();
-         setMessage(nb, nb == 1 ?
-                    " null length edge removed" :
-                    " null length edges removed");
-         res = true;
-      }
-   }
+	{
+	  undoRedoPostSaveOk();
+	  setModelChanged();
+	  setMessage(nb, nb == 1 ?
+		     " null length edge removed" :
+		     " null length edges removed");
+	  res = true;
+	}
+    }
 
-   return res;
+  return res;
 }
 //******************************************************************************
 bool CControlerGMap::delFlatFaces()
 {
-   bool res = false;
-   if (canApplyOperation(COperation(OPERATION_DEL_FLAT_FACES)))
-   {
+  bool res = false;
+  if (canApplyOperation(COperation(OPERATION_DEL_FLAT_FACES)))
+    {
       undoRedoPreSave();
 
       int nb = FMap->deleteFlatFaces();
 
       if (nb == 0)
-      {
-         setMessage("No face made of only two edges");
-         undoRedoPostSaveFailed();
-      }
+	{
+	  setMessage("No face made of only two edges");
+	  undoRedoPostSaveFailed();
+	}
       else
-      {
-         undoRedoPostSaveOk();
-         setModelChanged();
-         setMessage(nb, nb == 1 ?
-                    " face made of two edges removed" :
-                    " faces made of two edges removed");
-         res = true;
-      }
-   }
+	{
+	  undoRedoPostSaveOk();
+	  setModelChanged();
+	  setMessage(nb, nb == 1 ?
+		     " face made of two edges removed" :
+		     " faces made of two edges removed");
+	  res = true;
+	}
+    }
 
-   return res;
+  return res;
 }
 //******************************************************************************
 bool CControlerGMap::delFlatVolumes()
 {
-   bool res = false;
-   if (canApplyOperation(COperation(OPERATION_DEL_FLAT_VOLUMES)))
-   {
+  bool res = false;
+  if (canApplyOperation(COperation(OPERATION_DEL_FLAT_VOLUMES)))
+    {
       undoRedoPreSave();
 
       int nb = FMap->deleteFlatVolumes();
 
       if (nb == 0)
-      {
-         setMessage("No volume made of only two faces");
-         undoRedoPostSaveFailed();
-      }
+	{
+	  setMessage("No volume made of only two faces");
+	  undoRedoPostSaveFailed();
+	}
       else
-      {
-         undoRedoPostSaveOk();
-         setModelChanged();
-         setMessage(nb, nb == 1 ?
-                    " volume made of two faces removed" :
-                    " volumes made of two faces removed");
-         res = true;
-      }
-   }
+	{
+	  undoRedoPostSaveOk();
+	  setModelChanged();
+	  setMessage(nb, nb == 1 ?
+		     " volume made of two faces removed" :
+		     " volumes made of two faces removed");
+	  res = true;
+	}
+    }
 
-   return res;
+  return res;
 }
 //******************************************************************************
 bool CControlerGMap::removeMarkedEdgesWithoutDisconnection()
 {
-   bool res = false;
+  bool res = false;
 
-   if (canApplyOperation(COperation(OPERATION_MERGE_FACE_NODISCONNECTION,
-                                    1)))
-   {
+  if (canApplyOperation(COperation(OPERATION_MERGE_FACE_NODISCONNECTION,
+				   1)))
+    {
       undoRedoPreSave();
 
       int nb = FMap->removeMarkedEdgesWithoutDisconnection(getSelectionMark());
 
       if (nb == 0)
-      {
-         setMessage("No 1-removal possible");
-         undoRedoPostSaveFailed();
-      }
+	{
+	  setMessage("No 1-removal possible");
+	  undoRedoPostSaveFailed();
+	}
       else
-      {
-	updateDartAfterRemovals(1);
+	{
+	  updateDartAfterRemovals(1);
 
-	undoRedoPostSaveOk();
-         unsetLastSelectedDart();
-         setModelChanged();
-         setMessage(nb, (nb == 1 ? " 1-removal done" : " 1-removals done"));
-         res = true;
-      }
-   }
+	  undoRedoPostSaveOk();
+	  unsetLastSelectedDart();
+	  setModelChanged();
+	  setMessage(nb, (nb == 1 ? " 1-removal done" : " 1-removals done"));
+	  res = true;
+	}
+    }
 
-   return res;
+  return res;
 }
 //******************************************************************************
 bool CControlerGMap::removeMarkedFacesButKeepBalls()
 {
-   bool res = false;
+  bool res = false;
 
-   if (canApplyOperation(COperation(OPERATION_REMOVE_FACES_KEEP_BALLS,
-                                    1)))
-   {
+  if (canApplyOperation(COperation(OPERATION_REMOVE_FACES_KEEP_BALLS,
+				   1)))
+    {
       undoRedoPreSave();
-
+       
       int nb = FMap->removeMarkedFacesButKeepBalls(getSelectionMark());
-
+       
       if (nb == 0)
-      {
-         setMessage("No 2-removal possible");
-         undoRedoPostSaveFailed();
-      }
+	{
+	  setMessage("No 2-removal possible");
+	  undoRedoPostSaveFailed();
+	}
       else
-      {
-	updateDartAfterRemovals(2);
+	{
+	  updateDartAfterRemovals(2);
+	   
+	  undoRedoPostSaveOk();
+	  unsetLastSelectedDart();
+	  setModelChanged();
+	  setMessage(nb, (nb == 1 ? " 2-removal done" : " 2-removals done"));
+	  res = true;
+	}
+    }
 
-        undoRedoPostSaveOk();
-         unsetLastSelectedDart();
-         setModelChanged();
-         setMessage(nb, (nb == 1 ? " 2-removal done" : " 2-removals done"));
-         res = true;
-      }
-   }
-
-   return res;
+  return res;
 }
 //******************************************************************************
 bool CControlerGMap::shiftAllEdgesIncidentToVertex()
 {
-   bool res = false;
+  bool res = false;
 
-   if (getLastSelectedDart() == NULL)
-   {
+  if (getLastSelectedDart() == NULL)
+    {
       setMessage("No last selected dart");
       return false;
-   }
+    }
 
-   if (canApplyOperation(COperation(OPERATION_SHIFT_EDGES_INCIDENT_TO_VERTEX)))
-   {
+  if (canApplyOperation(COperation(OPERATION_SHIFT_EDGES_INCIDENT_TO_VERTEX)))
+    {
       undoRedoPreSave();
 
       unsigned int nb =
-         FMap->shiftAllEdgesIncidentToVertex(getLastSelectedDart());
+	FMap->shiftAllEdgesIncidentToVertex(getLastSelectedDart());
 
       deselectDart(getLastSelectedDart());
 
@@ -354,143 +358,207 @@ bool CControlerGMap::shiftAllEdgesIncidentToVertex()
       setModelChanged();
       setMessage(nb, (nb == 1 ? " edge shifted." : " edges shifted."));
       res = true;
-   }
+    }
 
-   return res;
+  return res;
 }
 //******************************************************************************
 bool CControlerGMap::removeDanglingEdges()
 {
-   bool res = false;
+  bool res = false;
 
-   if (canApplyOperation(COperation(OPERATION_REMOVE_DANGLING_EDGES)))
-   {
+  if (canApplyOperation(COperation(OPERATION_REMOVE_DANGLING_EDGES)))
+    {
       undoRedoPreSave();
 
       int nb = FMap->removeDanglingEdges();
 
       if (nb == 0)
-      {
-         setMessage("No dangling edge removed");
-         undoRedoPostSaveFailed();
-      }
+	{
+	  setMessage("No dangling edge removed");
+	  undoRedoPostSaveFailed();
+	}
       else
-      {
-	updateDartAfterRemovals(1);
+	{
+	  updateDartAfterRemovals(1);
 
-	undoRedoPostSaveOk();
-         unsetLastSelectedDart();
-         setModelChanged();
-         setMessage(nb, (nb == 1 ? " dangling edge removed" :
-                         " dangling edges removed"));
-         res = true;
-      }
-   }
+	  undoRedoPostSaveOk();
+	  unsetLastSelectedDart();
+	  setModelChanged();
+	  setMessage(nb, (nb == 1 ? " dangling edge removed" :
+			  " dangling edges removed"));
+	  res = true;
+	}
+    }
 
-   return res;
+  return res;
+}
+//******************************************************************************
+bool CControlerGMap::simplify3DObject()
+{
+  bool res = false;
+
+  if (canApplyOperation(COperation(OPERATION_SIMPLIFY_3D_OBJECT)))
+    {
+      undoRedoPreSave();
+
+   int nbdarts, nbvertices, nbedges, nbfaces, nbvolumes, nbcc;
+   getMapGlobalCharacteristics(&nbdarts,&nbvertices,&nbedges,
+			       &nbfaces,&nbvolumes,&nbcc,
+			       NULL,NULL,NULL,NULL);
+   std::cout<<"Map before simplification: darts="<<nbdarts
+	    <<", vertices="<<nbvertices
+     	    <<", edges="<<nbedges
+     	    <<", faces="<<nbfaces
+     	    <<", volumes="<<nbvolumes
+     	    <<", cc="<<nbcc<<std::endl;
+   
+#ifndef _WINDOWS
+   CChrono c;
+   c.start();
+#endif
+
+   int nb = FMap->simplify3DObject();
+      
+#ifndef _WINDOWS
+   c.stop();
+   c.display("Time for simplification");
+#endif
+   assert(isMapOk());
+
+     if ( nb==0 )
+	{
+	  setMessage("Nothing was simplified, the map was already in "
+		     "its minimal form.");
+	  undoRedoPostSaveFailed();
+	}
+      else
+	{
+	  // updateDartAfterRemovals(2); // Problem here since the operation 
+	  // simplify3DObject use removal of different dimensions... TODO ?
+	  undoRedoPostSaveOk();
+	  unsetLastSelectedDart();
+	  setModelChanged();
+	  setMessage(nb, (nb == 1 ? " dart removed during the simplification." :
+			  " darts removed during the simplification."));
+	  res = true;
+
+	  getMapGlobalCharacteristics(&nbdarts,&nbvertices,&nbedges,
+				      &nbfaces,&nbvolumes,&nbcc,
+				      NULL,NULL,NULL,NULL);
+	  std::cout<<"Map after simplification: darts="<<nbdarts
+		   <<", vertices="<<nbvertices
+		   <<", edges="<<nbedges
+		   <<", faces="<<nbfaces
+		   <<", volumes="<<nbvolumes
+		   <<", cc="<<nbcc<<std::endl;
+	}
+    }
+
+  return res;
 }
 //******************************************************************************
 bool CControlerGMap::contract(int ADimension)
 {
-   assert(1 <= ADimension && ADimension <= 3);
+  assert(1 <= ADimension && ADimension <= 3);
 
-   bool res = false;
+  bool res = false;
 
-   if (canApplyOperation(COperation(OPERATION_CONTRACT,
-                                    SUB_OPERATION_TOPO, ADimension)))
-   {
+  if (canApplyOperation(COperation(OPERATION_CONTRACT,
+				   SUB_OPERATION_TOPO, ADimension)))
+    {
       undoRedoPreSave();
 
       int nb = FMap->contractMarkedCells(getSelectionMark(), ADimension, true);
 
       if (nb == 0)
-      {
-         setMessage(ADimension, "-contraction not possible");
-         undoRedoPostSaveFailed();
-      }
+	{
+	  setMessage(ADimension, "-contraction not possible");
+	  undoRedoPostSaveFailed();
+	}
       else
-      {
-         undoRedoPostSaveOk();
-         unsetLastSelectedDart();
-         setModelChanged();
-         setMessage(nb, ADimension, (nb == 1 ? "-contraction done" :
-                                     "-contractions done"));
-         res = true;
-      }
-   }
+	{
+	  undoRedoPostSaveOk();
+	  unsetLastSelectedDart();
+	  setModelChanged();
+	  setMessage(nb, ADimension, (nb == 1 ? "-contraction done" :
+				      "-contractions done"));
+	  res = true;
+	}
+    }
 
-   return res;
+  return res;
 }
 //******************************************************************************
 bool CControlerGMap::contextContract()
 {
-   bool res = false;
-   if (canApplyOperation(COperation(OPERATION_CONTRACT,
-                                    SUB_OPERATION_INTUITIVE_TOPO, -1)))
-   {
+  bool res = false;
+  if (canApplyOperation(COperation(OPERATION_CONTRACT,
+				   SUB_OPERATION_INTUITIVE_TOPO, -1)))
+    {
       undoRedoPreSave();
 
       int dim = 0;
       switch (getSelectionOrbit())
-      {
-         case ORBIT_EDGE   : dim = 1; break;
-         case ORBIT_FACE   : dim = 2; break;
-         case ORBIT_VOLUME : dim = 3; break;
-         default: setMessage("Selected orbit not correct"); return false;
-      }
+	{
+	case ORBIT_EDGE   : dim = 1; break;
+	case ORBIT_FACE   : dim = 2; break;
+	case ORBIT_VOLUME : dim = 3; break;
+	default: setMessage("Selected orbit not correct"); return false;
+	}
 
       int nb = FMap->contractMarkedCells(getSelectionMark(), dim, true);
 
       if (nb == 0)
-      {
-         setMessage(dim, "-contraction impossible");
-         undoRedoPostSaveFailed();
-      }
+	{
+	  setMessage(dim, "-contraction impossible");
+	  undoRedoPostSaveFailed();
+	}
       else
-      {
-         undoRedoPostSaveOk();
-         unsetLastSelectedDart();
-         setModelChanged();
-         setMessage(nb, dim, (nb == 1 ? "-contraction done" :
-                              "-contractions done"));
-         res = true;
-      }
-   }
+	{
+	  undoRedoPostSaveOk();
+	  unsetLastSelectedDart();
+	  setModelChanged();
+	  setMessage(nb, dim, (nb == 1 ? "-contraction done" :
+			       "-contractions done"));
+	  res = true;
+	}
+    }
 
-   return res;
+  return res;
 }
 //******************************************************************************
 bool CControlerGMap::insertVertex()
 {
-   bool res = false;
-   if (canApplyOperation(COperation(OPERATION_INSERT, 0)))
-   {
+  bool res = false;
+  if (canApplyOperation(COperation(OPERATION_INSERT, 0)))
+    {
       undoRedoPreSave();
 
       int nb = FMap->insertVertexOnMarkedEdges(getSelectionMark());
 
       if (nb == 0)
-      {
-         setMessage("No vertex inserted");
-         undoRedoPostSaveFailed();
-      }
+	{
+	  setMessage("No vertex inserted");
+	  undoRedoPostSaveFailed();
+	}
       else
-      {
-         undoRedoPostSaveOk();
-         setModelChanged();
-         setMessage(nb, nb == 1 ? " vertex inserted" : " vertices inserted");
-         res = true;
-      }
-   }
+	{
+	  undoRedoPostSaveOk();
+	  setModelChanged();
+	  setMessage(nb, nb == 1 ? " vertex inserted" : " vertices inserted");
+	  res = true;
+	}
+    }
 
-   return res;
+  return res;
 }
 //******************************************************************************
 bool CControlerGMap::insertEdge()
 {
-   bool res = false;
-   if (canApplyOperation(COperation(OPERATION_INSERT, 1)))
-   {
+  bool res = false;
+  if (canApplyOperation(COperation(OPERATION_INSERT, 1)))
+    {
       undoRedoPreSave();
 
       CDart* dart1;
@@ -500,112 +568,112 @@ bool CControlerGMap::insertEdge()
 
       if (FMap->getMarkedCells(ORBIT_SELF, getSelectionMark(),
                                NULL, &dart1, &dart2) == 2)
-      {
-         if (!FMap->isSameOrbit(dart1, dart2, ORBIT_VERTEX))
-         {
-            nb = 1;
-            FMap->insertEdge(dart1, dart2);
-         }
-      }
+	{
+	  if (!FMap->isSameOrbit(dart1, dart2, ORBIT_VERTEX))
+	    {
+	      nb = 1;
+	      FMap->insertEdge(dart1, dart2);
+	    }
+	}
       else
-         nb = FMap->insertEdgeOnMarkedFaces(getSelectionMark(), true, true);
+	nb = FMap->insertEdgeOnMarkedFaces(getSelectionMark(), true, true);
 
       if (nb == 0)
-      {
-         setMessage("No edge inserted");
-         undoRedoPostSaveFailed();
-      }
+	{
+	  setMessage("No edge inserted");
+	  undoRedoPostSaveFailed();
+	}
       else
-      {
-         undoRedoPostSaveOk();
-         setModelChanged();
-         setMessage(nb, nb == 1 ? " edge inserted" : " edges inserted");
-         res = true;
-      }
-   }
+	{
+	  undoRedoPostSaveOk();
+	  setModelChanged();
+	  setMessage(nb, nb == 1 ? " edge inserted" : " edges inserted");
+	  res = true;
+	}
+    }
 
-   return res;
+  return res;
 }
 //******************************************************************************
 bool CControlerGMap::insertFace()
 {
-   bool res = false;
-   if (canApplyOperation(COperation(OPERATION_INSERT, 2)))
-   {
+  bool res = false;
+  if (canApplyOperation(COperation(OPERATION_INSERT, 2)))
+    {
       undoRedoPreSave();
 
       int nb =
-         FMap->insertFaceOnMarkedVolumes(getSelectionMark(), true, true, true);
+	FMap->insertFaceOnMarkedVolumes(getSelectionMark(), true, true, true);
 
       if (nb == 0)
-      {
-         setMessage("No face inserted");
-         undoRedoPostSaveFailed();
-      }
+	{
+	  setMessage("No face inserted");
+	  undoRedoPostSaveFailed();
+	}
       else
-      {
-         undoRedoPostSaveOk();
-         setModelChanged();
-         setMessage(nb, nb == 1 ? " face inserted" : " faces inserted");
-         res = true;
-      }
-   }
+	{
+	  undoRedoPostSaveOk();
+	  setModelChanged();
+	  setMessage(nb, nb == 1 ? " face inserted" : " faces inserted");
+	  res = true;
+	}
+    }
 
-   return res;
+  return res;
 }
 //******************************************************************************
 bool CControlerGMap::intuitiveStopUp()
 {
-   bool res = false;
-   if (canApplyOperation(COperation(OPERATION_STOP_UP,
-                                    SUB_OPERATION_INTUITIVE_TOPO, -1)))
-   {
+  bool res = false;
+  if (canApplyOperation(COperation(OPERATION_STOP_UP,
+				   SUB_OPERATION_INTUITIVE_TOPO, -1)))
+    {
       undoRedoPreSave();
 
       int nb = FMap->intuitiveStopUpMarkedBorders(getSelectionMark());
 
       if (nb == 0)
-      {
-         setMessage("No border closed");
-         undoRedoPostSaveFailed();
-      }
+	{
+	  setMessage("No border closed");
+	  undoRedoPostSaveFailed();
+	}
       else
-      {
-         undoRedoPostSaveOk();
-         setModelChanged();
-         setMessage(nb, nb == 1 ? " border closed" : " borders closed");
-         res = true;
-      }
-   }
+	{
+	  undoRedoPostSaveOk();
+	  setModelChanged();
+	  setMessage(nb, nb == 1 ? " border closed" : " borders closed");
+	  res = true;
+	}
+    }
 
-   return res;
+  return res;
 }
 //******************************************************************************
 bool CControlerGMap::stopUp(int ADimension)
 {
-   bool res = false;
-   if (canApplyOperation(COperation(OPERATION_STOP_UP, ADimension)))
-   {
+  bool res = false;
+  if (canApplyOperation(COperation(OPERATION_STOP_UP, ADimension)))
+    {
       undoRedoPreSave();
 
       int nb = FMap->stopUpMarkedBorders(getSelectionMark(), ADimension);
 
       if (nb == 0)
-      {
-         setMessage("No ", ADimension, "-border closed");
-         undoRedoPostSaveFailed();
-      }
+	{
+	  setMessage("No ", ADimension, "-border closed");
+	  undoRedoPostSaveFailed();
+	}
       else
-      {
-         undoRedoPostSaveOk();
-         setModelChanged();
-         setMessage(nb, ADimension, nb == 1 ? "-border closed" : 
-               "-borders closed");
-         res = true;
-      }
-   }
+	{
+	  undoRedoPostSaveOk();
+	  setModelChanged();
+	  setMessage(nb, ADimension, nb == 1 ? "-border closed" : 
+		     "-borders closed");
+	  res = true;
+	}
+    }
 
-   return res;
+  return res;
 }
 //******************************************************************************
 
