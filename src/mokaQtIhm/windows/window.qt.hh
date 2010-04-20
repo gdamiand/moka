@@ -331,7 +331,8 @@ public slots:
   void callbackRemoveMarkedFacesButKeepBalls ( ) ;
   void callbackShiftAllEdgesIncidentToVertex ( ) ;
   void callbackRemoveDanglingEdges();
-
+  void callbackSimplify3DObject();
+  
   // -- Contracter
   void callbackIntuitiveContract ( ) ;
 

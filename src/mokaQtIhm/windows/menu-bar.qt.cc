@@ -363,6 +363,9 @@ MenuBar :: MenuBar(Window * parent)
    fusionner->addAction("Remove dangling edges", FParent,
 			SLOT(callbackRemoveDanglingEdges()));
 
+   fusionner -> addAction("Simplify 3D object", FParent ,
+                           SLOT(callbackSimplify3DObject()));
+   
    // -- Contracter
    QMenu * contracter = operations -> addMenu("&Contract") ;
 

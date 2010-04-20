@@ -108,9 +108,19 @@ void saveAlphaInDirectInfo(int AAlphaIndex, int ADirectInfoIndex);
 /** Point each dart of a same AOrbit to the first dart of this orbit. This
  *  dart point to itself. Allows to use union-find trees on this orbit.
  *  @param AIndex the direct info index to use.
- *  @param AOrbit the orbit for whith initialize union find trees.
+ *  @param AOrbit the orbit for which initialize union find trees.
  */
 void initUnionFindTrees(int AIndex, TOrbit AOrbit);
+
+/** Init union find trees for two direct info, and two orbits.
+ *  
+ *  @param AIndex1 the first direct info index to use.
+ *  @param AOrbit1 the first orbit for which initialize union find trees.
+ *  @param AIndex2 the second direct info index to use.
+ *  @param AOrbit2 the second orbit for which initialize union find trees.
+ */
+void initTwoUnionFindTrees(int AIndex1, TOrbit AOrbit1,
+			   int AIndex2, TOrbit AOrbit2);
 
 /** Return the root of the uf-tree containing ADart.
  *  @param ADart the dart to find the root.

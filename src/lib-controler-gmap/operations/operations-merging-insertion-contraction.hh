@@ -43,6 +43,7 @@ bool delFlatVolumes();
 bool removeMarkedEdgesWithoutDisconnection();
 bool shiftAllEdgesIncidentToVertex();
 bool removeDanglingEdges();
+bool simplify3DObject();
 
 bool removeMarkedFacesButKeepBalls();
 
