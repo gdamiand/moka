@@ -36,7 +36,7 @@ void CControlerGMap::updateDartAfterRemovals(unsigned int ADim)
 {
   if ( !getParameterGMapVertex()->getModeSimplification() )
     return;
-  
+
   int deleted = getParameterGMapVertex()->getDrawingMap()->getNewMark();
   getParameterGMapVertex()->getDrawingMap()->negateMaskMark(deleted);
 
@@ -45,6 +45,13 @@ void CControlerGMap::updateDartAfterRemovals(unsigned int ADim)
     {
       getParameterGMapVertex()->getDrawingMap()->
 	unsetMark(getParameterGMapVertex()->getDartWithEmbedding(*it),deleted);
+    }
+
+  if ( ADim==2 ) // TODO better ;)
+    {
+      getParameterGMapVertex()->getDrawingMap()->
+	mergeMarkedCells(deleted, 3, true);
+      return;
     }
   
   // Now we run through all darts of the drawing map. Each dart marked with
@@ -61,6 +68,45 @@ void CControlerGMap::updateDartAfterRemovals(unsigned int ADim)
     }
   
   getParameterGMapVertex()->getDrawingMap()->freeMark(deleted);
+}
+//******************************************************************************
+void CControlerGMap::updateDartAfterRemovals(int AMark0, int AMark1, int AMark2)
+{
+  if ( !getParameterGMapVertex()->getModeSimplification() )
+    return;
+
+  CDart* current = NULL;
+
+  if ( AMark2!=-1 )
+    getParameterGMapVertex()->getDrawingMap()->
+      mergeMarkedCells(AMark2, 3, true);
+
+  for (CDynamicCoverageAll it(FMap); it.cont(); )
+    {
+      current = it++;
+      
+      if ( AMark0!=-1 && FMap->isMarked(current,AMark0) )
+	{
+	  getParameterGMapVertex()->getDrawingMap()->
+	    setMark(getParameterGMapVertex()->getDartWithEmbedding(current),
+		    getParameterGMapVertex()->getMarkRemoved(0));
+	  FMap->delMapDart(current);
+	}
+      else if ( AMark1!=-1 && FMap->isMarked(current,AMark1) )
+	{
+	  getParameterGMapVertex()->getDrawingMap()->
+	    setMark(getParameterGMapVertex()->getDartWithEmbedding(current),
+		    getParameterGMapVertex()->getMarkRemoved(1));
+	  FMap->delMapDart(current);
+	}
+//       else if ( AMark2!=-1 && FMap->isMarked(current,AMark2) )
+// 	{
+// 	  getParameterGMapVertex()->getDrawingMap()->
+// 	    setMark(getParameterGMapVertex()->getDartWithEmbedding(current),
+// 		    getParameterGMapVertex()->getMarkRemoved(2));
+// 	  FMap->delMapDart(current);
+// 	}
+    }
 }
 //******************************************************************************
 bool CControlerGMap::merge(int ADim)
@@ -412,13 +458,24 @@ bool CControlerGMap::simplify3DObject()
      	    <<", faces="<<nbfaces
      	    <<", volumes="<<nbvolumes
      	    <<", cc="<<nbcc<<std::endl;
+
+   int m0=-1;
+   int m1=-1;
+   int m2=-1;
+   
+   if ( getParameterGMapVertex()->getModeSimplification() )
+     {
+       m0=FMap->getNewMark();
+       m1=FMap->getNewMark();
+       m2=FMap->getNewMark(); // Problem with connected darts
+     }
    
 #ifndef _WINDOWS
    CChrono c;
    c.start();
 #endif
 
-   int nb = FMap->simplify3DObject();
+   int nb = FMap->simplify3DObject(m0,m1,m2);
       
 #ifndef _WINDOWS
    c.stop();
@@ -434,8 +491,14 @@ bool CControlerGMap::simplify3DObject()
 	}
       else
 	{
-	  // updateDartAfterRemovals(2); // Problem here since the operation 
-	  // simplify3DObject use removal of different dimensions... TODO ?
+	  if ( getParameterGMapVertex()->getModeSimplification() )
+	    {
+	      updateDartAfterRemovals(m0,m1,m2);
+	      FMap->freeMark(m0);
+	      FMap->freeMark(m1);
+	      FMap->freeMark(m2);
+	    }
+	  
 	  undoRedoPostSaveOk();
 	  unsetLastSelectedDart();
 	  setModelChanged();

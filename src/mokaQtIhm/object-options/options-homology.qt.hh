@@ -73,7 +73,9 @@ private slots:
   void callbackToggleH0(bool);
   void callbackToggleH1free(bool);
   void callbackToggleH1torsion(bool);
-  void callbackToggleH2(bool);
+  void callbackToggleH2free(bool);
+  void callbackToggleH2torsion(bool);
+  void callbackToggleH3(bool);
   
 private :
 
@@ -82,9 +84,10 @@ private :
 
   bool FUpdate ;  
 
-  QGroupBox * FGenerators, * FInfo ;
-  QLabel *Fh0, *Fh1free, *Fh1torsion, *Fh2, *FTime, *FMemory;
-  QPushButton* FButtonH0, *FButtonH1free, *FButtonH1torsion, *FButtonH2;
+  QGroupBox *FGenerators, *FInfo ;
+  QLabel *Fh0, *Fh1free, *Fh1torsion, *Fh2free, *Fh2torsion, *Fh3, *FTime, *FMemory;
+  QPushButton *FButtonH0, *FButtonH1free, *FButtonH1torsion;
+  QPushButton *FButtonH2free,*FButtonH2torsion,*FButtonH3;
   
   // Toolbox which computes homology.
   GMap3d::CHomology* FHomology;

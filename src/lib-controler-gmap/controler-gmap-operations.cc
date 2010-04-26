@@ -51,8 +51,8 @@ isRemovalOperation(const COperation& AOperation) const
     AOperation.getType()==OPERATION_MERGE_FACE_NODISCONNECTION ||
     AOperation.getType()==OPERATION_REMOVE_FACES_KEEP_BALLS ||
     AOperation.getType()==OPERATION_SHIFT_EDGES_INCIDENT_TO_VERTEX ||
-    AOperation.getType()==OPERATION_REMOVE_DANGLING_EDGES;
-    // || AOperation.getType()==OPERATION_SIMPLIFY_3D_OBJECT;
+    AOperation.getType()==OPERATION_REMOVE_DANGLING_EDGES ||
+    AOperation.getType()==OPERATION_SIMPLIFY_3D_OBJECT;
 }
 //------------------------------------------------------------------------------
 bool CControlerGMap::
