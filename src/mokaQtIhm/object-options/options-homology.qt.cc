@@ -61,13 +61,17 @@ OptionsHomology :: OptionsHomology(Window * parent) :
    Fh0        = new QLabel("") ;
    Fh1free    = new QLabel("") ;
    Fh1torsion = new QLabel("") ;
-   Fh2        = new QLabel("") ;
-   
+   Fh2free    = new QLabel("") ;
+   Fh2torsion = new QLabel("") ;
+   Fh3        = new QLabel("") ;
+      
    FButtonH0 = new QPushButton("H0:");
    FButtonH1free = new QPushButton("free:");
    FButtonH1torsion = new QPushButton("torsion:");
-   FButtonH2 = new QPushButton("H2:");
-   
+   FButtonH2free = new QPushButton("free:");
+   FButtonH2torsion = new QPushButton("torsion:");
+   FButtonH3 = new QPushButton("H3:");
+      
    FButtonH0->setCheckable(true);
    connect(FButtonH0, SIGNAL(toggled(bool)), this, 
            SLOT(callbackToggleH0(bool))); 
@@ -80,9 +84,17 @@ OptionsHomology :: OptionsHomology(Window * parent) :
    connect(FButtonH1torsion, SIGNAL(toggled(bool)), this, 
            SLOT(callbackToggleH1torsion(bool))); 
 
-   FButtonH2->setCheckable(true);
-   connect(FButtonH2, SIGNAL(toggled(bool)), this, 
-           SLOT(callbackToggleH2(bool))); 
+   FButtonH2free->setCheckable(true);
+   connect(FButtonH2free, SIGNAL(toggled(bool)), this, 
+           SLOT(callbackToggleH2free(bool))); 
+
+   FButtonH2torsion->setCheckable(true);
+   connect(FButtonH2torsion, SIGNAL(toggled(bool)), this, 
+           SLOT(callbackToggleH2torsion(bool))); 
+
+   FButtonH3->setCheckable(true);
+   connect(FButtonH3, SIGNAL(toggled(bool)), this, 
+           SLOT(callbackToggleH3(bool))); 
 
    global->addWidget(FButtonH0 , 1 , 0) ;
    global->addWidget(Fh0 , 1 , 1) ;
@@ -95,9 +107,17 @@ OptionsHomology :: OptionsHomology(Window * parent) :
    global->addWidget(FButtonH1torsion , 2 , 3) ;
    global->addWidget(Fh1torsion , 2 , 4) ;
       
-   global->addWidget(FButtonH2 , 3 , 0) ;
-   global->addWidget(Fh2 , 3 , 1) ;   
+   global->addWidget(new QLabel("H2:") , 3 , 0) ;
+
+   global->addWidget(FButtonH2free , 3 , 1) ;
+   global->addWidget(Fh2free , 3 , 2) ;   
    
+   global->addWidget(FButtonH2torsion , 3 , 3) ;
+   global->addWidget(Fh2torsion , 3 , 4) ;   
+
+   global->addWidget(FButtonH3 , 4 , 0) ;
+   global->addWidget(Fh3 , 4 , 1) ;   
+
    //-- volume --
    FInfo = new QGroupBox("Performances") ;
    QGridLayout * pointed = new QGridLayout(FInfo) ;
@@ -159,11 +179,21 @@ void OptionsHomology::update()
    os<<FHomology->getH1TorsionGenerators();
    Fh1torsion->setText(os.str().c_str()) ;
 
-   // H2
+   // H2free
    os.str("-");
-   os<<FHomology->getH2Generators();
-   Fh2->setText(os.str().c_str()) ;
+   os<<FHomology->getH2FreeGenerators();
+   Fh2free->setText(os.str().c_str()) ;
 
+   // H2torsion
+   os.str("");
+   os<<FHomology->getH2TorsionGenerators();
+   Fh2torsion->setText(os.str().c_str()) ;
+
+   // H3
+   os.str("-");
+   os<<FHomology->getH3FreeGenerators();
+   Fh3->setText(os.str().c_str()) ;
+   
    // Memory
    os.str("");
    unsigned long s = FHomology->size();
@@ -192,7 +222,9 @@ void OptionsHomology::update()
    FButtonH0->setChecked(FHomology->getShowH0());
    FButtonH1free->setChecked(FHomology->getShowH1free());
    FButtonH1torsion->setChecked(FHomology->getShowH1torsion());
-   FButtonH2->setChecked(FHomology->getShowH2());
+   FButtonH2free->setChecked(FHomology->getShowH2free());
+   FButtonH2torsion->setChecked(FHomology->getShowH2torsion());
+   FButtonH3->setChecked(FHomology->getShowH3());
    
    FParent->getControler()->setSelectionChanged();
    FParent -> repaint() ;
@@ -225,9 +257,23 @@ void OptionsHomology::callbackToggleH1torsion(bool ADraw)
   FParent -> repaint() ;
 }
 
-void OptionsHomology::callbackToggleH2(bool ADraw)
+void OptionsHomology::callbackToggleH2free(bool ADraw)
 {
-  FHomology->setShowH2(ADraw);
+  FHomology->setShowH2free(ADraw);
+  FParent->getControler()->setSelectionChanged();
+  FParent -> repaint() ;
+}
+
+void OptionsHomology::callbackToggleH2torsion(bool ADraw)
+{
+  FHomology->setShowH2torsion(ADraw);
+  FParent->getControler()->setSelectionChanged();
+  FParent -> repaint() ;
+}
+
+void OptionsHomology::callbackToggleH3(bool ADraw)
+{
+  FHomology->setShowH3(ADraw);
   FParent->getControler()->setSelectionChanged();
   FParent -> repaint() ;
 }

@@ -30,7 +30,11 @@ public:
 /// In simplification mode, update the removed marks after having
 /// ADim-removed some darts.
 void updateDartAfterRemovals(unsigned int ADim);
-  
+
+/// In simplification mode, update the removed marks after having
+/// removed some darts, each mark AMarki corresponds to darts i-removed .
+void updateDartAfterRemovals(int AMark0, int AMark1, int AMark2);
+
 bool merge(int ADimension);
 bool intuitiveMerge();
 

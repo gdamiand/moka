@@ -722,7 +722,7 @@ unsigned int CGMapGeneric::simplify2DObject()
   return 0;
 }
 //******************************************************************************
-unsigned int CGMapGeneric::simplify3DObject()
+unsigned int CGMapGeneric::simplify3DObject(int AMark0, int AMark1, int AMark2)
 {
   // Simplify a 3D map in its minimal form, without use shifting operations, and
   // by keeping each cell homeomorphic to a ball.
@@ -739,6 +739,10 @@ unsigned int CGMapGeneric::simplify3DObject()
   std::stack<CDart*> FToTreat;
   bool dangling = false;
   unsigned int nbRemove = 0;
+
+  int toDelete0 = (AMark0==-1?toDelete:AMark0);
+  int toDelete1 = (AMark1==-1?toDelete:AMark1);
+  int toDelete2 = (AMark2==-1?toDelete:AMark2);
   
   int indexVol  = getNewDirectInfo();
   int indexFace = getNewDirectInfo();
@@ -784,8 +788,8 @@ unsigned int CGMapGeneric::simplify3DObject()
 		      setMark( alpha3(*itFace), treated );
 // 		      setMark( *itFace, cell );
 // 		      setMark( alpha3(*itFace), cell );
-		      setMark( *itFace, toDelete );
-		      setMark(  alpha3(*itFace), toDelete );
+		      setMark( *itFace, toDelete2 );
+		      setMark(  alpha3(*itFace), toDelete2 );
 		    }
 		  
 		  // Second, we push in the stack all the neighboors of the current
@@ -795,7 +799,7 @@ unsigned int CGMapGeneric::simplify3DObject()
 		  for ( itFace.reinit(); itFace.cont(); ++itFace )
 		    {
 		      if ( alpha23(*itFace)==alpha32(*itFace) &&
-			   !isMarked(alpha2(*itFace), toDelete /*cell*/) &&
+			   !isMarked(alpha2(*itFace), toDelete2 /*cell*/) &&
 			   !isFree3(alpha2(*itFace)) )
 			   // && !isMarked(alpha2(*itFace),toDelete) )
 			{
@@ -804,10 +808,10 @@ unsigned int CGMapGeneric::simplify3DObject()
 		  
 		      // Now we update alpha2
 		      t1 = alpha(*itFace, 2);
-		      if ( !isMarked(t1, toDelete) )
+		      if ( !isMarked(t1, toDelete2) )
 			{
 			  t2 = *itFace;
-			  while ( isMarked(t2, toDelete) )
+			  while ( isMarked(t2, toDelete2) )
 			    {
 			      t2 = alpha32(t2);
 			    }
@@ -861,7 +865,7 @@ unsigned int CGMapGeneric::simplify3DObject()
 	  dangling = false;
 	}
 
-      if ( !isMarked(current, toDelete) &&
+      if ( !isMarked(current, toDelete2) && !isMarked(current, toDelete1) &&
 	   (dangling || !isMarked(current, treated)) )
 	{
 	  if ( !isFree2(current) )
@@ -882,8 +886,8 @@ unsigned int CGMapGeneric::simplify3DObject()
 		      setMark( alpha3(*itEdge), treated );
 // 		      setMark( *itEdge, cell );
 // 		      setMark( alpha3(*itEdge), cell );
-		      setMark( *itEdge, toDelete );
-		      setMark(  alpha3(*itEdge), toDelete );
+		      setMark( *itEdge, toDelete1 );
+		      setMark(  alpha3(*itEdge), toDelete1 );
 		    }
 	      
 		  // Second, we push in the stack all the neighboors of the current
@@ -893,7 +897,7 @@ unsigned int CGMapGeneric::simplify3DObject()
 		  for ( itEdge.reinit(); itEdge.cont(); ++itEdge )
 		    {
 		      if ( alpha12(*itEdge)==alpha21(*itEdge) &&
-			   !isMarked(alpha1(*itEdge), toDelete) &&
+			   !isMarked(alpha1(*itEdge), toDelete1) &&
 			   !isFree2(alpha1(*itEdge)) )
 			//&& !isMarked(alpha1(*itEdge),toDelete) )
 			{
@@ -902,10 +906,10 @@ unsigned int CGMapGeneric::simplify3DObject()
 		  
 		      // Now we update alpha2
 		      t1 = alpha(*itEdge, 1);
-		      if ( !isMarked(t1, toDelete) )
+		      if ( !isMarked(t1, toDelete1) )
 			{
 			  t2 = *itEdge;
-			  while ( isMarked(t2, toDelete) )
+			  while ( isMarked(t2, toDelete1) )
 			    {
 			      t2 = alpha21(t2);
 			    }
@@ -951,7 +955,8 @@ unsigned int CGMapGeneric::simplify3DObject()
     {
       current = cov++;
 
-      if ( !isMarked(current,treated) && !isMarked(current, toDelete) )
+      if ( !isMarked(current,treated) && !isMarked(current, toDelete2)
+	   && !isMarked(current, toDelete1) && !isMarked(current, toDelete0) )
       {
 	bool deleteVertex = true;
 	CStaticCoverage23 itVertex(this, current);
@@ -972,8 +977,8 @@ unsigned int CGMapGeneric::simplify3DObject()
 	    // First we mark the current vertex.
 	    for ( itVertex.reinit(); itVertex.cont(); ++itVertex )
 	      {
-		setMark( *itVertex, toDelete );
-		setMark(  alpha1(*itVertex), toDelete );
+		setMark( *itVertex, toDelete0 );
+		setMark(  alpha1(*itVertex), toDelete0 );
 	      }
 	      
 	    // Second, we make the removal manually instead of calling
@@ -981,10 +986,10 @@ unsigned int CGMapGeneric::simplify3DObject()
 	    for ( itVertex.reinit(); itVertex.cont(); ++itVertex )
 	      {
 		t1 = alpha(*itVertex, 0);
-		if ( !isMarked(t1, toDelete) )
+		if ( !isMarked(t1, toDelete0) )
 		  {
 		    t2 = *itVertex;
-		    while ( isMarked(t2, toDelete) )
+		    while ( isMarked(t2, toDelete0) )
 		      {
 			t2 = alpha10(t2);
 		      }
@@ -1012,8 +1017,12 @@ unsigned int CGMapGeneric::simplify3DObject()
       if ( isMarked(current, toDelete) )
 	{
 	  delMapDart(current);
-	  ++nbRemove;
 	}
+
+      if ( isMarked(current, toDelete0) ||
+	   isMarked(current, toDelete1) ||
+	   isMarked(current, toDelete2) )
+	++nbRemove;
     }
   
   freeMark(toDelete);
