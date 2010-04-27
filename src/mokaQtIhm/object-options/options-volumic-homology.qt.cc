@@ -21,7 +21,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "options-homology.qt.hh"
+#include "options-volumic-homology.qt.hh"
 #include "window.qt.hh"
 #include "HtmlEntities.hh"
 #include "compute-homology.hh"
@@ -37,7 +37,7 @@
 
 // Constructeur
 //-------------
-OptionsHomology :: OptionsHomology(Window * parent) :
+OptionsVolumicHomology :: OptionsVolumicHomology(Window * parent) :
       QDialog(parent) ,
       FParent(parent) ,
       FUpdate(false),
@@ -138,10 +138,10 @@ OptionsHomology :: OptionsHomology(Window * parent) :
 
 // Destructeur
 //------------
-OptionsHomology :: ~OptionsHomology()
+OptionsVolumicHomology :: ~OptionsVolumicHomology()
 { delete FHomology; }
 
-void OptionsHomology::update()
+void OptionsVolumicHomology::update()
 {
   delete FHomology;
   
@@ -154,7 +154,7 @@ void OptionsHomology::update()
   FHomology = new GMap3d::CHomology(FParent->getControler()->getMap(),
 				    FParent->getControler()->
 				    getSelectionMark());
-  if ( FHomology!=NULL && FHomology->computeHomology() )
+  if ( FHomology!=NULL && FHomology->computeVolumicHomology() )
     FParent->getControler()->setMessage("Homology computed.");
   else
     FParent->getControler()->
@@ -230,48 +230,48 @@ void OptionsHomology::update()
    FParent -> repaint() ;
 }
 
-void OptionsHomology::show_impl()
+void OptionsVolumicHomology::show_impl()
 {
    show() ;
    update() ;
 }
 
-void OptionsHomology::callbackToggleH0(bool ADraw)
+void OptionsVolumicHomology::callbackToggleH0(bool ADraw)
 {
   FHomology->setShowH0(ADraw);
   FParent->getControler()->setSelectionChanged();
   FParent -> repaint() ;
 }
 
-void OptionsHomology::callbackToggleH1free(bool ADraw)
+void OptionsVolumicHomology::callbackToggleH1free(bool ADraw)
 {
   FHomology->setShowH1free(ADraw);
   FParent->getControler()->setSelectionChanged();
   FParent -> repaint() ;
 }
 
-void OptionsHomology::callbackToggleH1torsion(bool ADraw)
+void OptionsVolumicHomology::callbackToggleH1torsion(bool ADraw)
 {
   FHomology->setShowH1torsion(ADraw);
   FParent->getControler()->setSelectionChanged();
   FParent -> repaint() ;
 }
 
-void OptionsHomology::callbackToggleH2free(bool ADraw)
+void OptionsVolumicHomology::callbackToggleH2free(bool ADraw)
 {
   FHomology->setShowH2free(ADraw);
   FParent->getControler()->setSelectionChanged();
   FParent -> repaint() ;
 }
 
-void OptionsHomology::callbackToggleH2torsion(bool ADraw)
+void OptionsVolumicHomology::callbackToggleH2torsion(bool ADraw)
 {
   FHomology->setShowH2torsion(ADraw);
   FParent->getControler()->setSelectionChanged();
   FParent -> repaint() ;
 }
 
-void OptionsHomology::callbackToggleH3(bool ADraw)
+void OptionsVolumicHomology::callbackToggleH3(bool ADraw)
 {
   FHomology->setShowH3(ADraw);
   FParent->getControler()->setSelectionChanged();

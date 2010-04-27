@@ -42,10 +42,15 @@ namespace GMap3d
     /// Destructor.
     ~CHomology();
 			
-    /// Compute the homology of the gmap.
+    /// Compute the homology of the gmap as it was a 2D generalized map.
     /// @return true if the homology is computed,
     ///         false otherwise (case of not enough memory)
-    bool computeHomology();
+    bool computeSurfacicHomology();
+			
+    /// Compute the homology of the 3-gmap.
+    /// @return true if the homology is computed,
+    ///         false otherwise (case of not enough memory)
+    bool computeVolumicHomology();
 			
     /// Return the memory size (in bytes) required for the matrixes.
     unsigned long size() const;
@@ -162,8 +167,7 @@ namespace GMap3d
     int FNbCycleDim0, FNbCycleDim1, FNbCycleDim2, FNbCycleDim3; 
     int FNbBordFaibleDim0, FNbBordFaibleDim1, FNbBordFaibleDim2 ;
     int FNbGenLibreDim0, FNbGenLibreDim1, FNbGenLibreDim2, FNbGenLibreDim3;
-    int FNbGenTorsionDim1, FNbGenTorsionDim2;
-			
+    int FNbGenTorsionDim1, FNbGenTorsionDim2;			
 			
     /// Boolean indicating which generators are drawn.
     bool FShowH0, FShowH1free, FShowH1torsion;

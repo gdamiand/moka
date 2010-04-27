@@ -46,11 +46,12 @@ Window :: Window() :
       LINK_COLOR(QColor(53, 200, 255)),
       FControler(new CControlerGMap),
       FCreationActive(NULL),
-      FOperationActive(NULL) ,
+      FOperationActive(NULL),
       FOptionsFrame(NULL),
-      FOperationChanfreinage(NULL) ,
-      FOptionsCarac(NULL) ,
-      FOptionsHomology(NULL) ,
+      FOperationChanfreinage(NULL),
+      FOptionsCarac(NULL),
+      FOptionsSurfacicHomology(NULL),
+      FOptionsVolumicHomology(NULL),
       FDialogDo(NULL) ,
       FDoubleCliquee(NULL),
       FCouleurs(NULL),
@@ -325,9 +326,14 @@ OptionsCarac * Window :: getOptionsCaracActive() const
    return FOptionsCarac ;
 }
 
-OptionsHomology * Window :: getOptionsHomologyActive() const
+OptionsSurfacicHomology * Window::getOptionsSurfacicHomologyActive() const
 {
-   return FOptionsHomology ;
+   return FOptionsSurfacicHomology ;
+}
+
+OptionsVolumicHomology * Window::getOptionsVolumicHomologyActive() const
+{
+   return FOptionsVolumicHomology ;
 }
 
 //*****************************************
@@ -1296,12 +1302,21 @@ void Window :: caracTopo()
    FOptionsCarac -> show_impl() ;
 }
 
-void Window::callbackComputeHomology()
+void Window::callbackComputeSurfacicHomology()
 {
-  if (FOptionsHomology == NULL)
-    FOptionsHomology = new OptionsHomology(this) ;
+  if (FOptionsSurfacicHomology == NULL)
+    FOptionsSurfacicHomology = new OptionsSurfacicHomology(this) ;
   
-  FOptionsHomology -> show_impl() ;
+  FOptionsSurfacicHomology -> show_impl() ;
+  repaint();
+}
+
+void Window::callbackComputeVolumicHomology()
+{
+  if (FOptionsVolumicHomology == NULL)
+    FOptionsVolumicHomology = new OptionsVolumicHomology(this) ;
+  
+  FOptionsVolumicHomology -> show_impl() ;
   repaint();
 }
 
@@ -1391,12 +1406,16 @@ void Window :: resetActiveOperations()
       FCouleurs -> close();
       color_active = false;
    }
-   else if (getOptionsHomologyActive() )
+   else if (getOptionsSurfacicHomologyActive() )
      {
-       FOptionsHomology->close();
-       delete FOptionsHomology;
+       FOptionsSurfacicHomology->close();
+       delete FOptionsSurfacicHomology;
      }
-   
+   else if (getOptionsVolumicHomologyActive() )
+     {
+       FOptionsVolumicHomology->close();
+       delete FOptionsVolumicHomology;
+     }   
 }
 
 // Slots Menu Creer

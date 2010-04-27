@@ -55,8 +55,11 @@ CHomology::~CHomology()
 //******************************************************************************
 unsigned long CHomology::size() const
 {
-  return FMatrix[0]->size() + FMatrix[1]->size() + FMatrix[2]->size() +
-    FCells[0].size() + FCells[1].size() + FCells[2].size();
+  unsigned long res = 0;
+  if ( FMatrix[0]!=NULL ) res += FMatrix[0]->size() + FCells[0].size();
+  if ( FMatrix[1]!=NULL ) res += FMatrix[1]->size() + FCells[1].size();
+  if ( FMatrix[2]!=NULL ) res += FMatrix[2]->size() + FCells[2].size();
+  return  res;
 }
 //******************************************************************************
 int CHomology::computeIncidenceNumber(CDart* ADart, int ADim,
@@ -241,7 +244,62 @@ void CHomology::computeIncidence(int ADim)
   FMap->freeDirectInfo(index);
 }
 //******************************************************************************
-bool CHomology::computeHomology()
+bool CHomology::computeSurfacicHomology()
+{
+  FMap->countCells(-1,&FNbVertices,&FNbEdges,&FNbFaces,NULL,NULL,NULL);  
+	
+  delete FMatrix[0]; FMatrix[0] = new MatricePMQ(FNbVertices, FNbEdges);
+  delete FMatrix[1]; FMatrix[1] = new MatricePMQ(FNbEdges,    FNbFaces);
+  delete FMatrix[2]; FMatrix[2] = NULL;
+	
+  FCells[0].clear(); FCells[0].reserve(FNbVertices);
+  FCells[1].clear(); FCells[1].reserve(FNbEdges);  
+  FCells[2].clear(); 
+	
+  if (FCells[0].capacity()<FNbVertices ||
+      FCells[1].capacity()<FNbEdges ||
+      !FMatrix[0]->valid() ||
+      !FMatrix[1]->valid())
+    {
+      FCells[0].clear(); FCells[1].clear();
+      delete FMatrix[0]; delete FMatrix[1]; 
+      FMatrix[0]=NULL; FMatrix[1]=NULL;
+      return false;
+    }
+	
+  computeIncidence(0);
+  computeIncidence(1);
+
+  FMatrix[0]->smithForm();
+
+  FMatrix[1]->getM()->multGauche(FMatrix[0]->getQinv());
+  FMatrix[1]->getP()->setMatrice( FMatrix[0]->getQ());
+  FMatrix[1]->getPinv()->setMatrice(FMatrix[0]->getQinv());
+  FMatrix[1]->smithForm();
+
+  FNbCycleDim0 = FMatrix[0]->getM()->getnbli();
+  FNbCycleDim1 = FMatrix[0]->getM()->nbCycle();
+  FNbCycleDim2 = FMatrix[1]->getM()->nbCycle();
+  FNbCycleDim3 = 0;
+
+  FNbBordFaibleDim0 = FMatrix[0]->getM()->getnbcol()-FNbCycleDim1;
+  FNbBordFaibleDim1 = FMatrix[1]->getM()->getnbcol()-FNbCycleDim2;
+  FNbBordFaibleDim2 = 0;
+
+  FNbGenLibreDim0 = FNbCycleDim0 - FNbBordFaibleDim0;
+  FNbGenLibreDim1 = FNbCycleDim1 - FNbBordFaibleDim1;
+  FNbGenLibreDim2 = FNbCycleDim2;
+  FNbGenLibreDim2 = 0;
+  
+  FNbGenTorsionDim1 = FMatrix[1]->getM()->nbTorsion();
+  FNbGenTorsionDim2 = 0;
+
+  updateSelectedDarts();
+	
+  return true;
+}
+//******************************************************************************
+bool CHomology::computeVolumicHomology()
 {
   FMap->countCells(-1,&FNbVertices,&FNbEdges,&FNbFaces,&FNbVolumes,NULL,NULL);  
 	
@@ -260,6 +318,7 @@ bool CHomology::computeHomology()
       !FMatrix[1]->valid() ||
       !FMatrix[2]->valid())
     {
+      FCells[0].clear(); FCells[1].clear(); FCells[2].clear();
       delete FMatrix[0]; delete FMatrix[1]; delete FMatrix[2];
       FMatrix[0]=NULL; FMatrix[1]=NULL; FMatrix[2]=NULL; 
       return false;
@@ -267,23 +326,7 @@ bool CHomology::computeHomology()
 	
   computeIncidence(0);
   computeIncidence(1);
-  computeIncidence(2); // MARCHE PAS pour objet non orientable (ex Klein)
-  /*  {
-      int treated = FMap->getNewMark();
-      int currentcell=1;
-      for (CDynamicCoverageAll it(FMap); it.cont(); ++it)
-      {
-      if (!FMap->isMarked(*it, treated))
-      {
-      FMap->markOrbit(*it,ORBIT_FACE,treated);
-      FCells[2][currentcell-1]=*it;
-      ++currentcell;
-      }
-      }
-      FMap->negateMaskMark(treated);
-      FMap->freeMark(treated);
-      }*/
-	
+  computeIncidence(2);
 	
   FMatrix[0]->smithForm();
 	
@@ -311,8 +354,8 @@ bool CHomology::computeHomology()
   FNbGenLibreDim2 = FNbCycleDim2 - FNbBordFaibleDim2;
   FNbGenLibreDim3 = FNbCycleDim3;
 
-  FNbGenTorsionDim1  = FMatrix[1]->getM()->nbTorsion();
-  FNbGenTorsionDim2  = FMatrix[2]->getM()->nbTorsion();
+  FNbGenTorsionDim1 = FMatrix[1]->getM()->nbTorsion();
+  FNbGenTorsionDim2 = FMatrix[2]->getM()->nbTorsion();
 	
   updateSelectedDarts();
 	

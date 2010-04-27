@@ -21,8 +21,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OPTIONSHOMOLOGY_QT_HH
-#define OPTIONSHOMOLOGY_QT_HH
+#ifndef OPTIONSVOLUMICHOMOLOGY_QT_HH
+#define OPTIONSVOLUMICHOMOLOGY_QT_HH
 
 //--------- Include autres classes developees ----------
 #include "controler-gmap.hh"
@@ -45,7 +45,7 @@ namespace GMap3d {class CHomology;}
 /** 
  * Cette classe implemente la fenetre de dialogue pour le calcul des groupes d'homologies
  */
-class OptionsHomology : public QDialog
+class OptionsVolumicHomology : public QDialog
 {
   Q_OBJECT
 
@@ -55,12 +55,12 @@ public :
    * Constructeur.
    * @param parent La fenetre principale
    */
-  OptionsHomology ( Window * parent ) ;
+  OptionsVolumicHomology ( Window * parent ) ;
 
   /**
    * Destructeur
    */
-  ~OptionsHomology ( ) ;
+  ~OptionsVolumicHomology ( ) ;
 
   /**
    * Mise a jour de l'affichage
