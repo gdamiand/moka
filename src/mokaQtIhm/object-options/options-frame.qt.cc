@@ -46,11 +46,10 @@ OptionsFrame :: OptionsFrame ( Window * parent )
   main_tab -> addTab ( FAffichage , "&Display") ;
   
   FVue = new OptionsVue ( parent , this ) ;  
-  main_tab -> addTab ( FVue , *HTML::decode("&Splitted View") ) ;
+  main_tab -> addTab ( FVue , "&Splitted View" ) ;
 
   FPonderation = new OptionsPonderation ( parent , main_tab) ;
-  main_tab -> addTab ( FPonderation , *HTML::decode("Weights "
-        "of &deformations") ) ;
+  main_tab -> addTab ( FPonderation , "Weights of &deformations") ) ;
 
   FExtrusion = new OptionsExtrusion ( parent , main_tab ) ;
   main_tab -> addTab ( FExtrusion , "&Extrusions/thickening" ) ;

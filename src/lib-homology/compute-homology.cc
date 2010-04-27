@@ -414,21 +414,22 @@ void CHomology::updateSelectedDarts()
     FMap->unsetMark(*it,FMark);
 	
   // 2) we mark the required generators.
-  if ( FShowH1torsion )
+  if ( FShowH0 )
     {
-      //marquage des cellules faisant partie des générateurs de torsion
-      for (int j=0;j<FNbGenTorsionDim1;j++){
-	for(int i=0;i<FMatrix[1]->getP()->getnbli();++i)
-	  {
-	    if(FMatrix[1]->getP()->getVal(i,j)!=0)
-	      {
-		//marquerTorsion la d cellule numero i
-		FMap->markOrbit(FCells[1][i],ORBIT_EDGE,FMark);
-		//		std::cout<<"Cellule torsion: "<<i<<" ("<<FCells[1][i]
-		//			 <<")"<<std::endl;
-	      }
-	  }
-      }
+      //marquage des cellules faisant partie des H0
+      for (int j=FNbBordFaibleDim0;j<FNbBordFaibleDim0+FNbGenLibreDim0;++j)
+	{
+	  for(int i=0;i<FMatrix[0]->getP()->getnbli();++i)
+	    {
+	      if(FMatrix[0]->getP()->getVal(i,j)!=0)
+		{
+		  //marquerLibre la d cellule numero i
+		  FMap->markOrbit(FCells[0][i],ORBIT_VERTEX,FMark);
+		  //		  std::cout<<"Generateur libre "<<j<<" - Cellule libre: "<<i<<" ("<<FCells[1][i]
+		  //			   <<")"<<std::endl;
+		}
+	    }
+	}
     }
 	
   if ( FShowH1free )
@@ -451,33 +452,31 @@ void CHomology::updateSelectedDarts()
 	}
     }
 	
-  if ( FShowH0 )
+  if ( FShowH1torsion )
     {
-      int deb = FNbBordFaibleDim0;
-      //marquage des cellules faisant partie des H0
-      for (int j=deb;j<deb+FNbGenLibreDim0;++j)
-	{
-	  for(int i=0;i<FMatrix[0]->getP()->getnbli();++i)
-	    {
-	      if(FMatrix[0]->getP()->getVal(i,j)!=0)
-		{
-		  //marquerLibre la d cellule numero i
-		  FMap->markOrbit(FCells[0][i],ORBIT_VERTEX,FMark);
-		  //		  std::cout<<"Generateur libre "<<j<<" - Cellule libre: "<<i<<" ("<<FCells[1][i]
-		  //			   <<")"<<std::endl;
-		}
-	    }
-	}
+      //marquage des cellules faisant partie des générateurs de torsion
+      for (int j=0;j<FNbGenTorsionDim1;j++){
+	for(int i=0;i<FMatrix[1]->getP()->getnbli();++i)
+	  {
+	    if(FMatrix[1]->getP()->getVal(i,j)!=0)
+	      {
+		//marquerTorsion la d cellule numero i
+		FMap->markOrbit(FCells[1][i],ORBIT_EDGE,FMark);
+		//		std::cout<<"Cellule torsion: "<<i<<" ("<<FCells[1][i]
+		//			 <<")"<<std::endl;
+	      }
+	  }
+      }
     }
 	
   if ( FShowH2free )
     {
-      //marquage des cellules faisant partie des H2
-      for ( int j=0;j<FNbCycleDim2;++j )
+      //marquage des cellules faisant partie des H2 libres
+      for ( int j=FNbBordFaibleDim2;j<FNbBordFaibleDim2+FNbGenLibreDim2;++j )
 	{
-	  for(int i=0;i<FMatrix[1]->getQ()->getnbli();++i)
+	  for(int i=0;i<FMatrix[2]->getP()->getnbli();++i)
 	    {
-	      if(FMatrix[1]->getQ()->getVal(i,j)!=0)
+	      if(FMatrix[1]->getP()->getVal(i,j)!=0)
 		{
 		  //marquerLibre la d cellule numero i
 		  FMap->markOrbit(FCells[2][i],ORBIT_FACE,FMark);
@@ -487,5 +486,22 @@ void CHomology::updateSelectedDarts()
 	    }
 	}
     }
-  std::cout<<"H3 generators:"<<getH3FreeGenerators()<<std::endl;
+
+  if ( FShowH2torsion )
+    {
+      //marquage des cellules faisant partie des H2 libres
+      for ( int j=0;j<FNbGenTorsionDim2;++j )
+	{
+	  for(int i=0;i<FMatrix[2]->getP()->getnbli();++i)
+	    {
+	      if(FMatrix[2]->getP()->getVal(i,j)!=0)
+		{
+		  //marquerLibre la d cellule numero i
+		  FMap->markOrbit(FCells[2][i],ORBIT_FACE,FMark);
+		  //		  std::cout<<"Generateur libre "<<j<<" - Cellule libre: "<<i<<" ("<<FCells[1][i]
+		  //			   <<")"<<std::endl;
+		}
+	    }
+	}
+    }
 }
