@@ -78,9 +78,27 @@ void CControlerGMap::updateDartAfterRemovals(int AMark0, int AMark1, int AMark2)
   CDart* current = NULL;
 
   if ( AMark2!=-1 )
-    getParameterGMapVertex()->getDrawingMap()->
-      mergeMarkedCells(AMark2, 3, true);
+    {
+      int deleted = getParameterGMapVertex()->getDrawingMap()->getNewMark();
 
+      //1) we mark all 2-removed darts
+      for (CDynamicCoverageAll it(FMap); it.cont(); )
+	{
+	  current = it++;
+	  if ( FMap->isMarked(current,AMark2) )
+	    {
+	      getParameterGMapVertex()->getDrawingMap()->
+		setMark(getParameterGMapVertex()->
+			getDartWithEmbedding(current),deleted);
+	      FMap->delMapDart(current);
+	    }
+	}
+      getParameterGMapVertex()->getDrawingMap()->
+	mergeMarkedCells(deleted, 3, true);
+
+      getParameterGMapVertex()->getDrawingMap()->freeMark(deleted);
+    }
+      
   for (CDynamicCoverageAll it(FMap); it.cont(); )
     {
       current = it++;
