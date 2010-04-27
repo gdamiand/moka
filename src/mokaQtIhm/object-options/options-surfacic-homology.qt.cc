@@ -124,7 +124,6 @@ OptionsSurfacicHomology :: ~OptionsSurfacicHomology()
 
 void OptionsSurfacicHomology::closeEvent(QCloseEvent *event)
 {   
-  std::cout<<"OptionsSurfacicHomology :: ~OptionsSurfacicHomology()"<<std::endl;
   restoreAlpha3();
   delete FHomology; FHomology=NULL;
   event->accept();
@@ -132,8 +131,6 @@ void OptionsSurfacicHomology::closeEvent(QCloseEvent *event)
 
 void OptionsSurfacicHomology::restoreAlpha3()
 {
-  std::cout<<"Restore Alpha3 : "<<FIndexAlpha3<<std::endl;
-  
   if ( FIndexAlpha3==-1 ) return;
 
   for (CDynamicCoverageAll it(FParent->getControler()->getMap());
