@@ -74,9 +74,13 @@ private slots:
   void callbackToggleH1free(bool);
   void callbackToggleH1torsion(bool);
   void callbackToggleH2(bool);
+
+  void closeEvent(QCloseEvent *event);
   
 private :
-
+  void restoreAlpha3();
+  void removeAlpha3();
+  
   // Pointeur sur la fenetre principale
   Window * FParent ;
 
@@ -88,6 +92,8 @@ private :
   
   // Toolbox which computes homology.
   GMap3d::CHomology* FHomology;
+
+  int FIndexAlpha3;
 } ;
 
 #endif
