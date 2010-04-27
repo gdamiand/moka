@@ -173,8 +173,12 @@ MenuBar :: MenuBar(Window * parent)
    options->addAction("&Topological characteristics", FParent,
                       SLOT(caracTopo()), *new QKeySequence("ALT+c"));
 
-   options->addAction("Compute &homology generators", FParent,
-		      SLOT(callbackComputeHomology()),
+   options->addAction("Compute &surfacic homology generators", FParent,
+		      SLOT(callbackComputeSurfacicHomology()),
+		      *new QKeySequence("ALT+SHIFT+h"));
+   
+   options->addAction("Compute volumic &homology generators", FParent,
+		      SLOT(callbackComputeVolumicHomology()),
 		      *new QKeySequence("ALT+h"));
    
    options->addAction("Is 2D quasi-&manifold",

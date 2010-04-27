@@ -60,7 +60,8 @@ namespace GMap3d
 #include "options-frame.qt.hh"
 #include "menu-bar.qt.hh"
 #include "options-carac.qt.hh"
-#include "options-homology.qt.hh"
+#include "options-surfacic-homology.qt.hh"
+#include "options-volumic-homology.qt.hh"
 #include "options-couleurs.qt.hh"
 
 //----------------- Include std ------------------
@@ -132,10 +133,16 @@ public:
   virtual OptionsCarac * getOptionsCaracActive ( ) const ;
 
   /**
-   * Accesseur sur la fenetre du calcul de l'homologie
+   * Accesseur sur la fenetre du calcul de l'homologie surfacique
    * @return Pointeur sur la boite active
    */
-  virtual OptionsHomology * getOptionsHomologyActive ( ) const ;
+  virtual OptionsSurfacicHomology * getOptionsSurfacicHomologyActive() const ;
+
+  /**
+   * Accesseur sur la fenetre du calcul de l'homologie volumique
+   * @return Pointeur sur la boite active
+   */
+  virtual OptionsVolumicHomology * getOptionsVolumicHomologyActive() const ;
 
   /**
    * Accesseur sur le numero de la fenetre active
@@ -441,7 +448,8 @@ public slots:
   //void callbackCorefineTest ( ) ;
 
   // -- Homology
-  void callbackComputeHomology();
+  void callbackComputeSurfacicHomology();
+  void callbackComputeVolumicHomology();
   
   
   // Slots Menu Geologie
@@ -727,8 +735,11 @@ private:
   // Pointeur sur la boite de dialogue des caracteristiques topologiques
   OptionsCarac * FOptionsCarac ;
 
-  // Pointeur sur la boite de dialogue de calcul de l'homology
-  OptionsHomology * FOptionsHomology ;
+  // Pointeur sur la boite de dialogue de calcul de l'homology surfacique
+  OptionsSurfacicHomology * FOptionsSurfacicHomology ;
+
+  // Pointeur sur la boite de dialogue de calcul de l'homology volumique
+  OptionsVolumicHomology * FOptionsVolumicHomology ;
 
   // Pointeur sur la boite de dialogue de configuration des Undo/Redo
   DialogDo * FDialogDo ;
