@@ -419,9 +419,9 @@ void CHomology::updateSelectedDarts()
       //marquage des cellules faisant partie des H0
       for (int j=FNbBordFaibleDim0;j<FNbBordFaibleDim0+FNbGenLibreDim0;++j)
 	{
-	  for(int i=0;i<FMatrix[0]->getP()->getnbli();++i)
+	  for (int i=0;i<FMatrix[0]->getP()->getnbli();++i)
 	    {
-	      if(FMatrix[0]->getP()->getVal(i,j)!=0)
+	      if (FMatrix[0]->getP()->getVal(i,j)!=0)
 		{
 		  //marquerLibre la d cellule numero i
 		  FMap->markOrbit(FCells[0][i],ORBIT_VERTEX,FMark);
@@ -439,7 +439,7 @@ void CHomology::updateSelectedDarts()
       //int fin_libre=nb_bf+nb_l;
       for (int j=FNbBordFaibleDim1;j<FNbBordFaibleDim1+FNbGenLibreDim1;++j)
 	{
-	  for(int i=0;i<FMatrix[1]->getP()->getnbli();++i)
+	  for (int i=0;i<FMatrix[1]->getP()->getnbli();++i)
 	    {
 	      if(FMatrix[1]->getP()->getVal(i,j)!=0)
 		{
@@ -456,7 +456,7 @@ void CHomology::updateSelectedDarts()
     {
       //marquage des cellules faisant partie des générateurs de torsion
       for (int j=0;j<FNbGenTorsionDim1;j++){
-	for(int i=0;i<FMatrix[1]->getP()->getnbli();++i)
+	for (int i=0;i<FMatrix[1]->getP()->getnbli();++i)
 	  {
 	    if(FMatrix[1]->getP()->getVal(i,j)!=0)
 	      {
@@ -472,11 +472,11 @@ void CHomology::updateSelectedDarts()
   if ( FShowH2free )
     {
       //marquage des cellules faisant partie des H2 libres
-      for ( int j=FNbBordFaibleDim2;j<FNbBordFaibleDim2+FNbGenLibreDim2;++j )
+      for (int j=FNbBordFaibleDim2;j<FNbBordFaibleDim2+FNbGenLibreDim2;++j)
 	{
-	  for(int i=0;i<FMatrix[2]->getP()->getnbli();++i)
+	  for (int i=0;i<FMatrix[2]->getP()->getnbli();++i)
 	    {
-	      if(FMatrix[1]->getP()->getVal(i,j)!=0)
+	      if(FMatrix[2]->getP()->getVal(i,j)!=0)
 		{
 		  //marquerLibre la d cellule numero i
 		  FMap->markOrbit(FCells[2][i],ORBIT_FACE,FMark);
@@ -490,7 +490,7 @@ void CHomology::updateSelectedDarts()
   if ( FShowH2torsion )
     {
       //marquage des cellules faisant partie des H2 libres
-      for ( int j=0;j<FNbGenTorsionDim2;++j )
+      for (int j=0;j<FNbGenTorsionDim2;++j )
 	{
 	  for(int i=0;i<FMatrix[2]->getP()->getnbli();++i)
 	    {
