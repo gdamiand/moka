@@ -3315,8 +3315,6 @@ void Window::callbackSpamodSwitchToNextView()
 
 void Window :: callbackHideAllWindow()
 {
-  std::cout<<"Window :: callbackHideAllWindow()"<<std::endl;
-  
    if (FCreationActive != NULL &&  FCreationActive -> isVisible())
    {
       FCreationActive -> cancel();
@@ -3342,7 +3340,6 @@ void Window :: callbackHideAllWindow()
    if ( FOptionsSurfacicHomology!=NULL )
      {
        FOptionsSurfacicHomology -> close() ;
-       std::cout<<"delete FOptionsSurfacicHomology;"<<std::endl;
        delete FOptionsSurfacicHomology;
        FOptionsSurfacicHomology = NULL;
      }
