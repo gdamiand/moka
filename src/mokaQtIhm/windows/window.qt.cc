@@ -1410,11 +1410,13 @@ void Window :: resetActiveOperations()
      {
        FOptionsSurfacicHomology->close();
        delete FOptionsSurfacicHomology;
+       FOptionsSurfacicHomology = NULL;
      }
    else if (getOptionsVolumicHomologyActive() )
      {
        FOptionsVolumicHomology->close();
        delete FOptionsVolumicHomology;
+       FOptionsSurfacicHomology = NULL;
      }   
 }
 
@@ -3313,6 +3315,8 @@ void Window::callbackSpamodSwitchToNextView()
 
 void Window :: callbackHideAllWindow()
 {
+  std::cout<<"Window :: callbackHideAllWindow()"<<std::endl;
+  
    if (FCreationActive != NULL &&  FCreationActive -> isVisible())
    {
       FCreationActive -> cancel();
@@ -3335,6 +3339,19 @@ void Window :: callbackHideAllWindow()
       FDialogDo -> close() ;
    if (FCouleurs != NULL && FCouleurs->isVisible())
       FCouleurs -> close() ;
+   if ( FOptionsSurfacicHomology!=NULL )
+     {
+       FOptionsSurfacicHomology -> close() ;
+       std::cout<<"delete FOptionsSurfacicHomology;"<<std::endl;
+       delete FOptionsSurfacicHomology;
+       FOptionsSurfacicHomology = NULL;
+     }
+   if ( FOptionsVolumicHomology!=NULL )
+     {
+       FOptionsVolumicHomology -> close() ;
+       delete FOptionsVolumicHomology;
+       FOptionsVolumicHomology = NULL;
+     }
 }
 
 //---------------------------------------------------------------

@@ -41,7 +41,8 @@ OptionsSurfacicHomology :: OptionsSurfacicHomology(Window * parent) :
       QDialog(parent) ,
       FParent(parent) ,
       FUpdate(false),
-      FHomology(NULL)
+      FHomology(NULL),
+      FIndexAlpha3(-1)
 {
    // Modification du titre de la boite de dialogue
    setWindowTitle("Homology") ;
@@ -119,14 +120,54 @@ OptionsSurfacicHomology :: OptionsSurfacicHomology(Window * parent) :
 // Destructeur
 //------------
 OptionsSurfacicHomology :: ~OptionsSurfacicHomology()
-{ delete FHomology; }
+{}
+
+void OptionsSurfacicHomology::closeEvent(QCloseEvent *event)
+{   
+  std::cout<<"OptionsSurfacicHomology :: ~OptionsSurfacicHomology()"<<std::endl;
+  restoreAlpha3();
+  delete FHomology; FHomology=NULL;
+  event->accept();
+}
+
+void OptionsSurfacicHomology::restoreAlpha3()
+{
+  std::cout<<"Restore Alpha3 : "<<FIndexAlpha3<<std::endl;
+  
+  if ( FIndexAlpha3==-1 ) return;
+
+  for (CDynamicCoverageAll it(FParent->getControler()->getMap());
+       it.cont(); ++it)
+    {      
+      (*it)->setAlpha3(FParent->getControler()->getMap()->
+		       getDirectInfoAsDart(*it, FIndexAlpha3));
+    }
+
+  FParent->getControler()->getMap()->freeDirectInfo(FIndexAlpha3);
+  FIndexAlpha3 = -1;
+}
+
+void OptionsSurfacicHomology::removeAlpha3()
+{
+  if ( FIndexAlpha3!=-1 ) return;
+  
+  FIndexAlpha3 = FParent->getControler()->getMap()->getNewDirectInfo();
+  for (CDynamicCoverageAll it(FParent->getControler()->getMap());
+       it.cont(); ++it)
+    {      
+      FParent->getControler()->getMap()->
+	setDirectInfo(*it, FIndexAlpha3, (*it)->getAlpha3());
+      (*it)->setFree3();
+    }
+}
 
 void OptionsSurfacicHomology::update()
 {
   delete FHomology;
+  removeAlpha3();
   
   std::ostringstream os;
-   
+
 #ifndef _WINDOWS
   CChrono c; c.setMode(PUS_MODE); c.start();
 #endif
