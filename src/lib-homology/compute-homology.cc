@@ -289,7 +289,7 @@ bool CHomology::computeSurfacicHomology()
   FNbGenLibreDim0 = FNbCycleDim0 - FNbBordFaibleDim0;
   FNbGenLibreDim1 = FNbCycleDim1 - FNbBordFaibleDim1;
   FNbGenLibreDim2 = FNbCycleDim2;
-  FNbGenLibreDim2 = 0;
+  FNbGenLibreDim3 = 0;
   
   FNbGenTorsionDim1 = FMatrix[1]->getM()->nbTorsion();
   FNbGenTorsionDim2 = 0;
@@ -329,16 +329,28 @@ bool CHomology::computeVolumicHomology()
   computeIncidence(2);
 	
   FMatrix[0]->smithForm();
-	
+
+//   std::cout<<"FMatrix[1]->getM() avant Smith"<<std::endl;
+//   FMatrix[1]->getM()->affiche();
+  
   FMatrix[1]->getM()->multGauche(FMatrix[0]->getQinv());
   FMatrix[1]->getP()->setMatrice( FMatrix[0]->getQ());
   FMatrix[1]->getPinv()->setMatrice(FMatrix[0]->getQinv());
   FMatrix[1]->smithForm();
-	
+
+//   std::cout<<"FMatrix[1]->getM() après Smith"<<std::endl;
+//   FMatrix[1]->getM()->affiche();
+
+//   std::cout<<"FMatrix[2]->getM() avant Smith"<<std::endl;
+//   FMatrix[2]->getM()->affiche();
+
   FMatrix[2]->getM()->multGauche(FMatrix[1]->getQinv());
   FMatrix[2]->getP()->setMatrice(FMatrix[1]->getQ());
   FMatrix[2]->getPinv()->setMatrice(FMatrix[1]->getQinv());
   FMatrix[2]->smithForm();	
+
+//   std::cout<<"FMatrix[2]->getM() après Smith"<<std::endl;
+//   FMatrix[2]->getM()->affiche();
 
   FNbCycleDim0 = FMatrix[0]->getM()->getnbli();
   FNbCycleDim1 = FMatrix[0]->getM()->nbCycle();
@@ -512,7 +524,7 @@ void CHomology::updateSelectedDarts()
       }
     }
 	
-  if ( FShowH2free )
+  if ( FShowH2free && FMatrix[2]!=NULL )
     {
       //marquage des cellules faisant partie des H2 libres
       for (int j=FNbBordFaibleDim2;j<FNbBordFaibleDim2+FNbGenLibreDim2;++j)
@@ -530,7 +542,7 @@ void CHomology::updateSelectedDarts()
 	}
     }
 
-  if ( FShowH2torsion )
+  if ( FShowH2torsion && FMatrix[2]!=NULL )
     {
       //marquage des cellules faisant partie des H2 libres
       for (int j=0;j<FNbGenTorsionDim2;++j )
