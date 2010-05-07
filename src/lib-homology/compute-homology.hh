@@ -112,9 +112,12 @@ namespace GMap3d
   protected:
     /** Compute the incidence matrix for cells of dimension ADim.
      *  The incidence matrix FMatrix[ADim] is updated.
-     * @precondition (ADim >= 0) && (ADim < 3)
+     *  @param ADim the dimension of the incidence matrix (0 for vertex-edge,
+     *         1 for edge-face, 2 for face-volume)
+     *  @param AComputeNextCells true to compute also the ADim+1 cells
+     *  @precondition (ADim >= 0) && (ADim < 3)
      */
-    void computeIncidence(int ADim);
+    void computeIncidence(int ADim, bool AComputeNextCells=false);
 			
     /**
      * Compute the incidence number of cell c=(ADart,ADim), relatively to the cell
