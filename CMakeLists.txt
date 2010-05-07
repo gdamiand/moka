@@ -42,6 +42,9 @@ OPTION(MODULE_SPAMOD "Activate spamod module" OFF)
 # -DNO_ACCENTED_CHARS to avoid accented char.
 # -DNO_LIST_OPENGL to not use precompile openGl list.
 
+ENABLE_TESTING()
+INCLUDE(CTest)
+
 ################################################################################
 # To manage correctlty icc files : they are either included in .hh files
 # in INLINE mode, or included in .cc file in NONINLINE mode.

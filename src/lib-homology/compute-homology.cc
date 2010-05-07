@@ -143,7 +143,7 @@ int CHomology::computeIncidenceNumber(CDart* ADart, int ADim,
   return incidenceNumber;
 }
 //******************************************************************************
-void CHomology::computeIncidence(int ADim)
+void CHomology::computeIncidence(int ADim, bool AComputeNextCells)
 {
   assert( 0<=ADim && ADim<3 );
 	
@@ -154,6 +154,10 @@ void CHomology::computeIncidence(int ADim)
   int positive = FMap->getNewMark();
   int index = FMap->getNewDirectInfo();
 	
+  int treated2 = -1;
+  long int currentcell2 = 1;
+  if ( AComputeNextCells ) treated2 = FMap->getNewMark();
+
   // 1) We number each (ADim)-cell of the map
   CDynamicCoverageAll it(FMap);
   for (; it.cont(); ++it)
@@ -192,11 +196,20 @@ void CHomology::computeIncidence(int ADim)
 	  delete it2;
 	  ++currentcell;
 	}
-    }
-	
-	
+      if ( treated2!=-1 && !FMap->isMarked(*it, treated2) )
+	{
+	  FCells[ADim+1][currentcell2-1]=*it;
+	  FMap->markOrbit(*it, ORBIT_CELL[ADim+1],treated2);
+	   ++currentcell2;
+	}
+    }		
 	
   FMap->negateMaskMark(treated);
+  if ( treated2!=-1 )
+    {
+      FMap->negateMaskMark(treated2);
+      FMap->freeMark(treated2);
+    }
 	
   // 2) We run through all the (ADim+1)-cell of the map and compute the incidence
   //    number with ADim-cells
@@ -254,21 +267,22 @@ bool CHomology::computeSurfacicHomology()
 	
   FCells[0].clear(); FCells[0].reserve(FNbVertices);
   FCells[1].clear(); FCells[1].reserve(FNbEdges);  
-  FCells[2].clear(); 
+  FCells[2].clear(); FCells[2].reserve(FNbFaces);  
 	
   if (FCells[0].capacity()<FNbVertices ||
       FCells[1].capacity()<FNbEdges ||
+      FCells[2].capacity()<FNbFaces ||
       !FMatrix[0]->valid() ||
       !FMatrix[1]->valid())
     {
-      FCells[0].clear(); FCells[1].clear();
+      FCells[0].clear(); FCells[1].clear(); FCells[2].clear();
       delete FMatrix[0]; delete FMatrix[1]; 
       FMatrix[0]=NULL; FMatrix[1]=NULL;
       return false;
     }
 	
   computeIncidence(0);
-  computeIncidence(1);
+  computeIncidence(1,true);
 
   FMatrix[0]->smithForm();
 
@@ -524,19 +538,37 @@ void CHomology::updateSelectedDarts()
       }
     }
 	
-  if ( FShowH2free && FMatrix[2]!=NULL )
+  if ( FShowH2free )
     {
-      //marquage des cellules faisant partie des H2 libres
-      for (int j=FNbBordFaibleDim2;j<FNbBordFaibleDim2+FNbGenLibreDim2;++j)
+      if ( FMatrix[2]!=NULL )
 	{
-	  for (int i=0;i<FMatrix[2]->getP()->getnbli();++i)
+	  //marquage des cellules faisant partie des H2 libres
+	  for (int j=FNbBordFaibleDim2;j<FNbBordFaibleDim2+FNbGenLibreDim2;++j)
 	    {
-	      if(FMatrix[2]->getP()->getVal(i,j)!=0)
+	      for (int i=0;i<FMatrix[2]->getP()->getnbli();++i)
 		{
-		  //marquerLibre la d cellule numero i
-		  FMap->markOrbit(FCells[2][i],ORBIT_FACE,FMark);
-		  //		  std::cout<<"Generateur libre "<<j<<" - Cellule libre: "<<i<<" ("<<FCells[1][i]
-		  //			   <<")"<<std::endl;
+		  if(FMatrix[2]->getP()->getVal(i,j)!=0)
+		    {
+		      //marquerLibre la d cellule numero i
+		      FMap->markOrbit(FCells[2][i],ORBIT_FACE,FMark);
+		      //		  std::cout<<"Generateur libre "<<j<<" - Cellule libre: "<<i<<" ("<<FCells[1][i]
+		      //			   <<")"<<std::endl;
+		    }
+		}
+	    }
+	}
+      else
+	{	
+	  //marquage des cellules faisant partie des H2 libres
+	  for (int j=0;j<FNbCycleDim2;++j)
+	    {
+	      for (int i=0;i<FMatrix[1]->getQ()->getnbli();++i)
+		{
+		  if(FMatrix[1]->getQ()->getVal(i,j)!=0)
+		    {
+		      //marquerLibre la d cellule numero i
+		      FMap->markOrbit(FCells[2][i],ORBIT_FACE,FMark);
+		    }
 		}
 	    }
 	}
