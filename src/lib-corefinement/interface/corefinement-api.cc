@@ -214,10 +214,11 @@ void CCorefinementAPI::booleanOperations3d(CDart * ADart1, CDart * ADart2,
   assert(ADart1 != NULL);
   assert(ADart2 != NULL);
 
-  CTime start, end;
+  CTime start, end, total;
 
   cout << endl << "Co-raffinement des maillages" << endl;
   start.updateTime();
+  total.updateTime();
 
   CBooleanOperations3d ops(FMap, ADart1, ADart2, false);
 
@@ -251,5 +252,6 @@ void CCorefinementAPI::booleanOperations3d(CDart * ADart1, CDart * ADart2,
 
   end.updateTime();
   cout << "Durée de l'extraction : " << end - start << endl;
+  cout << "Durée totale : " << end - total << endl;
 }
 //******************************************************************************

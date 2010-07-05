@@ -59,7 +59,7 @@ static const char* getFileHeader(TSaveFormat AFormat);
  * @param AFormat Un type de format de sauvegarde
  * @return 'vrai' si la sauvegarde s'est bien déroulée
  */
-bool save(const char* AFilename, TSaveFormat AFormat);
+bool save(const char* AFilename, TSaveFormat AFormat=AsciiFormat);
 
 /**
  * Sauvegarde le contenu de la carte dans un flot.
@@ -68,7 +68,7 @@ bool save(const char* AFilename, TSaveFormat AFormat);
  * @param AFormat Un type de format de sauvegarde
  * @return 'vrai' si la sauvegarde s'est bien déroulée
  */
-virtual bool save(std::ostream & AStream, TSaveFormat AFormat);
+virtual bool save(std::ostream & AStream, TSaveFormat AFormat=AsciiFormat);
 
 /**
  * Charge la carte à partir d'un fichier.
