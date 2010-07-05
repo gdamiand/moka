@@ -40,9 +40,12 @@ int findMotif( CGMapVertex* AMap, unsigned int* ANbMatched=NULL );
     
 /**
  * Compte le nombre de fois que la carte *this est motif de la carte AMap.
+ * @param AMap la carte dans laquelle on va chercher le motif.
+ * @param ANbMatched un pointeur vers un entier. Si non nul, paramètre
+ * retour qui va contenir le nombre de brins maximum matché. 
  * @return le nombre de motifs trouvés.
  */
-unsigned int countNumberOfMotifs( CGMapVertex* AMap );
+unsigned int countNumberOfMotifs( CGMapVertex* AMap, unsigned int* ANbMatched=NULL  );
     
 /**
  * Cherche si la carte *this est un motif de la carte AMap à partir du
