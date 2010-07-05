@@ -1093,7 +1093,7 @@ void Window :: callbackExport()
    << "XFig map (*.fig)"
    << "XFig Intervoxel (*.fig)"
    << "Pov (*.pov)"
-   << "Off (*.off)"
+   << "Off2D (*.off)"
    << "Off3D (*.off)";
    std::string filename = getSaveFileName("Export", type_save, &type);
 
