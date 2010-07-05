@@ -33,7 +33,7 @@ void CGMapVertex::giveNumberToDarts(int ADirectInfoIndex)
 {
   CDynamicCoverageAll it(this);
 
-  for (uint32_t num=0; it.cont(); ++it, ++num)
+  for (unsigned long int num=0; it.cont(); ++it, ++num)
     (*it)->setDirectInfo(ADirectInfoIndex, (void *) num);
 }
 //******************************************************************************
