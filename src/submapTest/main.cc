@@ -30,7 +30,7 @@ void testSeveralSubmap(const char* motifFile, const char* repTarget,
   CGMapVertex* m2=NULL;
 
   unsigned int nbMatch=0;
-
+  unsigned int res = 0;
   CChrono c;
   
   while ( stream.good() )
@@ -54,9 +54,10 @@ void testSeveralSubmap(const char* motifFile, const char* repTarget,
 	      }*/
 
 	  c.start();
-	  if ( (index=m1.findMotif(m2,&nbMatch))!=-1 )
+	  //	  if ( (index=m1.findMotif(m2,&nbMatch))!=-1 )
+	  if ( (res=m1.countNumberOfMotifs(m2,&nbMatch))>0 )
 	    {
-	      cout<<motifFile<<" MATCHE avec "<<txt<<"  "<<nbMatch<<endl;
+	      cout<<motifFile<<" MATCHE avec "<<txt<<" ("<<res<<" fois)"<<nbMatch<<endl;
 	      m1.freeDirectInfo(index);
 	    }
 	  else cout<<txt<<"... no   "<<nbMatch<<endl;

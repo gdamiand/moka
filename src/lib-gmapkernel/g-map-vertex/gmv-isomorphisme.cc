@@ -46,7 +46,7 @@ int CGMapVertex::findMotif( CGMapVertex* AMap, unsigned int* ANbMatched )
    c.start();
 #endif
 
-   unsigned int oneMatching;
+   unsigned int oneMatching=0;
    unsigned int * ptrOneMatching=NULL;
    
    if ( ANbMatched!=NULL )
@@ -103,7 +103,7 @@ int CGMapVertex::findMotif( CGMapVertex* AMap, unsigned int* ANbMatched )
    return index;
 }
 //******************************************************************************
-unsigned int CGMapVertex::countNumberOfMotifs( CGMapVertex* AMap )
+unsigned int CGMapVertex::countNumberOfMotifs( CGMapVertex* AMap, unsigned int* ANbMatched )
 {
   unsigned int res = 0;
   int index = getNewDirectInfo();
@@ -117,6 +117,11 @@ unsigned int CGMapVertex::countNumberOfMotifs( CGMapVertex* AMap )
   CChrono c; c.start();
 #endif
 
+  unsigned int oneMatching=0;
+  unsigned int * ptrOneMatching=NULL;
+  if ( ANbMatched!=NULL )
+     { *ANbMatched=0; ptrOneMatching = &oneMatching; }
+
   CDynamicCoverageAll it1(this);
   CDynamicCoverageAll it2(AMap);
   
@@ -127,10 +132,14 @@ unsigned int CGMapVertex::countNumberOfMotifs( CGMapVertex* AMap )
   for ( it2.reinit(); it2.cont(); ++it2 )
     {
       match=findMotifFrom(*it1, markTreated, index,
-			  AMap, *it2, markTreated2);
+			  AMap, *it2, markTreated2,
+			  ptrOneMatching);
 
       unmarkMotifMark(*it1,markTreated,index,
-		      AMap,*it2,markTreated2);
+		      AMap,*it2,(match?-1:markTreated2));
+
+      if ( ANbMatched!=NULL && oneMatching>(*ANbMatched) )
+	(*ANbMatched) = oneMatching;
 
       if ( match ) ++res;
       // assert( isWholeMapUnmarked(markTreated) );
