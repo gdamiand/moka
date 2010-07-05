@@ -482,8 +482,14 @@ bool CGMapVertex::exportOff3D(std::ostream & AStream)
       }
       if (!isMarked(*it, markFace))
       {
-         markOrbit(*it, ORBIT_FACE, markFace);
-         ++nbF;
+	bool faceOuverte = false;
+	for (CDynamicCoverage01 itFace(this,*it); itFace.cont(); ++itFace)
+         {
+            if (isFree0(*it)||isFree1(*it)) faceOuverte=true;
+	    setMark(alpha3(*itFace), markFace);
+	    setMark(*itFace, markFace);
+         }
+	if ( !faceOuverte ) ++nbF;
       }
    }
 
