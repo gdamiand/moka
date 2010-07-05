@@ -25,7 +25,6 @@ void testSeveralSubmap(const char* motifFile, const char* repTarget,
 
   std::cout<<"Motif "<<motifFile<<": "<<std::endl;
   m1.displayCharacteristics(std::cout)<<std::endl;
-  int index = m1.getNewDirectInfo();
 
   CGMapVertex* m2=NULL;
 
@@ -58,7 +57,7 @@ void testSeveralSubmap(const char* motifFile, const char* repTarget,
 	  if ( (res=m1.countNumberOfMotifs(m2,&nbMatch))>0 )
 	    {
 	      cout<<motifFile<<" MATCHE avec "<<txt<<" ("<<res<<" fois)"<<nbMatch<<endl;
-	      m1.freeDirectInfo(index);
+	      // m1.freeDirectInfo(index);
 	    }
 	  else cout<<txt<<"... no   "<<nbMatch<<endl;
 	  c.stop();
