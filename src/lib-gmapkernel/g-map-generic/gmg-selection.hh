@@ -34,8 +34,9 @@ public:
  * @param ADart Un brin quelconque
  * @param AOrbit Une orbite
  * @param AMarkNumber Un numéro de marque
+ * @return the number of marked darts
  */
-void markOrbit(CDart* ADart, TOrbit AOrbit, int AMarkNumber);
+unsigned int markOrbit(CDart* ADart, TOrbit AOrbit, int AMarkNumber);
 
 /**
  * Marque un brin sur deux de l'orbite AOrbit incidente à ADart en

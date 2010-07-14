@@ -103,7 +103,8 @@ int CGMapVertex::findMotif( CGMapVertex* AMap, unsigned int* ANbMatched )
    return index;
 }
 //******************************************************************************
-unsigned int CGMapVertex::countNumberOfMotifs( CGMapVertex* AMap, unsigned int* ANbMatched )
+unsigned int CGMapVertex::countNumberOfMotifs( CGMapVertex* AMap, 
+					       unsigned int* ANbMatched )
 {
   unsigned int res = 0;
   int index = getNewDirectInfo();
@@ -112,11 +113,7 @@ unsigned int CGMapVertex::countNumberOfMotifs( CGMapVertex* AMap, unsigned int* 
   int markTreated2 = AMap->getNewMark();
   bool match = false;
 
-
-#ifndef _WINDOWS
-  CChrono c; c.start();
-#endif
-
+  unsigned int size = 0;
   unsigned int oneMatching=0;
   unsigned int * ptrOneMatching=NULL;
   if ( ANbMatched!=NULL )
@@ -126,34 +123,73 @@ unsigned int CGMapVertex::countNumberOfMotifs( CGMapVertex* AMap, unsigned int* 
   CDynamicCoverageAll it2(AMap);
   
   for ( ; it1.cont(); ++it1 )
-    setDirectInfo(*it1, index, NULL);
+    {
+      setDirectInfo(*it1, index, NULL);
+      ++size;
+    }
   it1.reinit();
   
+  int mark = AMap->getNewMark();
+  int totest = AMap->getNewMark();
+  int ccsize;
+  for ( ; it2.cont(); ++it2 )
+    {
+      if ( !AMap->isMarked(*it2,mark) )
+	{
+	  ccsize=0;
+	  for (CBasicDynamicCoverage0123 it3(AMap,*it2,mark); it3.cont(); ++it3)
+	    {
+	      AMap->setMark(*it3,mark);
+	      ++ccsize;
+	    }
+	  //	  ccsize = AMap->markOrbit(*it2,mark,ORBIT_0123);
+	  if ( ccsize>=size )
+	    {
+	      std::cout<<"cc "<<ccsize<<" ("<<size<<")"<<std::endl;
+	      for (CBasicDynamicCoverage0123 it3(AMap,*it2,totest); it3.cont(); ++it3)
+		AMap->setMark(*it3,totest);
+	      //AMap->markOrbit(*it2,totest,ORBIT_0123);
+	    }
+	}
+    }
+  std::cout<<"END MARK CC"<<std::endl;
+  AMap->negateMaskMark(mark);
+  AMap->freeMark(mark);
+
+#ifndef _WINDOWS
+  CChrono c; c.start();
+#endif
+
   for ( it2.reinit(); it2.cont(); ++it2 )
     {
-      match=findMotifFrom(*it1, markTreated, index,
-			  AMap, *it2, markTreated2,
-			  ptrOneMatching);
-
-      unmarkMotifMark(*it1,markTreated,index,
-		      AMap,*it2,(match?-1:markTreated2));
-
-      if ( ANbMatched!=NULL && oneMatching>(*ANbMatched) )
-	(*ANbMatched) = oneMatching;
-
-      if ( match ) ++res;
-      // assert( isWholeMapUnmarked(markTreated) );
+      if ( AMap->isMarked(*it2,totest) )
+	{
+	  match=findMotifFrom(*it1, markTreated, index,
+			      AMap, *it2, markTreated2,
+			      ptrOneMatching);
+	  
+	  unmarkMotifMark(*it1,markTreated,index,
+			  AMap,*it2,(match?-1:markTreated2));
+	  
+	  if ( ANbMatched!=NULL && oneMatching>(*ANbMatched) )
+	    (*ANbMatched) = oneMatching;
+	  
+	  if ( match ) ++res;
+	  // assert( isWholeMapUnmarked(markTreated) );
+	}
     }
-
-   freeMark(markTreated);
-   AMap->freeMark(markTreated2);
 
 #ifndef _WINDOWS
    c.stop();
    c.display("Temps de recherche de tout les motifs");
 #endif
    
+   freeMark(markTreated);
+   AMap->freeMark(markTreated2);
+
    freeDirectInfo(index);
+   AMap->unmarkAll(totest);
+   AMap->freeMark(totest);
 
    return res;
 }
