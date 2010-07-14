@@ -25,17 +25,21 @@
 #include "g-map-generic.hh"
 using namespace GMap3d;
 //******************************************************************************
-void CGMapGeneric::markOrbit(CDart * ADart, TOrbit AOrbit,
-			     int AMarkNumber)
+unsigned int  CGMapGeneric::markOrbit(CDart * ADart, TOrbit AOrbit,
+				      int AMarkNumber)
 {
   assert(ADart!=NULL);
 
   CCoverage * cov= getDynamicCoverage(ADart, AOrbit);
-
+  unsigned int res = 0;
   while (cov->cont())
-    setMark((*cov)++, AMarkNumber);
+    {
+      setMark((*cov)++, AMarkNumber);
+      ++res;
+    }
 
   delete cov;
+  return res;
 }
 //******************************************************************************
 void CGMapGeneric::halfMarkOrbit(CDart * ADart, TOrbit AOrbit,
