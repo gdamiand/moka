@@ -142,17 +142,13 @@ unsigned int CGMapVertex::countNumberOfMotifs( CGMapVertex* AMap,
 	      AMap->setMark(*it3,mark);
 	      ++ccsize;
 	    }
-	  //	  ccsize = AMap->markOrbit(*it2,mark,ORBIT_0123);
 	  if ( ccsize>=size )
 	    {
-	      std::cout<<"cc "<<ccsize<<" ("<<size<<")"<<std::endl;
 	      for (CBasicDynamicCoverage0123 it3(AMap,*it2,totest); it3.cont(); ++it3)
 		AMap->setMark(*it3,totest);
-	      //AMap->markOrbit(*it2,totest,ORBIT_0123);
 	    }
 	}
     }
-  std::cout<<"END MARK CC"<<std::endl;
   AMap->negateMaskMark(mark);
   AMap->freeMark(mark);
 
