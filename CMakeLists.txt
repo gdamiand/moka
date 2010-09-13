@@ -16,7 +16,7 @@ project(moka)
 
 # If like me you have some problems under windows, set these variable to
 # the correct pathes and file.
-IF (WIN32)
+IF (WIN32) 
   SET(GLUT_INCLUDE_DIR "C:/Program Files/Microsoft SDKs/Windows/v6.1/Include/")
   SET(QTDIR "C:/Qt/qt")
   SET(QT_QMAKE_EXECUTABLE "C:/Qt/qt/bin/qmake")
