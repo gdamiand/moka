@@ -3,7 +3,7 @@
 #
 cmake_minimum_required(VERSION 2.6.2)
 project(moka)
-
+ 
 ################################################################################
 # By default, there are two possible build type:
 #   (fix when executing cmake, for example:
