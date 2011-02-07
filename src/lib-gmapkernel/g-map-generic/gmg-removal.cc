@@ -27,6 +27,10 @@
 #include <stack>
 using namespace std;
 using namespace GMap3d;
+
+#ifndef _WINDOWS
+#include "chrono.hh"
+#endif
 //******************************************************************************
 // Suppression d'une i-cellules incidente à un brin donné.
 //
@@ -326,7 +330,12 @@ removeMarkedEdgesWithoutDisconnectionForSurface(int AMarkNumber)
 //******************************************************************************
 int CGMapGeneric::removeMarkedEdgesWithoutDisconnection( int AMarkNumber )
 {
-  int  toDelete	   = getNewMark();
+#ifndef _WINDOWS
+   CChrono c;
+   c.start();
+#endif
+
+   int  toDelete	   = getNewMark();
   int  treated	   = getNewMark();
   int  nbRemove	   = 0;
   CDart* current   = NULL;
@@ -388,7 +397,12 @@ int CGMapGeneric::removeMarkedEdgesWithoutDisconnection( int AMarkNumber )
   freeMark(treated);
 
   if ( index!=-1 ) freeDirectInfo(index);
-  
+
+#ifndef _WINDOWS
+   c.stop();
+   c.display("Temps de simplification");
+#endif
+ 
   return nbRemove;
 }
 //******************************************************************************
