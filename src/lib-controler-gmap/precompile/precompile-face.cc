@@ -217,15 +217,16 @@ void CPrecompileFace::setRandomColor(CDart* ADart, int ADimension)
 	c += (long int) ** cov;
       
       delete cov;
-      
-      r = c / (ADimension * 300 + 0.2);
-      v = c / (ADimension * 400 + 0.1);
-      b = c / (ADimension * 500 + 0.3);
+
+      srand48(c);
+      r = drand48();
+      v = drand48();
+      b = drand48();      
+
+      //std::cout<<"c="<<c<<"  "<<"r,v,b="<<r<<", "<<v<<", "<<b<<std::endl;
     }
 
-#define FLT(v) fabs(v)-floor(fabs(v))
-  glColor4f(FLT(r),FLT(v),FLT(b), FParameterFace->getBLFace());
-#undef FLT
+  glColor4f(r, v, b, FParameterFace->getBLFace());
 }
 //------------------------------------------------------------------------------
 void CPrecompileFace::drawFilledFace(CDart* ADart, int ANbSommets,
