@@ -35,6 +35,7 @@ OPTION(MODULE_MESH "Activate mesh module" ON)
 OPTION(MODULE_ROUNDING "Activate rounding module" ON)
 OPTION(MODULE_COREFINEMENT "Activate corefining module" ON)
 OPTION(MODULE_SPAMOD "Activate spamod module" OFF)
+OPTION(MODULE_EXTRACTION_IMAGE "Activate extraction image module (require ImageMagick++)" OFF)
 
 #-------------------------------------------------------------------------------
 # Some compiler options that we can enable with some ADD_DEFINITIONS(xxx).
@@ -134,14 +135,31 @@ if (MODULE_SPAMOD)
 
   add_subdirectory (src/lib-spamod lib-spamod)
 endif (MODULE_SPAMOD)
-
+#-------------------------------------------------------------------------------
 if ( MODULE_COREFINEMENT )
   # Includes for tools
   include_directories (${CMAKE_SOURCE_DIR}/src/lib-tools)
 
   add_subdirectory (src/lib-tools lib-tools)
 endif ( MODULE_COREFINEMENT )
+#-------------------------------------------------------------------------------
+if ( MODULE_EXTRACTION_IMAGE )
 
+  FIND_PACKAGE(ImageMagick REQUIRED)
+  FIND_PACKAGE(ImageMagick COMPONENTS Magick++ REQUIRED)
+
+  if ( NOT (ImageMagick_FOUND AND ImageMagick_Magick++_FOUND ) )
+    add_definitions(-DMODULE_EXTRACTION_WITHOUT_MAGICK)
+    messaege(STATUS "Warning: Magick++ not installed, module extraction image does not able to load images.")
+  else ( NOT (ImageMagick_FOUND AND ImageMagick_Magick++_FOUND ) )
+    INCLUDE_DIRECTORIES(${ImageMagick_INCLUDE_DIRS} 
+      ${ImageMagick_Magick++_INCLUDE_DIRS})    
+  endif ( NOT (ImageMagick_FOUND AND ImageMagick_Magick++_FOUND ) )
+
+  add_definitions(-DMODULE_EXTRACTION_IMAGE)
+  include_directories(${CMAKE_SOURCE_DIR}/src/lib-extraction-images)
+  add_subdirectory   (src/lib-extraction-images lib-extraction-images)
+endif ( MODULE_EXTRACTION_IMAGE )
 #-------------------------------------------------------------------------------
 # For Homology: TODO add an option to enable or disable the module
 include_directories (${CMAKE_SOURCE_DIR}/src/lib-homology)
@@ -153,8 +171,7 @@ add_subdirectory (src/lib-controler-gmap lib-controler-gmap)
 add_subdirectory (src/lib-homology lib-homology)
 add_subdirectory (src/mokaQtIhm mokaQtIhm)
 
-#add_subdirectory (src/example-basic example-basic EXCLUDE_FROM_ALL)
+add_subdirectory (src/example-basic example-basic EXCLUDE_FROM_ALL)
 add_subdirectory (src/submapTest submapTest EXCLUDE_FROM_ALL)
-
 #-------------------------------------------------------------------------------
 
