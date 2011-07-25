@@ -178,6 +178,9 @@ void CPrecompileFace::drawModel()
 		    getNbPolylineVertices(*it2);
 		  if (nbSommetsFace > 2)
 		    {
+			if ( FParameterFace->getRandomCLFace() )
+			  setRandomColor(*it2	, 2);
+
 		      drawFilledFace(*it2, nbSommetsFace, bursted1);
 		    }
 		}
