@@ -766,6 +766,7 @@ void Window :: setAxisDisplay(bool b)
    if (getAxisDisplay() != b)
    {
       getControler()->viewTogglePrecompile(getCurrentViewId(), PRECOMPILE_AXIS);
+      getControler()->viewTogglePrecompile(getCurrentViewId(), PRECOMPILE_AIMED_POINT);
    }
 }
 
