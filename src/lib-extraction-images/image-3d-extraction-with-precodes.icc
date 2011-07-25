@@ -1,0 +1,227 @@
+/*
+ * lib-extraction-images : Extraction de cartes à partir d'images 2D et 3D.
+ * Copyright (C) 2004, Moka Team, Université de Poitiers, Laboratoire SIC
+ *               http://www.sic.sp2mi.univ-poitiers.fr/
+ * Copyright (C) 2009, Guillaume Damiand, CNRS, LIRIS,
+ *               guillaume.damiand@liris.cnrs.fr, http://liris.cnrs.fr/
+ *
+ * This file is part of lib-extraction-images
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+//******************************************************************************
+#include "image-3d.hh"
+#include "geometry.hh"
+#include "pixel-step.hh"
+
+namespace GMap3d
+{
+//******************************************************************************
+INLINE
+bool CExtractionImage::extract3dImageWithPrecodes(CImage3d * AImage, int ALevel,
+					     bool ADestroyBorder,
+					     bool AKeepFictiveEdges,
+					     bool AShiftFictiveEdges)
+{
+  assert(AImage != NULL);
+  if (!AImage->isOk()) return false;
+
+  // Marque pour les arêtes fictives
+  int fictiveMark = FMap->getNewMark();
+
+  CDart *last, *up, *behind; // les 3 brins utile pour le parcours
+
+  // Les coordonnées du pointel courant
+  // (multipliés ensuite par STEP3D_X, STEP3D_Y et STEP3D_Z)
+  CVertex CurrentPointel(1,1,1);
+
+  // Les coordonnées du voxel courant sont i,j,k. C'est presque pareil que
+  // celles du pointel sauf pour les bords ou on replie l'espace sur un tore :)
+  unsigned int k=0;
+
+#ifdef DEBUG_EXTRACT_IMAGE
+  cout<<"Avant de créer le bord supérieur : "<<endl;
+#endif
+
+  last = createBorder3d(AImage->getWidth(),AImage->getHeight());
+
+#ifdef DEBUG_EXTRACT_IMAGE
+  cout<<"Ok on FMap->alpha créé le bord supérieur."<<endl;
+#endif
+
+  do // On boucle tant qu'on peut lire un prochain plan
+    {
+      for (unsigned int j=0; j<=AImage->getHeight(); ++j)
+	{
+	  for (unsigned int i=0; i<=AImage->getWidth(); ++i)
+	    {
+#ifdef DEBUG_EXTRACT_IMAGE
+	      cout<<"On traite le voxel ("<<i<<", "<<j<<", "<<k<<")"<<endl;
+#endif
+	
+	      if (ALevel==0)
+		{
+		  CDart* tmp = createCubeForExtract3d(CurrentPointel);
+		  sew3Cube(tmp,last);
+		  last = FMap->alpha101(tmp);
+		}
+	      else if (ALevel > 0)
+		{
+		  up     = computeUpFromLast3d(last);
+		  behind = computeBehindFromLast3d(last);
+		
+		  if ( AImage->sameVoxelActuLeft(i,j) )
+		    { // same region actu and left
+		      if ( AImage->sameVoxelActuBehind(i,j) )
+			{ // sameRegionActuBehind
+			  if ( AImage->sameVoxelActuUp(i,j) )
+			    subcasePrecodeL8(*AImage,i,j,last,up,behind,
+					     ALevel,CurrentPointel, fictiveMark,
+					     AKeepFictiveEdges,
+					     AShiftFictiveEdges);
+			  else
+			    subcasePrecodeL5(*AImage,i,j,last,up,behind,
+					     ALevel,CurrentPointel, fictiveMark,
+					     AKeepFictiveEdges,
+					     AShiftFictiveEdges);
+			}
+		      else // no sameRegionActuBehind
+			{
+			  if ( AImage->sameVoxelActuUp(i,j) )
+			    subcasePrecodeL6(*AImage,i,j,last,up,behind,
+					     ALevel,CurrentPointel, fictiveMark,
+					     AKeepFictiveEdges,
+					     AShiftFictiveEdges);
+			  else
+			    subcasePrecodeL2(*AImage,i,j,last,up,behind,
+					     ALevel,CurrentPointel, fictiveMark,
+					     AKeepFictiveEdges,
+					     AShiftFictiveEdges);
+			}
+		    }
+		  else  // no same region actu and left
+		    {
+		      if ( AImage->sameVoxelActuBehind(i,j) )
+			{ // sameRegionActuBehind
+			  if ( AImage->sameVoxelActuUp(i,j) )
+			    subcasePrecodeL7(*AImage,i,j,last,up,behind,
+					     ALevel,CurrentPointel, fictiveMark,
+					     AKeepFictiveEdges,
+					     AShiftFictiveEdges);
+			  else
+			    subcasePrecodeL4(*AImage,i,j,last,up,behind,
+					     ALevel,CurrentPointel, fictiveMark,
+					     AKeepFictiveEdges,
+					     AShiftFictiveEdges);
+			}
+		      else // no sameRegionActuBehind
+			{
+			  if ( AImage->sameVoxelActuUp(i,j) )
+			    subcasePrecodeL3(*AImage,i,j,last,up,behind,
+					     ALevel,CurrentPointel,fictiveMark,
+					     AKeepFictiveEdges,
+					     AShiftFictiveEdges);
+			  else				
+			    subcasePrecodeL1(*AImage,i,j,last,up,behind,
+					     ALevel,CurrentPointel, fictiveMark,
+					     AKeepFictiveEdges,
+					     AShiftFictiveEdges);
+			}
+		    }
+		}
+		
+	      // Calcule la prochaine position du pointel courant
+	      // Équivalent à faire :
+	      //  CurrentPointel.setX((i+1)%(columns+1));
+	      //  CurrentPointel.setY((j+1+((i+1)/(columns+1)))%(rows+1));
+	      //  CurrentPointel.setZ(k+1+((j+1+((i+1)/(columns+1)))/(rows+1)));
+	      // Mais ici c'est optimisé car moins de formule math :)
+	      if ( i == AImage->getWidth()-1 )
+		{
+		  CurrentPointel.setX(0);
+			
+		  if ( j == AImage->getHeight()-1 )
+		    {
+		      CurrentPointel.setY(0);
+		      CurrentPointel.setZ(CurrentPointel.getZ()+1);
+		    }
+		  else
+		    CurrentPointel.setY(CurrentPointel.getY()+1);
+		}
+	      else
+		CurrentPointel.setX(CurrentPointel.getX()+1);		
+	    }
+	}
+
+      std::cout << "Ok pour l'extraction de la plaque num "
+	        << AImage->getPlaneActu() << std::endl;
+      ++k;
+    }
+  while(AImage->readNextPlane());
+
+  FMap->unmarkAll(fictiveMark);
+  FMap->freeMark(fictiveMark);	
+
+  if (ADestroyBorder && ALevel > 0)
+    {
+      CStaticCoverage012 it(FMap,last);
+      while(it.cont())
+	FMap->delMapDart(it++);
+    }
+
+  return true;
+}
+//******************************************************************************
+INLINE
+bool CExtractionImage::extract3dImageWithPrecodes(const std::string & AFilename,
+					      int FirstPlane,
+					      int NbPlaneToRead,
+					      int Level,
+					      int Lg,
+					      bool DestroyBorder,
+					      bool KeepFictiveEdges,
+					      bool ShiftFictiveEdges )
+{
+#ifdef MODULE_EXTRACTION_IMAGE_WITHOUT_MAGICK
+  return false;
+#else
+  CImage3dMagick image(AFilename, FirstPlane, NbPlaneToRead, Lg);
+
+  return extract3dImageWithPrecodes(& image, Level,
+				    DestroyBorder,
+				    KeepFictiveEdges,
+				    ShiftFictiveEdges);
+#endif // MODULE_EXTRACTION_IMAGE_WITHOUT_MAGICK
+}
+//******************************************************************************
+INLINE
+bool CExtractionImage::
+extract3dImageCEAWithPrecodes(const std::string & AFilename,
+			      int FirstPlane,
+			      int NbPlaneToRead,
+			      int Level,
+			      bool DestroyBorder,
+			      bool KeepFictiveEdges,
+			      bool ShiftFictiveEdges )
+{
+  CImage3dCEA image(AFilename, FirstPlane, NbPlaneToRead);
+
+  return extract3dImageWithPrecodes(& image, Level,
+				    DestroyBorder,
+				    KeepFictiveEdges,
+				    ShiftFictiveEdges);
+}
+//******************************************************************************
+} // namespace GMap3d

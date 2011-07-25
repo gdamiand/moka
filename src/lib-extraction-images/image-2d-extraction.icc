@@ -1,0 +1,247 @@
+/*
+ * lib-extraction-images : Extraction de cartes à partir d'images 2D et 3D.
+ * Copyright (C) 2004, Moka Team, Université de Poitiers, Laboratoire SIC
+ *               http://www.sic.sp2mi.univ-poitiers.fr/
+ * Copyright (C) 2009, Guillaume Damiand, CNRS, LIRIS,
+ *               guillaume.damiand@liris.cnrs.fr, http://liris.cnrs.fr/
+ *
+ * This file is part of lib-extraction-images
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+//******************************************************************************
+#include "geometry.hh"
+#include "pixel-step.hh"
+
+namespace GMap3d
+{
+//******************************************************************************
+#ifndef MODULE_EXTRACTION_IMAGE_WITHOUT_MAGICK
+//------------------------------------------------------------------------------
+INLINE
+CDart* CExtractionImage::createBorder2d(unsigned int columns)
+{
+  CDartVertex* prev;
+  CDartVertex* actu;
+  CDartVertex* first = (CDartVertex *) FMap->addMapDart();
+  FMap->linkAlpha0(first, FMap->addMapDart());
+
+  FMap->addAttribute(first, ORBIT_VERTEX, new CAttributeVertex(0,STEP2D_Y,0));
+
+  prev = first;
+
+  for (unsigned int i=0;i<columns;++i)
+    {
+      actu = (CDartVertex *) FMap->addMapDart();
+      FMap->linkAlpha0(actu, FMap->addMapDart());
+      FMap->linkAlpha1(actu, FMap->alpha0(prev));
+
+      FMap->addAttribute(actu, ORBIT_VERTEX, new CAttributeVertex(i*STEP2D_X,0,0));
+
+      prev = actu;
+    }
+
+  actu = (CDartVertex *) FMap->addMapDart();
+  FMap->linkAlpha0(actu, FMap->addMapDart());
+  FMap->addAttribute(actu, ORBIT_VERTEX, new CAttributeVertex(columns*STEP2D_X,0,0));
+
+  FMap->linkAlpha1(actu, FMap->alpha0(prev));
+  FMap->linkAlpha1(FMap->alpha0(actu), first);
+
+  return first;
+}
+//******************************************************************************
+INLINE
+CDart* CExtractionImage::computeUpFromLast2d(CDart* ADart)
+{
+  CDart* res = FMap->alpha01(ADart);
+
+  while(!FMap->isFree2(res))
+    res = FMap->alpha21(res);
+
+  return res;
+}
+//******************************************************************************
+INLINE
+CDartVertex* CExtractionImage::createFaceForExtract2d(unsigned int x, unsigned int y)
+{
+  CDartVertex* first = (CDartVertex *) FMap->createTopoPolygon(4);
+
+  FMap->addAttribute(first, ORBIT_VERTEX,
+		     new CAttributeVertex(x*STEP2D_X,y*STEP2D_Y,0));
+
+  return first;
+}
+
+//******************************************************************************
+INLINE
+bool CExtractionImage::samePixelActuLeft2d(Magick::Image & image,
+					   unsigned int x, unsigned int y)
+{
+  if (y==image.rows()) return true;
+  if (x==0 || x==image.columns()) return false;
+
+  return image.pixelColor(x,y)==image.pixelColor(x-1,y);
+}
+//******************************************************************************
+INLINE
+bool CExtractionImage::samePixelActuUp2d(Magick::Image &image,
+					 unsigned int x, unsigned int y)
+{
+  if (x==image.columns()) return true;
+  if (y==0 || y==image.rows()) return false;
+
+  return image.pixelColor(x,y)==image.pixelColor(x,y-1);
+}
+//******************************************************************************
+INLINE
+void CExtractionImage::mergeImage2dFaces(CDart* ADart)
+{
+  CDart *tmp, *tmp2;
+
+  if (FMap->alpha2(ADart)!=FMap->alpha1(ADart))
+    {
+      tmp=FMap->alpha1(ADart); tmp2=FMap->alpha21(ADart);
+
+      FMap->unsew1(ADart); FMap->unsew1(FMap->alpha2(ADart));
+
+      FMap->sew1(tmp,tmp2);
+    }
+
+  if (FMap->alpha02(ADart)!=FMap->alpha01(ADart))
+    {
+      tmp=FMap->alpha01(ADart); tmp2=FMap->alpha021(ADart);
+
+      FMap->unsew1(FMap->alpha0(ADart)); FMap->unsew1(FMap->alpha02(ADart));
+
+      FMap->sew1(tmp,tmp2);
+    }
+
+  FMap->delMapDart(FMap->alpha02(ADart));
+  FMap->delMapDart(FMap->alpha2(ADart));
+  FMap->delMapDart(FMap->alpha0(ADart));
+  FMap->delMapDart(ADart);
+}
+//******************************************************************************
+INLINE
+void CExtractionImage::mergeImage2dEdges(CDart* ADart)
+  // Attention : cette méthode plante si le sommet est de degré un.
+{
+  CDart *tmp, *tmp2;
+
+  tmp  = FMap->alpha0(ADart);
+  tmp2 = FMap->alpha10(ADart);
+
+  FMap->unlinkAlpha0(FMap->alpha12(ADart)); FMap->unlinkAlpha0(FMap->alpha1(ADart));
+  FMap->unlinkAlpha0(FMap->alpha2(ADart)); FMap->unlinkAlpha0(ADart);
+
+  FMap->linkAlpha0(FMap->alpha2(tmp),FMap->alpha2(tmp2));
+  FMap->linkAlpha0(tmp,tmp2);
+
+  FMap->delMapDart(FMap->alpha12(ADart));
+  FMap->delMapDart(FMap->alpha2(ADart));
+  FMap->delMapDart(FMap->alpha1(ADart));
+  FMap->delMapDart(ADart);
+}
+//******************************************************************************
+INLINE
+bool CExtractionImage::isDegre2Vertex2d(CDart* ADart)
+{
+  if (FMap->alpha2(ADart)==FMap->alpha1(ADart)) return false;
+
+  return (FMap->alpha12(ADart)==FMap->alpha21(ADart));
+}
+//------------------------------------------------------------------------------
+#endif // MODULE_EXTRACTION_IMAGE_WITHOUT_MAGICK
+//******************************************************************************
+INLINE
+bool CExtractionImage::areEdgesAlign(CDart* ADart, CDart* ADart2)
+{
+  CAttributeVertex C = *FMap->findVertex(ADart);
+
+  return CGeometry::areColinear(*FMap->findVertex(FMap->alpha0(ADart)) - *FMap->findVertex(ADart),
+				*FMap->findVertex(FMap->alpha0(ADart2)) - *FMap->findVertex(ADart2));
+}
+//******************************************************************************
+INLINE
+bool CExtractionImage::extract2dImage(const std::string & AFilename)
+{
+#ifdef MODULE_EXTRACTION_IMAGE_WITHOUT_MAGICK
+  return false;
+#else
+  try {
+    Magick::Image image(AFilename);
+
+    std::cout<<"Apres lecture dans CExtractionImage::extract2dImage"<<std::endl;
+    std::cout<<"   columns="<<image.columns()<<std::endl
+	     <<"   rows="<<image.rows()<<std::endl;
+
+
+    CDart* last = createBorder2d(image.columns());
+    CDart* tmp;
+
+    //    return true;
+
+    unsigned int i,j;
+    for(j=0;j<=image.rows();++j)
+      for(i=0;i<=image.columns();++i)
+	{
+	  tmp = createFaceForExtract2d((i+1)%(image.columns()+1),
+				       j+1+((i+1)/(image.columns()+1)));
+	  FMap->topoSew2(last,FMap->alpha101(tmp));
+	  FMap->topoSew2(computeUpFromLast2d(last),FMap->alpha010(tmp));
+
+	  last = tmp;
+	  tmp = NULL;
+
+	  // Pour le niveau 1
+  	  if (samePixelActuLeft2d(image,i,j))
+	    {
+	      mergeImage2dFaces(FMap->alpha101(last));
+	      tmp = FMap->alpha010(last);
+	    }
+
+  	  if (samePixelActuUp2d(image,i,j))
+	    {
+	      mergeImage2dFaces(FMap->alpha01(last));
+
+	      if (tmp==NULL) tmp = FMap->alpha1010(last);
+	      else           tmp = NULL;
+	    }
+
+	  // Pour le niveau 2
+	  if ( tmp!=NULL &&
+	       isDegre2Vertex2d(tmp) &&
+	       areEdgesAlign(tmp,FMap->alpha1(tmp)) )
+	    mergeImage2dEdges(tmp);
+	}
+
+    CStaticCoverage01 it(FMap,last);
+    while(it.cont())
+      FMap->delMapDart(it++);
+
+  }
+  catch( Magick::Exception &error_ )
+    {
+      std::cerr << "Exception dans CExtractionImage::extract2dImage: "
+		<< error_.what() << std::endl;
+      return false;
+    }
+
+  return true;
+#endif // MODULE_EXTRACTION_IMAGE_WITHOUT_MAGICK
+}
+//******************************************************************************
+} // namespace GMap3d

@@ -1,0 +1,844 @@
+/*
+ * lib-extraction-images : Extraction de cartes à partir d'images 2D et 3D.
+ * Copyright (C) 2004, Moka Team, Université de Poitiers, Laboratoire SIC
+ *               http://www.sic.sp2mi.univ-poitiers.fr/
+ * Copyright (C) 2009, Guillaume Damiand, CNRS, LIRIS,
+ *               guillaume.damiand@liris.cnrs.fr, http://liris.cnrs.fr/
+ *
+ * This file is part of lib-extraction-images
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+//******************************************************************************
+
+// La position des brins last, up est behind est donnée dans la thèse,
+// (p 129) sauf qu'ici on est en G-carte donc le brin est celui du coté
+// de la pointe des flèches
+//
+// Étant donné les trois brins last, up et behind, par rotation ils deviennent :
+//     last   -> FMap->alpha01(up)   ->  FMap->alpha01(behind)
+//     up     -> behind    ->  FMap->alpha10(last)
+//     behind -> FMap->alpha10(last) ->  up
+// (exprimés partout en last-up-behind d'origine)
+
+//******************************************************************************
+#include "image-3d-magick.hh"
+#include "image-3d-cea.hh"
+#include "geometry.hh"
+#include "pixel-step.hh"
+
+namespace GMap3d
+{
+
+INLINE
+CDartVertex* CExtractionImage::createFaceForExtract3d()
+{
+  CDartVertex* prev;
+  CDartVertex* actu;
+  CDartVertex* first = (CDartVertex *) FMap->addMapDart();
+  FMap->linkAlpha0(first, FMap->addMapDart());
+
+  prev = first;
+
+  actu = (CDartVertex *) FMap->addMapDart();
+  FMap->linkAlpha0(actu, FMap->addMapDart());
+  FMap->linkAlpha1(actu,FMap->alpha0(prev));
+  prev = actu;
+
+  actu = (CDartVertex *) FMap->addMapDart();
+  FMap->linkAlpha0(actu, FMap->addMapDart());
+  FMap->linkAlpha1(actu,FMap->alpha0(prev));
+  prev = actu;
+
+  actu = (CDartVertex *) FMap->addMapDart();
+  FMap->linkAlpha0(actu, FMap->addMapDart());
+  FMap->linkAlpha1(actu,FMap->alpha0(prev));
+
+  FMap->linkAlpha1(FMap->alpha0(actu),first);
+
+  return first;
+}
+
+//******************************************************************************
+INLINE
+CDartVertex* CExtractionImage::createFaceForExtract3d( const CVertex & AVertex )
+{
+  CDartVertex* first = createFaceForExtract3d();
+
+  FMap->addAttribute(first, ORBIT_VERTEX,
+		     new CAttributeVertex(AVertex.getX()*STEP3D_X,
+					  AVertex.getY()*STEP3D_Y,
+					  AVertex.getZ()*STEP3D_Z));
+
+  return first;
+}
+
+//******************************************************************************
+INLINE
+CDartVertex* CExtractionImage::createCubeForExtract3d( const CVertex & AVertex )
+{
+  CDartVertex* d1    = createFaceForExtract3d();        // face de gauche
+  CDartVertex* d2    = createFaceForExtract3d();        // face de derrière
+  CDartVertex* d3    = createFaceForExtract3d();        // face du bas
+  CDartVertex* d4    = createFaceForExtract3d();        // face du haut
+  CDartVertex* d5    = createFaceForExtract3d();        // face de devant
+  CDartVertex* last  = createFaceForExtract3d(AVertex); // face de droite
+
+  FMap->linkAlpha2(FMap->alpha101(d1),d2); FMap->linkAlpha2(FMap->alpha1010(d1), FMap->alpha0(d2));
+  FMap->linkAlpha2(FMap->alpha1(d1),FMap->alpha01(d3)); FMap->linkAlpha2(FMap->alpha10(d1),FMap->alpha010(d3));
+  FMap->linkAlpha2(FMap->alpha1(d2),FMap->alpha1010(d3)); FMap->linkAlpha2(FMap->alpha10(d2),FMap->alpha101(d3));
+  FMap->linkAlpha2(d4,FMap->alpha01(d1)); FMap->linkAlpha2(FMap->alpha0(d4),FMap->alpha010(d1));
+  FMap->linkAlpha2(FMap->alpha01(d4),FMap->alpha01(d2)); FMap->linkAlpha2(FMap->alpha010(d4),FMap->alpha010(d2));
+  FMap->linkAlpha2(FMap->alpha1(d5),d3); FMap->linkAlpha2(FMap->alpha10(d5),FMap->alpha0(d3));
+  FMap->linkAlpha2(FMap->alpha01(d5),FMap->alpha10(d4)); FMap->linkAlpha2(FMap->alpha010(d5),FMap->alpha1(d4));
+  FMap->linkAlpha2(FMap->alpha101(d5),d1); FMap->linkAlpha2(FMap->alpha1010(d5),FMap->alpha0(d1));
+
+  FMap->linkAlpha2(last, d5); FMap->linkAlpha2(FMap->alpha0(last), FMap->alpha0(d5));
+  FMap->linkAlpha2(FMap->alpha01(last),FMap->alpha101(d4)); FMap->linkAlpha2(FMap->alpha010(last), FMap->alpha1010(d4));
+  FMap->linkAlpha2(FMap->alpha101(last), FMap->alpha101(d2)); FMap->linkAlpha2(FMap->alpha1010(last), FMap->alpha1010(d2));
+  FMap->linkAlpha2(FMap->alpha1(last), FMap->alpha1(d3)); FMap->linkAlpha2(FMap->alpha10(last), FMap->alpha10(d3));
+
+  return last; // brin de devant en bas de la face de droite
+}
+
+//******************************************************************************
+INLINE
+CDart* CExtractionImage::createBorder3d(unsigned int columns,unsigned int rows)
+{
+  CDart* prev;
+  CDart* prev2;
+  CDart* actu;
+
+  // Construction de la premiere face, FMap->alpha gauche du premier voxel
+  CDart* first = createFaceForExtract3d(CVertex(0,1,1));
+
+  prev = FMap->alpha101(first);
+
+  // Construction des faces derrieres les voxels de la premiere ligne
+  for (unsigned int i=0;i<=columns;++i)
+    {
+      actu = createFaceForExtract3d(CVertex(i,0,1));
+      FMap->linkAlpha2(prev,actu); FMap->linkAlpha2(FMap->alpha0(prev),FMap->alpha0(actu));
+
+      prev = FMap->alpha101(actu);
+    }
+
+  // Couture pour le repliement
+  FMap->linkAlpha2(prev, first); FMap->linkAlpha2(FMap->alpha0(prev), FMap->alpha0(first));
+
+  // Construction des faces au dessus des voxels de la premiere plaque
+  prev  = FMap->alpha010(first);
+  prev2 = FMap->alpha101201(first);
+  for (unsigned int j=0;j<=rows;++j)
+    {
+      for (unsigned int i=0;i<=columns;++i)
+	{
+	  actu = createFaceForExtract3d(CVertex(i,j,0));
+	
+	  FMap->linkAlpha2(actu,prev); FMap->linkAlpha2(FMap->alpha0(actu),FMap->alpha0(prev));
+
+	  FMap->linkAlpha2(FMap->alpha1(actu),prev2); FMap->linkAlpha2(FMap->alpha10(actu),FMap->alpha0(prev2));
+	
+	  prev  = FMap->alpha101(actu);
+	  prev2 = FMap->alpha0121(prev2);
+	}
+
+      if (j==0) prev2 = FMap->alpha21(prev2); // correctif pour la premiere ligne
+    }
+
+  // Couture pour le repliement
+  FMap->linkAlpha2(prev,FMap->alpha10(first)); FMap->linkAlpha2(FMap->alpha0(prev),FMap->alpha1(first));
+
+  // Coutures des bord de devant de la plaque sup avec le bord inf de la ligne derriere
+  prev = FMap->alpha10121(first);
+  for (unsigned int i=0;i<=columns;++i)
+    {
+      FMap->linkAlpha2(prev,prev2); FMap->linkAlpha2(FMap->alpha0(prev),FMap->alpha0(prev2));
+
+      prev  = FMap->alpha0121(prev);
+      prev2 = FMap->alpha0121(prev2);
+    }
+
+  return FMap->alpha101(first); // Le brin derriere et en bas de la face FMap->alpha gauche du premier voxel
+}
+
+//******************************************************************************
+INLINE
+CDart* CExtractionImage::computeUpFromLast3d(CDart* ADart)
+{
+  CDart* res = FMap->alpha012(ADart);
+
+  while(!FMap->isFree3(res))
+    res = FMap->alpha32(res);
+
+  return FMap->alpha010(res);
+}
+
+//******************************************************************************
+INLINE
+CDart* CExtractionImage::computeBehindFromLast3d(CDart* ADart)
+{
+  CDart* res = FMap->alpha2(ADart);
+
+  while(!FMap->isFree3(res))
+    res = FMap->alpha32(res);
+
+  return FMap->alpha101(res);
+}
+//******************************************************************************
+INLINE
+void CExtractionImage::mergeImage3dVolumes(CDart* ADart)
+{
+  CDart* tmp;
+  CDart* tmp2;
+  int i;
+
+  for (i=0;i<4;++i)
+    {
+      if (FMap->alpha3(ADart)!=FMap->alpha2(ADart))
+	{
+	  tmp = FMap->alpha32(ADart); tmp2=FMap->alpha2(ADart);
+	  FMap->unsew2(ADart); FMap->unsew2(FMap->alpha3(ADart));
+	  FMap->sew2(tmp, tmp2);
+	}
+
+      ADart = FMap->alpha01(ADart);
+    }
+
+  for (i=0;i<4;++i)
+    {
+      tmp = ADart;
+      ADart = FMap->alpha01(ADart);
+
+      FMap->delMapDart(FMap->alpha30(tmp));
+      FMap->delMapDart(FMap->alpha3(tmp));
+      FMap->delMapDart(FMap->alpha0(tmp));
+      FMap->delMapDart(tmp);
+    }
+}
+
+//******************************************************************************
+INLINE
+void CExtractionImage::mergeImage3dFaces(CDart* ADart)
+{
+  CDart *tmp, *tmp2;
+
+  if (FMap->alpha2(ADart)!=FMap->alpha1(ADart))
+    {
+      tmp=FMap->alpha1(ADart); tmp2=FMap->alpha21(ADart);
+
+      FMap->unsew1(ADart); FMap->unsew1(FMap->alpha2(ADart));
+
+      FMap->sew1(tmp,tmp2);
+    }
+
+  if (FMap->alpha02(ADart)!=FMap->alpha01(ADart))
+    {
+      tmp=FMap->alpha01(ADart); tmp2=FMap->alpha021(ADart);
+
+      FMap->unsew1(FMap->alpha0(ADart));
+      FMap->unsew1(FMap->alpha02(ADart));
+
+      FMap->sew1(tmp,tmp2);
+    }
+
+  FMap->delMapDart(FMap->alpha302(ADart));
+  FMap->delMapDart(FMap->alpha32(ADart));
+  FMap->delMapDart(FMap->alpha30(ADart));
+  FMap->delMapDart(FMap->alpha3(ADart));
+  FMap->delMapDart(FMap->alpha02(ADart));
+  FMap->delMapDart(FMap->alpha2(ADart));
+  FMap->delMapDart(FMap->alpha0(ADart));
+  FMap->delMapDart(ADart);
+}
+
+//******************************************************************************
+INLINE
+void CExtractionImage::mergeImage3dEdges(CDart* ADart)
+  // Attention : cette méthode plante si le sommet est de degré un.
+{
+  CDart *tmp, *tmp2;
+
+  tmp  = FMap->alpha0(ADart);
+  tmp2 = FMap->alpha10(ADart);
+
+  FMap->topoUnsew0(ADart);
+  FMap->topoUnsew0(FMap->alpha1(ADart));
+
+  FMap->topoSew0(tmp,tmp2);
+
+  CStaticCoverage123 it(FMap,ADart);
+  while (it.cont())
+    FMap->delMapDart(it++);
+}
+
+//******************************************************************************
+INLINE
+bool CExtractionImage::isDegre2Vertex3d(CDart* ADart)
+{
+  CDynamicCoverage23 it(FMap,ADart);
+  while (it.cont())
+    {
+      if (FMap->alpha2(*it)==FMap->alpha1(*it)) return false;
+      if (FMap->alpha12(ADart)!=FMap->alpha21(ADart)) return false;
+      ++it;
+    }
+  return true;
+}
+
+//******************************************************************************
+INLINE
+CDart * CExtractionImage::isRealDegre2Vertex3d(CDart* ADart, int AMark)
+{
+  CDart * other = NULL;
+  int mark = FMap->getNewMark();
+  int nb=0;
+
+  CDynamicCoverage123 it(FMap,ADart);
+  while (nb<3 && it.cont())
+    {
+      if (!FMap->isMarked(*it,mark))
+	{
+	  if (!FMap->isMarked(*it,AMark))
+	    {
+	      other = *it;
+	      ++nb;
+	    }
+
+	  CDynamicCoverage023 it2(FMap,*it);
+	  while(it2.cont())
+	    FMap->setMark(it2++,mark);
+	}
+      ++it;
+    }
+
+  FMap->unmarkAll(mark);
+  FMap->freeMark(mark);
+
+  if (nb!=2) other=NULL;
+
+  return other;
+}
+
+//******************************************************************************
+INLINE
+bool CExtractionImage::areFacesColinear(CDart* ADart)
+{
+  CVertex vector1 = FMap->faceNormalVector(ADart);
+  CVertex vector2 = FMap->faceNormalVector(FMap->alpha2(ADart));
+
+  return CGeometry::areColinear(vector1, vector2);
+}
+
+//******************************************************************************
+INLINE
+bool CExtractionImage::isDegre2Edge3d(CDart* ADart)
+{
+  return (FMap->alpha23(ADart)==FMap->alpha32(ADart));
+}
+
+//******************************************************************************
+INLINE
+void CExtractionImage::sew3Cube(CDart* ADart, CDart* TheLastDart)
+{
+  FMap->topoSew3(FMap->alpha012(ADart),FMap->alpha1(computeUpFromLast3d(TheLastDart)));
+
+  FMap->topoSew3(FMap->alpha1012(ADart),computeBehindFromLast3d(TheLastDart));
+
+  FMap->topoSew3(FMap->alpha21012(ADart),FMap->alpha101(TheLastDart));
+}
+
+//******************************************************************************
+INLINE
+bool CExtractionImage::faceMergingWillDisconnect(CDart* ADart)
+{
+  if (FMap->alpha1(ADart)==FMap->alpha2(ADart) ||
+      FMap->alpha01(ADart)==FMap->alpha02(ADart)) return false;
+
+  CDynamicCoverage01 it(FMap,ADart);
+  while (it.cont())
+    {
+      if (it++==FMap->alpha2(ADart)) return true;
+    }
+
+  return false;
+}
+//******************************************************************************
+INLINE
+bool CExtractionImage::extract3dImage(CImage3d * AImage, int ALevel,
+				      bool ADestroyBorder,
+				      bool AKeepFictiveEdges,
+				      bool AShiftFictiveEdges)
+{
+  assert(AImage != NULL);
+
+  if (! AImage->isOk())
+    return false;
+
+#ifdef DEBUG_EXTRACT_IMAGE
+  cout<<"Avant de créer le bord supérieur : "<<endl;
+#endif
+
+  CDart * last = createBorder3d(AImage->getWidth(),AImage->getHeight());
+
+#ifdef DEBUG_EXTRACT_IMAGE
+  cout<<"Ok on FMap->alpha créé le bord supérieur."<<endl;
+#endif
+
+  if (ALevel>=0)
+    {	
+      CDart * tmp;
+      unsigned int k=0;
+
+      // Brins utilisés pour la fusion de volumes
+      CDart * leftFace;
+      CDart * behindFace;
+      CDart * upFace;
+
+      // Brins utilisés pour la fusion de faces
+      CDart * leftFace2;
+      CDart * behindFace2;
+      CDart * upFace2;
+
+      // Brin utilisé pour la fusion d'arête
+      CDart * vertex;
+      CDart * vertex1;
+      CDart * vertex2;
+      CDart * vertex3;
+	
+      // Marque pour les arêtes fictives
+      int fictiveMark = FMap->getNewMark();
+
+      // Les coordonnées du pointel courant
+      //         (multipliés ensuite par STEP3D_X, STEP3D_Y et STEP3D_Z)
+      CVertex CurrentPointel(1,1,1);
+
+      do // On boucle tant qu'on peut lire un prochain plan
+	{
+	  for (unsigned int j=0;j<=AImage->getHeight();++j)
+	    {
+	      for (unsigned int i=0;i<=AImage->getWidth();++i)		
+		{
+#ifdef DEBUG_EXTRACT_IMAGE
+		  cout<<"On traite le voxel ("<<i<<", "<<j<<", "<<k<<")"<<endl;
+#endif
+		
+		  tmp = createCubeForExtract3d(CurrentPointel);
+		  sew3Cube(tmp,last);
+
+		  if (ALevel>=1)
+		    {
+		      leftFace   = FMap->alpha0(last);
+		      upFace     = FMap->alpha3012(last);
+		      behindFace = FMap->alpha3201(last);
+
+		      vertex1 = FMap->alpha23(leftFace);
+		      vertex2 = FMap->alpha323(upFace);
+		      vertex3 = FMap->alpha323(behindFace);
+
+		      // Les trois fusions de volumes possibles
+		      if (AImage->sameVoxelActuLeft(i,j))
+			{
+			  if (vertex2==FMap->alpha13(leftFace)) vertex2=NULL;
+
+			  mergeImage3dVolumes(leftFace);
+			  leftFace = NULL;
+			}
+			
+		      if (AImage->sameVoxelActuBehind(i,j))
+			{
+			  if (vertex1==FMap->alpha1(behindFace)) vertex1=NULL;
+
+			  mergeImage3dVolumes(behindFace);
+			  behindFace = NULL;
+			}
+			
+		      if (AImage->sameVoxelActuUp(i,j))
+			{
+			  if (vertex3==FMap->alpha1(upFace)) vertex3=NULL;
+
+			  mergeImage3dVolumes(upFace);
+			  upFace = NULL;
+			}
+
+		      if (ALevel>=2)
+			{
+			  // Les six fusions de faces coplanaires possibles
+			  if (leftFace!=NULL)
+			    {
+			      leftFace2 = FMap->alpha1(leftFace);
+				
+			      if ( isDegre2Edge3d(leftFace) &&
+				   areFacesColinear(leftFace) )
+				{
+				  mergeImage3dFaces(leftFace);
+				  leftFace = NULL;
+				  vertex1=NULL;
+				}
+
+			      if ( isDegre2Edge3d(leftFace2) &&
+				   areFacesColinear(leftFace2) )
+				{
+				  if ( AKeepFictiveEdges &&
+				       leftFace == NULL &&
+				       FMap->isMarked(FMap->alpha1(leftFace2),fictiveMark) )
+				    {
+				      FMap->markOrbit(leftFace2,ORBIT_023,fictiveMark);
+				      mergeImage3dEdges(leftFace2);
+				      leftFace2 = NULL;
+				      vertex2    = NULL;
+				    }
+				  else
+				    if ( leftFace != NULL ||
+					 !AKeepFictiveEdges ||
+					 !faceMergingWillDisconnect(leftFace2) )
+				      {
+					mergeImage3dFaces(leftFace2);
+					leftFace2 = NULL;
+					vertex2    = NULL;
+				      }
+				    else
+				      {
+					if (AKeepFictiveEdges)
+					  FMap->markOrbit(leftFace2,ORBIT_023,fictiveMark);
+				      }
+				}
+			    }
+
+			  if (behindFace!=NULL)
+			    {
+			      behindFace2 = FMap->alpha1(behindFace);
+				
+			      if ( isDegre2Edge3d(behindFace) &&
+				   areFacesColinear(behindFace) )
+				{
+				  mergeImage3dFaces(behindFace);
+				  behindFace = NULL;
+				  vertex3     = NULL;
+				}
+				
+			      if ( isDegre2Edge3d(behindFace2) &&
+				   areFacesColinear(behindFace2) )
+				{
+				  if ( behindFace == NULL &&
+				       AKeepFictiveEdges &&
+				       FMap->isMarked(FMap->alpha1(behindFace2),fictiveMark) )
+				    {
+				      FMap->markOrbit(behindFace2,ORBIT_023,fictiveMark);
+				      mergeImage3dEdges(behindFace2);
+				      behindFace2 = NULL;
+				      vertex1      = NULL;
+				    }
+				  else
+				    if ( behindFace != NULL ||
+					 !AKeepFictiveEdges ||
+					 !faceMergingWillDisconnect(behindFace2) )
+				      {
+					mergeImage3dFaces(behindFace2);
+					behindFace2 = NULL;
+					vertex1      = NULL;
+				      }
+				    else
+				      {
+					if (AKeepFictiveEdges)
+					  FMap->markOrbit(behindFace2,ORBIT_023,fictiveMark);
+				      }
+				}
+			    }
+
+			  if (upFace!=NULL)
+			    {
+			      upFace2 = FMap->alpha1(upFace);
+				
+			      if ( isDegre2Edge3d(upFace) &&
+				   areFacesColinear(upFace) )
+				{
+				  mergeImage3dFaces(upFace);
+				  upFace = NULL;
+				  vertex2 = NULL;
+				}
+
+			      if ( isDegre2Edge3d(upFace2) &&
+				   areFacesColinear(upFace2) )
+				{
+				  if ( upFace == NULL &&
+				       AKeepFictiveEdges &&
+				       FMap->isMarked(FMap->alpha1(upFace2),fictiveMark) )
+				    {
+				      FMap->markOrbit(upFace2,ORBIT_023,fictiveMark);
+				      mergeImage3dEdges(upFace2);
+				      upFace2 = NULL;
+				      vertex3  = NULL;
+				    }
+				  else
+				    if ( upFace != NULL ||
+					 !AKeepFictiveEdges ||
+					 !faceMergingWillDisconnect(upFace2) )
+				      {
+					mergeImage3dFaces(upFace2);
+					upFace2 = NULL;
+					vertex3  = NULL;
+				      }
+				    else
+				      {
+					if (AKeepFictiveEdges)
+					  FMap->markOrbit(upFace2,ORBIT_023,fictiveMark);
+				      }
+				}
+			    }
+			
+			  if (ALevel>=3)
+			    {
+			      vertex = NULL;
+
+			      if (vertex1!=NULL && vertex2==NULL && vertex3==NULL)
+				vertex = vertex1;
+			      else if (vertex2!=NULL && vertex1==NULL && vertex3==NULL)
+				vertex = vertex2;
+			      else if (vertex3!=NULL && vertex1==NULL && vertex2==NULL)
+				vertex = vertex3;
+
+			      if ( vertex!=NULL )
+				{
+				  if (AKeepFictiveEdges && AShiftFictiveEdges)
+				    {
+				      vertex2=isRealDegre2Vertex3d(vertex,fictiveMark);
+				      if ( vertex2!=NULL &&
+					   areEdgesAlign(vertex,vertex2) )
+					{
+					  FMap->shiftAllFictiveEdges(vertex,fictiveMark);
+					  mergeImage3dEdges(vertex);
+					}
+				    }
+				  else
+				    {
+				      if ( isDegre2Vertex3d(vertex) &&
+					   areEdgesAlign(vertex,FMap->alpha1(vertex)) )
+					{
+					  mergeImage3dEdges(vertex);
+					}
+				    }
+				}
+			    }
+			}
+		    }
+		
+		  last = FMap->alpha101(tmp);
+
+		  // Calcule la prochaine position du pointel courant
+		  // Équivalent à faire :
+		  //    CurrentPointel.setX((i+1)%(columns+1));
+		  //    CurrentPointel.setY((j+1+((i+1)/(columns+1)))%(rows+1));
+		  //    CurrentPointel.setZ(k+1+((j+1+((i+1)/(columns+1)))/(rows+1)));
+		  // Mais ici c'est optimisé car moins de formule math :)
+		  if ( i == AImage->getWidth()-1 )
+		    {
+		      CurrentPointel.setX(0);
+			
+		      if ( j == AImage->getHeight()-1 )
+			{
+			  CurrentPointel.setY(0);
+			  CurrentPointel.setZ(CurrentPointel.getZ()+1);
+			}
+		      else
+			CurrentPointel.setY(CurrentPointel.getY()+1);
+		    }
+		  else
+		    CurrentPointel.setX(CurrentPointel.getX()+1);		
+		}
+	    }
+
+	  std::cout << "Ok pour l'extraction de la plaque num "
+		    << AImage->getPlaneActu() << std::endl;
+	  ++k;
+	}
+      while(AImage->readNextPlane());
+	
+      if (ADestroyBorder && ALevel > 0)
+	{
+	  CStaticCoverage012 it(FMap,last);
+	  while(it.cont())
+	    FMap->delMapDart(it++);
+	}
+
+      FMap->unmarkAll(fictiveMark);
+      FMap->freeMark(fictiveMark);
+    }
+
+  return true;
+}
+//******************************************************************************
+INLINE
+bool CExtractionImage::extract3dImage( const std::string & AFilename,
+				       int FirstPlane,
+				       int NbPlaneToRead,
+				       int Level,
+				       int Lg,
+				       bool DestroyBorder,
+				       bool KeepFictiveEdges,
+				       bool ShiftFictiveEdges )
+{
+#ifdef MODULE_EXTRACTION_IMAGE_WITHOUT_MAGICK
+  return false;
+#else
+  CImage3dMagick image(AFilename,FirstPlane,NbPlaneToRead,Lg);
+  return extract3dImage(& image, Level,
+			DestroyBorder, KeepFictiveEdges, ShiftFictiveEdges);
+#endif // MODULE_EXTRACTION_IMAGE_WITHOUT_MAGICK
+}
+//******************************************************************************
+INLINE
+bool CExtractionImage::extract3dImageCEA( const std::string & AFilename,
+					  int FirstPlane,
+					  int NbPlaneToRead,
+					  int Level,
+					  bool DestroyBorder,
+					  bool KeepFictiveEdges,
+					  bool ShiftFictiveEdges )
+{
+  CImage3dCEA image(AFilename,FirstPlane,NbPlaneToRead);
+
+  return extract3dImage(& image, Level,
+			DestroyBorder, KeepFictiveEdges, ShiftFictiveEdges);
+}
+//******************************************************************************
+INLINE
+bool CExtractionImage::extractOneRegionVoxels(CImage3d * AImage,
+					      int ARed, int AGreen,
+					      int ABlue, int AAlpha )
+{
+  assert(AImage != NULL);
+
+  if (! AImage->isOk())
+    return false;
+
+  int toKeep = FMap->getNewMark();
+  
+  // Pour garder les brins déjà existant.
+  FMap->negateMaskMark(toKeep);
+
+#ifdef DEBUG_EXTRACT_IMAGE
+  cout<<"Avant de créer le bord supérieur : "<<endl;
+#endif
+
+  CDart * last = createBorder3d(AImage->getWidth(),AImage->getHeight());
+
+#ifdef DEBUG_EXTRACT_IMAGE
+  std::cout<<"Ok on a créé le bord supérieur."<<std::endl;
+#endif
+
+  CDart * tmp;
+  unsigned int k=0;
+  
+  // Les coordonnées du pointel courant
+  //         (multipliés ensuite par STEP3D_X, STEP3D_Y et STEP3D_Z)
+  CVertex CurrentPointel(1,1,1);
+
+  do // On boucle tant qu'on peut lire un prochain plan
+    {
+      for (unsigned int j=0;j<=AImage->getHeight();++j)
+	{
+	  for (unsigned int i=0;i<=AImage->getWidth();++i)		
+	    {
+#ifdef DEBUG_EXTRACT_IMAGE
+	      std::cout<<"On traite le voxel ("<<i<<", "<<j<<", "<<k<<")"<<std::endl;
+#endif
+	      
+	      tmp = createCubeForExtract3d(CurrentPointel);
+	      sew3Cube(tmp,last);
+	      
+	      // Si le voxel est dans la région AnId, on le marque.
+	      if ( i<AImage->getWidth() && j<AImage->getHeight() &&
+		   !AImage->lastPlane() &&
+		   AImage->sameVoxel(i,j,true,ARed, AGreen, ABlue, AAlpha) )
+		{
+		  FMap->markOrbit(tmp, ORBIT_VOLUME, toKeep);
+		}
+
+	      last = FMap->alpha101(tmp);
+	      
+	      // Calcule la prochaine position du pointel courant
+	      // Équivalent à faire :
+	      //    CurrentPointel.setX((i+1)%(columns+1));
+	      //    CurrentPointel.setY((j+1+((i+1)/(columns+1)))%(rows+1));
+	      //    CurrentPointel.setZ(k+1+((j+1+((i+1)/(columns+1)))/(rows+1)));
+	      // Mais ici c'est optimisé car moins de formule math :)
+	      if ( i == AImage->getWidth()-1 )
+		{
+		  CurrentPointel.setX(0);
+		  
+		  if ( j == AImage->getHeight()-1 )
+		    {
+		      CurrentPointel.setY(0);
+		      CurrentPointel.setZ(CurrentPointel.getZ()+1);
+		    }
+		  else
+		    CurrentPointel.setY(CurrentPointel.getY()+1);
+		}
+	      else
+		CurrentPointel.setX(CurrentPointel.getX()+1);		
+	    }
+	}
+      
+      std::cout << "Ok pour l'extraction de la plaque num "
+		<< AImage->getPlaneActu() << std::endl;
+      ++k;
+    }
+  while(AImage->readNextPlane());
+
+  // Maintenant on détruit tout les brins qui ne sont pas dans la région
+  // à garder, en 3-décousant préalablement les volumes.
+  CDynamicCoverageAll itAll(FMap);
+  while( itAll.cont() )
+    {
+      if ( !FMap->isMarked(*itAll, toKeep) && !FMap->isFree3(*itAll) )
+	FMap->unsew3(*itAll);
+
+      ++itAll;
+    }
+
+  itAll.reinit();
+  while( itAll.cont() )
+    {
+      tmp = itAll++;
+      
+      if ( !FMap->isMarked(tmp, toKeep) )
+	FMap->delMapDart(tmp);	
+    }
+  
+  FMap->negateMaskMark(toKeep);
+  FMap->freeMark(toKeep);
+
+  return true;
+}
+//******************************************************************************
+INLINE
+bool CExtractionImage::extractOneRegionVoxels( const std::string & AFilename,
+					       int FirstPlane,
+					       int NbPlaneToRead,
+					       int Lg,
+					       int ARed, int AGreen,
+					       int ABlue, int AAlpha )
+{
+#ifdef MODULE_EXTRACTION_IMAGE_WITHOUT_MAGICK
+  return false;
+#else
+  CImage3dMagick image(AFilename,FirstPlane,NbPlaneToRead,Lg);
+  return extractOneRegionVoxels(& image, ARed, AGreen, ABlue, AAlpha);
+#endif // MODULE_EXTRACTION_IMAGE_WITHOUT_MAGICK
+}
+//******************************************************************************
+} // namespace GMap3d
+//******************************************************************************
