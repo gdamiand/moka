@@ -205,9 +205,11 @@ void CPrecompileFace::setRandomColor(CDart* ADart, int ADimension)
     {
       CVertex bary = FParameterGMapV->getMap()->
 	barycenter(ADart, ORBIT_CELL[ADimension]);
+      //fabs(v)-floor(fabs(v))
       r = bary.getX();
       v = bary.getY();
       b = bary.getZ();
+#undef FLT
     }
   else
     { 
