@@ -218,10 +218,10 @@ void CPrecompileFace::setRandomColor(CDart* ADart, int ADimension)
       
       delete cov;
 
-      srand48(c);
-      r = drand48();
-      v = drand48();
-      b = drand48();      
+      srand(c);
+      r = double(rand())/RAND_MAX;
+      v = double(rand())/RAND_MAX;
+      b = double(rand())/RAND_MAX;      
 
       //std::cout<<"c="<<c<<"  "<<"r,v,b="<<r<<", "<<v<<", "<<b<<std::endl;
     }
