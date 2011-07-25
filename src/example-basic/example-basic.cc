@@ -24,6 +24,7 @@
 #include <iostream>
 #include "g-map-vertex.hh"
 #include "corefinement-api.hh"
+// #include "extraction-images.hh"
 
 using namespace std;
 using namespace GMap3d;
@@ -80,8 +81,6 @@ CDart* createTetra()
   return d1;
 }
 
-
-
 int main()
 {
   CDart* d1=createTetra();
@@ -95,6 +94,9 @@ int main()
 
   g.save("res2.moka",AsciiFormat);
 
+  //  CExtractionImage ext(&g);
+  //  ext.extract3dImage("/home/gdamiand/images/dimension3/test3/test3-%.tif",0,0,3,3,true,true,true);
+  
   int m = g.getNewMark();
 
   int nbVol  =0;
@@ -119,6 +121,6 @@ int main()
 	}
     }
   
-
+  
   cout<<"Nombre de volumes : "<<nbVol<<", et nombre de faces : "<<nbFace<<endl;
 }
