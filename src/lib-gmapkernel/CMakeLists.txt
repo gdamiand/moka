@@ -63,4 +63,8 @@ endif (MODULE_SPAMOD)
 if ( MODULE_COREFINEMENT )
   target_link_libraries (gmapkernel tools)
 endif ( MODULE_COREFINEMENT )
+
+if ( MODULE_EXTRACTION_IMAGE )
+  target_link_libraries (gmapkernel extraction-images)
+endif ( MODULE_EXTRACTION_IMAGE )
 #-------------------------------------------------------------------------------

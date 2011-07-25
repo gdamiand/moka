@@ -1,0 +1,250 @@
+/*
+ * lib-extraction-images : Extraction de cartes à partir d'images 2D et 3D.
+ * Copyright (C) 2004, Moka Team, Université de Poitiers, Laboratoire SIC
+ *               http://www.sic.sp2mi.univ-poitiers.fr/
+ * Copyright (C) 2009, Guillaume Damiand, CNRS, LIRIS,
+ *               guillaume.damiand@liris.cnrs.fr, http://liris.cnrs.fr/
+ *
+ * This file is part of lib-extraction-images
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+//******************************************************************************
+#include <cstdlib>
+#include <iostream>
+
+namespace GMap3d
+{
+//******************************************************************************
+INLINE
+CImage3d::CImage3d(int AActuPlaneIndex) :
+  FWidth(0),
+  FHeight(0),
+  FIsOk(true),
+  FNbPlaneToRead(0),
+  FActuPlaneIndex(AActuPlaneIndex),
+  FNullActuPlane(true),
+  FNullPrevPlane(true)
+{}
+//******************************************************************************
+INLINE
+bool CImage3d::isOk() const
+{
+  return FIsOk;
+}
+//******************************************************************************
+INLINE
+unsigned int CImage3d::getPlaneActu() const
+{
+  return FActuPlaneIndex - 1;
+}
+//******************************************************************************
+INLINE
+unsigned int CImage3d::getWidth() const
+{
+  return FWidth;
+}
+//******************************************************************************
+INLINE
+unsigned int CImage3d::getHeight() const
+{
+  return FHeight;
+}
+//******************************************************************************
+/* Pour toutes ces methodes : Le premier mot designe le voxel que l'on regarde
+ * (par rapport au voxel actu qui est en bas FMap->alpha droite et devant).
+ * Le second mot désigne le voxel relatif FMap->alpha ce voxel, donc juste up,
+ * behind ou left. x et y sont les coordonnées de actu (dans le plan courant en
+ * z)
+ */
+//******************************************************************************
+INLINE
+bool CImage3d::sameVoxelActuLeft( unsigned int x, unsigned int y ) const
+{
+  if (FNullActuPlane || y==getHeight()) return true;
+  if (x==0 || x==getWidth()) return false;
+
+  return sameVoxel(x,y,true, x-1,y,true);
+}
+//******************************************************************************
+INLINE
+bool CImage3d::sameVoxelActuBehind( unsigned int x, unsigned int y ) const
+{
+  if (FNullActuPlane || x==getWidth()) return true;
+  if (y==0 || y==getHeight()) return false;
+
+  return sameVoxel(x,y,true, x,y-1,true);
+}
+//******************************************************************************
+INLINE
+bool CImage3d::sameVoxelActuUp( unsigned int x, unsigned int y ) const
+{
+  if (FNullActuPlane) // On traite la derniere plaque de l'image
+    return FNullPrevPlane || x==getWidth() || y==getHeight();
+
+  if (x==getWidth() || y==getHeight()) return true;
+  if (FNullPrevPlane) return false;
+
+  return sameVoxel(x,y,true, x,y,false);
+}
+//******************************************************************************
+INLINE
+bool CImage3d::sameVoxelLeftBehind( unsigned int x, unsigned int y ) const
+{
+  if (FNullActuPlane || x==0) return true;
+  if (y==0 || y==getHeight()) return false;
+
+  return sameVoxel(x-1,y,true, x-1,y-1,true);
+}
+//******************************************************************************
+INLINE
+bool CImage3d::sameVoxelLeftUp( unsigned int x, unsigned int y ) const
+{
+  if (FNullActuPlane) // On traite la derniere plaque de l'image
+    return FNullPrevPlane || x==0 || y==getHeight();
+
+  if (x==0 || y==getHeight()) return true;
+  if (FNullPrevPlane) return false; // Si on est sur la derniere plaque
+
+  // sinon on est au "milieu":
+  return sameVoxel(x-1,y,true, x-1,y,false);
+}
+//******************************************************************************
+INLINE
+bool CImage3d::sameVoxelBehindLeft( unsigned int x, unsigned int y ) const
+{
+  if (FNullActuPlane || y==0) return true;
+  if (x==0 || x==getWidth()) return false;
+
+  return sameVoxel(x,y-1,true, x-1,y-1,true);
+}
+//******************************************************************************
+INLINE
+bool CImage3d::sameVoxelBehindUp( unsigned int x, unsigned int y ) const
+{
+  if (FNullActuPlane) // On traite la derniere plaque de l'image
+    return FNullPrevPlane || x==getWidth() || y==0;
+
+  if (x==getWidth() || y==0) return true;
+  if (FNullPrevPlane) return false; // Si on est sur la derniere plaque
+
+  // sinon on est au "milieu":
+  return sameVoxel(x,y-1,true, x,y-1,false);
+}
+//******************************************************************************
+INLINE
+bool CImage3d::sameVoxelUpLeft( unsigned int x, unsigned int y ) const
+{
+  if (FNullPrevPlane || y==getHeight()) return true;
+  if (x==0 || x==getWidth()) return false;
+
+  return sameVoxel(x,y,false, x-1,y,false);
+}
+//******************************************************************************
+INLINE
+bool CImage3d::sameVoxelUpBehind( unsigned int x, unsigned int y ) const
+{
+  if (FNullPrevPlane || x==getWidth()) return true;
+  if (y==0 || y==getHeight()) return false;
+
+  return sameVoxel(x,y,false, x,y-1,false);
+}
+//******************************************************************************
+INLINE
+bool CImage3d::sameVoxelUpbehindLeft( unsigned int x, unsigned int y ) const
+{
+  if ( y==0 || FNullPrevPlane ) return true;
+  if ( x==0 || x==getWidth() ) return false;
+
+  return sameVoxel(x,y-1,false, x-1,y-1,false);
+}
+//******************************************************************************
+INLINE
+bool CImage3d::sameVoxelLeftbehindUp( unsigned int x, unsigned int y ) const
+{
+  if ( x==0 || y==0 ) return true;
+  if ( FNullActuPlane || FNullPrevPlane ) return false;
+
+  return sameVoxel(x-1,y-1,true, x-1,y-1,false);
+}
+//******************************************************************************
+INLINE
+bool CImage3d::sameVoxelLeftupBehind( unsigned int x, unsigned int y ) const
+{
+  if ( x==0 || FNullPrevPlane ) return true;
+  if ( y==0 || y==getHeight() ) return false;
+
+  return sameVoxel(x-1,y,false, x-1,y-1,false);
+}
+//******************************************************************************
+INLINE
+bool CImage3d::readNextPlane()
+{
+  pushPlane();
+
+  if (FNbPlaneToRead==0)
+    return false;
+
+  if (FNbPlaneToRead==1)
+    {
+      ++FActuPlaneIndex;
+      --FNbPlaneToRead;
+      return true;
+    }
+
+  if (readData())
+    {
+      ++FActuPlaneIndex;
+        FNullActuPlane = false;
+
+      if (FNbPlaneToRead != -1)
+	--FNbPlaneToRead;
+    }
+  else
+    {
+      ++FActuPlaneIndex;
+      std::cerr << "Echec de lecture du plan" << std::endl;
+      // Pour que le prochain appel à readNextPlane retourne false :
+      // Par contre cet appel retourne true car il y a un plan supplémentaire
+      // après la dernière plaque.
+      FNbPlaneToRead = 0;
+    }
+
+  return true;
+}
+//******************************************************************************
+INLINE
+bool CImage3d::lastPlane()
+{ return FNbPlaneToRead==0; }
+//******************************************************************************
+INLINE
+void CImage3d::freePlane(bool AActuPlane)
+{
+  if (AActuPlane)
+    FNullActuPlane = true;
+  else
+    FNullPrevPlane = true;
+}
+//******************************************************************************
+INLINE
+void CImage3d::pushPlane()
+{
+  freePlane(false);
+
+  FNullPrevPlane = FNullActuPlane;
+  FNullActuPlane = true;
+}
+//******************************************************************************
+} // namespace GMap3d

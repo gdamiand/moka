@@ -1,0 +1,758 @@
+/*
+ * lib-extraction-images : Extraction de cartes à partir d'images 2D et 3D.
+ * Copyright (C) 2004, Moka Team, Université de Poitiers, Laboratoire SIC
+ *               http://www.sic.sp2mi.univ-poitiers.fr/
+ * Copyright (C) 2009, Guillaume Damiand, CNRS, LIRIS,
+ *               guillaume.damiand@liris.cnrs.fr, http://liris.cnrs.fr/
+ *
+ * This file is part of lib-extraction-images
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+//******************************************************************************
+// Les précodes "frontières" utilisés pour extraire la carte de niveau 3
+//       Normalement Precodes f1=>f27, mais ici on les regroupes quitte à
+//       ne pas avoir les méthodes totalement optimales
+//******************************************************************************
+
+#include "pixel-step.hh"
+
+namespace GMap3d
+{
+//******************************************************************************
+// Méthode générique utilisée pour les précodes f1 -> f12
+// Ce n'est pas la version optimale, on appelle d'abord la méthode
+// oneSameNeighboorF pour faire les fusions de volumes et de face, puis
+// on fait la fusion d'arête "à la main"
+INLINE
+CDart* CExtractionImage::oneSameNeighboorF(CDart* d1, CDart* fo1, CDart* fo2, const CVertex & AVertex)
+{
+  CDart *t1, *t2,*tmp1, *tmp2, *last;
+
+  t1 = FMap->alpha1(fo1);
+
+  last=oneSameNeighboorFc(AVertex,d1,fo1,fo2,3);
+
+  t2=FMap->alpha1(t1);
+  tmp1=FMap->alpha0(t1);
+  tmp2=FMap->alpha0(t2);
+
+  FMap->topoUnsew0(t1);
+  FMap->topoUnsew0(t2);
+
+  FMap->topoSew0(tmp1,tmp2);
+
+  CStaticCoverage23  it(FMap,t1);
+  while (it.cont())
+    {
+      FMap->delMapDart(FMap->alpha1(*it));
+      FMap->delMapDart(it++);
+    }
+
+  return last;
+}
+
+//******************************************************************************
+//// Les precodes f1, f4, f7 et f10 sont des sous-précodes du précode fc7, traités ici par la
+//// méthode qui n'est donc pas entièrement optimisée.
+INLINE
+void CExtractionImage::precodesF1F4F7F10( CDart* &last, CDart* up, CDart* behind, const CVertex & AVertex )
+{
+#ifdef DEBUG_EXTRACT_IMAGE
+  cout<<"GmapV::precodesF1F4F7F10...";cout.flush();
+#endif
+
+  last = FMap->alpha101(oneSameNeighboorF( FMap->alpha010(last), FMap->alpha010(up), FMap->alpha101(behind), AVertex ));
+
+#ifdef DEBUG_EXTRACT_IMAGE
+  cout<<"OK\n";
+#endif
+}
+
+//******************************************************************************
+//// Les precodes f2, f5, f8 et f11 sont des sous-précodes du précode fc8, traités ici par la
+//// méthode qui n'est donc pas entièrement optimisée.
+INLINE
+void CExtractionImage::precodesF2F5F8F11( CDart* &last, CDart* up, CDart* behind, const CVertex & AVertex )
+{
+#ifdef DEBUG_EXTRACT_IMAGE
+  cout<<"GmapV::precodesF2F5F8F11...";cout.flush();
+#endif
+
+  last = FMap->alpha201(oneSameNeighboorF( FMap->alpha101(up), FMap->alpha010(behind), FMap->alpha010(last), AVertex ));
+
+#ifdef DEBUG_EXTRACT_IMAGE
+  cout<<"OK\n";
+#endif
+}
+
+//******************************************************************************
+//// Les precodes f3, f6, f9 et f12 sont des sous-précodes du précode fc9, traités ici par la
+//// méthode qui n'est donc pas entièrement optimisée.
+INLINE
+void CExtractionImage::precodesF3F6F9F12( CDart* &last, CDart* up, CDart* behind, const CVertex & AVertex )
+{
+#ifdef DEBUG_EXTRACT_IMAGE
+  cout<<"GmapV::precodesF3F6F9F12...";cout.flush();
+#endif
+
+  last = FMap->alpha12101(oneSameNeighboorF( FMap->alpha101(behind), FMap->alpha0(last), FMap->alpha101(up), AVertex ));
+
+#ifdef DEBUG_EXTRACT_IMAGE
+  cout<<"OK\n";
+#endif
+}
+
+//******************************************************************************
+// Méthode générique utilisée pour les précodes f13, f14, f15, f19, f20, f21
+// (les sous précodes des précodes fc13, fc14 et fc15 traités par twoSameNeighboorFc1)
+INLINE
+CDart* CExtractionImage::twoSameNeighboorF1( CDart* d1, CDart* d5, CDart* fo, const CVertex & AVertex )
+{
+  CDart *t1, *t2,*tmp1, *tmp2, *last;
+  t1= FMap->alpha1(fo);
+
+  last = twoSameNeighboorFc1(AVertex,d1,d5,fo);
+
+  t2=FMap->alpha1(t1);
+  tmp1=FMap->alpha0(t1);
+  tmp2=FMap->alpha0(t2);
+
+  FMap->topoUnsew0(t1);
+  FMap->topoUnsew0(t2);
+
+  FMap->topoSew0(tmp1,tmp2);
+
+  CStaticCoverage23  it(FMap,t1);
+  while (it.cont())
+    {
+      FMap->delMapDart(FMap->alpha1(*it));
+      FMap->delMapDart(it++);
+    }
+
+  return last;
+}
+
+//******************************************************************************
+//// Les precodes f13 et f19 sont des sous-précodes du précode fc13
+INLINE
+void CExtractionImage::precodesF13F19( CDart* &last, CDart* up, CDart* behind, const CVertex & AVertex )
+{
+#ifdef DEBUG_EXTRACT_IMAGE
+  cout<<"GmapV::precodesF13F19...";cout.flush();
+#endif
+
+  last = FMap->alpha0(twoSameNeighboorF1( FMap->alpha0(last), FMap->alpha101(behind), FMap->alpha010(up), AVertex ));
+
+#ifdef DEBUG_EXTRACT_IMAGE
+  cout<<"OK\n";
+#endif
+}
+
+//******************************************************************************
+//// Les precodes f14 et f20 sont des sous-précodes du précode fc14
+INLINE
+void CExtractionImage::precodesF14F20( CDart* &last, CDart* up, CDart* behind, const CVertex & AVertex )
+{
+#ifdef DEBUG_EXTRACT_IMAGE
+  cout<<"GmapV::precodesF14F20...";cout.flush();
+#endif
+
+  last = FMap->alpha10121(twoSameNeighboorF1( FMap->alpha010(up), FMap->alpha010(last), FMap->alpha010(behind), AVertex ));
+
+#ifdef DEBUG_EXTRACT_IMAGE
+  cout<<"OK\n";
+#endif
+}
+
+//******************************************************************************
+//// Les precodes f15 et f21 sont des sous-précodes du précode fc15
+INLINE
+void CExtractionImage::precodesF15F21( CDart* &last, CDart* up, CDart* behind, const CVertex & AVertex )
+{
+#ifdef DEBUG_EXTRACT_IMAGE
+  cout<<"GmapV::precodesF15F21...";cout.flush();
+#endif
+
+  last = FMap->alpha0102101(twoSameNeighboorF1( FMap->alpha010(behind), FMap->alpha101(up), FMap->alpha0(last), AVertex ));
+
+#ifdef DEBUG_EXTRACT_IMAGE
+  cout<<"OK\n";
+#endif
+}
+
+//******************************************************************************
+// Méthode générique utilisée pour les précodes f16, f17, f18, f22, f23, f24
+// (les sous précodes des précodes fc10, fc11 et fc12 traités par twoSameNeighboorFc2)
+INLINE
+CDart* CExtractionImage::twoSameNeighboorF2( CDart* d1, CDart* d5, CDart* fo, const CVertex & AVertex )
+
+{
+ CDart *t1, *t2,*tmp1, *tmp2, *last;
+ t1 = fo;
+
+ last = twoSameNeighboorFc2(AVertex,d1,d5,fo);
+
+ t2   = FMap->alpha1(t1);
+ tmp1 = FMap->alpha0(t1);
+ tmp2 = FMap->alpha0(t2);
+
+ FMap->topoUnsew0(t1);
+ FMap->topoUnsew0(t2);
+ FMap->topoSew0(tmp1,tmp2);
+
+ CStaticCoverage23  it(FMap,t1);
+ while (it.cont())
+   {
+     FMap->delMapDart(FMap->alpha1(*it));
+     FMap->delMapDart(it++);
+   }
+
+ return last;
+}
+
+//******************************************************************************
+//// Les precodes f16 et f22 sont des sous-précodes du précode fc10
+INLINE
+void CExtractionImage::precodesF16F22( CDart* &last, CDart* up, CDart* behind, const CVertex & AVertex )
+{
+#ifdef DEBUG_EXTRACT_IMAGE
+  cout<<"GmapV::precodesF16F22...";cout.flush();
+#endif
+
+  last = FMap->alpha0(twoSameNeighboorF2( FMap->alpha0(last), FMap->alpha101(behind), FMap->alpha010(up), AVertex ));
+
+#ifdef DEBUG_EXTRACT_IMAGE
+  cout<<"OK\n";
+#endif
+}
+
+//******************************************************************************
+//// Les precodes f17 et f23 sont des sous-précodes du précode fc11
+INLINE
+void CExtractionImage::precodesF17F23( CDart* &last, CDart* up, CDart* behind, const CVertex & AVertex )
+{
+#ifdef DEBUG_EXTRACT_IMAGE
+  cout<<"GmapV::precodesF17F23...";cout.flush();
+#endif
+
+  last = FMap->alpha10121(twoSameNeighboorF2( FMap->alpha010(up), FMap->alpha010(last), FMap->alpha010(behind), AVertex ));
+
+#ifdef DEBUG_EXTRACT_IMAGE
+  cout<<"OK\n";
+#endif
+}
+
+//******************************************************************************
+//// Les precodes f18 et f24 sont des sous-précodes du précode fc12
+INLINE
+void CExtractionImage::precodesF18F24( CDart* &last, CDart* up, CDart* behind, const CVertex & AVertex )
+{
+#ifdef DEBUG_EXTRACT_IMAGE
+  cout<<"GmapV::precodesF18F24...";cout.flush();
+#endif
+
+  last = FMap->alpha0102101(twoSameNeighboorF2( FMap->alpha010(behind), FMap->alpha101(up), FMap->alpha0(last), AVertex ));
+
+#ifdef DEBUG_EXTRACT_IMAGE
+  cout<<"OK\n";
+#endif
+}
+
+//******************************************************************************
+// Méthode générique qui traite les précodes f25, f26 et f27
+// les sous-précodes direct du précode l8
+INLINE
+CDart* CExtractionImage::threeSameNeighboorF(CDart* d10, CDart* d50, CDart* fo, const CVertex & AVertex )
+{
+  CDart *d1,*d2 ,*d3, *d4,*d5 ,*d6,*t1,*t2,*t3,*t4, *t5, *t6, *s1,*s2,*s3,*s4, *s5;
+
+  d1 = FMap->alpha01(d10);
+  d2 = FMap->alpha01(d1);
+  d3 = FMap->alpha01(fo);
+  d4 = FMap->alpha01(d3);
+  d5 = FMap->alpha1010(d50);
+  d6 = FMap->alpha01(d5);
+
+  s1 = FMap->alpha0(FMap->alpha2(FMap->alpha1(fo))); //FMap->alpha102(fo);
+  s2 = FMap->alpha0(s1);
+  s3 = FMap->alpha1(s2);
+  s4 = FMap->alpha0(s3);
+
+  s5=FMap->alpha12(d5);
+  FMap->unsew2(s1);
+  FMap->unsew2(FMap->alpha1(d5));
+  FMap->sew2(s1,s5);
+
+  FMap->topoUnsew0(s2);
+  FMap->topoUnsew0(s3);
+  FMap->topoSew0(s1,s4);
+
+  t1 = FMap->alpha01(d2);
+  t2 = FMap->alpha01(t1);
+  t3 = FMap->alpha01(d4);
+  t4 = FMap->alpha01(t3);
+  t5 = FMap->alpha01(d6);
+  t6 = FMap->alpha01(t5);
+
+  FMap->unsew1(d1);
+  FMap->unsew1(d5);
+  FMap->unsew1(FMap->alpha0(d6));
+  FMap->unsew1(FMap->alpha0(d4));
+  FMap->unsew1(FMap->alpha0(d2));
+  FMap->unsew1(FMap->alpha10(d4));
+
+  closeFace(d2,d3);
+  closeFace(d6,d1);
+  closeFace(d4,d5);
+
+  FMap->topoSew2(FMap->alpha01(d1),FMap->alpha1(d2));
+  FMap->topoSew2(FMap->alpha01(d3),FMap->alpha1(d4));
+  FMap->topoSew2(FMap->alpha01(d5),FMap->alpha1(d6));
+
+  FMap->setVertex(FMap->alpha010(d5), new CAttributeVertex(AVertex.getX()*STEP3D_X,
+					       AVertex.getY()*STEP3D_Y,
+					       AVertex.getZ()*STEP3D_Z));
+
+  FMap->delMapDart(FMap->alpha0(t2));
+  FMap->delMapDart(t2);
+  FMap->delMapDart(FMap->alpha0(t1));
+  FMap->delMapDart(t1);
+  FMap->delMapDart(FMap->alpha0(t4));
+  FMap->delMapDart(t4);
+  FMap->delMapDart(FMap->alpha0(t3));
+  FMap->delMapDart(t3);
+  FMap->delMapDart(FMap->alpha0(t6));
+  FMap->delMapDart(t6);
+  FMap->delMapDart(FMap->alpha0(t5));
+  FMap->delMapDart(t5);
+
+  CStaticCoverage23 it(FMap,s2);
+  while (it.cont())
+    {
+      FMap->delMapDart(FMap->alpha1(*it));
+      FMap->delMapDart(it++);
+    }
+
+  return d5;
+}
+
+//******************************************************************************
+//// Les precodes f25, f26 et f27 sont des sous-précodes du précode l8
+INLINE
+void CExtractionImage::precodeF25( CDart* &last, CDart* up, CDart* behind, const CVertex & AVertex )
+{
+#ifdef DEBUG_EXTRACT_IMAGE
+  cout<<"GmapV::precodeF25...";cout.flush();
+#endif
+
+  last = FMap->alpha10121(threeSameNeighboorF( FMap->alpha010(up), FMap->alpha010(last), FMap->alpha010(behind), AVertex ));
+
+#ifdef DEBUG_EXTRACT_IMAGE
+  cout<<"OK\n";
+#endif
+}
+
+INLINE
+void CExtractionImage::precodeF26( CDart* &last, CDart* up, CDart* behind, const CVertex & AVertex )
+{
+#ifdef DEBUG_EXTRACT_IMAGE
+  cout<<"GmapV::precodeF26...";cout.flush();
+#endif
+
+  last = FMap->alpha0102101(threeSameNeighboorF( FMap->alpha010(behind), FMap->alpha101(up), FMap->alpha0(last), AVertex ));
+
+#ifdef DEBUG_EXTRACT_IMAGE
+  cout<<"OK\n";
+#endif
+}
+
+INLINE
+void CExtractionImage::precodeF27( CDart* &last, CDart* up, CDart* behind, const CVertex & AVertex )
+{
+#ifdef DEBUG_EXTRACT_IMAGE
+  cout<<"GmapV::precodeF27...";cout.flush();
+#endif
+
+  last = FMap->alpha0(threeSameNeighboorF( FMap->alpha0(last), FMap->alpha101(behind), FMap->alpha010(up), AVertex ));
+
+#ifdef DEBUG_EXTRACT_IMAGE
+  cout<<"OK\n";
+#endif
+}
+
+//******************************************************************************
+// Pour décaler les arêtes fictives, il y FMap->alpha trois cas différents suivant l'orientation des
+// arêtes (ou des faces) qu'on fusionne.
+
+// Ici on décale les arêtes fictives éventuelle se trouvant sur le sommet central
+// entre les 2 faces dans le plan xy (c'est à dire up et sa voisine de gauche)
+INLINE
+void CExtractionImage::shiftFictiveEdgesForFacesXy( CDart* last, CDart* up, CDart* behind, int FictiveMark )
+{
+  CDynamicCoverage23 it(FMap,FMap->alpha010(behind));
+  ++it; // car on sait qu'il n'y FMap->alpha pas d'arêtes fictive sur la face contenant behind
+  while(*it != FMap->alpha0101(up))
+    {
+      FMap->shiftAllFictiveEdges(*it,FictiveMark);
+      ++it; ++it;  // Pour sauter le brin cousu par FMap->alpha3
+    }
+}
+
+// Ici on décale les arêtes fictives éventuelle se trouvant sur le sommet central
+// entre les 2 faces dans le plan xz (c'est à dire behind et sa voisine du dessus)
+INLINE
+void CExtractionImage::shiftFictiveEdgesForFacesXz( CDart* last, CDart* up, CDart* behind, int FictiveMark )
+{
+  CDynamicCoverage23 it(FMap,FMap->alpha0(last));
+  ++it; // pas d'arête fictive sur la première face
+  while(*it != FMap->alpha0101(behind))
+    {
+      FMap->shiftAllFictiveEdges(*it,FictiveMark);
+      ++it;
+    }
+}
+
+// Ici on décale les arêtes fictives éventuelle se trouvant sur le sommet central
+// entre les 2 faces dans le plan yz (c'est à dire last et sa voisine de derrière)
+INLINE
+void CExtractionImage::shiftFictiveEdgesForFacesYz( CDart* last, CDart* up, CDart* behind, int FictiveMark )
+{
+  CDynamicCoverage23 it(FMap,FMap->alpha01(last));
+  ++it; // pas d'arête fictive sur la première face
+  while(*it != FMap->alpha010(up))
+    {
+      FMap->shiftAllFictiveEdges(*it,FictiveMark);
+      ++it;
+    }
+}
+
+//******************************************************************************
+// Les méthodes subcase, qui vont gérer éventuellement les arêtes fictives, et peuvent ensuite
+// être modifiées pour rajouter des niveaux...
+
+//******************************************************************************
+INLINE
+void CExtractionImage::subcasePrecodesF1F4F7F10( CImage3d & image,
+					    unsigned int x, unsigned int y,
+					    CDart* &last, CDart* up, CDart* behind,
+					    int level, const CVertex & AVertex, int FictiveMark,
+					    bool keepFictiveEdges, bool shiftFictiveEdges )
+{
+   if (keepFictiveEdges)
+    {
+      if (shiftFictiveEdges)
+	{
+	  shiftFictiveEdgesForFacesXy(last,up,behind,FictiveMark);
+	  precodesF1F4F7F10(last,up,behind,AVertex);
+	}
+      else
+	if (FMap->existFictiveEdgeIncidentTo(FMap->alpha0(last),FictiveMark))
+	  subcasePrecodeFc7(image,x,y,last,up,behind,2,AVertex,
+			      FictiveMark,keepFictiveEdges,shiftFictiveEdges);
+	else	
+	  precodesF1F4F7F10(last,up,behind,AVertex);
+    }
+  else
+    precodesF1F4F7F10(last,up,behind,AVertex);
+}
+
+//******************************************************************************
+INLINE
+void CExtractionImage::subcasePrecodesF2F5F8F11( CImage3d & image,
+					    unsigned int x, unsigned int y,
+					    CDart* &last, CDart* up, CDart* behind,
+					    int level, const CVertex & AVertex, int FictiveMark,
+					    bool keepFictiveEdges, bool shiftFictiveEdges )
+{
+  if (keepFictiveEdges)
+    {
+      if (shiftFictiveEdges)
+	{
+	  shiftFictiveEdgesForFacesXz(last,up,behind,FictiveMark);
+	  precodesF2F5F8F11(last,up,behind,AVertex);
+	}
+      else
+	if (FMap->existFictiveEdgeIncidentTo(FMap->alpha0(last),FictiveMark))
+	  subcasePrecodeFc8(image,x,y,last,up,behind,2,AVertex,
+			      FictiveMark,keepFictiveEdges,shiftFictiveEdges);
+	else	
+	  precodesF2F5F8F11(last,up,behind,AVertex);
+    }
+  else
+    precodesF2F5F8F11(last,up,behind,AVertex);
+}
+
+//******************************************************************************
+INLINE
+void CExtractionImage::subcasePrecodesF3F6F9F12( CImage3d & image,
+					    unsigned int x, unsigned int y,
+					    CDart* &last, CDart* up, CDart* behind,
+					    int level, const CVertex & AVertex, int FictiveMark,
+					    bool keepFictiveEdges, bool shiftFictiveEdges )
+{
+  if (keepFictiveEdges)
+    {
+      if (shiftFictiveEdges)
+	{
+	  shiftFictiveEdgesForFacesYz(last,up,behind,FictiveMark);
+	  precodesF3F6F9F12(last,up,behind,AVertex);
+	}
+      else
+	if (FMap->existFictiveEdgeIncidentTo(FMap->alpha0(last),FictiveMark))
+	  subcasePrecodeFc9(image,x,y,last,up,behind,2,AVertex,
+			      FictiveMark,keepFictiveEdges,shiftFictiveEdges);
+	else	
+	  precodesF3F6F9F12(last,up,behind,AVertex);
+    }
+  else
+    precodesF3F6F9F12(last,up,behind,AVertex);
+}
+
+//******************************************************************************
+INLINE
+void CExtractionImage::subcasePrecodesF13F19( CImage3d & image,
+				       unsigned int x, unsigned int y,
+				       CDart* &last, CDart* up, CDart* behind,
+				       int level, const CVertex & AVertex, int FictiveMark,
+				       bool keepFictiveEdges, bool shiftFictiveEdges )
+{
+  if (keepFictiveEdges)
+    {
+      if (shiftFictiveEdges)
+	{
+	  shiftFictiveEdgesForFacesXy(last,up,behind,FictiveMark);
+	  precodesF13F19(last,up,behind,AVertex);
+	}
+      else
+	if (FMap->existFictiveEdgeIncidentTo(FMap->alpha0(last),FictiveMark))
+	  subcasePrecodeFc13(image,x,y,last,up,behind,2,AVertex,
+			       FictiveMark,keepFictiveEdges,shiftFictiveEdges);
+	else	
+	  precodesF13F19(last,up,behind,AVertex);
+    }
+  else
+    precodesF13F19(last,up,behind,AVertex);
+}
+
+//******************************************************************************
+INLINE
+void CExtractionImage::subcasePrecodesF14F20( CImage3d & image,
+				       unsigned int x, unsigned int y,
+				       CDart* &last, CDart* up, CDart* behind,
+				       int level, const CVertex & AVertex, int FictiveMark,
+				       bool keepFictiveEdges, bool shiftFictiveEdges )
+{
+  if (keepFictiveEdges)
+    {
+      if (shiftFictiveEdges)
+	{
+	  shiftFictiveEdgesForFacesXz(last,up,behind,FictiveMark);
+	  precodesF14F20(last,up,behind,AVertex);
+	}
+      else
+	if (FMap->existFictiveEdgeIncidentTo(FMap->alpha0(last),FictiveMark))
+	  subcasePrecodeFc14(image,x,y,last,up,behind,2,AVertex,
+			       FictiveMark,keepFictiveEdges,shiftFictiveEdges);
+	else	
+	  precodesF14F20(last,up,behind,AVertex);
+    }
+  else
+    precodesF14F20(last,up,behind,AVertex);
+}
+
+//******************************************************************************
+INLINE
+void CExtractionImage::subcasePrecodesF15F21( CImage3d & image,
+				       unsigned int x, unsigned int y,
+				       CDart* &last, CDart* up, CDart* behind,
+				       int level, const CVertex & AVertex, int FictiveMark,
+				       bool keepFictiveEdges, bool shiftFictiveEdges )
+{
+  if (keepFictiveEdges)
+    {
+      if (shiftFictiveEdges)
+	{
+	  shiftFictiveEdgesForFacesYz(last,up,behind,FictiveMark);
+	  precodesF15F21(last,up,behind,AVertex);
+	}
+      else
+	if (FMap->existFictiveEdgeIncidentTo(FMap->alpha0(last),FictiveMark))
+	  subcasePrecodeFc15(image,x,y,last,up,behind,2,AVertex,
+			       FictiveMark,keepFictiveEdges,shiftFictiveEdges);
+	else	
+	  precodesF15F21(last,up,behind,AVertex);
+    }
+  else	
+    precodesF15F21(last,up,behind,AVertex);
+}
+
+//******************************************************************************
+INLINE
+void CExtractionImage::subcasePrecodesF16F22( CImage3d & image,
+				       unsigned int x, unsigned int y,
+				       CDart* &last, CDart* up, CDart* behind,
+				       int level, const CVertex & AVertex, int FictiveMark,
+				       bool keepFictiveEdges, bool shiftFictiveEdges )
+{
+  if (keepFictiveEdges)
+    {
+      if (shiftFictiveEdges)
+	{
+	  shiftFictiveEdgesForFacesYz(last,up,behind,FictiveMark);
+	  precodesF16F22(last,up,behind,AVertex);
+	}
+      else
+	if (FMap->existFictiveEdgeIncidentTo(FMap->alpha0(last),FictiveMark))
+	  subcasePrecodeFc10(image,x,y,last,up,behind,2,AVertex,
+			       FictiveMark,keepFictiveEdges,shiftFictiveEdges);
+	else	
+	  precodesF16F22(last,up,behind,AVertex);
+    }
+  else	
+    precodesF16F22(last,up,behind,AVertex);
+}
+
+//******************************************************************************
+INLINE
+void CExtractionImage::subcasePrecodesF17F23( CImage3d & image,
+				       unsigned int x, unsigned int y,
+				       CDart* &last, CDart* up, CDart* behind,
+				       int level, const CVertex & AVertex, int FictiveMark,
+				       bool keepFictiveEdges, bool shiftFictiveEdges )
+{
+  if (keepFictiveEdges)
+    {
+      if (shiftFictiveEdges)
+	{
+	  shiftFictiveEdgesForFacesXy(last,up,behind,FictiveMark);
+	  precodesF17F23(last,up,behind,AVertex);
+	}
+      else
+	if (FMap->existFictiveEdgeIncidentTo(FMap->alpha0(last),FictiveMark))
+	  subcasePrecodeFc11(image,x,y,last,up,behind,2,AVertex,
+			       FictiveMark,keepFictiveEdges,shiftFictiveEdges);
+	else	
+	  precodesF17F23(last,up,behind,AVertex);
+    }
+  else	
+    precodesF17F23(last,up,behind,AVertex);
+}
+
+//******************************************************************************
+INLINE
+void CExtractionImage::subcasePrecodesF18F24( CImage3d & image,
+				       unsigned int x, unsigned int y,
+				       CDart* &last, CDart* up, CDart* behind,
+				       int level, const CVertex & AVertex, int FictiveMark,
+				       bool keepFictiveEdges, bool shiftFictiveEdges )
+{
+  if (keepFictiveEdges)
+    {
+      if (shiftFictiveEdges)
+	{
+	  shiftFictiveEdgesForFacesXz(last,up,behind,FictiveMark);
+	  precodesF18F24(last,up,behind,AVertex);
+	}
+      else
+	if (FMap->existFictiveEdgeIncidentTo(FMap->alpha0(last),FictiveMark))
+	  subcasePrecodeFc12(image,x,y,last,up,behind,2,AVertex,
+			       FictiveMark,keepFictiveEdges,shiftFictiveEdges);
+	else	
+	  precodesF18F24(last,up,behind,AVertex);
+    }
+  else	
+    precodesF18F24(last,up,behind,AVertex);
+}
+
+//******************************************************************************
+INLINE
+void CExtractionImage::subcasePrecodeF25( CImage3d & image,
+				  unsigned int x, unsigned int y,
+				  CDart* &last, CDart* up, CDart* behind,
+				  int level, const CVertex & AVertex, int FictiveMark,
+				  bool keepFictiveEdges, bool shiftFictiveEdges )
+{
+  if (keepFictiveEdges)
+    {
+      if (shiftFictiveEdges)
+	{
+	  shiftFictiveEdgesForFacesXz(last,up,behind,FictiveMark);
+	  precodeF25(last,up,behind,AVertex);
+	}
+      else
+	if (FMap->existFictiveEdgeIncidentTo(FMap->alpha0(last),FictiveMark))
+	  subcasePrecodeL8(image,x,y,last,up,behind,1,AVertex,
+			     FictiveMark,keepFictiveEdges,shiftFictiveEdges);
+	else
+      	  precodeF25(last,up,behind,AVertex);
+    }
+  else
+    precodeF25(last,up,behind,AVertex);
+}
+
+//******************************************************************************
+INLINE
+void CExtractionImage::subcasePrecodeF26( CImage3d & image,
+				  unsigned int x, unsigned int y,
+				  CDart* &last, CDart* up, CDart* behind,
+				  int level, const CVertex & AVertex, int FictiveMark,
+				  bool keepFictiveEdges, bool shiftFictiveEdges )
+{
+  if (keepFictiveEdges)
+    {
+      if (shiftFictiveEdges)
+	{
+	  shiftFictiveEdgesForFacesYz(last,up,behind,FictiveMark);
+	  precodeF26(last,up,behind,AVertex);
+	}
+      else
+	if (FMap->existFictiveEdgeIncidentTo(FMap->alpha0(last),FictiveMark))
+	  subcasePrecodeL8(image,x,y,last,up,behind,1,AVertex,
+			     FictiveMark,keepFictiveEdges,shiftFictiveEdges);
+	else
+	  precodeF26(last,up,behind,AVertex);
+    }
+  else
+    precodeF26(last,up,behind,AVertex);
+}
+
+//******************************************************************************
+INLINE
+void CExtractionImage::subcasePrecodeF27( CImage3d & image,
+				  unsigned int x, unsigned int y,
+				  CDart* &last, CDart* up, CDart* behind,
+				  int level, const CVertex & AVertex, int FictiveMark,
+				  bool keepFictiveEdges, bool shiftFictiveEdges )
+{
+  if (keepFictiveEdges)
+    {
+      if (shiftFictiveEdges)
+	{
+	  shiftFictiveEdgesForFacesXy(last,up,behind,FictiveMark);
+	  precodeF27(last,up,behind,AVertex);
+	}
+      else
+	if (FMap->existFictiveEdgeIncidentTo(FMap->alpha0(last),FictiveMark))
+	  subcasePrecodeL8(image,x,y,last,up,behind,1,AVertex,
+			     FictiveMark,keepFictiveEdges,shiftFictiveEdges);
+	else
+	  precodeF27(last,up,behind,AVertex);
+    }
+  else
+    precodeF27(last,up,behind,AVertex);
+}
+
+} // namespace GMap3d

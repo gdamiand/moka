@@ -1,0 +1,254 @@
+/*
+ * lib-extraction-images : Extraction de cartes à partir d'images 2D et 3D.
+ * Copyright (C) 2004, Moka Team, Université de Poitiers, Laboratoire SIC
+ *               http://www.sic.sp2mi.univ-poitiers.fr/
+ * Copyright (C) 2009, Guillaume Damiand, CNRS, LIRIS,
+ *               guillaume.damiand@liris.cnrs.fr, http://liris.cnrs.fr/
+ *
+ * This file is part of lib-extraction-images
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+//******************************************************************************
+/** Format du fichier :
+ *
+ *  <fic> = <voxel>*
+ *  <voxel> = <X> <Y> <Z> <couleur>
+ *
+ *  <X> = entier signé
+ *  <Y> = entier signé
+ *  <Z> = entier signé
+ *  <couleur> = entier non signé (supposé strictement inférieur à 256)
+ *
+ *  L'image est décrite plan par plan (<Z> fixe),
+ *  chaque plan est décrit ligne par ligne (<Y> fixe),
+ *  chaque ligne est décrite voxel par voxel.
+ */
+//******************************************************************************
+#include "math-extension.hh" // pour la fonction pgcd()
+
+#include <iostream>
+#include <fstream>
+#include <cstring>
+#include <cassert>
+#include <cstdlib>
+
+namespace GMap3d
+{
+//******************************************************************************
+INLINE
+CImage3dCEA::CImage3dCEA(const std::string & AFilename,
+			 int AFirstPlane, int ANbPlaneToRead) :
+  CImage3d(0),
+  FStreamPos(0)
+{
+  FPrevPlane = NULL;
+  FActuPlane = NULL;
+
+  FStream.open(AFilename.c_str(), std::ios::in);
+
+  if (!FStream.good() || !findPlaneSize())
+    {
+      FIsOk = false;
+      return;
+    }
+
+  FNbPlaneToRead = ANbPlaneToRead > 0 ? ANbPlaneToRead+AFirstPlane+1 : -1;
+
+  std::cout << "  XMin: " << FXMin
+	    << "  XMax: " << FXMax
+	    << "  XStep: " << FXStep
+	    << "  XSize: " << FWidth
+	    << std::endl;
+  std::cout << "  YMin: " << FYMin
+	    << "  YMax: " << FYMax
+	    << "  YStep: " << FYStep
+	    << "  YSize: " << FHeight
+	    << std::endl;
+
+  FIsOk = true;
+
+  while (FIsOk && AFirstPlane >= 0)
+    {
+      --AFirstPlane;
+      FIsOk = readNextPlane();
+    }
+
+  freePlane(false);
+}
+//******************************************************************************
+INLINE
+CImage3dCEA::~CImage3dCEA()
+{
+  if (FStream.is_open())
+    FStream.close();
+}
+//******************************************************************************
+INLINE
+bool CImage3dCEA::readVoxel(int* Ax, int* Ay, int* Az, uint8_t* AColor)
+{
+  FStreamPos = FStream.tellg();
+  FStream >> *Ax >> *Ay >> *Az >> *AColor;
+  return FStream.good();
+}
+//******************************************************************************
+INLINE
+void CImage3dCEA::unreadLastVoxel()
+{
+  FStream.seekg(FStreamPos, std::ios::beg);
+}
+//******************************************************************************
+INLINE
+bool CImage3dCEA::findPlaneSize()
+{
+  std::streampos memo = FStreamPos;
+  FStream.seekg(0, std::ios::beg);
+
+  int x,y,z,z0;
+  uint8_t c;
+
+  FWidth = FHeight = 0;
+
+  if (! readVoxel(&x,&y,&z0,&c))
+    {
+      FStream.seekg(memo, std::ios::beg);
+      return false;
+    }
+
+  FXMin = FXMax = x; FXStep = 0;
+  FYMin = FYMax = y; FYStep = 0;
+
+  bool ok = readVoxel(&x,&y,&z,&c);
+  while (ok)
+    {
+      if (z == z0)
+	{
+	  FXStep = pgcd(FXStep, labs(FXMin - x));
+	  FYStep = pgcd(FYStep, labs(FYMin - y));
+
+	  if (x < FXMin) FXMin = x;
+	  if (x > FXMax) FXMax = x;
+	  if (y < FYMin) FYMin = y;
+	  if (y > FYMax) FYMax = y;
+
+	  ok = readVoxel(&x,&y,&z,&c);
+	}
+      else
+	ok = false;
+    }
+
+  if (FXStep == 0) FXStep = 1;
+  if (FYStep == 0) FYStep = 1;
+
+  FWidth  = (FXMax - FXMin) / FXStep + 1;
+  FHeight = (FYMax - FYMin) / FYStep + 1;
+
+  FStreamPos = memo;
+  FStream.seekg(FStreamPos, std::ios::beg);
+  return true;
+}
+//******************************************************************************
+INLINE
+uint8_t** CImage3dCEA::allocArray()
+{
+  uint8_t** result = new uint8_t* [FWidth];
+
+  for (unsigned int i=0; i<FWidth; ++i)
+    result[i] = new uint8_t [FHeight];
+
+  return result;
+}
+
+INLINE
+void CImage3dCEA::freeArray(uint8_t** AArray)
+{
+  if (AArray == NULL)
+    return;
+
+  for (unsigned int i=0; i<FWidth; ++i)
+    delete [] AArray[i];
+
+  delete [] AArray;
+}
+//******************************************************************************
+INLINE
+bool CImage3dCEA::readData()
+{
+  FActuPlane = allocArray();
+
+  for (unsigned int x=0; x<FWidth; ++x)
+    for (unsigned int y=0; y<FHeight; ++y)
+      FActuPlane[x][y] = 0;
+
+  if (FStream.eof())
+    return false;
+
+  int x,y,z,Z;
+  uint8_t c;
+  readVoxel(&x,&y,&Z,&c);
+  unreadLastVoxel();
+
+  bool ok = true;
+  while (ok)
+    {
+      ok = readVoxel(&x,&y,&z,&c) && z==Z;
+
+      if (ok && FXMin <= x && x <= FXMax && FYMin <= y && y <= FYMax)
+	FActuPlane[(x-FXMin)/FXStep][(y-FYMin)/FYStep] = c;
+    }
+
+  if (! FStream.eof())
+    unreadLastVoxel();
+
+  return true;
+}
+//******************************************************************************
+INLINE
+bool CImage3dCEA::sameVoxel(unsigned int Ax1, unsigned int Ay1, bool Az1,
+			    unsigned int Ax2, unsigned int Ay2, bool Az2) const
+{
+  return
+    (Az1 ? FActuPlane : FPrevPlane)[Ax1][Ay1] ==
+    (Az2 ? FActuPlane : FPrevPlane)[Ax2][Ay2];
+}
+//******************************************************************************
+INLINE
+bool CImage3dCEA::sameVoxel(unsigned int Ax, unsigned int Ay, bool Az,
+			    int ARed, int, int, int ) const
+{
+  return (Az ? FActuPlane : FPrevPlane)[Ax][Ay] == ARed;
+}
+//******************************************************************************
+INLINE
+void CImage3dCEA::freePlane(bool AActuPlane)
+{
+  CImage3d::freePlane(AActuPlane);
+
+  uint8_t** & plane = AActuPlane ? FActuPlane : FPrevPlane;
+
+  freeArray(plane);
+  plane = NULL;
+}
+//******************************************************************************
+INLINE
+void CImage3dCEA::pushPlane()
+{
+  CImage3d::pushPlane();
+
+  FPrevPlane = FActuPlane;
+  FActuPlane = NULL;
+}
+//******************************************************************************
+} // namespace GMap3d

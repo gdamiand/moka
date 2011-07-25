@@ -1,0 +1,149 @@
+/*
+ * lib-extraction-images : Extraction de cartes à partir d'images 2D et 3D.
+ * Copyright (C) 2004, Moka Team, Université de Poitiers, Laboratoire SIC
+ *               http://www.sic.sp2mi.univ-poitiers.fr/
+ * Copyright (C) 2009, Guillaume Damiand, CNRS, LIRIS,
+ *               guillaume.damiand@liris.cnrs.fr, http://liris.cnrs.fr/
+ *
+ * This file is part of lib-extraction-images
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+//******************************************************************************
+#include <cstring>
+#include <cassert>
+#include <iostream>
+
+namespace GMap3d
+{
+//******************************************************************************
+INLINE
+CImage3dMagick::CImage3dMagick(const std::string & AFilename, int FirstPlane,
+			       int NbPlaneToRead, unsigned int Lg) :
+  CImage3d(FirstPlane),
+  FLg(Lg)
+{
+  FPrevPlane = NULL;
+  FActuPlane = NULL;
+
+  computePrefix(AFilename); // Initialise FPrefix et FPrefixLongueur
+
+  if (NbPlaneToRead == 0)
+    if (FPrefix == AFilename) // Si le nom du fichier ne contient pas %
+      FNbPlaneToRead = 1; // Alors on lit un seul fichier.
+    else
+      FNbPlaneToRead = -1;
+  else
+    FNbPlaneToRead = NbPlaneToRead;
+
+  FIsOk = readNextPlane();
+}
+//******************************************************************************
+INLINE
+CImage3dMagick::~CImage3dMagick()
+{
+  delete FPrevPlane;
+  delete FActuPlane;
+}
+//******************************************************************************
+INLINE
+void CImage3dMagick::computePrefix(const std::string & AFileName)
+{
+  assert(AFileName.length()!=0);
+
+  FPrefix = AFileName;
+
+  std::string::size_type pos = FPrefix.find("%");
+
+  if (pos != std::string::npos)
+    {
+      char tmp[9+int(FLg/10)]; // Allocation possible grâce à la norme C99
+      sprintf(tmp,"%%0%dd",FLg);
+      FPrefix.replace(pos,1, tmp);
+    }
+}
+//******************************************************************************
+INLINE
+bool CImage3dMagick::readData()
+{
+  char * chaine = new char[FPrefix.length()+int(FLg/10)+1];
+  sprintf(chaine,FPrefix.c_str(),FActuPlaneIndex);
+  FActuPlane = new Magick::Image;
+
+  try
+    {
+      FActuPlane->read(chaine); // Lecture du prochain plan
+    }
+  catch( Magick::Exception &error_ )
+    {
+      delete [] chaine;
+      return false;
+    }
+
+  delete [] chaine;
+
+  if (FPrevPlane == NULL)
+    {
+      FWidth  = FActuPlane->columns();
+      FHeight = FActuPlane->rows   ();
+      std::cout << "taille d'une plaque : "
+		<< FWidth << "*" << FHeight << std::endl;
+    }
+
+  assert(FActuPlane->columns() == FWidth );
+  assert(FActuPlane->rows   () == FHeight);
+
+  return true;
+}
+//******************************************************************************
+INLINE
+bool CImage3dMagick::sameVoxel(unsigned int Ax1, unsigned int Ay1, bool Az1,
+			       unsigned int Ax2, unsigned int Ay2, bool Az2)
+  const
+{
+  return
+    (Az1 ? FActuPlane : FPrevPlane)->pixelColor(Ax1,Ay1) ==
+    (Az2 ? FActuPlane : FPrevPlane)->pixelColor(Ax2,Ay2);
+}
+//******************************************************************************
+INLINE
+bool CImage3dMagick::sameVoxel(unsigned int Ax, unsigned int Ay, bool Az,
+			       int ARed, int AGreen, int ABlue, int AAlpha)const
+{
+  return (Az ? FActuPlane : FPrevPlane)->pixelColor(Ax,Ay) ==
+    Magick::Color(ARed, AGreen, ABlue, AAlpha);
+}
+//******************************************************************************
+INLINE
+void CImage3dMagick::freePlane(bool AActuPlane)
+{
+  CImage3d::freePlane(AActuPlane);
+
+  Magick::Image * & plane = AActuPlane ? FActuPlane : FPrevPlane;
+
+  delete plane; // delete NULL ne fait rien mais ca marche
+  plane = NULL;
+}
+//******************************************************************************
+INLINE
+void CImage3dMagick::pushPlane()
+{
+  CImage3d::pushPlane();
+
+  FPrevPlane = FActuPlane;
+  FActuPlane = NULL;
+}
+//******************************************************************************
+} // namespace GMap3d
