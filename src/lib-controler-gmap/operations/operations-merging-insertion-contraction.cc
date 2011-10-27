@@ -458,6 +458,84 @@ bool CControlerGMap::removeDanglingEdges()
   return res;
 }
 //******************************************************************************
+bool CControlerGMap::simplify2DObject()
+{
+  bool res = false;
+
+  if (canApplyOperation(COperation(OPERATION_SIMPLIFY_2D_OBJECT)))
+    {
+      undoRedoPreSave();
+
+   int nbdarts, nbvertices, nbedges, nbfaces, nbvolumes, nbcc;
+   getMapGlobalCharacteristics(&nbdarts,&nbvertices,&nbedges,
+			       &nbfaces,&nbvolumes,&nbcc,
+			       NULL,NULL,NULL,NULL);
+   std::cout<<"Map before simplification: darts="<<nbdarts
+	    <<", vertices="<<nbvertices
+     	    <<", edges="<<nbedges
+     	    <<", faces="<<nbfaces
+     	    <<", volumes="<<nbvolumes
+     	    <<", cc="<<nbcc<<std::endl;
+
+   int m0=-1;
+   int m1=-1;
+   
+   if ( getParameterGMapVertex()->getModeSimplification() )
+     {
+       m0=FMap->getNewMark();
+       m1=FMap->getNewMark();
+     }
+   
+#ifndef _WINDOWS
+   CChrono c;
+   c.start();
+#endif
+
+   int nb = FMap->simplify2DObject(m0,m1);
+      
+#ifndef _WINDOWS
+   c.stop();
+   c.display("Time for simplification");
+#endif
+   assert(isMapOk());
+
+     if ( nb==0 )
+	{
+	  setMessage("Nothing was simplified, the map was already in "
+		     "its minimal form.");
+	  undoRedoPostSaveFailed();
+	}
+      else
+	{
+	  if ( getParameterGMapVertex()->getModeSimplification() )
+	    {
+	      updateDartAfterRemovals(m0,m1,-1);
+	      FMap->freeMark(m0);
+	      FMap->freeMark(m1);
+	    }
+	  
+	  undoRedoPostSaveOk();
+	  unsetLastSelectedDart();
+	  setModelChanged();
+	  setMessage(nb, (nb == 1 ? " dart removed during the simplification." :
+			  " darts removed during the simplification."));
+	  res = true;
+
+	  getMapGlobalCharacteristics(&nbdarts,&nbvertices,&nbedges,
+				      &nbfaces,&nbvolumes,&nbcc,
+				      NULL,NULL,NULL,NULL);
+	  std::cout<<"Map after simplification: darts="<<nbdarts
+		   <<", vertices="<<nbvertices
+		   <<", edges="<<nbedges
+		   <<", faces="<<nbfaces
+		   <<", volumes="<<nbvolumes
+		   <<", cc="<<nbcc<<std::endl;
+	}
+    }
+
+  return res;
+}
+//******************************************************************************
 bool CControlerGMap::simplify3DObject()
 {
   bool res = false;

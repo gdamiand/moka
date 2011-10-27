@@ -1770,6 +1770,12 @@ void Window :: callbackRemoveDanglingEdges()
    else updateStatusBar() ;
 }
 
+void Window::callbackSimplify2DObject()
+{
+   if (getControler() -> simplify2DObject()) repaint() ;
+   else updateStatusBar() ;
+}
+
 void Window::callbackSimplify3DObject()
 {
    if (getControler() -> simplify3DObject()) repaint() ;
