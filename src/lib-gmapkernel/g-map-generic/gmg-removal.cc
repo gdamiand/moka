@@ -731,9 +731,226 @@ int CGMapGeneric::removeMarkedFacesButKeepBalls(int AMarkNumber)
   return nbRemove;
 }
 //******************************************************************************
-unsigned int CGMapGeneric::simplify2DObject()
+unsigned int CGMapGeneric::simplify2DObject(int AMark0, int AMark1)
 {
-  return 0;
+  // Simplify a 2D map in its minimal form, without use shifting operations, and
+  // by keeping each cell homeomorphic to a ball.
+  // This method suppose that each cell is initially homeomorphic to a ball, and
+  // that there is no dangling cell.
+  // First we remove each degree two edges, last each degree two vertex.
+#ifndef _WINDOWS
+   CChrono c;
+   c.start();
+#endif
+  int  toDelete	  = getNewMark();
+  int  treated	  = getNewMark();
+  int  cell	  = getNewMark();
+  CDart* current  = NULL;
+  CDart* t1  = NULL;
+  CDart* t2  = NULL;
+  std::stack<CDart*> FToTreat;
+  bool dangling = false;
+  unsigned int nbRemove = 0;
+
+  int toDelete0 = (AMark0==-1?toDelete:AMark0);
+  int toDelete1 = (AMark1==-1?toDelete:AMark1);
+  
+  int indexFace = getNewDirectInfo();
+  if ( indexFace!=-1 )
+    initUnionFindTrees(indexFace, ORBIT_FACE);
+  else
+    {
+      std::cout<<"Not enough directInfo to use union-find trees."<<std::endl;
+      return 0;
+    }
+
+  // 1) We remove edges.
+  CDynamicCoverageAll cov(this);  
+  while ( cov.cont() )
+    {
+      if ( ! FToTreat.empty() )
+	{
+	  current = FToTreat.top();
+	  FToTreat.pop();
+	  dangling = true;
+	}
+      else
+	{
+	  current = cov++;
+	  dangling = false;
+	}
+
+      if ( !isMarked(current, toDelete1) &&
+	   (dangling || !isMarked(current, treated)) )
+	{
+	  if ( !isFree2(current) )
+	    {
+	      // We remove dangling edges and degree two edges.
+	      if ( (alpha1(current) !=alpha2(current) ||
+		    alpha01(current)!=alpha02(current)) &&
+		   alpha23(current)==alpha32(current) &&
+		   ( dangling ||
+		     findUnionFindTrees(current, indexFace)!=
+		     findUnionFindTrees(alpha2(current),indexFace)) )
+		{
+		  // First we mark the current edge.
+		  CDynamicCoverage02 itEdge(this, current);
+		  for ( ; itEdge.cont(); ++itEdge )
+		    {
+		      setMark( *itEdge, treated );
+		      setMark( alpha3(*itEdge), treated );
+// 		      setMark( *itEdge, cell );
+// 		      setMark( alpha3(*itEdge), cell );
+		      setMark( *itEdge, toDelete1 );
+		      setMark(  alpha3(*itEdge), toDelete1 );
+		    }
+	      
+		  // Second, we push in the stack all the neighboors of the current
+		  // edge that become dangling after the removal.
+		  // Moreover, we make the removal manually instead of calling
+		  // remove(current, 1, false) for optimisation reasons.
+		  for ( itEdge.reinit(); itEdge.cont(); ++itEdge )
+		    {
+		      if ( alpha12(*itEdge)==alpha21(*itEdge) &&
+			   !isMarked(alpha1(*itEdge), toDelete1) &&
+			   !isFree2(alpha1(*itEdge)) )
+			//&& !isMarked(alpha1(*itEdge),toDelete) )
+			{
+			  FToTreat.push(alpha1(*itEdge));
+			}
+		  
+		      // Now we update alpha2
+		      t1 = alpha(*itEdge, 1);
+		      if ( !isMarked(t1, toDelete1) )
+			{
+			  t2 = *itEdge;
+			  while ( isMarked(t2, toDelete1) )
+			    {
+			      t2 = alpha21(t2);
+			    }
+			  
+			  if ( t2 != alpha(t1, 1) )
+			    {
+			      unsew(t1, 1);
+			      if (!isFree(t2, 1)) unsew(t2, 1);
+			      if (t1!=t2) sew(t1, t2, 1);
+			    }
+			}
+		    }
+		  
+		  if ( !dangling )
+		    mergeUnionFindTrees(current, alpha2(current), indexFace);
+		}
+	      else
+		{
+		  CDynamicCoverage02 itEdge(this, current);
+		  for ( ; itEdge.cont(); ++itEdge )
+		    {
+		      setMark( *itEdge, treated );
+		      setMark( alpha3(*itEdge), treated );
+		    }
+		}
+	    }
+	  else
+	    {
+	      CDynamicCoverage0 itEdge(this, current);
+	      for ( ; itEdge.cont(); ++itEdge )
+		{
+		  setMark( *itEdge, treated );
+		  setMark( alpha3(*itEdge), treated );
+		}
+	    }
+	}
+    }
+  negateMaskMark(treated);
+
+  // 2) We remove vertices. This is simpler since a vertex can not be dangling.
+  cov.reinit();
+  while ( cov.cont() )
+    {
+      current = cov++;
+
+      if ( !isMarked(current,treated) && !isMarked(current, toDelete1) &&
+           !isMarked(current, toDelete0) )
+      {
+	bool deleteVertex = true;
+	CStaticCoverage23 itVertex(this, current);
+	for ( ; itVertex.cont(); ++itVertex )
+	  {
+	    setMark( *itVertex, treated );
+	    setMark( alpha1(*itVertex), treated );
+
+	    if ( isFree1(*itVertex)                     ||
+		 alpha1 (*itVertex)==alpha2 (*itVertex) ||
+		 alpha01(*itVertex)==alpha02(*itVertex) ||
+		 alpha12(*itVertex)!=alpha21(*itVertex) )
+	      deleteVertex = false;
+	  }
+
+	if ( deleteVertex )
+	  {
+	    // First we mark the current vertex.
+	    for ( itVertex.reinit(); itVertex.cont(); ++itVertex )
+	      {
+		setMark( *itVertex, toDelete0 );
+		setMark(  alpha1(*itVertex), toDelete0 );
+	      }
+	      
+	    // Second, we make the removal manually instead of calling
+	    // remove(current, 0, false) for optimisation reasons.
+	    for ( itVertex.reinit(); itVertex.cont(); ++itVertex )
+	      {
+		t1 = alpha(*itVertex, 0);
+		if ( !isMarked(t1, toDelete0) )
+		  {
+		    t2 = *itVertex;
+		    while ( isMarked(t2, toDelete0) )
+		      {
+			t2 = alpha10(t2);
+		      }
+		    
+		    if ( t2 != alpha(t1, 0) )
+		      {
+			unsew(t1, 0);
+			if (!isFree(t2, 0)) unsew(t2, 0);
+			if (t1!=t2) sew(t1, t2, 0);
+		      }
+		  }
+	      }
+	  }
+      }
+    }
+  
+  // 4) We remove all the darts marked toDelete
+  for ( cov.reinit(); cov.cont(); )
+    {
+      current = cov++;
+
+      //  assert(!isMarked(current,cell));
+
+      unsetMark(current,treated);      
+      if ( isMarked(current, toDelete) )
+	{
+	  delMapDart(current);
+	}
+
+      if ( isMarked(current, toDelete0) ||
+	   isMarked(current, toDelete1) )
+	++nbRemove;
+    }
+  
+  freeMark(toDelete);
+  freeMark(treated);
+  freeMark(cell);
+
+  freeDirectInfo(indexFace);
+
+#ifndef _WINDOWS
+   c.stop();
+   c.display("Temps de simplification");
+#endif
+
+  return nbRemove;
 }
 //******************************************************************************
 unsigned int CGMapGeneric::simplify3DObject(int AMark0, int AMark1, int AMark2)
@@ -744,6 +961,10 @@ unsigned int CGMapGeneric::simplify3DObject(int AMark0, int AMark1, int AMark2)
   // that there is no dangling cell.
   // First we remove each degree two face, then each degree two edges, last each
   // degree two vertex.
+#ifndef _WINDOWS
+   CChrono c;
+   c.start();
+#endif
   int  toDelete	  = getNewMark();
   int  treated	  = getNewMark();
   int  cell	  = getNewMark();
@@ -1046,6 +1267,11 @@ unsigned int CGMapGeneric::simplify3DObject(int AMark0, int AMark1, int AMark2)
   freeDirectInfo(indexVol);
   freeDirectInfo(indexFace);
 
-  return nbRemove;
+#ifndef _WINDOWS
+   c.stop();
+   c.display("Temps de simplification");
+#endif
+
+   return nbRemove;
 }
 //******************************************************************************
