@@ -367,6 +367,8 @@ MenuBar :: MenuBar(Window * parent)
    fusionner->addAction("Remove dangling edges", FParent,
 			SLOT(callbackRemoveDanglingEdges()));
 
+   fusionner -> addAction("Simplify 2D object", FParent ,
+                           SLOT(callbackSimplify2DObject()));
    fusionner -> addAction("Simplify 3D object", FParent ,
                            SLOT(callbackSimplify3DObject()));
    

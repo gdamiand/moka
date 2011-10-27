@@ -738,10 +738,6 @@ unsigned int CGMapGeneric::simplify2DObject(int AMark0, int AMark1)
   // This method suppose that each cell is initially homeomorphic to a ball, and
   // that there is no dangling cell.
   // First we remove each degree two edges, last each degree two vertex.
-#ifndef _WINDOWS
-   CChrono c;
-   c.start();
-#endif
   int  toDelete	  = getNewMark();
   int  treated	  = getNewMark();
   int  cell	  = getNewMark();
@@ -945,11 +941,6 @@ unsigned int CGMapGeneric::simplify2DObject(int AMark0, int AMark1)
 
   freeDirectInfo(indexFace);
 
-#ifndef _WINDOWS
-   c.stop();
-   c.display("Temps de simplification");
-#endif
-
   return nbRemove;
 }
 //******************************************************************************
@@ -961,10 +952,6 @@ unsigned int CGMapGeneric::simplify3DObject(int AMark0, int AMark1, int AMark2)
   // that there is no dangling cell.
   // First we remove each degree two face, then each degree two edges, last each
   // degree two vertex.
-#ifndef _WINDOWS
-   CChrono c;
-   c.start();
-#endif
   int  toDelete	  = getNewMark();
   int  treated	  = getNewMark();
   int  cell	  = getNewMark();
@@ -1266,11 +1253,6 @@ unsigned int CGMapGeneric::simplify3DObject(int AMark0, int AMark1, int AMark2)
 
   freeDirectInfo(indexVol);
   freeDirectInfo(indexFace);
-
-#ifndef _WINDOWS
-   c.stop();
-   c.display("Temps de simplification");
-#endif
 
    return nbRemove;
 }
