@@ -462,6 +462,16 @@ namespace GMap3d
 
     // @}
 
+  protected:
+    /* Add the dart ADart in the double linked list of darts.
+     */
+    void addDartInList(CDart* ADart);
+
+    /* Remove the dart ADart from the double linked list of darts.
+     */
+    void removeDartInList(CDart* ADart);
+    
+    
   private:
     // @name Champs privés :
     // @{

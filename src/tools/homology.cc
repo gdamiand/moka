@@ -48,22 +48,19 @@ int main(int argc, char** argv)
     exit(EXIT_FAILURE);
   }
 
-  g.save("extract-map.moka");
+  //g.save("extract-map.moka");
 
-  CGMapVertex g2;
-  g2.load("extract-map.moka");
-  
   CChrono c;
   c.start();
   // Here simplify the map
-  g2.simplify3DObject();
+  g.simplify3DObject();
   c.stop();
   c.display("Simplification time");
 
-  g2.save("simplify-map.moka");
+  // g.save("simplify-map.moka");
   
   int nbdarts, nbvertices, nbedges, nbfaces, nbvolumes, nbcc;
-  g2.getGlobalCharacteristics(&nbdarts,&nbvertices,&nbedges,
+  g.getGlobalCharacteristics(&nbdarts,&nbvertices,&nbedges,
                              &nbfaces,&nbvolumes,&nbcc,
                              NULL,NULL,NULL,NULL);
   std::cout<<"Map after simplification: darts="<<nbdarts
@@ -78,7 +75,7 @@ int main(int argc, char** argv)
   c.start();
   c2.start();
   
-  CHomology h(&g2);
+  CHomology h(&g);
   h.computeVolumicHomology();
 
   c.stop();

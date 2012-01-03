@@ -704,6 +704,6 @@ void CRoundingVertex::setDartRoundingCoef(CDart* ADart, int ADimension,
 					  TCoordinate AValue) const
 {
   assert(ADimension == 0 || ADimension == 1);
-  ADart->setDirectInfo(FCoefs[ADimension], (void*) (int) (1000 * AValue));
+  ADart->setDirectInfo(FCoefs[ADimension], (void*) (long int) (1000 * AValue));
 }
 //******************************************************************************
