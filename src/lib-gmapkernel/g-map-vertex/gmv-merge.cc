@@ -140,7 +140,7 @@ unsigned int CGMapVertex::simplify3DObject(int AMark0, int AMark1, int AMark2)
       {
         current = FToTreat.top();
         FToTreat.pop();
-        if ( isDanglingFace(current) )
+        if ( !isMarked(current, toDelete2) && isDanglingFace(current) )
           dangling = true;
       }
       while ( !dangling && ! FToTreat.empty() );
@@ -167,40 +167,7 @@ unsigned int CGMapVertex::simplify3DObject(int AMark0, int AMark1, int AMark2)
             setMark( alpha3(*itFace), treated );
             setMark( *itFace, toDelete2 );
             setMark(  alpha3(*itFace), toDelete2 );
-
-            if ( getVertex(*itFace)!=NULL )
-            {
-              CAttributeVertex * v = removeVertex(*itFace);
-              
-              if ( !isMarked(alpha2(*itFace), toDelete2) )
-                setVertex(alpha2(*itFace), v);
-              else if (!isMarked(alpha32(*itFace), toDelete2) )
-                setVertex(alpha32(*itFace), v);
-              else if (!isMarked(alpha12(*itFace), toDelete2) )
-                setVertex(alpha12(*itFace), v);
-              else if (!isMarked(alpha312(*itFace), toDelete2) )
-                setVertex(alpha312(*itFace), v);
-              else
-                delete v;
             }
-
-            t1=alpha3(*itFace);
-            if ( getVertex(t1)!=NULL )
-            {
-              CAttributeVertex * v = removeVertex(t1);
-              
-              if ( !isMarked(alpha2(t1), toDelete2) )
-                setVertex(alpha2(t1), v);
-              else if (!isMarked(alpha32(t1), toDelete2) )
-                setVertex(alpha32(t1), v);
-              else if (!isMarked(alpha12(t1), toDelete2) )
-                setVertex(alpha12(t1), v);
-              else if (!isMarked(alpha312(t1), toDelete2) )
-                setVertex(alpha312(t1), v);
-              else
-                delete v;
-            }
-          }
 		  
           // Second, we push in the stack all the neighboors of the current
           // face that become dangling after the removal.
@@ -227,9 +194,9 @@ unsigned int CGMapVertex::simplify3DObject(int AMark0, int AMark1, int AMark2)
 			  
               if ( t2 != alpha(t1, 2) )
               {
-                unlinkAlpha2(t1);
-                if (!isFree(t2, 2)) unlinkAlpha2(t2);
-                if (t1!=t2) linkAlpha2(t1,t2);
+                unsew2(t1);
+                if (!isFree(t2, 2)) unsew2(t2);
+                if (t1!=t2) sew2(t1,t2);
               }
             }
           }
@@ -294,38 +261,9 @@ unsigned int CGMapVertex::simplify3DObject(int AMark0, int AMark1, int AMark2)
           {
             setMark( *itEdge, treated );
             setMark( *itEdge, toDelete1 );
-          }
-
-          for ( itEdge.reinit(); itEdge.cont(); ++itEdge )
-          {
-            if ( getVertex(*itEdge)!=NULL )
-            {
-              CAttributeVertex * v = removeVertex(*itEdge);
-              
-              if ( !isMarked(alpha1(*itEdge), toDelete1) )
-                setVertex(alpha1(*itEdge), v);
-              else if ( !isMarked(alpha21(*itEdge), toDelete1) )
-                setVertex(alpha21(*itEdge), v);
-              else
-                delete v;
-            }
-
-            if ( !isFree3(*itEdge) )
-            {
-              t1=alpha3(*itEdge);
-              if ( getVertex(t1)!=NULL )
-              {
-                CAttributeVertex * v = removeVertex(t1);
-                
-                if ( !isMarked(alpha1(t1), toDelete1) )
-                  setVertex(alpha1(t1), v);
-                else if ( !isMarked(alpha21(t1), toDelete1) )
-                  setVertex(alpha21(t1), v);
-                else
-                  delete v;
-              }
-            }
-          }
+            setMark( alpha3(*itEdge), treated );
+            setMark( alpha3(*itEdge), toDelete1 );
+           }
 	      
           // Second, we push in the stack all the neighboors of the current
           // edge that become dangling after the removal.
@@ -352,17 +290,14 @@ unsigned int CGMapVertex::simplify3DObject(int AMark0, int AMark1, int AMark2)
 			  
               if ( t2 != alpha(t1, 1) )
               {
-                unlinkAlpha1(t1);
-                if ( !isFree3(t1) ) unlinkAlpha1(alpha3(t1));
+                unsew1(t1);
                 if (!isFree(t2, 1))
                 {
-                  unlinkAlpha1(t2);
-                  if ( !isFree3(t2) ) unlinkAlpha1(alpha3(t2));
+                  unsew1(t2);
                 }
                 if (t1!=t2)
                 {
-                  linkAlpha1(t1, t2);
-                  if ( !isFree3(t1) ) linkAlpha1(alpha3(t1), alpha3(t2));
+                  sew1(t1, t2);
                 }
               }
             }
@@ -394,31 +329,8 @@ unsigned int CGMapVertex::simplify3DObject(int AMark0, int AMark1, int AMark2)
   }
   negateMaskMark(treated);
 
-  // 4) We remove all the darts marked toDelete
-  for ( cov.reinit(); cov.cont(); )
-  {
-    current = cov++;
-
-    unsetMark(current,treated);      
-    if ( isMarked(current, toDelete) )
-    {
-      delMapDart(current);
-    }
-
-    if ( isMarked(current, toDelete0) ||
-         isMarked(current, toDelete1) ||
-         isMarked(current, toDelete2) )
-      ++nbRemove;
-  }
-  
-  freeMark(toDelete);
-  freeMark(treated);
-
-  freeDirectInfo(indexVol);
-  freeDirectInfo(indexFace);
-
-  return nbRemove;
-
+  std::vector<CDart*> cell;
+  cell.reserve(30);
   
   // 3) We remove vertices. This is simpler since a vertex can not be dangling.
   cov.reinit();
@@ -430,9 +342,12 @@ unsigned int CGMapVertex::simplify3DObject(int AMark0, int AMark1, int AMark2)
          && !isMarked(current, toDelete1) && !isMarked(current, toDelete0) )
     {
       bool deleteVertex = true;
-      CStaticCoverage23 itVertex(this, current);
-      for ( ; itVertex.cont(); ++itVertex )
+      //      CStaticCoverage23 itVertex(this, current);
+      for ( CDynamicCoverage23 itVertex(this, current);
+            itVertex.cont(); ++itVertex )
       {
+        cell.push_back(*itVertex);
+        
         setMark( *itVertex, treated );
         setMark( alpha1(*itVertex), treated );
 
@@ -446,20 +361,19 @@ unsigned int CGMapVertex::simplify3DObject(int AMark0, int AMark1, int AMark2)
       if ( deleteVertex )
       {
         // First we mark the current vertex.
-        for ( itVertex.reinit(); itVertex.cont(); ++itVertex )
+        //        for ( itVertex.reinit(); itVertex.cont(); ++itVertex )
+        std::vector<CDart*>::iterator itVertex=cell.begin();
+        std::vector<CDart*>::iterator itcellend=cell.end();
+        for ( ; itVertex!=itcellend; ++itVertex)
         {
           setMark( *itVertex, toDelete0 );
           setMark(  alpha1(*itVertex), toDelete0 );
-
-          if ( getVertex(*itVertex)!=NULL )
-            delVertex(*itVertex);
-          else if ( getVertex(alpha1(*itVertex))!=NULL )
-            delVertex(alpha1(*itVertex));
         }
         
         // Second, we make the removal manually instead of calling
         // remove(current, 0, false) for optimisation reasons.
-        for ( itVertex.reinit(); itVertex.cont(); ++itVertex )
+        //for ( itVertex.reinit(); itVertex.cont(); ++itVertex )
+        for ( itVertex=cell.begin(); itVertex!=itcellend; ++itVertex)
         {
           t1 = alpha(*itVertex, 0);
           if ( !isMarked(t1, toDelete0) )
@@ -472,12 +386,13 @@ unsigned int CGMapVertex::simplify3DObject(int AMark0, int AMark1, int AMark2)
 		    
             if ( t2 != alpha(t1, 0) )
             {
-              unlinkAlpha0(t1);
-              if (!isFree(t2, 0)) unlinkAlpha0(t2);
-              if (t1!=t2) linkAlpha0(t1, t2);
+              unsew0(t1);
+              if (!isFree(t2, 0)) unsew0(t2);
+              if (t1!=t2) sew0(t1, t2);
             }
           }
         }
+        cell.clear();
       }
     }
   }
@@ -841,7 +756,10 @@ unsigned int CGMapVertex::simplify3DObject()
   negateMaskMark(treated);
   // assert( isWholeMapUnmarked(treated) );
   // save("after-remove-edges.moka");
-    
+
+  std::vector<CDart*> cell;
+  cell.reserve(30);
+   
   // 3) We remove vertices. This is simpler since a vertex can not be dangling.
   cov.reinit();
   while ( cov.cont() )
