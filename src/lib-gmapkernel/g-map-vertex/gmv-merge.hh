@@ -60,4 +60,18 @@ int mergeMarkedCoplanarFaces(int AMarkNumber, bool ADeleteDarts);
  */
 int mergeMarkedAlignedCells(int ADim, int AMarkNumber, bool ADeleteDarts);
 
+/** Simplify the map by removing each degree two face, each dangling face,
+ *  then each degree two edge, each dangling edge, and then
+ *  each degree two vertex. There is no fictive face or edge shifting.
+ *  AMarki is a mark used to mark darts deleted by i-removal.
+ *  If AMarki==-1, corresponding darts are removed from the map. Otherwise,
+ *  they are not removed but only marked.
+ *  @return the number of "removed" darts.
+ */
+unsigned int simplify3DObject(int AMark0, int AMark1=-1, int AMark2=-1);
+
+/** Simplify the map. Equivalent to simplify3DObject(-1,-1,-1) but optimized.
+ */
+unsigned int simplify3DObject();
+
 //******************************************************************************

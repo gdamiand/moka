@@ -227,4 +227,9 @@ bool isIFreeOrbit(CDart* ADart, int ADimension, TOrbit AOrbit);
  *         pour tout les i. 
  */
 int getMapDimension();
+
+/**
+ * @return true iff the face containing dart ADart is dangling.
+ */
+bool isDanglingFace(CDart* ADart);
 //******************************************************************************

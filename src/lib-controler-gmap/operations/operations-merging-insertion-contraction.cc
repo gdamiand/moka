@@ -571,7 +571,11 @@ bool CControlerGMap::simplify3DObject()
    c.start();
 #endif
 
-   int nb = FMap->simplify3DObject(m0,m1,m2);
+   int nb;
+   if ( getParameterGMapVertex()->getModeSimplification() )
+     nb = FMap->simplify3DObject(m0, m1, m2);
+   else
+     nb = FMap->simplify3DObject();
       
 #ifndef _WINDOWS
    c.stop();

@@ -99,6 +99,7 @@ CDart* alpha3012   (CDart* ADart) const;
 CDart* alpha30120  (CDart* ADart) const;
 CDart* alpha302    (CDart* ADart) const;
 CDart* alpha31     (CDart* ADart) const;
+CDart* alpha312    (CDart* ADart) const;
 CDart* alpha32     (CDart* ADart) const;
 CDart* alpha3201   (CDart* ADart) const;
 CDart* alpha321    (CDart* ADart) const;

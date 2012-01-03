@@ -194,6 +194,39 @@ void CGMapGeneric::initTwoUnionFindTrees(int AIndex1, TOrbit AOrbit1,
   freeMark(treated2);
 }
 //******************************************************************************
+void CGMapGeneric::initUnionFindTreesFaceVolume(int AIndexFace, int AIndexVol)
+{
+  assert(AIndexFace!=AIndexVol);
+  
+  int treatedFace = getNewMark();
+  int treatedVol = getNewMark();
+  for (CDynamicCoverageAll it(this); it.cont(); ++it)
+  {
+    if ( !isMarked(*it,treatedFace) )
+    {
+      for (CDynamicCoverageFace it2(this,*it); it2.cont(); ++it2)
+      {
+        setDirectInfo(*it2, AIndexFace, *it);
+        setMark(*it2,treatedFace);
+      }
+    }
+    if ( !isMarked(*it,treatedVol) )
+    {
+      for (CBasicDynamicCoverageVolume it2(this, *it, treatedVol);
+           it2.cont(); ++it2)
+      {
+        setDirectInfo(*it2, AIndexVol, *it);
+        assert( isMarked(*it2, treatedVol) );
+      }
+    }
+  }
+  
+  negateMaskMark(treatedFace);
+  negateMaskMark(treatedVol);
+  freeMark(treatedFace);
+  freeMark(treatedVol);
+}
+//******************************************************************************
 CDart* CGMapGeneric::findUnionFindTrees(CDart* ADart,int AIndex)
 {
   CDart *res = ADart, *cur = ADart;

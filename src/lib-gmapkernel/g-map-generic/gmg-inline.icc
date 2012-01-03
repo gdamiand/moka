@@ -410,6 +410,12 @@ CDart* CGMapGeneric::alpha31(CDart* ADart) const
 }
 //******************************************************************************
 INLINE
+CDart* CGMapGeneric::alpha312(CDart* ADart) const
+{
+  return alpha2(alpha1(alpha3(ADart)));
+}
+//******************************************************************************
+INLINE
 CDart* CGMapGeneric::alpha32(CDart* ADart) const
 {
   return alpha2(alpha3(ADart));
