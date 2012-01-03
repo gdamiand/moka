@@ -122,6 +122,15 @@ void initUnionFindTrees(int AIndex, TOrbit AOrbit);
 void initTwoUnionFindTrees(int AIndex1, TOrbit AOrbit1,
 			   int AIndex2, TOrbit AOrbit2);
 
+/** Init union find trees for two direct info, for faces and volumes.
+ *  This method is equivalent to calling initTwoUnionFindTrees with
+ *  ORBIT_FACE and ORBIT_VOLUME, but it is optimized.
+ *  
+ *  @param AIndexFace the direct info index for faces.
+ *  @param AIndexVol the direct info index for volumes.
+ */
+void initUnionFindTreesFaceVolume(int AIndexFace, int AIndexVol);
+
 /** Return the root of the uf-tree containing ADart.
  *  @param ADart the dart to find the root.
  *  @param AIndex the direct info index to use.

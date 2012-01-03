@@ -716,3 +716,48 @@ int CGMapGeneric::getMapDimension()
    return res;
 }
 //******************************************************************************
+bool CGMapGeneric::isDanglingFace(CDart* ADart)
+{
+  CDart* precDangling = ADart;
+    
+  // Go to dart preceding the dangling part
+  while( alpha2(precDangling)==alpha3(precDangling) &&
+         alpha10(precDangling)!=ADart )
+  {
+    precDangling=alpha10(precDangling);
+  }
+  
+  if ( alpha2(precDangling)==alpha3(precDangling) )
+    return false; // Here the face is isolated  
+  
+  // Here we are not in a dangling part. Now search the beginning of a
+  // dangling part.
+  CDart* current = precDangling;  
+  do
+  {
+    current=alpha01(current);
+  }
+  while( current!=precDangling && alpha2(current)!=alpha3(current) );
+
+  if ( current==precDangling )
+    return false; // Here the face does not have a dangling part.
+
+  // Here current is the first dart of a dangling part, and we know there is
+  // at least one non dangling part.
+  do
+  {
+    current=alpha01(current);
+  }
+  while( alpha2(current)==alpha3(current) );
+
+  // Here current is the first dart of a non dangling part. This part must
+  // be connected till the end of the face.
+  do
+  {    
+    current=alpha01(current);
+    if ( alpha2(current)==alpha3(current) ) return false;
+  }
+  while( current!=precDangling);
+  return true;
+}
+//******************************************************************************

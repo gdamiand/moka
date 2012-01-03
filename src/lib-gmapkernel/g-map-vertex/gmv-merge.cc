@@ -98,3 +98,897 @@ int CGMapVertex::mergeMarkedAlignedCells(int ADim,
   return nbMerged;
 }
 //******************************************************************************
+unsigned int CGMapVertex::simplify3DObject(int AMark0, int AMark1, int AMark2)
+{
+  // Simplify a 3D map in its minimal form, without use shifting operations, and
+  // by keeping each cell homeomorphic to a ball.
+  // This method suppose that each cell is initially homeomorphic to a ball, and
+  // that there is no dangling cell.
+  // First we remove each degree two face, then each degree two edges, last each
+  // degree two vertex.
+  int  toDelete	  = getNewMark();
+  int  treated	  = getNewMark();
+  CDart* current  = NULL;
+  CDart* t1  = NULL;
+  CDart* t2  = NULL;
+  std::stack<CDart*> FToTreat;
+  bool dangling = false;
+  unsigned int nbRemove = 0;
+
+  int toDelete0 = (AMark0==-1?toDelete:AMark0);
+  int toDelete1 = (AMark1==-1?toDelete:AMark1);
+  int toDelete2 = (AMark2==-1?toDelete:AMark2);
+  
+  int indexVol  = getNewDirectInfo();
+  int indexFace = getNewDirectInfo();
+  if ( indexVol!=-1 && indexFace!=-1 )
+    initUnionFindTreesFaceVolume(indexFace, indexVol);
+  else
+  {
+    std::cout<<"Not enough directInfo to use union-find trees."<<std::endl;
+    return 0;
+  }
+
+  int linkDarts = getNewDirectInfo();
+  if ( linkDarts==-1 )
+  {
+    std::cout<<"Not enough directInfo to link darts."<<std::endl;
+    return 0;
+  }
+  CDart* firstSurvivingDart   = NULL;
+  CDart* currentSurvivingDart = NULL;
+  
+  // 1) We remove faces.
+  CDynamicCoverageAll cov(this);
+  while ( cov.cont() )
+  {
+    dangling = false;
+    if ( ! FToTreat.empty() )
+    {      
+      do
+      {
+        current = FToTreat.top();
+        FToTreat.pop();
+        if ( isDanglingFace(current) )
+          dangling = true;
+      }
+      while ( !dangling && ! FToTreat.empty() );
+    }
+
+    if ( !dangling )
+      current = cov++;
+
+    if ( !isMarked(current,toDelete) &&
+         (dangling || !isMarked(current, treated)) )
+    {
+      if ( !isFree3(current) )
+      {
+        // We remove dangling faces and degree two faces.
+        if ( dangling ||
+             findUnionFindTrees(current, indexVol)!=
+             findUnionFindTrees(alpha3(current),indexVol) )
+        {
+          // First we mark the current face.
+          CDynamicCoverage01 itFace(this, current);
+          for ( ; itFace.cont(); ++itFace )
+          {
+            setMark( *itFace, treated );
+            setMark( alpha3(*itFace), treated );
+            setMark( *itFace, toDelete2 );
+            setMark(  alpha3(*itFace), toDelete2 );
+
+            if ( getVertex(*itFace)!=NULL )
+            {
+              CAttributeVertex * v = removeVertex(*itFace);
+              
+              if ( !isFree2(*itFace) )
+                setVertex(alpha2(*itFace), v);
+              else if (!isFree2(alpha3(*itFace)) )
+                setVertex(alpha32(*itFace), v);
+              else if (!isFree1(*itFace) && !isFree2(alpha1(*itFace)) )
+                setVertex(alpha12(*itFace), v);
+              else if (!isFree1(alpha3(*itFace)) &&
+                       !isFree2(alpha31(*itFace)) )
+                setVertex(alpha312(*itFace), v);
+              else
+                delete v;
+            }
+
+            t1=alpha3(*itFace);
+            if ( getVertex(t1)!=NULL )
+            {
+              CAttributeVertex * v = removeVertex(t1);
+              
+              if ( !isFree2(t1) )
+                setVertex(alpha2(t1), v);
+              else if (!isFree2(alpha3(t1)) )
+                setVertex(alpha32(t1), v);
+              else if (!isFree1(t1) && !isFree2(alpha1(t1)) )
+                setVertex(alpha12(t1), v);
+              else if (!isFree1(alpha3(t1)) &&
+                       !isFree2(alpha31(t1)) )
+                setVertex(alpha312(t1), v);
+              else
+                delete v;
+            }
+          }
+		  
+          // Second, we push in the stack all the neighboors of the current
+          // face that become dangling after the removal.
+          // Moreover, we make the removal manually instead of calling
+          // remove(current, 2, false) for optimisation reasons.
+          for ( itFace.reinit(); itFace.cont(); ++itFace )
+          {
+            if ( alpha23(*itFace)==alpha32(*itFace) &&
+                 !isMarked(alpha2(*itFace), toDelete2) &&
+                 !isFree3(alpha2(*itFace)) )
+            {
+              FToTreat.push(alpha2(*itFace));
+            }
+		  
+            // Now we update alpha2
+            t1 = alpha(*itFace, 2);
+            if ( !isMarked(t1, toDelete2) )
+            {
+              t2 = *itFace;
+              while ( isMarked(t2, toDelete2) )
+              {
+                t2 = alpha32(t2);
+              }
+			  
+              if ( t2 != alpha(t1, 2) )
+              {
+                unlinkAlpha2(t1);
+                if (!isFree(t2, 2)) unlinkAlpha2(t2);
+                if (t1!=t2) linkAlpha2(t1,t2);
+              }
+            }
+          }
+          if ( !dangling )
+            mergeUnionFindTrees(current, alpha3(current), indexVol);
+        }
+        else
+        {
+          CDynamicCoverage01 itFace(this, current);
+          for ( ; itFace.cont(); ++itFace )
+          {
+            setMark( *itFace, treated );
+            setDirectInfo( *itFace, linkDarts, (void*)firstSurvivingDart);
+            firstSurvivingDart = *itFace;
+            
+            if ( !isFree3(*itFace) )
+            {
+              setMark( alpha3(*itFace), treated );
+              setDirectInfo( alpha3(*itFace), linkDarts,
+                             (void*)firstSurvivingDart);
+              firstSurvivingDart = alpha3(*itFace);
+            }
+          }
+        }
+      }
+      else
+      {
+        CDynamicCoverage01 itFace(this, current);
+        for ( ; itFace.cont(); ++itFace )
+        {
+          setMark( *itFace, treated );
+          setDirectInfo( *itFace, linkDarts, (void*)firstSurvivingDart);
+          firstSurvivingDart = *itFace;
+        }
+      }
+    }
+  }
+  negateMaskMark(treated);
+  
+  // 2) We remove edges.
+  currentSurvivingDart = firstSurvivingDart;
+  firstSurvivingDart = NULL;
+  while ( currentSurvivingDart!=NULL )
+  {
+    if ( ! FToTreat.empty() )
+    {
+      current = FToTreat.top();
+      FToTreat.pop();
+      dangling = true;
+    }
+    else
+    {
+      current = currentSurvivingDart;
+      currentSurvivingDart = getDirectInfoAsDart(currentSurvivingDart,
+                                                 linkDarts);
+      dangling = false;
+    }
+
+    if ( !isMarked(current, toDelete2) && !isMarked(current, toDelete1) &&
+         (dangling || !isMarked(current, treated)) )
+    {
+      if ( !isFree2(current) )
+      {
+        // We remove dangling edges and degree two edges.
+        if ( (alpha1(current) !=alpha2(current) ||
+              alpha01(current)!=alpha02(current)) &&
+             alpha23(current)==alpha32(current) &&
+             ( dangling ||
+               findUnionFindTrees(current, indexFace)!=
+               findUnionFindTrees(alpha2(current),indexFace)) )
+        {
+          // First we mark the current edge.
+          CDynamicCoverage02 itEdge(this, current);
+          for ( ; itEdge.cont(); ++itEdge )
+          {
+            if ( *itEdge==currentSurvivingDart )
+              currentSurvivingDart = getDirectInfoAsDart(*itEdge, linkDarts);
+            
+            setMark( *itEdge, treated );
+            setMark( *itEdge, toDelete1 );
+
+            if ( getVertex(*itEdge)!=NULL )
+            {
+              CAttributeVertex * v = removeVertex(*itEdge);
+              
+              if ( !isFree1(*itEdge) )
+                setVertex(alpha1(*itEdge), v);
+              else if (!isFree1(alpha2(*itEdge)) )
+                setVertex(alpha21(*itEdge), v);
+              else
+                delete v;
+            }
+
+            if ( !isFree3(*itEdge) )
+            {
+              if ( alpha3(*itEdge)==currentSurvivingDart )
+                currentSurvivingDart =
+                  getDirectInfoAsDart(alpha3(*itEdge), linkDarts);
+              
+              setMark( alpha3(*itEdge), treated );
+              setMark( alpha3(*itEdge), toDelete1 );
+            
+              t1=alpha3(*itEdge);
+              if ( getVertex(t1)!=NULL )
+              {
+                CAttributeVertex * v = removeVertex(t1);
+                
+                if ( !isFree1(t1) )
+                  setVertex(alpha1(t1), v);
+                else if (!isFree1(alpha2(t1)) )
+                  setVertex(alpha21(t1), v);
+                else
+                  delete v;
+              }
+            }
+          }
+	      
+          // Second, we push in the stack all the neighboors of the current
+          // edge that become dangling after the removal.
+          // Moreover, we make the removal manually instead of calling
+          // remove(current, 1, false) for optimisation reasons.
+          for ( itEdge.reinit(); itEdge.cont(); ++itEdge )
+          {
+            if ( alpha12(*itEdge)==alpha21(*itEdge) &&
+                 !isMarked(alpha1(*itEdge), toDelete1) &&
+                 !isFree2(alpha1(*itEdge)) )
+              //&& !isMarked(alpha1(*itEdge),toDelete) )
+            {
+              FToTreat.push(alpha1(*itEdge));
+            }
+		  
+            // Now we update alpha1
+            t1 = alpha(*itEdge, 1);
+            if ( !isMarked(t1, toDelete1) )
+            {
+              t2 = *itEdge;
+              while ( isMarked(t2, toDelete1) )
+              {
+                t2 = alpha21(t2);
+              }
+			  
+              if ( t2 != alpha(t1, 1) )
+              {
+                unlinkAlpha1(t1);
+                if ( !isFree3(t1) ) unlinkAlpha1(alpha3(t1));
+                if (!isFree(t2, 1))
+                {
+                  unlinkAlpha1(t2);
+                  if ( !isFree3(t2) ) unlinkAlpha1(alpha3(t2));
+                }
+                if (t1!=t2)
+                {
+                  linkAlpha1(t1, t2);
+                  if ( !isFree3(t1) ) linkAlpha1(alpha3(t1), alpha3(t2));
+                }
+              }
+            }
+          }
+		  
+          if ( !dangling )
+            mergeUnionFindTrees(current, alpha2(current), indexFace);
+        }
+        else
+        {
+          CDynamicCoverage02 itEdge(this, current);
+          for ( ; itEdge.cont(); ++itEdge )
+          {
+            if ( *itEdge==currentSurvivingDart )
+              currentSurvivingDart = getDirectInfoAsDart(*itEdge, linkDarts);
+
+            setDirectInfo( *itEdge, linkDarts, (void*)firstSurvivingDart);
+            firstSurvivingDart = *itEdge;
+ 
+            setMark( *itEdge, treated );
+
+            if ( !isFree3(*itEdge) )
+            {
+              if ( alpha3(*itEdge)==currentSurvivingDart )
+                currentSurvivingDart =
+                  getDirectInfoAsDart( alpha3(*itEdge), linkDarts);
+
+              setDirectInfo( alpha3(*itEdge), linkDarts,
+                             (void*)firstSurvivingDart);
+              firstSurvivingDart = alpha3(*itEdge);
+              
+              setMark( alpha3(*itEdge), treated );
+            }
+          }
+        }
+      }
+      else
+      {
+        CDynamicCoverage0 itEdge(this, current);
+        for ( ; itEdge.cont(); ++itEdge )
+        {
+          if ( *itEdge==currentSurvivingDart )
+            currentSurvivingDart = getDirectInfoAsDart(*itEdge, linkDarts);
+
+          setMark( *itEdge, treated );
+          setDirectInfo( *itEdge, linkDarts, (void*)firstSurvivingDart);
+          firstSurvivingDart = *itEdge;
+          
+          if ( !isFree3(*itEdge) )
+          {
+            if ( alpha3(*itEdge)==currentSurvivingDart )
+              currentSurvivingDart =
+                getDirectInfoAsDart( alpha3(*itEdge), linkDarts);
+            
+            setDirectInfo( alpha3(*itEdge), linkDarts,
+                           (void*)firstSurvivingDart);
+            firstSurvivingDart = alpha3(*itEdge);
+
+            setMark( alpha3(*itEdge), treated );
+          }
+        }
+      }
+    }
+  }
+  negateMaskMark(treated);
+
+  // 3) We remove vertices. This is simpler since a vertex can not be dangling.
+  while ( firstSurvivingDart!=NULL )
+  {
+    current = firstSurvivingDart;
+    firstSurvivingDart =  getDirectInfoAsDart( firstSurvivingDart, linkDarts);
+    
+    if ( !isMarked(current,treated) && !isMarked(current, toDelete2)
+         && !isMarked(current, toDelete1) && !isMarked(current, toDelete0) )
+    {
+      bool deleteVertex = true;
+      CStaticCoverage23 itVertex(this, current);
+      for ( ; itVertex.cont(); ++itVertex )
+      {
+        setMark( *itVertex, treated );
+        setMark( alpha1(*itVertex), treated );
+
+        if ( *itVertex==firstSurvivingDart )
+          firstSurvivingDart =
+            getDirectInfoAsDart( firstSurvivingDart, linkDarts);
+        
+        if ( alpha1(*itVertex)==firstSurvivingDart )
+          firstSurvivingDart =
+            getDirectInfoAsDart( firstSurvivingDart, linkDarts);
+        
+        if ( isFree1(*itVertex)                     ||
+             alpha1 (*itVertex)==alpha2 (*itVertex) ||
+             alpha01(*itVertex)==alpha02(*itVertex) ||
+             alpha12(*itVertex)!=alpha21(*itVertex) )
+          deleteVertex = false;
+      }
+
+      if ( deleteVertex )
+      {
+        // First we mark the current vertex.
+        for ( itVertex.reinit(); itVertex.cont(); ++itVertex )
+        {
+          setMark( *itVertex, toDelete0 );
+          setMark(  alpha1(*itVertex), toDelete0 );
+
+          if ( getVertex(*itVertex)!=NULL )
+            delVertex(*itVertex);
+          else if ( getVertex(alpha1(*itVertex))!=NULL )
+            delVertex(alpha1(*itVertex));
+        }
+        
+        // Second, we make the removal manually instead of calling
+        // remove(current, 0, false) for optimisation reasons.
+        for ( itVertex.reinit(); itVertex.cont(); ++itVertex )
+        {
+          t1 = alpha(*itVertex, 0);
+          if ( !isMarked(t1, toDelete0) )
+          {
+            t2 = *itVertex;
+            while ( isMarked(t2, toDelete0) )
+            {
+              t2 = alpha10(t2);
+            }
+		    
+            if ( t2 != alpha(t1, 0) )
+            {
+              unlinkAlpha0(t1);
+              if (!isFree(t2, 0)) unlinkAlpha0(t2);
+              if (t1!=t2) linkAlpha0(t1, t2);
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  // 4) We remove all the darts marked toDelete
+  for ( cov.reinit(); cov.cont(); )
+  {
+    current = cov++;
+
+    unsetMark(current,treated);      
+    if ( isMarked(current, toDelete) )
+    {
+      delMapDart(current);
+    }
+
+    if ( isMarked(current, toDelete0) ||
+         isMarked(current, toDelete1) ||
+         isMarked(current, toDelete2) )
+      ++nbRemove;
+  }
+  
+  freeMark(toDelete);
+  freeMark(treated);
+
+  freeDirectInfo(indexVol);
+  freeDirectInfo(indexFace);
+  freeDirectInfo(linkDarts);
+
+  return nbRemove;
+}
+//******************************************************************************
+unsigned int CGMapVertex::simplify3DObject()
+{
+  // Simplify a 3D map in its minimal form, without use shifting operations, and
+  // by keeping each cell homeomorphic to a ball.
+  // This method suppose that each cell is initially homeomorphic to a ball, and
+  // that there is no dangling cell.
+  // First we remove each degree two face, then each degree two edges, last each
+  // degree two vertex.
+  int  treated	  = getNewMark();
+  int  toDelete	  = getNewMark();
+  CDart* current  = NULL;
+  CDart* t1  = NULL;
+  CDart* t2  = NULL;
+  std::set<CDart*> FToTreat;
+  bool dangling = false;
+  unsigned int nbRemove = 0;
+
+  int indexVol  = getNewDirectInfo();
+  int indexFace = getNewDirectInfo();
+  if ( indexVol!=-1 && indexFace!=-1 )
+    initUnionFindTreesFaceVolume(indexFace, indexVol);
+  else
+  {
+    std::cout<<"Not enough directInfo to use union-find trees."<<std::endl;
+    return 0;
+  }
+
+  std::vector<CDart*> cell;
+  cell.reserve(20);
+  
+  // 1) We remove faces.
+  CDynamicCoverageAll cov(this);
+  while ( cov.cont() )
+  {
+    dangling = false;
+    if ( ! FToTreat.empty() )
+    {      
+      do
+      {
+        current = *(FToTreat.begin());
+        std::cout<<"current="<<current<<std::endl;
+        FToTreat.erase(FToTreat.begin());
+        if ( isDanglingFace(current) )
+          dangling = true;
+      }
+      while ( !dangling && ! FToTreat.empty() );
+    }
+    if ( !dangling )
+      current = cov++;
+
+    if ( dangling || !isMarked(current, treated) )
+    {
+      if ( !isFree3(current) )
+      {
+        // We remove dangling faces and degree two faces.
+        if ( dangling ||
+             findUnionFindTrees(current, indexVol)!=
+             findUnionFindTrees(alpha3(current),indexVol) )
+        {
+          // First we mark the current face.
+          for ( CDynamicCoverage01 itFace(this, current);
+                itFace.cont(); ++itFace )
+          {
+            if ( cov.cont() && *itFace==*cov ) ++cov;
+            if ( cov.cont() && alpha3(*itFace)==*cov ) ++cov;
+
+            setMark( *itFace, treated );
+            setMark( alpha3(*itFace), treated );
+
+            setMark( *itFace, toDelete );
+            setMark( alpha3(*itFace), toDelete );
+
+            cell.push_back( *itFace );
+            
+            if ( getVertex(*itFace)!=NULL )
+            {
+              CAttributeVertex * v = removeVertex(*itFace);
+              
+              if ( !isFree2(*itFace) )
+                setVertex(alpha2(*itFace), v);
+              else if (!isFree2(alpha3(*itFace)) )
+                setVertex(alpha32(*itFace), v);
+              else if (!isFree1(*itFace) && !isFree2(alpha1(*itFace)) )
+                setVertex(alpha12(*itFace), v);
+              else if (!isFree1(alpha3(*itFace)) &&
+                       !isFree2(alpha31(*itFace)) )
+                setVertex(alpha312(*itFace), v);
+              else
+                delete v;
+            }
+
+            t1=alpha3(*itFace);
+            if ( getVertex(t1)!=NULL )
+            {
+              CAttributeVertex * v = removeVertex(t1);
+              
+              if ( !isFree2(t1) )
+                setVertex(alpha2(t1), v);
+              else if (!isFree2(alpha3(t1)) )
+                setVertex(alpha32(t1), v);
+              else if (!isFree1(t1) && !isFree2(alpha1(t1)) )
+                setVertex(alpha12(t1), v);
+              else if (!isFree1(alpha3(t1)) &&
+                       !isFree2(alpha31(t1)) )
+                setVertex(alpha312(t1), v);
+              else
+                delete v;
+            }
+          }
+
+          if ( !dangling )
+            mergeUnionFindTrees(current, alpha3(current), indexVol);
+
+          // Second, we push in the stack all the neighboors of the current
+          // face that become dangling after the removal.
+          // Moreover, we make the removal manually instead of calling
+          // remove(current, 2, false) for optimisation reasons.
+          for ( std::vector<CDart*>::iterator itFace=cell.begin();
+                itFace!=cell.end(); ++itFace)
+          {
+            if ( alpha23(*itFace)==alpha32(*itFace) &&
+                 !isMarked(alpha2(*itFace), toDelete) &&
+                 !isFree3(alpha2(*itFace)) )
+            {
+              FToTreat.insert(alpha2(*itFace));
+              std::cout<<"insert in set "<<alpha2(*itFace)<<std::endl;
+            }
+		  
+            // Now we update alpha2
+            t1 = alpha(*itFace, 2);
+            if ( !isMarked(t1, toDelete) )
+            {
+              t2 = *itFace;
+              while ( isMarked(t2, toDelete) )
+              {
+                t2 = alpha32(t2);
+              }
+			  
+              if ( t2 != alpha(t1, 2) )
+              {
+                unlinkAlpha2(t1);
+                if (!isFree(t2, 2)) unlinkAlpha2(t2);
+                if (t1!=t2) linkAlpha2(t1,t2);
+              }
+            }
+
+            std::set<CDart*>::iterator itset=FToTreat.find(alpha3(*itFace));
+            if (itset!=FToTreat.end())
+            {
+              std::cout<<"erase in set "<<alpha3(*itFace)<<std::endl;
+              FToTreat.erase(itset);
+            }
+
+            itset=FToTreat.find(*itFace);
+            if (itset!=FToTreat.end())
+            {
+              std::cout<<"erase in set "<<*itFace<<std::endl;
+              FToTreat.erase(itset);
+            }
+
+            std::cout<<"delMapDart1 "<<alpha3(*itFace)<<std::endl;
+            std::cout<<"delMapDart2 "<<*itFace<<std::endl;
+            
+            delMapDart(alpha3(*itFace)); ++nbRemove;
+            delMapDart(*itFace); ++nbRemove;
+          }
+          cell.clear();
+        }
+        else
+        {
+          for ( CDynamicCoverage01 itFace(this, current);
+                itFace.cont(); ++itFace )
+          {
+            setMark( *itFace, treated );
+            setMark( alpha3(*itFace), treated );
+          }
+        }
+      }
+      else
+      {
+        for ( CDynamicCoverage01 itFace(this, current);
+              itFace.cont(); ++itFace )
+        {
+          setMark( *itFace, treated );
+        }
+      }
+    }
+  }
+  negateMaskMark(treated);
+
+  // TEMP TO DEBUG  
+  freeMark(toDelete);
+  freeMark(treated);
+
+  freeDirectInfo(indexVol);
+  freeDirectInfo(indexFace);
+
+  std::cout<<"Nb dart remove : "<<nbRemove<<std::endl;
+  
+  return nbRemove;
+  // TEMP TO DEBUG
+  
+  std::stack<CDart*> FToTreat2;
+
+  // 2) We remove edges.
+  cov.reinit();
+  while ( cov.cont() )
+  {
+    if ( ! FToTreat2.empty() )
+    {
+      current = FToTreat2.top();
+      FToTreat2.pop();
+      dangling = true;
+    }
+    else
+    {
+      current = *cov;
+      ++cov;        
+      dangling = false;
+    }
+
+    if ( dangling || !isMarked(current, treated) )
+    {
+      if ( !isFree2(current) )
+      {
+        // We remove dangling edges and degree two edges.
+        if ( (alpha1(current) !=alpha2(current) ||
+              alpha01(current)!=alpha02(current)) &&
+             alpha23(current)==alpha32(current) &&
+             ( dangling ||
+               findUnionFindTrees(current, indexFace)!=
+               findUnionFindTrees(alpha2(current),indexFace)) )
+        {
+          // First we mark the current edge.
+          CDynamicCoverage02 itEdge(this, current);
+          for ( ; itEdge.cont(); ++itEdge )
+          {
+            if ( cov.cont() && *itEdge==*cov )
+              ++cov;
+
+            if ( !isMarked(*itEdge, toDelete) )
+            {
+              setMark( *itEdge, treated );
+              setMark( *itEdge, toDelete );
+              cell.push_back( *itEdge );
+            
+              if ( getVertex(*itEdge)!=NULL )
+              {
+                CAttributeVertex * v = removeVertex(*itEdge);
+                
+                if ( !isFree1(*itEdge) )
+                  setVertex(alpha1(*itEdge), v);
+                else if (!isFree1(alpha2(*itEdge)) )
+                  setVertex(alpha21(*itEdge), v);
+                else
+                  delete v;
+              }
+            }
+            
+            if ( !isFree3(*itEdge) )
+            {
+              if ( cov.cont() && alpha3(*itEdge)==*cov )
+                ++cov;
+
+              if ( !isMarked(alpha3(*itEdge), toDelete) )
+              {
+                setMark( alpha3(*itEdge), treated );
+                setMark( alpha3(*itEdge), toDelete );
+                
+                t1=alpha3(*itEdge);
+                if ( getVertex(t1)!=NULL )
+                {
+                  CAttributeVertex * v = removeVertex(t1);
+                  
+                  if ( !isFree1(t1) )
+                    setVertex(alpha1(t1), v);
+                  else if (!isFree1(alpha2(t1)) )
+                    setVertex(alpha21(t1), v);
+                  else
+                    delete v;
+                }
+              }
+            }
+          }
+
+          if ( !dangling )
+            mergeUnionFindTrees(current, alpha2(current), indexFace);
+
+          // Second, we push in the stack all the neighboors of the current
+          // edge that become dangling after the removal.
+          // Moreover, we make the removal manually instead of calling
+          // remove(current, 1, false) for optimisation reasons.
+          for ( std::vector<CDart*>::iterator itEdge=cell.begin();
+                itEdge!=cell.end(); ++itEdge)
+          {
+            if ( alpha12(*itEdge)==alpha21(*itEdge) &&
+                 !isFree2(alpha1(*itEdge)) )
+            {
+              FToTreat2.push(alpha1(*itEdge));
+            }
+		  
+            // Now we update alpha1
+            t1 = alpha(*itEdge, 1);
+            if ( !isMarked(t1, toDelete) )
+            {
+              t2 = *itEdge;
+              while ( isMarked(t2, toDelete) )
+              {
+                t2 = alpha21(t2);
+              }
+			  
+              if ( t2 != alpha(t1, 1) )
+              {
+                unlinkAlpha1(t1);
+                if ( !isFree3(t1) ) unlinkAlpha1(alpha3(t1));
+                if (!isFree(t2, 1))
+                {
+                  unlinkAlpha1(t2);
+                  if ( !isFree3(t2) ) unlinkAlpha1(alpha3(t2));
+                }
+                if (t1!=t2)
+                {
+                  linkAlpha1(t1, t2);
+                  if ( !isFree3(t1) ) linkAlpha1(alpha3(t1), alpha3(t2));
+                }
+              }
+            }
+
+            if ( !isFree3(*itEdge) )
+            { std::cout<<"delMapDart3 "<<alpha3(*itEdge)<<std::endl;
+              delMapDart(alpha3(*itEdge)); ++nbRemove; }
+            std::cout<<"delMapDart4 "<<*itEdge<<std::endl;
+            delMapDart(*itEdge); ++nbRemove;
+          }
+          cell.clear();
+        }
+        else
+        {
+          CDynamicCoverage02 itEdge(this, current);
+          for ( ; itEdge.cont(); ++itEdge )
+          {
+            setMark( *itEdge, treated );
+            setMark( alpha3(*itEdge), treated );
+          }
+        }
+      }
+      else
+      {
+        CDynamicCoverage0 itEdge(this, current);
+        for ( ; itEdge.cont(); ++itEdge )
+        {
+          setMark( *itEdge, treated );
+          setMark( alpha3(*itEdge), treated );
+        }
+      }
+    }
+  }
+  negateMaskMark(treated);
+
+  // 3) We remove vertices. This is simpler since a vertex can not be dangling.
+  cov.reinit();
+  while ( cov.cont() )
+  {
+    current = cov++;
+    
+    if ( !isMarked(current,treated) )
+    {
+      bool deleteVertex = true;
+      CStaticCoverage23 itVertex(this, current);
+      for ( ; itVertex.cont(); ++itVertex )
+      {
+        setMark( *itVertex, treated );
+        setMark( alpha1(*itVertex), treated );
+
+        if ( isFree1(*itVertex)                     ||
+             alpha1 (*itVertex)==alpha2 (*itVertex) ||
+             alpha01(*itVertex)==alpha02(*itVertex) ||
+             alpha12(*itVertex)!=alpha21(*itVertex) )
+          deleteVertex = false;
+      }
+
+      if ( deleteVertex )
+      {
+        // First we mark the current vertex.
+        for ( itVertex.reinit(); itVertex.cont(); ++itVertex )
+        {
+          setMark( *itVertex, toDelete );
+          setMark(  alpha1(*itVertex), toDelete );
+
+          if ( getVertex(*itVertex)!=NULL )
+            delVertex(*itVertex);
+          else if ( getVertex(alpha1(*itVertex))!=NULL )
+            delVertex(alpha1(*itVertex));
+        }
+        
+        // Second, we make the removal manually instead of calling
+        // remove(current, 0, false) for optimisation reasons.
+        for ( itVertex.reinit(); itVertex.cont(); )
+        {
+          t1 = alpha(*itVertex, 0);
+          if ( !isMarked(t1, toDelete) )
+          {
+            t2 = *itVertex;
+            while ( isMarked(t2, toDelete) )
+            {
+              t2 = alpha10(t2);
+            }
+		    
+            if ( t2 != alpha(t1, 0) )
+            {
+              unlinkAlpha0(t1);
+              if (!isFree(t2, 0)) unlinkAlpha0(t2);
+              if (t1!=t2) linkAlpha0(t1, t2);
+            }
+          }
+
+          t1=itVertex++;
+          if (!isFree(t1, 0))
+          { delMapDart(alpha0(t1)); ++nbRemove; }
+          delMapDart(t1); ++nbRemove;
+        }
+      }
+    }
+  }
+  
+  freeMark(toDelete);
+  freeMark(treated);
+
+  freeDirectInfo(indexVol);
+  freeDirectInfo(indexFace);
+
+  return nbRemove;
+}
+//******************************************************************************

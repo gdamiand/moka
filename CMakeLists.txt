@@ -29,13 +29,17 @@ ENDIF (WIN32)
 # To use dynamic libraires (on) or static (OFF)
 OPTION(BUILD_SHARED_LIBS "Build shared libraries." OFF)
 
+# For profilling
+ADD_DEFINITIONS("-pg")
+SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pg")
+
 #-------------------------------------------------------------------------------
 # Some modules that we can enable or disable.
 OPTION(MODULE_MESH "Activate mesh module" ON)
 OPTION(MODULE_ROUNDING "Activate rounding module" ON)
 OPTION(MODULE_COREFINEMENT "Activate corefining module" ON)
 OPTION(MODULE_SPAMOD "Activate spamod module" OFF)
-OPTION(MODULE_EXTRACTION_IMAGE "Activate extraction image module (require ImageMagick++)" OFF)
+OPTION(MODULE_EXTRACTION_IMAGE "Activate extraction image module (require ImageMagick++)" ON)
 
 #-------------------------------------------------------------------------------
 # Some compiler options that we can enable with some ADD_DEFINITIONS(xxx).
@@ -171,7 +175,6 @@ add_subdirectory (src/lib-controler-gmap lib-controler-gmap)
 add_subdirectory (src/lib-homology lib-homology)
 add_subdirectory (src/mokaQtIhm mokaQtIhm)
 
-add_subdirectory (src/example-basic example-basic EXCLUDE_FROM_ALL)
-add_subdirectory (src/submapTest submapTest EXCLUDE_FROM_ALL)
+add_subdirectory (src/tools tools EXCLUDE_FROM_ALL)
 #-------------------------------------------------------------------------------
 
