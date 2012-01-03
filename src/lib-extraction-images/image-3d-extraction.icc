@@ -815,10 +815,13 @@ bool CExtractionImage::extractOneRegionVoxels(CImage3d * AImage,
       tmp = itAll++;
       
       if ( !FMap->isMarked(tmp, toKeep) )
-	FMap->delMapDart(tmp);	
+	FMap->delMapDart(tmp);
     }
   
   FMap->negateMaskMark(toKeep);
+
+  assert( FMap->isWholeMapUnmarked(toKeep) );
+  
   FMap->freeMark(toKeep);
 
   return true;

@@ -724,6 +724,9 @@ bool CGMapGeneric::isDanglingFace(CDart* ADart)
   while( alpha2(precDangling)==alpha3(precDangling) &&
          alpha10(precDangling)!=ADart )
   {
+    // Work only for faces withoyt boundary.
+    assert( !isFree1(precDangling) && !isFree0(alpha1(precDangling)) );
+    assert( !isFree2(precDangling) && !isFree3(precDangling) );
     precDangling=alpha10(precDangling);
   }
   
@@ -735,6 +738,9 @@ bool CGMapGeneric::isDanglingFace(CDart* ADart)
   CDart* current = precDangling;  
   do
   {
+    // Work only for faces without boundary.
+    assert( !isFree0(current) && !isFree1(alpha0(current)) );
+    assert( !isFree2(current) && !isFree3(current) );
     current=alpha01(current);
   }
   while( current!=precDangling && alpha2(current)!=alpha3(current) );
@@ -746,6 +752,8 @@ bool CGMapGeneric::isDanglingFace(CDart* ADart)
   // at least one non dangling part.
   do
   {
+    assert( !isFree0(current) && !isFree1(alpha0(current)) );
+    assert( !isFree2(current) && !isFree3(current) );
     current=alpha01(current);
   }
   while( alpha2(current)==alpha3(current) );
@@ -753,9 +761,16 @@ bool CGMapGeneric::isDanglingFace(CDart* ADart)
   // Here current is the first dart of a non dangling part. This part must
   // be connected till the end of the face.
   do
-  {    
+  {
     current=alpha01(current);
-    if ( alpha2(current)==alpha3(current) ) return false;
+    CDart* d1 = current;
+    do
+    {
+      if ( isFree2(d1) || isFree1(alpha2(d1)) ) return false;
+      if ( alpha2(d1)==alpha3(d1) ) return false;
+      d1 = alpha21(d1);
+    }
+    while ( d1!=current);
   }
   while( current!=precDangling);
   return true;

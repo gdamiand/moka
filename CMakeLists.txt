@@ -30,8 +30,8 @@ ENDIF (WIN32)
 OPTION(BUILD_SHARED_LIBS "Build shared libraries." OFF)
 
 # For profilling
-ADD_DEFINITIONS("-pg")
-SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pg")
+# ADD_DEFINITIONS("-pg")
+# SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pg")
 
 #-------------------------------------------------------------------------------
 # Some modules that we can enable or disable.

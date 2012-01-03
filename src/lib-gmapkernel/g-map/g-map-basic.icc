@@ -54,12 +54,8 @@ void CGMapBasic::delDart(CDart* ADart)
 }
 //******************************************************************************
 INLINE
-CDart* CGMapBasic::addMapDart()
+void CGMapBasic::addDartInList(CDart* ADart)
 {
-  CDart* ADart = newDart();
-
-  assert(ADart != NULL);
-
   // Insertion dans la liste des brins :
   if ( getFirstDart()!=NULL )
     {
@@ -68,15 +64,11 @@ CDart* CGMapBasic::addMapDart()
     }
   
   setFirstDart(ADart);
-
-  return ADart;
 }
 //******************************************************************************
 INLINE
-void CGMapBasic::delMapDart(CDart* ADart)
+void CGMapBasic::removeDartInList(CDart* ADart)
 {
-  assert( ADart!=NULL );
-
   if ( getFirstDart()==ADart )
     {
       assert( ADart->getPrev()==NULL );
@@ -90,7 +82,22 @@ void CGMapBasic::delMapDart(CDart* ADart)
 
   if ( ADart->getNext()!=NULL )
     ADart->getNext()->setPrev(ADart->getPrev());
-  
+}
+//******************************************************************************
+INLINE
+CDart* CGMapBasic::addMapDart()
+{
+  CDart* ADart = newDart();
+  assert(ADart != NULL);
+  addDartInList(ADart);
+  return ADart;
+}
+//******************************************************************************
+INLINE
+void CGMapBasic::delMapDart(CDart* ADart)
+{
+  assert( ADart!=NULL );
+  removeDartInList(ADart);  
   delDart(ADart);
 }
 //******************************************************************************
@@ -159,7 +166,7 @@ void CGMapBasic::empty()
 {
   removeAllDarts();
 
-  // Met tout les bits � faux :
+  // Set all the bits to false
   FMaskMarks.reset();
   FUsedMarks.reset();
   FUsedOrbits.reset();
@@ -321,7 +328,7 @@ int CGMapBasic::getNewMark()
 {
 #ifndef NDEBUG
   if ( FNbUsedMarks==NB_MARKS )
-    // Pas assez de marques bool�ennes (voir macro NB_MARKS).
+    // Pas assez de marques booleennes (voir macro NB_MARKS).
     assert(false);
 
   if (FNbUsedMarks==FMaxNbUsedMarks)
