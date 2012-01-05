@@ -40,16 +40,20 @@ int main(int argc, char** argv)
   }
 
   // First we compute the 3G-map of the white voxels.
-  CGMapVertex g;
-  CExtractionImage ext(&g);
+  CGMapVertex g2;
+  CExtractionImage ext(&g2);
   if ( !ext.extractOneRegionVoxels(argv[1],0,0,3,65535,65535,65535,0) )
   {
     cout<<"Problem during extraction of voxels from "<<argv[1]<<endl;
     exit(EXIT_FAILURE);
   }
 
-  g.save("extract-map.moka");
+  g2.save("extract-map.moka");
 
+  // Bug: probably with a mark...
+  CGMapVertex g;
+  g.load("extract-map.moka");
+  
   CChrono c;
   c.start();
   // Here simplify the map
@@ -57,8 +61,8 @@ int main(int argc, char** argv)
   c.stop();
   c.display("Simplification time");
 
-  g.save("simplify-map.moka");
-  
+  // g.save("simplify-map.moka");
+
   int nbdarts, nbvertices, nbedges, nbfaces, nbvolumes, nbcc;
   g.getGlobalCharacteristics(&nbdarts,&nbvertices,&nbedges,
                              &nbfaces,&nbvolumes,&nbcc,

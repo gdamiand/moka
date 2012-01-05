@@ -106,6 +106,7 @@ unsigned int CGMapVertex::simplify3DObject(int AMark0, int AMark1, int AMark2)
   // that there is no dangling cell.
   // First we remove each degree two face, then each degree two edges, last each
   // degree two vertex.
+  // std::cout<<"simplify3DObject(m0,m1,m2)"<<std::endl;
   int  toDelete	  = getNewMark();
   int  treated	  = getNewMark();
   CDart* current  = NULL;
@@ -225,6 +226,8 @@ unsigned int CGMapVertex::simplify3DObject(int AMark0, int AMark1, int AMark2)
     }
   }
   negateMaskMark(treated);
+  // assert( isWholeMapUnmarked(treated) );
+  // save("after-remove-faces.moka");
 
   // 2) We remove edges.
   cov.reinit();
@@ -328,9 +331,7 @@ unsigned int CGMapVertex::simplify3DObject(int AMark0, int AMark1, int AMark2)
     }
   }
   negateMaskMark(treated);
-
-  std::vector<CDart*> cell;
-  cell.reserve(30);
+  // save("after-remove-edges.moka");
   
   // 3) We remove vertices. This is simpler since a vertex can not be dangling.
   cov.reinit();
@@ -342,12 +343,9 @@ unsigned int CGMapVertex::simplify3DObject(int AMark0, int AMark1, int AMark2)
          && !isMarked(current, toDelete1) && !isMarked(current, toDelete0) )
     {
       bool deleteVertex = true;
-      //      CStaticCoverage23 itVertex(this, current);
-      for ( CDynamicCoverage23 itVertex(this, current);
-            itVertex.cont(); ++itVertex )
+      CStaticCoverage23 itVertex(this, current);
+      for ( ; itVertex.cont(); ++itVertex )
       {
-        cell.push_back(*itVertex);
-        
         setMark( *itVertex, treated );
         setMark( alpha1(*itVertex), treated );
 
@@ -361,10 +359,7 @@ unsigned int CGMapVertex::simplify3DObject(int AMark0, int AMark1, int AMark2)
       if ( deleteVertex )
       {
         // First we mark the current vertex.
-        //        for ( itVertex.reinit(); itVertex.cont(); ++itVertex )
-        std::vector<CDart*>::iterator itVertex=cell.begin();
-        std::vector<CDart*>::iterator itcellend=cell.end();
-        for ( ; itVertex!=itcellend; ++itVertex)
+        for ( itVertex.reinit(); itVertex.cont(); ++itVertex )
         {
           setMark( *itVertex, toDelete0 );
           setMark(  alpha1(*itVertex), toDelete0 );
@@ -372,8 +367,7 @@ unsigned int CGMapVertex::simplify3DObject(int AMark0, int AMark1, int AMark2)
         
         // Second, we make the removal manually instead of calling
         // remove(current, 0, false) for optimisation reasons.
-        //for ( itVertex.reinit(); itVertex.cont(); ++itVertex )
-        for ( itVertex=cell.begin(); itVertex!=itcellend; ++itVertex)
+        for ( itVertex.reinit(); itVertex.cont(); ++itVertex )
         {
           t1 = alpha(*itVertex, 0);
           if ( !isMarked(t1, toDelete0) )
@@ -392,7 +386,6 @@ unsigned int CGMapVertex::simplify3DObject(int AMark0, int AMark1, int AMark2)
             }
           }
         }
-        cell.clear();
       }
     }
   }
@@ -431,6 +424,7 @@ unsigned int CGMapVertex::simplify3DObject()
   // that there is no dangling cell.
   // First we remove each degree two face, then each degree two edges, last each
   // degree two vertex.
+  std::cout<<"simplify3DObject()"<<std::endl;
   int  toDelete	  = getNewMark();
   int  treated	  = getNewMark();
   CDart* current  = NULL;
@@ -633,12 +627,8 @@ unsigned int CGMapVertex::simplify3DObject()
           {
             setMark( *itEdge, treated );
             setMark( *itEdge, toDelete );
-
-            if ( !isFree3(*itEdge) )
-            {
-              setMark( alpha3(*itEdge), treated );
-              setMark( alpha3(*itEdge), toDelete );
-            }
+            setMark( alpha3(*itEdge), treated );
+            setMark( alpha3(*itEdge), toDelete );
           }
 
           while ( cov.cont() && isMarked(*cov, treated) )
@@ -756,9 +746,6 @@ unsigned int CGMapVertex::simplify3DObject()
   negateMaskMark(treated);
   // assert( isWholeMapUnmarked(treated) );
   // save("after-remove-edges.moka");
-
-  std::vector<CDart*> cell;
-  cell.reserve(30);
    
   // 3) We remove vertices. This is simpler since a vertex can not be dangling.
   cov.reinit();
@@ -834,6 +821,8 @@ unsigned int CGMapVertex::simplify3DObject()
     }
   }
 
+  // save("after-simplification-3D.moka");
+  
   // 4) We remove all the darts marked toDelete
   negateMaskMark(treated);
   while ( firstDeleteDart!=NULL )
