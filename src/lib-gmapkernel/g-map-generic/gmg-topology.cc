@@ -724,7 +724,7 @@ bool CGMapGeneric::isDanglingFace(CDart* ADart)
   while( alpha2(precDangling)==alpha3(precDangling) &&
          alpha10(precDangling)!=ADart )
   {
-    // Work only for faces withoyt boundary.
+    // Work only for faces without boundary.
     assert( !isFree1(precDangling) && !isFree0(alpha1(precDangling)) );
     assert( !isFree2(precDangling) && !isFree3(precDangling) );
     precDangling=alpha10(precDangling);
