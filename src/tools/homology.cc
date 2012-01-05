@@ -33,11 +33,11 @@ using namespace GMap3d;
 int main(int argc, char** argv)
 {
   if ( argc==1 || !strcmp(argv[1],"-?") || !strcmp(argv[1],"-h") )
-    {
-      cout<<"Usage1 : a.out image (3D png). Pour calculer l'homology de"<<endl
-          <<"  l'objet blanc dans l'image."<<endl;
-      exit(EXIT_FAILURE);
-    }
+  {
+    cout<<"Usage1 : a.out image (3D png). Pour calculer l'homology de"<<endl
+        <<"  l'objet blanc dans l'image."<<endl;
+    exit(EXIT_FAILURE);
+  }
 
   // First we compute the 3G-map of the white voxels.
   CGMapVertex g;
@@ -48,7 +48,7 @@ int main(int argc, char** argv)
     exit(EXIT_FAILURE);
   }
 
-  //g.save("extract-map.moka");
+  g.save("extract-map.moka");
 
   CChrono c;
   c.start();
@@ -57,7 +57,7 @@ int main(int argc, char** argv)
   c.stop();
   c.display("Simplification time");
 
-  // g.save("simplify-map.moka");
+  g.save("simplify-map.moka");
   
   int nbdarts, nbvertices, nbedges, nbfaces, nbvolumes, nbcc;
   g.getGlobalCharacteristics(&nbdarts,&nbvertices,&nbedges,

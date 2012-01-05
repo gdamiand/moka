@@ -739,76 +739,128 @@ bool CExtractionImage::extractOneRegionVoxels(CImage3d * AImage,
   std::cout<<"Ok on a créé le bord supérieur."<<std::endl;
 #endif
 
+
+#ifdef DEBUG_EXTRACT_IMAGE
+  cout<<"Ok on FMap->alpha créé le bord supérieur."<<endl;
+#endif
+
   CDart * tmp;
   unsigned int k=0;
   
+  // Brins utilisés pour la fusion de volumes
+  CDart * leftFace;
+  CDart * behindFace;
+  CDart * upFace;
+
   // Les coordonnées du pointel courant
   //         (multipliés ensuite par STEP3D_X, STEP3D_Y et STEP3D_Z)
   CVertex CurrentPointel(1,1,1);
-
+  
   do // On boucle tant qu'on peut lire un prochain plan
+  {
+    for (unsigned int j=0;j<=AImage->getHeight();++j)
     {
-      for (unsigned int j=0;j<=AImage->getHeight();++j)
-	{
-	  for (unsigned int i=0;i<=AImage->getWidth();++i)		
-	    {
+      for (unsigned int i=0;i<=AImage->getWidth();++i)		
+      {
 #ifdef DEBUG_EXTRACT_IMAGE
-	      std::cout<<"On traite le voxel ("<<i<<", "<<j<<", "<<k<<")"<<std::endl;
+        cout<<"On traite le voxel ("<<i<<", "<<j<<", "<<k<<")"<<endl;
 #endif
-	      
-	      tmp = createCubeForExtract3d(CurrentPointel);
-	      sew3Cube(tmp,last);
-	      
-	      // Si le voxel est dans la région AnId, on le marque.
-	      if ( i<AImage->getWidth() && j<AImage->getHeight() &&
-		   !AImage->lastPlane() &&
-		   AImage->sameVoxel(i,j,true,ARed, AGreen, ABlue, AAlpha) )
-		{
-		  FMap->markOrbit(tmp, ORBIT_VOLUME, toKeep);
-		}
+        
+        tmp = createCubeForExtract3d(CurrentPointel);
+        sew3Cube(tmp,last);
 
-	      last = FMap->alpha101(tmp);
-	      
-	      // Calcule la prochaine position du pointel courant
-	      // Équivalent à faire :
-	      //    CurrentPointel.setX((i+1)%(columns+1));
-	      //    CurrentPointel.setY((j+1+((i+1)/(columns+1)))%(rows+1));
-	      //    CurrentPointel.setZ(k+1+((j+1+((i+1)/(columns+1)))/(rows+1)));
-	      // Mais ici c'est optimisé car moins de formule math :)
-	      if ( i == AImage->getWidth()-1 )
-		{
-		  CurrentPointel.setX(0);
-		  
-		  if ( j == AImage->getHeight()-1 )
-		    {
-		      CurrentPointel.setY(0);
-		      CurrentPointel.setZ(CurrentPointel.getZ()+1);
-		    }
-		  else
-		    CurrentPointel.setY(CurrentPointel.getY()+1);
-		}
-	      else
-		CurrentPointel.setX(CurrentPointel.getX()+1);		
-	    }
-	}
-      
-      std::cout << "Ok pour l'extraction de la plaque num "
-		<< AImage->getPlaneActu() << std::endl;
-      ++k;
+        // Si le voxel est dans la région AnId, on le marque.
+        if ( i<AImage->getWidth() && j<AImage->getHeight() &&
+             !AImage->lastPlane() &&
+             AImage->sameVoxel(i,j,true,ARed, AGreen, ABlue, AAlpha) )
+        {
+          FMap->markOrbit(tmp, ORBIT_VOLUME, toKeep);
+        }
+        else
+        {
+          // Sinon on fait les fusions avec les autres voxels.
+          leftFace   = FMap->alpha0(last);
+          upFace     = FMap->alpha3012(last);
+          behindFace = FMap->alpha3201(last);
+
+          // Les trois fusions de volumes possibles
+          if (AImage->sameVoxelActuLeft(i,j))
+          {
+            mergeImage3dVolumes(leftFace);
+            leftFace = NULL;
+          }
+	
+          if (AImage->sameVoxelActuBehind(i,j))
+          {
+            mergeImage3dVolumes(behindFace);
+            behindFace = NULL;
+          }
+	
+          if (AImage->sameVoxelActuUp(i,j))
+          {
+            mergeImage3dVolumes(upFace);
+            upFace = NULL;
+          }
+        
+        }
+        
+        last = FMap->alpha101(tmp);
+        // Calcule la prochaine position du pointel courant
+        // Équivalent à faire :
+        //    CurrentPointel.setX((i+1)%(columns+1));
+        //    CurrentPointel.setY((j+1+((i+1)/(columns+1)))%(rows+1));
+        //    CurrentPointel.setZ(k+1+((j+1+((i+1)/(columns+1)))/(rows+1)));
+        // Mais ici c'est optimisé car moins de formule math :)
+        if ( i == AImage->getWidth()-1 )
+        {
+          CurrentPointel.setX(0);
+          
+          if ( j == AImage->getHeight()-1 )
+          {
+            CurrentPointel.setY(0);
+            CurrentPointel.setZ(CurrentPointel.getZ()+1);
+          }
+          else
+            CurrentPointel.setY(CurrentPointel.getY()+1);
+        }
+        else
+          CurrentPointel.setX(CurrentPointel.getX()+1);		
+      }
     }
+    
+    std::cout << "Ok pour l'extraction de la plaque num "
+              << AImage->getPlaneActu() << std::endl;
+    ++k;
+  }
   while(AImage->readNextPlane());
+
+  // On détruit le bord
+  CStaticCoverage012 it(FMap,last);
+  while(it.cont())
+    FMap->delMapDart(it++);
+
+  std::cout << "Ok pour la destruction du bord." << std::endl;
 
   // Maintenant on détruit tout les brins qui ne sont pas dans la région
   // à garder, en 3-décousant préalablement les volumes.
   CDynamicCoverageAll itAll(FMap);
   while( itAll.cont() )
+  {
+    tmp = itAll++;
+    if ( !FMap->isMarked(tmp, toKeep) )
     {
-      if ( !FMap->isMarked(*itAll, toKeep) && !FMap->isFree3(*itAll) )
-	FMap->unsew3(*itAll);
-
-      ++itAll;
+      if ( !FMap->isFree3(tmp) )
+      {
+        if ( FMap->isMarked(FMap->alpha3(tmp), toKeep) )
+        {
+          FMap->unsew3(tmp);
+        }
+      }
     }
+  }
 
+  std::cout << "Ok pour la décousure par alpha3." << std::endl;
+  
   itAll.reinit();
   while( itAll.cont() )
     {
