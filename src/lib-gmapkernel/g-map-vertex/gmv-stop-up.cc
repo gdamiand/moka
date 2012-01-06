@@ -30,6 +30,9 @@ void CGMapVertex::stopUp(CDart * ADart, int ADim)
   CGMapGeneric::stopUp(ADart, ADim);
 
   if (ADim==0)
-    setVertex(alpha0(ADart), * findVertex(ADart));
+  {
+    assert ( findVertex(ADart)!=NULL );
+    setVertex(alpha0(ADart), *findVertex(ADart));
+  }
 }
 //******************************************************************************

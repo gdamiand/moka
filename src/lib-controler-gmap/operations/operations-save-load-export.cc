@@ -106,6 +106,7 @@ bool CControlerGMap::loadMap(const char * AFilename)
       }
 
       assert(isMapOk());
+      std::cout<<"isMapOk ? "<<isMapOk()<<std::endl;
    }
 
    return res;
