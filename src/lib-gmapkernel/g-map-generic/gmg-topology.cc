@@ -367,11 +367,11 @@ void CGMapGeneric::getSurfaceCharacteristics(CDart * ADart,
 
       for (vol.reinit(); vol.cont(); ++vol)
 	if (isFree0(*vol))
-	  stopUp(*vol, 0);
+	  CGMapGeneric::stopUp(*vol, 0);
 
       for (vol.reinit(); vol.cont(); ++vol)
 	if (isFree1(*vol))
-	  stopUp(*vol, 1);
+          CGMapGeneric::stopUp(*vol, 1);
 
       negateMaskMark(newDart);
 
