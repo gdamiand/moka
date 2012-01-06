@@ -763,6 +763,8 @@ bool CGMapGeneric::isDanglingFace(CDart* ADart)
   do
   {
     current=alpha01(current);
+    //    if ( alpha2(current)==alpha3(current) ) return false;
+    
     CDart* d1 = current;
     do
     {
