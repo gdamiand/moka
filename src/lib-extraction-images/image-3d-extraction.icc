@@ -724,13 +724,15 @@ bool CExtractionImage::extractOneRegionVoxels(CImage3d * AImage,
   if (! AImage->isOk())
     return false;
 
+  std::cout<<"Début extractOneRegionVoxels:"<<std::flush;
+  
   int toKeep = FMap->getNewMark();
   
   // Pour garder les brins déjà existant.
   FMap->negateMaskMark(toKeep);
 
 #ifdef DEBUG_EXTRACT_IMAGE
-  cout<<"Avant de créer le bord supérieur : "<<endl;
+  cout<<"\nAvant de créer le bord supérieur : "<<endl;
 #endif
 
   CDart * last = createBorder3d(AImage->getWidth(),AImage->getHeight());
@@ -746,6 +748,7 @@ bool CExtractionImage::extractOneRegionVoxels(CImage3d * AImage,
 
   CDart * tmp;
   unsigned int k=0;
+  unsigned int nbpoints = 0;
   
   // Brins utilisés pour la fusion de volumes
   CDart * leftFace;
@@ -775,6 +778,7 @@ bool CExtractionImage::extractOneRegionVoxels(CImage3d * AImage,
              AImage->sameVoxel(i,j,true,ARed, AGreen, ABlue, AAlpha) )
         {
           FMap->markOrbit(tmp, ORBIT_VOLUME, toKeep);
+          ++nbpoints;
         }
         else
         {
@@ -827,9 +831,14 @@ bool CExtractionImage::extractOneRegionVoxels(CImage3d * AImage,
           CurrentPointel.setX(CurrentPointel.getX()+1);		
       }
     }
-    
+
+#ifdef DEBUG_EXTRACT_IMAGE
     std::cout << "Ok pour l'extraction de la plaque num "
               << AImage->getPlaneActu() << std::endl;
+#else
+    std::cout<<"."<<std::flush;
+#endif
+    
     ++k;
   }
   while(AImage->readNextPlane());
@@ -839,7 +848,9 @@ bool CExtractionImage::extractOneRegionVoxels(CImage3d * AImage,
   while(it.cont())
     FMap->delMapDart(it++);
 
+#ifdef DEBUG_EXTRACT_IMAGE
   std::cout << "Ok pour la destruction du bord." << std::endl;
+#endif
 
   // Maintenant on détruit tout les brins qui ne sont pas dans la région
   // à garder, en 3-décousant préalablement les volumes.
@@ -859,8 +870,10 @@ bool CExtractionImage::extractOneRegionVoxels(CImage3d * AImage,
     }
   }
 
+#ifdef DEBUG_EXTRACT_IMAGE
   std::cout << "Ok pour la décousure par alpha3." << std::endl;
-  
+#endif
+ 
   itAll.reinit();
   while( itAll.cont() )
     {
@@ -876,6 +889,15 @@ bool CExtractionImage::extractOneRegionVoxels(CImage3d * AImage,
   
   FMap->freeMark(toKeep);
 
+
+#ifdef DEBUG_EXTRACT_IMAGE
+  std::cout << "Ok pour l'extraction d'une région : terminée.  ";
+#else
+  std::cout<<"Done.  ";
+#endif
+
+  std::cout<<nbpoints<<" voxels."<<std::endl;
+  
   return true;
 }
 //******************************************************************************

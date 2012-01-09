@@ -215,7 +215,6 @@ bool CImage3d::readNextPlane()
   else
     {
       ++FActuPlaneIndex;
-      std::cerr << "Echec de lecture du plan" << std::endl;
       // Pour que le prochain appel à readNextPlane retourne false :
       // Par contre cet appel retourne true car il y a un plan supplémentaire
       // après la dernière plaque.
