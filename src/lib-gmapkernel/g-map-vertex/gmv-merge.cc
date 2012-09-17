@@ -999,7 +999,10 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
   }
   negateMaskMark(treated);
   assert( isWholeMapUnmarked(treated) );
-  //save("after-contract-edges.moka");
+  save("after-contract-edges.moka");
+
+  assert(checkTopology());
+  assert(checkEmbeddings(ORBIT_VERTEX, ATTRIBUTE_VERTEX, true));
 
   // 2) We contract faces.
   cov.reinit();
@@ -1154,7 +1157,10 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
   }
   negateMaskMark(treated);
   assert( isWholeMapUnmarked(treated) );
-  //save("after-contract-faces.moka");
+  save("after-contract-faces.moka");
+
+  assert(checkTopology());
+  assert(checkEmbeddings(ORBIT_VERTEX, ATTRIBUTE_VERTEX, true));
 
   // 3) We contract volumes.
   // This is simpler since a volume can not be co-dangling. ??
@@ -1268,7 +1274,9 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
   freeDirectInfo(indexVertex);
   freeDirectInfo(indexEdge);
 
-  // save("after-simplification-3D-contraction.moka");
+  save("after-simplification-3D-contraction.moka");
+  assert(checkTopology());
+  assert(checkEmbeddings(ORBIT_VERTEX, ATTRIBUTE_VERTEX, true));
 
   return nbRemove;
 }
