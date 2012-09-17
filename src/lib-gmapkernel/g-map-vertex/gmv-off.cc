@@ -249,7 +249,7 @@ CDart* CGMapVertex::importOff2D(std::istream & AStream)
 }
 //******************************************************************************
 CDart* CGMapVertex::addEdgeOFF(vector< CVertex >& AInitVertices,
-                               unsigned int AV1, unsigned int AV2,
+                               unsigned long int AV1, unsigned long int AV2,
                                int AIndex, CDart* APrec)
 {
    CDart* dart1 = addMapDart(AInitVertices[AV1]);
@@ -286,7 +286,8 @@ CDart* CGMapVertex::importOff3D(std::istream & AStream)
    string txt;
    TCoordinate x, y, z;
    CDart *prec = NULL, *first = NULL;
-   unsigned int i, n, v1, v2, vf;
+   unsigned int i, n;
+   unsigned long int v1, v2, vf;
 
    AStream >> txt;
    if (txt != "OFF" && txt != "OFF3D")
@@ -467,7 +468,7 @@ bool CGMapVertex::exportOff3D(std::ostream & AStream)
    int directInfoIndex = getNewDirectInfo();
    int markVertex = getNewMark();
    int markFace   = getNewMark();
-   unsigned int nbV = 0;
+   unsigned long int nbV = 0;
    unsigned int nbE = 0; // TODO compter les arêtes
    unsigned int nbF = 0;
    

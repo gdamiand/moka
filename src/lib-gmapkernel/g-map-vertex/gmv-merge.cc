@@ -416,7 +416,7 @@ unsigned int CGMapVertex::simplify3DObject(int AMark0, int AMark1, int AMark2)
   return nbRemove;
 }
 //******************************************************************************
-unsigned int CGMapVertex::simplify3DObject()
+unsigned int CGMapVertex::simplify3DObjectRemoval()
 {
   // Simplify a 3D map in its minimal form, without use shifting operations, and
   // by keeping each cell homeomorphic to a ball.
@@ -844,4 +844,189 @@ unsigned int CGMapVertex::simplify3DObject()
 
   return nbRemove;
 }
+//******************************************************************************
+unsigned int CGMapVertex::simplify3DObjectContraction()
+{
+  // Simplify a 3D map in its minimal form, without use shifting operations, and
+  // by keeping each cell homeomorphic to a ball.
+  // This method suppose that each cell is initially homeomorphic to a ball, and
+  // that there is no dangling cell.
+  // First we remove each degree two face, then each degree two edges, last each
+  // degree two vertex.
+  std::cout<<"simplify3DObjectContraction()"<<std::endl;
+  int  toDelete	  = getNewMark();
+  int  treated	  = getNewMark();
+  CDart* current  = NULL;
+  CDart* t1  = NULL;
+  CDart* t2  = NULL;
+  std::stack<CDart*> FToTreat;
+  bool dangling = false;
+  unsigned int nbRemove = 0;
+
+  int indexVertex = getNewDirectInfo();
+  int indexEdge   = getNewDirectInfo();
+  if ( indexVertex!=-1 && indexEdge!=-1 )
+    initUnionFindTreesVerticesEdges(indexVertex, indexEdge);
+  else
+  {
+    std::cout<<"Not enough directInfo to use union-find trees."<<std::endl;
+    return 0;
+  }
+
+  CDart* firstDeleteDart = NULL;
+
+  // 1) We contract edges.
+  CDynamicCoverageAll cov(this);
+  while ( cov.cont() )
+  {
+    dangling = false;
+    /*  if ( ! FToTreat.empty() ) // TODO process codangling edge
+    {
+      do
+      {
+        current = FToTreat.top();
+        FToTreat.pop();
+        if ( !isMarked(current, toDelete) && isDanglingFace(current) )
+          dangling = true;
+      }
+      while ( !dangling && ! FToTreat.empty() );
+    }
+    */
+    if ( !dangling )
+      current = cov++;
+
+    if ( !isMarked(current,toDelete) &&
+         (dangling || !isMarked(current, treated)) )
+    {
+      assert ( !isFree0(current) );
+      // We contract co-dangling edges and co-degree two edges.
+      if ( dangling ||
+           findUnionFindTrees(current, indexVertex)!=
+           findUnionFindTrees(alpha0(current),indexVertex) )
+      {
+        // First we mark the current edge.
+        CDynamicCoverage23 itEdge(this, current);
+        for ( ; itEdge.cont(); ++itEdge)
+        {
+          setMark( *itEdge, treated );
+          setMark( alpha0(*itEdge), treated );
+          setMark( *itEdge, toDelete );
+          setMark( alpha0(*itEdge), toDelete );
+        }
+
+        while ( cov.cont() && isMarked(*cov, treated) )
+          ++cov;
+
+        delete removeVertex(alpha0(current));
+
+        // Second we manage vertex attributes, and remove darts
+        // from the list of darts.
+        for ( itEdge.reinit(); itEdge.cont(); ++itEdge )
+        {
+          removeDartInList( *itEdge );
+          removeDartInList( alpha0(*itEdge) );
+          (*itEdge)->setNext(alpha0(*itEdge));
+          alpha0(*itEdge)->setNext(firstDeleteDart);
+          firstDeleteDart=*itEdge;
+
+          if ( getVertex(*itEdge)!=NULL )
+          {
+            CAttributeVertex * v = removeVertex(*itEdge);
+
+            if ( !isMarked(alpha1(*itEdge), toDelete) )
+              setVertex(alpha1(*itEdge), v);
+            else if (!isMarked(alpha21(*itEdge), toDelete) )
+              setVertex(alpha21(*itEdge), v);
+            else if (!isMarked(alpha31(*itEdge), toDelete) )
+              setVertex(alpha31(*itEdge), v);
+            else if (!isMarked(alpha321(*itEdge), toDelete) )
+              setVertex(alpha321(*itEdge), v);
+            else if (!isMarked(alpha231(*itEdge), toDelete) )
+              setVertex(alpha231(*itEdge), v);
+            else
+              delete v;
+          }
+        }
+
+        // Third, we push in the stack all the neighboors of the current
+        // edge that become co-dangling ??? after the removal.
+        // Moreover, we make the removal manually instead of calling
+        // contract(current, 1, false) for optimisation reasons.
+        for ( itEdge.reinit(); itEdge.cont(); ++itEdge )
+        {
+          /*
+            // TODO
+            if (alpha23(*itFace)==alpha32(*itFace) &&
+                !isMarked(alpha2(*itFace), toDelete) &&
+                !isFree3(alpha2(*itFace)) )
+            {
+              FToTreat.push(alpha2(*itFace));
+            }
+            */
+
+          // Now we update alpha1
+          t1 = alpha(*itEdge, 1);
+          if ( !isMarked(t1, toDelete) )
+          {
+            t2 = *itEdge;
+            while ( isMarked(t2, toDelete) )
+            {
+              t2 = alpha01(t2);
+            }
+
+            if ( t2 != alpha(t1, 1) )
+            {
+              unlinkAlpha1(t1);
+              if (!isFree(t2, 1)) unlinkAlpha1(t2);
+              if (t1!=t2) linkAlpha1(t1,t2);
+            }
+          }
+        }
+
+        if ( !dangling )
+          mergeUnionFindTrees(current, alpha0(current), indexVertex);
+      }
+      else
+      {
+        for ( CDynamicCoverage23 itEdge(this, current);
+              itEdge.cont(); ++itEdge )
+        {
+          setMark( *itEdge, treated );
+          setMark( alpha0(*itEdge), treated );
+        }
+      }
+    }
+  }
+  negateMaskMark(treated);
+  assert( isWholeMapUnmarked(treated) );
+  save("after-contract-edges.moka");
+
+  // save("after-simplification-3D.moka");
+
+  // 4) We remove all the darts marked toDelete
+  while ( firstDeleteDart!=NULL )
+  {
+    t1 = firstDeleteDart->getNext();
+    delDart(firstDeleteDart);
+    firstDeleteDart = t1;
+    ++nbRemove;
+  }
+
+  assert( isWholeMapUnmarked(toDelete) );
+  assert( isWholeMapUnmarked(treated) );
+
+  freeMark(toDelete);
+  freeMark(treated);
+
+  freeDirectInfo(indexVertex);
+  freeDirectInfo(indexEdge);
+
+  return nbRemove;
+}
+//******************************************************************************
+unsigned int CGMapVertex::simplify3DObject()
+{
+  simplify3DObjectContraction();
+}
+
 //******************************************************************************
