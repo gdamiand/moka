@@ -55,8 +55,8 @@ CDart* importOff3D(std::istream & AStream);
  * de la face en cours de construction.
  */
 CDart* addEdgeOFF( std::vector< CVertex >& AInitVertices,
-		   unsigned int AV1, unsigned int AV2,
-		   int AIndex, CDart* APrec );
+                   unsigned long int AV1, unsigned long int AV2,
+                   int AIndex, CDart* APrec );
 
 /**
  * La face incidente à ADart vient d'être créé. Cherche à coudre toute
@@ -65,7 +65,7 @@ CDart* addEdgeOFF( std::vector< CVertex >& AInitVertices,
  * brins avec le numéro du sommets incident.
  */
 void linkFaceAlpha2OFF( std::vector< std::list<CDart*> >& ATestVertices,
-			int AIndex, CDart* ADart );
+                        int AIndex, CDart* ADart );
 
 /** 
  * @return la dimension du fichier off en lisant l'entête: 2, 3 ou -1 si erreur

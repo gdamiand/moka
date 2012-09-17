@@ -74,4 +74,12 @@ unsigned int simplify3DObject(int AMark0, int AMark1=-1, int AMark2=-1);
  */
 unsigned int simplify3DObject();
 
+/** Simplify the map using removal operations only.
+ */
+unsigned int simplify3DObjectRemoval();
+
+/** Simplify the map using removal operations only.
+ */
+unsigned int simplify3DObjectContraction();
+
 //******************************************************************************
