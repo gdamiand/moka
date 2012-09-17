@@ -418,13 +418,13 @@ unsigned int CGMapVertex::simplify3DObject(int AMark0, int AMark1, int AMark2)
 //******************************************************************************
 unsigned int CGMapVertex::simplify3DObjectRemoval()
 {
-  // Simplify a 3D map in its minimal form, without use shifting operations, and
-  // by keeping each cell homeomorphic to a ball.
-  // This method suppose that each cell is initially homeomorphic to a ball, and
-  // that there is no dangling cell.
-  // First we remove each degree two face, then each degree two edges, last each
+  // Simplify a 3D map in its minimal form, without use shifting operations,
+  // and by keeping each cell homeomorphic to a ball.
+  // This method suppose that each cell is initially homeomorphic to a ball,
+  // and that there is no dangling cell.
+  // First we remove each degree two face, then each degree two edge, last each
   // degree two vertex.
-  std::cout<<"simplify3DObject()"<<std::endl;
+  std::cout<<"simplify3DObjectRemoval()"<<std::endl;
   int  toDelete	  = getNewMark();
   int  treated	  = getNewMark();
   CDart* current  = NULL;
@@ -847,12 +847,12 @@ unsigned int CGMapVertex::simplify3DObjectRemoval()
 //******************************************************************************
 unsigned int CGMapVertex::simplify3DObjectContraction()
 {
-  // Simplify a 3D map in its minimal form, without use shifting operations, and
-  // by keeping each cell homeomorphic to a ball.
-  // This method suppose that each cell is initially homeomorphic to a ball, and
-  // that there is no dangling cell.
-  // First we remove each degree two face, then each degree two edges, last each
-  // degree two vertex.
+  // Simplify a 3D map in its minimal form, without use shifting operations,
+  // and by keeping each cell homeomorphic to a ball.
+  // This method suppose that each cell is initially homeomorphic to a ball,
+  // and that there is no dangling cell.
+  // First we contract each codegree two edge, then each codegree two face,
+  // last each codegree two volume.
   std::cout<<"simplify3DObjectContraction()"<<std::endl;
   int  toDelete	  = getNewMark();
   int  treated	  = getNewMark();
@@ -1277,6 +1277,8 @@ unsigned int CGMapVertex::simplify3DObject()
 {
   simplify3DObjectRemoval();
   simplify3DObjectContraction();
+//  simplify3DObjectRemoval();
+//  simplify3DObjectContraction();
 }
 
 //******************************************************************************
