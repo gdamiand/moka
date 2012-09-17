@@ -998,7 +998,8 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
     }
   }
   negateMaskMark(treated);
-  assert( isWholeMapUnmarked(treated) );
+  assert( isWholeMapUnmarked(treated) );  
+
   save("after-contract-edges.moka");
 
   assert(checkTopology());
@@ -1026,13 +1027,16 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
       if ( !isFree1(current) )
       {
         // We contract faces and co-dangling faces.
-        if ( (alpha2(current)!=alpha3(current) ||
+        if ( (alpha2(current)!=alpha1(current) ||
               alpha32(current)!=alpha31(current)) &&
+             alpha10(current)!=current &&
+             !isFree0(current) && !isFree1(alpha0(current)) &&
              alpha10(current)==alpha01(current) &&
              ( dangling ||
                findUnionFindTrees(current, indexEdge)!=
                findUnionFindTrees(alpha1(current),indexEdge)) )
         {
+          std::cout<<"Contract one face"<<std::endl;
           // First we mark the current face.
           CDynamicCoverage13 itFace(this, current);
           for ( ; itFace.cont(); ++itFace)
@@ -1061,10 +1065,13 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
               (*itFace)->setNext(firstDeleteDart);
             firstDeleteDart=*itFace;
 
+            std::cout<<"Remove dart "<<*itFace
+                    <<" and "<<alpha0(*itFace)<<std::endl;
+
             if ( getVertex(*itFace)!=NULL )
             {
               CAttributeVertex * v = removeVertex(*itFace);
-
+              std::cout<<"remove vertex 1\n";
               if ( !isMarked(alpha2(*itFace), toDelete) )
                 setVertex(alpha2(*itFace), v);
               else if ( !isMarked(alpha12(*itFace), toDelete) )
@@ -1073,13 +1080,13 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
                 delete v;
             }
 
-            if ( !isFree0(*itFace) )
+            assert ( !isFree0(*itFace) );
             {
               t1=alpha0(*itFace);
               if ( getVertex(t1)!=NULL )
               {
                 CAttributeVertex * v = removeVertex(t1);
-
+                std::cout<<"remove vertex 2\n";
                 if ( !isMarked(alpha2(t1), toDelete) )
                   setVertex(alpha2(t1), v);
                 else if ( !isMarked(alpha12(t1), toDelete) )
@@ -1133,6 +1140,9 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
 
           if ( !dangling )
             mergeUnionFindTrees(current, alpha1(current), indexEdge);
+
+          assert(checkTopology());
+          assert(checkEmbeddings(ORBIT_VERTEX, ATTRIBUTE_VERTEX, true));
         }
         else
         {
@@ -1157,6 +1167,7 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
   }
   negateMaskMark(treated);
   assert( isWholeMapUnmarked(treated) );
+
   save("after-contract-faces.moka");
 
   assert(checkTopology());
