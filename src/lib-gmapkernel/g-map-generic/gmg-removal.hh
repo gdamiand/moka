@@ -120,4 +120,8 @@ int removeMarkedFacesButKeepBalls(int AMarkNumber);
  *  @return the number of removed darts.
  */
 unsigned int simplify2DObject(int AMark0=-1, int AMark1=-1);
+
+/* Simplify3DObject is defined in file g-map-vertex/gmv-merge.hh
+ * because vertex attributes must be updates.
+ */
 //******************************************************************************
