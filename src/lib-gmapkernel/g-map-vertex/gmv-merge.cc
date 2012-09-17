@@ -880,7 +880,7 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
   while ( cov.cont() )
   {
     dangling = false;
-    /*  if ( ! FToTreat.empty() ) // TODO process codangling edge
+    /*  if ( ! FToTreat.empty() ) // TODO process codangling edge ?
     {
       do
       {
@@ -999,11 +999,258 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
   }
   negateMaskMark(treated);
   assert( isWholeMapUnmarked(treated) );
-  save("after-contract-edges.moka");
+  //save("after-contract-edges.moka");
 
-  // save("after-simplification-3D.moka");
+  // 2) We contract faces.
+  cov.reinit();
+  while ( cov.cont() )
+  {
+    /*if ( ! FToTreat.empty() ) TODO co-dangling
+    {
+      current = FToTreat.top();
+      FToTreat.pop();
+      dangling = true;
+    }
+    else*/
+    {
+      current = cov++;
+      dangling = false;
+    }
+
+    if ( !isMarked(current, toDelete) &&
+         (dangling || !isMarked(current, treated)) )
+    {
+      if ( !isFree1(current) )
+      {
+        // We contract faces and co-dangling faces.
+        if ( (alpha2(current)!=alpha3(current) ||
+              alpha32(current)!=alpha31(current)) &&
+             alpha10(current)==alpha01(current) &&
+             ( dangling ||
+               findUnionFindTrees(current, indexEdge)!=
+               findUnionFindTrees(alpha1(current),indexEdge)) )
+        {
+          // First we mark the current face.
+          CDynamicCoverage13 itFace(this, current);
+          for ( ; itFace.cont(); ++itFace)
+          {
+            setMark( *itFace, treated );
+            setMark( *itFace, toDelete );
+            setMark( alpha0(*itFace), treated );
+            setMark( alpha0(*itFace), toDelete );
+          }
+
+          while ( cov.cont() && isMarked(*cov, treated) )
+            ++cov;
+
+          // Second we manage vertex attributes, and remove darts
+          // from the list of darts.
+          for ( itFace.reinit(); itFace.cont(); ++itFace )
+          {
+            removeDartInList( *itFace );
+            if ( !isFree0(*itFace) )
+            {
+              removeDartInList( alpha0(*itFace) );
+              (*itFace)->setNext(alpha0(*itFace));
+              alpha0(*itFace)->setNext(firstDeleteDart);
+            }
+            else
+              (*itFace)->setNext(firstDeleteDart);
+            firstDeleteDart=*itFace;
+
+            if ( getVertex(*itFace)!=NULL )
+            {
+              CAttributeVertex * v = removeVertex(*itFace);
+
+              if ( !isMarked(alpha2(*itFace), toDelete) )
+                setVertex(alpha2(*itFace), v);
+              else if ( !isMarked(alpha12(*itFace), toDelete) )
+                setVertex(alpha12(*itFace), v);
+              else
+                delete v;
+            }
+
+            if ( !isFree0(*itFace) )
+            {
+              t1=alpha0(*itFace);
+              if ( getVertex(t1)!=NULL )
+              {
+                CAttributeVertex * v = removeVertex(t1);
+
+                if ( !isMarked(alpha2(t1), toDelete) )
+                  setVertex(alpha2(t1), v);
+                else if ( !isMarked(alpha12(t1), toDelete) )
+                  setVertex(alpha12(t1), v);
+                else
+                  delete v;
+              }
+            }
+          }
+
+          // Third, we push in the stack all the neighboors of the current
+          // face that become dangling after the removal. TODO
+          // Moreover, we make the contraction manually instead of calling
+          // contract(current, 2, false) for optimisation reasons.
+          for ( itFace.reinit(); itFace.cont(); ++itFace )
+          {
+           /* TODO if ( alpha12(*itEdge)==alpha21(*itEdge) &&
+                 !isMarked(alpha1(*itEdge), toDelete) &&
+                 !isFree2(alpha1(*itEdge)) )
+            {
+              FToTreat.push(alpha1(*itEdge));
+            } */
+
+            // Now we update alpha2
+            t1 = alpha(*itFace, 2);
+            if ( !isMarked(t1, toDelete) )
+            {
+              t2 = *itFace;
+              while ( isMarked(t2, toDelete) )
+              {
+                t2 = alpha12(t2);
+              }
+
+              if ( t2 != alpha(t1, 2) )
+              {
+                unlinkAlpha2(t1);
+                if ( !isFree0(t1) ) unlinkAlpha2(alpha0(t1));
+                if (!isFree(t2, 2))
+                {
+                  unlinkAlpha2(t2);
+                  if ( !isFree0(t2) ) unlinkAlpha2(alpha0(t2));
+                }
+                if (t1!=t2)
+                {
+                  linkAlpha2(t1, t2);
+                  if ( !isFree0(t1) ) linkAlpha2(alpha0(t1), alpha0(t2));
+                }
+              }
+            }
+          }
+
+          if ( !dangling )
+            mergeUnionFindTrees(current, alpha1(current), indexEdge);
+        }
+        else
+        {
+          for ( CDynamicCoverage13 itFace(this, current);
+                itFace.cont(); ++itFace )
+          {
+            setMark( *itFace, treated );
+            setMark( alpha0(*itFace), treated );
+          }
+        }
+      }
+      else
+      {
+        for ( CDynamicCoverage3 itFace(this, current);
+              itFace.cont(); ++itFace )
+        {
+          setMark( *itFace, treated );
+          setMark( alpha0(*itFace), treated );
+        }
+      }
+    }
+  }
+  negateMaskMark(treated);
+  assert( isWholeMapUnmarked(treated) );
+  //save("after-contract-faces.moka");
+
+  // 3) We contract volumes.
+  // This is simpler since a volume can not be co-dangling. ??
+  cov.reinit();
+  while ( cov.cont() )
+  {
+    current = cov++;
+
+    if ( !isMarked(current,treated) )
+    {
+      bool deleteVol= true;
+      CStaticCoverage01 itVol(this, current);
+      for ( ; itVol.cont(); ++itVol )
+      {
+        setMark( *itVol, treated );
+        setMark( alpha2(*itVol), treated );
+
+        if ( isFree2(*itVol)                     ||
+             alpha2 (*itVol)==alpha1 (*itVol) ||
+             alpha32(*itVol)==alpha31(*itVol) ||
+             alpha21(*itVol)!=alpha12(*itVol) )
+          deleteVol = false;
+      }
+
+      if ( deleteVol )
+      {
+        // First we mark the current vol todelete.
+        for ( itVol.reinit(); itVol.cont(); ++itVol )
+        {
+          setMark( *itVol, toDelete );
+          setMark(  alpha2(*itVol), toDelete );
+        }
+
+        while ( cov.cont() && isMarked(*cov, treated) )
+          ++cov;
+
+        // Second we remove the darts from their list.
+        for ( itVol.reinit(); itVol.cont(); ++itVol )
+        {
+          removeDartInList( *itVol );
+          removeDartInList( alpha2(*itVol) );
+          (*itVol)->setNext(alpha2(*itVol));
+          alpha2(*itVol)->setNext(firstDeleteDart);
+          firstDeleteDart=*itVol;
+
+          if ( getVertex(*itVol)!=NULL )
+          {
+            CAttributeVertex * v = removeVertex(*itVol);
+
+            if ( !isMarked(alpha3(*itVol), toDelete) )
+              setVertex(alpha3(*itVol), v);
+            else if ( !isMarked(alpha23(*itVol), toDelete) )
+              setVertex(alpha23(*itVol), v);
+            else
+              delete v;
+          }
+          else if ( getVertex(alpha2(*itVol))!=NULL )
+          {
+            CAttributeVertex * v = removeVertex(alpha2(*itVol));
+
+            if ( !isMarked(alpha3(*itVol), toDelete) )
+              setVertex(alpha3(*itVol), v);
+            else if ( !isMarked(alpha23(*itVol), toDelete) )
+              setVertex(alpha23(*itVol), v);
+            else
+              delete v;
+          }
+        }
+
+        // Second, we make the removal manually instead of calling
+        // remove(current, 0, false) for optimisation reasons.
+        for ( itVol.reinit(); itVol.cont(); ++itVol )
+        {
+          t1 = alpha(*itVol, 3);
+          if ( !isMarked(t1, toDelete) )
+          {
+            t2 = *itVol;
+            while ( isMarked(t2, toDelete) )
+            {
+              t2 = alpha23(t2);
+            }
+
+            if ( t2 != alpha(t1, 3) )
+            {
+              unlinkAlpha3(t1);
+              if (!isFree(t2, 3)) unlinkAlpha3(t2);
+              if (t1!=t2) linkAlpha3(t1, t2);
+            }
+          }
+        }
+      }
+    }
+  }
 
   // 4) We remove all the darts marked toDelete
+  negateMaskMark(treated);
   while ( firstDeleteDart!=NULL )
   {
     t1 = firstDeleteDart->getNext();
@@ -1021,11 +1268,14 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
   freeDirectInfo(indexVertex);
   freeDirectInfo(indexEdge);
 
+  // save("after-simplification-3D-contraction.moka");
+
   return nbRemove;
 }
 //******************************************************************************
 unsigned int CGMapVertex::simplify3DObject()
 {
+  simplify3DObjectRemoval();
   simplify3DObjectContraction();
 }
 
