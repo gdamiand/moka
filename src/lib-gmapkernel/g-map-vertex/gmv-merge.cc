@@ -900,6 +900,7 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
     {
       assert ( !isFree0(current) );
       // We contract co-dangling edges and co-degree two edges.
+      // TODO avoid disconnection of cells (how to do that efficiently???)
       if ( dangling ||
            findUnionFindTrees(current, indexVertex)!=
            findUnionFindTrees(alpha0(current),indexVertex) )
@@ -1047,18 +1048,18 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
             setMark( alpha0(*itFace), toDelete );
           }
 
-          for (CDynamicCoverage01 itFace(this,current);
-               itFace.cont(); ++itFace)
+          for (CDynamicCoverage01 tmpit(this,current);
+               tmpit.cont(); ++tmpit)
           {
-            std::cout<<"Remove dart "<<*itFace<<"  "<<"a2="<<alpha2(*itFace)<<" "<<getVertex(*itFace)<<std::endl;
+            std::cout<<"Remove dart "<<*tmpit<<"  "<<"a2="<<alpha2(*tmpit)<<" "<<getVertex(*tmpit)<<std::endl;
           }
           if ( !isFree3(current) )
           {
             std::cout<<"alpha3: ";
-            for (CDynamicCoverage01 itFace(this,alpha3(current));
-                 itFace.cont(); ++itFace)
+            for (CDynamicCoverage01 tmpit(this,alpha3(current));
+                 tmpit.cont(); ++tmpit)
             {
-              std::cout<<"Remove dart "<<*itFace<<"  "<<"a2="<<alpha2(*itFace)<<" "<<getVertex(*itFace)<<std::endl;
+              std::cout<<"Remove dart "<<*tmpit<<"  "<<"a2="<<alpha2(*tmpit)<<" "<<getVertex(*tmpit)<<std::endl;
             }
           }
 
@@ -1070,14 +1071,13 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
           for ( itFace.reinit(); itFace.cont(); ++itFace )
           {
             removeDartInList( *itFace );
-            if ( !isFree0(*itFace) )
+            assert ( !isFree0(*itFace) );
             {
               removeDartInList( alpha0(*itFace) );
               (*itFace)->setNext(alpha0(*itFace));
               alpha0(*itFace)->setNext(firstDeleteDart);
             }
-            else
-              (*itFace)->setNext(firstDeleteDart);
+            // else (*itFace)->setNext(firstDeleteDart);
             firstDeleteDart=*itFace;
 
             //std::cout<<"Remove dart "<<*itFace
