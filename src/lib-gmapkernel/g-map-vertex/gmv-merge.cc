@@ -1047,6 +1047,21 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
             setMark( alpha0(*itFace), toDelete );
           }
 
+          for (CDynamicCoverage01 itFace(this,current);
+               itFace.cont(); ++itFace)
+          {
+            std::cout<<"Remove dart "<<*itFace<<"  "<<"a2="<<alpha2(*itFace)<<" "<<getVertex(*itFace)<<std::endl;
+          }
+          if ( !isFree3(current) )
+          {
+            std::cout<<"alpha3: ";
+            for (CDynamicCoverage01 itFace(this,alpha3(current));
+                 itFace.cont(); ++itFace)
+            {
+              std::cout<<"Remove dart "<<*itFace<<"  "<<"a2="<<alpha2(*itFace)<<" "<<getVertex(*itFace)<<std::endl;
+            }
+          }
+
           while ( cov.cont() && isMarked(*cov, treated) )
             ++cov;
 
@@ -1065,8 +1080,8 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
               (*itFace)->setNext(firstDeleteDart);
             firstDeleteDart=*itFace;
 
-            std::cout<<"Remove dart "<<*itFace
-                    <<" and "<<alpha0(*itFace)<<std::endl;
+            //std::cout<<"Remove dart "<<*itFace
+            //        <<" and "<<alpha0(*itFace)<<std::endl;
 
             if ( getVertex(*itFace)!=NULL )
             {
