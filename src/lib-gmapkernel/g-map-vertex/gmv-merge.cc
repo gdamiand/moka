@@ -1048,6 +1048,20 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
             setMark( alpha0(*itFace), toDelete );
           }
 
+          std::vector<CDart*> vertex1, vertex2;
+
+          for (CDynamicCoverageVertex itvertex(this, current);
+               itvertex.cont(); ++itvertex)
+          {
+            vertex1.push_back(*itvertex);
+          }
+          for (CDynamicCoverageVertex itvertex(this, alpha0(current));
+               itvertex.cont(); ++itvertex)
+          {
+            vertex2.push_back(*itvertex);
+          }
+
+
           for (CDynamicCoverage01 tmpit(this,current);
                tmpit.cont(); ++tmpit)
           {
