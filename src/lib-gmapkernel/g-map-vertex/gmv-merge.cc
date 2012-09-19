@@ -227,7 +227,7 @@ unsigned int CGMapVertex::simplify3DObject(int AMark0, int AMark1, int AMark2)
   }
   negateMaskMark(treated);
   // assert( isWholeMapUnmarked(treated) );
-  // save("after-remove-faces.moka");
+  save("after-remove-faces.moka");
 
   // 2) We remove edges.
   cov.reinit();
@@ -331,7 +331,7 @@ unsigned int CGMapVertex::simplify3DObject(int AMark0, int AMark1, int AMark2)
     }
   }
   negateMaskMark(treated);
-  // save("after-remove-edges.moka");
+  save("after-remove-edges.moka");
   
   // 3) We remove vertices. This is simpler since a vertex can not be dangling.
   cov.reinit();
@@ -390,6 +390,8 @@ unsigned int CGMapVertex::simplify3DObject(int AMark0, int AMark1, int AMark2)
     }
   }
   
+  save("after-all-removals.moka");
+
   // 4) We remove all the darts marked toDelete
   for ( cov.reinit(); cov.cont(); )
   {
@@ -590,7 +592,7 @@ unsigned int CGMapVertex::simplify3DObjectRemoval()
   }
   negateMaskMark(treated);
   // assert( isWholeMapUnmarked(treated) );
-  // save("after-remove-faces.moka");
+  save("after-remove-faces.moka");
   
   // 2) We remove edges.
   cov.reinit();
@@ -745,7 +747,7 @@ unsigned int CGMapVertex::simplify3DObjectRemoval()
   }
   negateMaskMark(treated);
   // assert( isWholeMapUnmarked(treated) );
-  // save("after-remove-edges.moka");
+  save("after-remove-edges.moka");
    
   // 3) We remove vertices. This is simpler since a vertex can not be dangling.
   cov.reinit();
@@ -821,7 +823,7 @@ unsigned int CGMapVertex::simplify3DObjectRemoval()
     }
   }
 
-  // save("after-simplification-3D.moka");
+  save("after-all-removal.moka");
   
   // 4) We remove all the darts marked toDelete
   negateMaskMark(treated);
@@ -1028,14 +1030,19 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
       if ( !isFree1(current) )
       {
         // We contract faces and co-dangling faces.
-        if ( (alpha2(current)!=alpha1(current) ||
-              alpha32(current)!=alpha31(current)) &&
+        if ( (alpha2(current)!=alpha1(current) &&
+              alpha32(current)!=alpha31(current) &&
+              alpha02(current)!=alpha01(current) &&
+              alpha302(current)!=alpha301(current) ) &&
              alpha10(current)!=current &&
              !isFree0(current) && !isFree1(alpha0(current)) &&
              alpha10(current)==alpha01(current) &&
+             !isFree2(current) && !isFree2(alpha1(current)) &&
              ( dangling ||
-               findUnionFindTrees(current, indexEdge)!=
-               findUnionFindTrees(alpha1(current),indexEdge)) )
+               (findUnionFindTrees(current, indexEdge)!=
+               findUnionFindTrees(alpha1(current),indexEdge)) &&
+               findUnionFindTrees(current, indexVertex)!=
+               findUnionFindTrees(alpha0(current),indexVertex)) )
         {
           std::cout<<"Contract one face"<<std::endl;
           // First we mark the current face.
@@ -1048,19 +1055,23 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
             setMark( alpha0(*itFace), toDelete );
           }
 
-          std::vector<CDart*> vertex1, vertex2;
+          /*std::vector<CDart*> vertex1, vertex2;
 
+          std::cout<<"v1=";
           for (CDynamicCoverageVertex itvertex(this, current);
                itvertex.cont(); ++itvertex)
           {
+            //std::cout<<*itvertex<<"; ";
             vertex1.push_back(*itvertex);
           }
+          std::cout<<vertex1.size()<<"\nv2=";
           for (CDynamicCoverageVertex itvertex(this, alpha0(current));
                itvertex.cont(); ++itvertex)
           {
+            //std::cout<<*itvertex<<"; ";
             vertex2.push_back(*itvertex);
           }
-
+          std::cout<<vertex2.size()<<std::endl;
 
           for (CDynamicCoverage01 tmpit(this,current);
                tmpit.cont(); ++tmpit)
@@ -1075,7 +1086,7 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
             {
               std::cout<<"Remove dart "<<*tmpit<<"  "<<"a2="<<alpha2(*tmpit)<<" "<<getVertex(*tmpit)<<std::endl;
             }
-          }
+          }*/
 
           while ( cov.cont() && isMarked(*cov, treated) )
             ++cov;
@@ -1170,8 +1181,33 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
           if ( !dangling )
             mergeUnionFindTrees(current, alpha1(current), indexEdge);
 
-          assert(checkTopology());
-          assert(checkEmbeddings(ORBIT_VERTEX, ATTRIBUTE_VERTEX, true));
+  /*        std::cout<<"After contraction: nv1=";
+          int nbv1 = 0;
+          for (CDynamicCoverageVertex itvertex(this, current);
+               itvertex.cont(); ++itvertex)
+          {
+            ++nbv1;
+          }
+          std::cout<<nbv1<<"\nv2=";
+          int nbv2 = 0;
+          for (CDynamicCoverageVertex itvertex(this, alpha0(current));
+               itvertex.cont(); ++itvertex)
+          {
+            ++nbv2;
+          }
+          std::cout<<nbv2<<std::endl;
+
+          unsigned nbv1survivants=0;
+          for (std::vector<CDart*>::iterator itvector=vertex1.begin();
+               itvector!=vertex1.end(); ++itvector)
+            if ( !isMarked(*itvector, toDelete) ) ++nbv1survivants;
+          unsigned nbv2survivants=0;
+          for (std::vector<CDart*>::iterator itvector=vertex2.begin();
+               itvector!=vertex2.end(); ++itvector)
+            if ( !isMarked(*itvector, toDelete) ) ++nbv2survivants;
+
+          std::cout<<"nv1survivants="<<nbv1survivants<<std::endl;
+          std::cout<<"nv2survivants="<<nbv2survivants<<std::endl;*/
         }
         else
         {
@@ -1203,8 +1239,10 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
   assert(checkEmbeddings(ORBIT_VERTEX, ATTRIBUTE_VERTEX, true));
 
   // 3) We contract volumes.
-  // This is simpler since a volume can not be co-dangling. ??
-  cov.reinit();
+  // Not necessary for 3D objects that is already simplified by removal
+  // operations. Indeed, we are sure there are exactly one volume which must
+  // not be simplified...
+ /*  cov.reinit();
   while ( cov.cont() )
   {
     current = cov++;
@@ -1293,7 +1331,7 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
         }
       }
     }
-  }
+  }*/
 
   // 4) We remove all the darts marked toDelete
   negateMaskMark(treated);
