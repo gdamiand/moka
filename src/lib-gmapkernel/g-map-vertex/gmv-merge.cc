@@ -964,10 +964,13 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
               assert(false);
               delete v;
             }
+            break; // We can jump out of the for loop as the attribute is on
+                   // a safe dart.
           }
         }
 
         std::vector<std::pair<CDart*,CDart*> > sews;
+        std::vector< CDart* > unsews;
         // Wwe push in the stack all the neighboors of the current
         // edge that become co-dangling ??? after the removal.
         // Moreover, we make the removal manually instead of calling
@@ -1007,6 +1010,7 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
               }
               if (t1!=t2)
               {
+                unsews.push_back(t1);
                 linkAlpha1(t1,t2);
                 std::cout<<"link1 "<<t1<<"--"<<t2<<"  ";
               }
@@ -1067,8 +1071,7 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
           assert( findUnionFindTrees(current, indexVertex)!=
               findUnionFindTrees(alpha0(current),indexVertex) );
 
-          // We manage vertex attributes, and remove darts
-          // from the list of darts.
+          // We remove darts from the list of darts.
           for ( itEdge.reinit(); itEdge.cont(); ++itEdge )
           {
             removeDartInList( *itEdge );
@@ -1077,44 +1080,8 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
             alpha0(*itEdge)->setNext(firstDeleteDart);
             firstDeleteDart=*itEdge;
 
-            if ( getVertex(*itEdge)!=NULL )
-            {
-              CAttributeVertex * v = removeVertex(*itEdge);
-
-              if ( !isMarked(alpha1(*itEdge), toDelete) )
-                setVertex(alpha1(*itEdge), v);
-              else if (!isMarked(alpha21(*itEdge), toDelete) )
-                setVertex(alpha21(*itEdge), v);
-              else if (!isMarked(alpha31(*itEdge), toDelete) )
-                setVertex(alpha31(*itEdge), v);
-              else if (!isMarked(alpha321(*itEdge), toDelete) )
-                setVertex(alpha321(*itEdge), v);
-              else if (!isMarked(alpha231(*itEdge), toDelete) )
-                setVertex(alpha231(*itEdge), v);
-              else
-                delete v;
-            }
-
+            assert( getVertex(*itEdge)==NULL );
             assert( getVertex(alpha0(*itEdge))==NULL );
-
-            /*if ( getVertex(alpha0(*itEdge))!=NULL )
-            {
-              t1 = alpha0(*itEdge);
-              CAttributeVertex * v = removeVertex(t1);
-
-              if ( !isMarked(alpha1(t1), toDelete) )
-                setVertex(alpha1(t1), v);
-              else if (!isMarked(alpha21(t1), toDelete) )
-                setVertex(alpha21(t1), v);
-              else if (!isMarked(alpha31(t1), toDelete) )
-                setVertex(alpha31(t1), v);
-              else if (!isMarked(alpha321(t1), toDelete) )
-                setVertex(alpha321(t1), v);
-              else if (!isMarked(alpha231(t1), toDelete) )
-                setVertex(alpha231(t1), v);
-              else
-                delete v;
-            }*/
           }
 
           if ( !dangling )
@@ -1128,6 +1095,11 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
             unsetMark( *itEdge, toDelete );
             unsetMark( alpha0(*itEdge), toDelete );
           }
+          std::vector<CDart*>::iterator unsewsit;
+          for ( unsewsit=unsews.begin(); unsewsit!=unsews.end();
+                ++unsewsit )
+            unlinkAlpha1(*unsewsit);
+
           std::vector<std::pair<CDart*,CDart*> >::iterator sewsit;
           for ( sewsit=sews.begin(); sewsit!=sews.end(); ++sewsit )
           {
@@ -1154,15 +1126,34 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
         }
       }
     }
+    else
+    {
+      for ( CDynamicCoverage23 itEdge(this, current);
+            itEdge.cont(); ++itEdge )
+      {
+        setMark( *itEdge, treated );
+        setMark( alpha0(*itEdge), treated );
+      }
+    }
   }
   negateMaskMark(treated);
   assert( isWholeMapUnmarked(treated) );  
 
   save("after-contract-edges.moka");
 
+  for( cov.reinit(); cov.cont(); ++cov )
+  {
+    assert( !isMarked(*cov, toDelete) );
+    assert( !isMarked(alpha0(*cov), toDelete) );
+    assert( !isMarked(alpha1(*cov), toDelete) );
+    assert( !isMarked(alpha2(*cov), toDelete) );
+    assert( !isMarked(alpha3(*cov), toDelete) );
+  }
+
   // 4) We remove all the darts marked toDelete
   while ( firstDeleteDart!=NULL )
   {
+    assert( isMarked(firstDeleteDart, toDelete) );
     t1 = firstDeleteDart->getNext();
     delDart(firstDeleteDart);
     firstDeleteDart = t1;
