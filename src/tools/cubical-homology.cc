@@ -1,9 +1,9 @@
 /*
- * Homology : Homology computation of a 3D objects
+ * Homology : Homology computation of a 3D objects made of voxels
  * Copyright (C) 2012, Guillaume Damiand, CNRS, LIRIS,
  *               guillaume.damiand@liris.cnrs.fr, http://liris.cnrs.fr/
  *
- * This file is part of Moka
+ * This file is part of Homology
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,19 +34,20 @@ int main(int argc, char** argv)
 {
   if ( argc==1 || !strcmp(argv[1],"-?") || !strcmp(argv[1],"-h") )
   {
-    cout<<"Usage1 : a.out mokafile (.moka). Pour calculer l'homology de"<<endl
-        <<"  la G-carte."<<endl;
+    cout<<"Usage1 : a.out image (3D png). Pour calculer l'homology de"<<endl
+        <<"  l'objet blanc dans l'image."<<endl;
     exit(EXIT_FAILURE);
   }
 
-  // First we load the map.
+  // First we compute the 3G-map of the white voxels.
   CGMapVertex g;
-  if ( !g.load(argv[1]) )
+  CExtractionImage ext(&g);
+  if ( !ext.extractOneRegionVoxels(argv[1],0,0,3,65535,65535,65535,0) )
   {
-    cout<<"Problem during loading of "<<argv[1]<<endl;
-    return EXIT_FAILURE;
+    cout<<"Problem during extraction of voxels from "<<argv[1]<<endl;
+    exit(EXIT_FAILURE);
   }
-
+  
   g.randomizeDarts();
   
   int nbdarts, nbvertices, nbedges, nbfaces, nbvolumes, nbcc;
