@@ -58,10 +58,10 @@ void CGMapBasic::addDartInList(CDart* ADart)
 {
   // Insertion dans la liste des brins :
   if ( getFirstDart()!=NULL )
-    {
-      getFirstDart()->setPrev(ADart);
-      ADart->setNext(getFirstDart());
-    }
+  {
+    getFirstDart()->setPrev(ADart);
+    ADart->setNext(getFirstDart());
+  }
   
   setFirstDart(ADart);
 }
@@ -70,15 +70,15 @@ INLINE
 void CGMapBasic::removeDartInList(CDart* ADart)
 {
   if ( getFirstDart()==ADart )
-    {
-      assert( ADart->getPrev()==NULL );
-      setFirstDart(ADart->getNext());
-    }
+  {
+    assert( ADart->getPrev()==NULL );
+    setFirstDart(ADart->getNext());
+  }
   else
-    {
-      assert( ADart->getPrev()!=NULL );
-      ADart->getPrev()->setNext(ADart->getNext());
-    }
+  {
+    assert( ADart->getPrev()!=NULL );
+    ADart->getPrev()->setNext(ADart->getNext());
+  }
 
   if ( ADart->getNext()!=NULL )
     ADart->getNext()->setPrev(ADart->getPrev());
@@ -97,7 +97,7 @@ INLINE
 void CGMapBasic::delMapDart(CDart* ADart)
 {
   assert( ADart!=NULL );
-  removeDartInList(ADart);  
+  removeDartInList(ADart);
   delDart(ADart);
 }
 //******************************************************************************
@@ -113,8 +113,6 @@ void CGMapBasic::randomizeDarts()
   CDart* next;
   int i, dejaTraite = 1;
 
-  if ( first==NULL ) return;
-
 #ifndef _WINDOWS
   srand(time(NULL));
 #endif
@@ -122,28 +120,28 @@ void CGMapBasic::randomizeDarts()
   first->setNext(NULL);
   
   while ( current!=NULL )
-    {
-      next = current->getNext();
-      
-      i	  = rand()%dejaTraite;
-      tmp = first;
-      while ( i!=0 ) { tmp=tmp->getNext(); --i; }
-      assert( tmp!=NULL );
+  {
+    next = current->getNext();
 
-      current->setPrev( tmp->getPrev() );
-      current->setNext( tmp );
-      if ( tmp==first )
-	first=current;
-      else
-	tmp->getPrev()->setNext(current);
-      
-      tmp->setPrev( current );
+    i	  = rand()%dejaTraite;
+    tmp = first;
+    while ( i!=0 ) { tmp=tmp->getNext(); --i; }
+    assert( tmp!=NULL );
 
-      current = next;
-      ++dejaTraite;
-    }
+    current->setPrev( tmp->getPrev() );
+    current->setNext( tmp );
+    if ( tmp==first )
+      first=current;
+    else
+      tmp->getPrev()->setNext(current);
 
-  setFirstDart(first);  
+    tmp->setPrev( current );
+
+    current = next;
+    ++dejaTraite;
+  }
+
+  setFirstDart(first);
 }
 //******************************************************************************
 INLINE
@@ -153,11 +151,11 @@ void CGMapBasic::removeAllDarts()
   CDart* tmp;
 
   while ( d!=NULL )
-    {
-      tmp = d;
-      d = d->getNext();
-      delDart(tmp);
-    }
+  {
+    tmp = d;
+    d = d->getNext();
+    delDart(tmp);
+  }
   setFirstDart(NULL);
 }
 //******************************************************************************
