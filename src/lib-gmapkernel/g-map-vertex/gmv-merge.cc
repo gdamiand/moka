@@ -926,6 +926,20 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
           vertex2.push_back(*itvertex);
         }
 
+        std::vector<CDart*> face;
+        for (CDynamicCoverageVolume itface(this, current);
+             itface.cont(); ++itface)
+        {
+          face.push_back(*itface);
+        }
+
+        std::vector<CDart*> volume;
+        for (CDynamicCoverageVolume itvol(this, current);
+             itvol.cont(); ++itvol)
+        {
+          volume.push_back(*itvol);
+        }
+
         // We manage attributes before to modify the map; otherwise
         // it is too late.
         // Attribute of the second vertex must be removed.
@@ -980,8 +994,8 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
               t2 = alpha01(t2);
             }
 
-            std::cout<<t1<<"--"<<alpha1(t1)<<"  ";
-            std::cout<<t2<<"--"<<alpha1(t2)<<"  ";
+            //std::cout<<t1<<"--"<<alpha1(t1)<<"  ";
+            //std::cout<<t2<<"--"<<alpha1(t2)<<"  ";
             if ( t2 != alpha(t1, 1) )
             {
               sews.push_back(std::pair<CDart*,CDart*>(t1,alpha1(t1)));
@@ -995,30 +1009,30 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
               {
                 // Normalement pas la peine unsews.push_back(t1);
                 sew1(t1,t2); //linkAlpha1(t1,t2);
-                std::cout<<"link1 "<<t1<<"--"<<t2<<"  ";
+                // std::cout<<"link1 "<<t1<<"--"<<t2<<"  ";
               }
             }
           }
         }
-        std::cout<<std::endl;
+        //std::cout<<std::endl;
 
         // We test if there is a disconnexion or disparition
-        std::vector<CDart*>::iterator itvertex;
-        std::set<CDart*> vertexafter;
+        std::vector<CDart*>::iterator itcell;
+        std::set<CDart*> cellafter;
         bool disconnection = false;
-        for (itvertex=vertex1.begin(); itvertex!=vertex1.end(); ++itvertex)
+        for (itcell=vertex1.begin(); itcell!=vertex1.end(); ++itcell)
         {
-          if ( !isMarked(*itvertex, toDelete) )
+          if ( !isMarked(*itcell, toDelete) )
           {
-            if ( vertexafter.empty() )
-              for (CDynamicCoverageVertex itvertex2(this, *itvertex);
-                   itvertex2.cont(); ++itvertex2)
+            if ( cellafter.empty() )
+              for (CDynamicCoverageVertex itcell2(this, *itcell);
+                   itcell2.cont(); ++itcell2)
               {
-                vertexafter.insert(*itvertex2);
+                cellafter.insert(*itcell2);
               }
             else
             {
-              if ( vertexafter.find(*itvertex)==vertexafter.end() )
+              if ( cellafter.find(*itcell)==cellafter.end() )
               {
                 disconnection = true;
                 break;
@@ -1027,23 +1041,23 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
           }
         }
         vertex1.clear();
-        if ( vertexafter.empty() ) disconnection=true;
-        else vertexafter.clear();
+        if ( cellafter.empty() ) disconnection=true;
+        else cellafter.clear();
         if ( !disconnection )
         {
-          for (itvertex=vertex2.begin(); itvertex!=vertex2.end(); ++itvertex)
+          for (itcell=vertex2.begin(); itcell!=vertex2.end(); ++itcell)
           {
-            if ( !isMarked(*itvertex, toDelete) )
+            if ( !isMarked(*itcell, toDelete) )
             {
-              if ( vertexafter.empty() )
-                for (CDynamicCoverageVertex itvertex2(this, *itvertex);
-                     itvertex2.cont(); ++itvertex2)
+              if ( cellafter.empty() )
+                for (CDynamicCoverageVertex itcell2(this, *itcell);
+                     itcell2.cont(); ++itcell2)
                 {
-                  vertexafter.insert(*itvertex2);
+                  cellafter.insert(*itcell2);
                 }
               else
               {
-                if ( vertexafter.find(*itvertex)==vertexafter.end() )
+                if ( cellafter.find(*itcell)==cellafter.end() )
                 {
                   disconnection = true;
                   break;
@@ -1053,8 +1067,60 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
           }
         }
         vertex2.clear();
-        if ( vertexafter.empty() ) disconnection=true;
-        else vertexafter.clear();
+        if ( cellafter.empty() ) disconnection=true;
+        else cellafter.clear();
+        if ( !disconnection )
+        {
+          for (itcell=face.begin(); itcell!=face.end(); ++itcell)
+          {
+            if ( !isMarked(*itcell, toDelete) )
+            {
+              if ( cellafter.empty() )
+                for (CDynamicCoverageFace itcell2(this, *itcell);
+                     itcell2.cont(); ++itcell2)
+                {
+                  cellafter.insert(*itcell2);
+                }
+              else
+              {
+                if ( cellafter.find(*itcell)==cellafter.end() )
+                {
+                  disconnection = true;
+                  break;
+                }
+              }
+            }
+          }
+        }
+        face.clear();
+        if ( cellafter.empty() ) disconnection=true;
+        else cellafter.clear();
+        if ( !disconnection )
+        {
+          for (itcell=volume.begin(); itcell!=volume.end(); ++itcell)
+          {
+            if ( !isMarked(*itcell, toDelete) )
+            {
+              if ( cellafter.empty() )
+                for (CDynamicCoverageVolume itcell2(this, *itcell);
+                     itcell2.cont(); ++itcell2)
+                {
+                  cellafter.insert(*itcell2);
+                }
+              else
+              {
+                if ( cellafter.find(*itcell)==cellafter.end() )
+                {
+                  disconnection = true;
+                  break;
+                }
+              }
+            }
+          }
+        }
+        volume.clear();
+        if ( cellafter.empty() ) disconnection=true;
+        else cellafter.clear();
 
         if ( !disconnection )
         {
@@ -1079,7 +1145,7 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
         }
         else
         {
-          std::cout<<"Disconnection: we reput the alpha1.\n";
+          //std::cout<<"Disconnection: we reput the alpha1.\n";
           for ( itEdge.reinit(); itEdge.cont(); ++itEdge )
           {
             unsetMark( *itEdge, toDelete );
@@ -1093,7 +1159,7 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
           std::vector<std::pair<CDart*,CDart*> >::iterator sewsit;
           for ( sewsit=sews.begin(); sewsit!=sews.end(); ++sewsit )
           {
-            std::cout<<(*sewsit).first<<"--"<<(*sewsit).second<<"  ";
+            //std::cout<<(*sewsit).first<<"--"<<(*sewsit).second<<"  ";
             if ( alpha1((*sewsit).first)!=((*sewsit).second) )
             {
               if ( !isFree1((*sewsit).first) ) unsew1((*sewsit).first);
@@ -1101,7 +1167,7 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
               /*linkAlpha1*/sew1((*sewsit).first, (*sewsit).second);
             }
           }
-          std::cout<<std::endl;
+          //std::cout<<std::endl;
 
           // And we reput the vertex attribute
           // setVertex(alpha0(current), secondvertex);
@@ -1205,7 +1271,7 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
                findUnionFindTrees(current, indexVertex)!=
                findUnionFindTrees(alpha0(current),indexVertex)) )
         {
-          std::cout<<"Contract one face"<<std::endl;
+          // std::cout<<"Contract one face"<<std::endl;
           // First we mark the current face.
           CDynamicCoverage13 itFace(this, current);
           for ( ; itFace.cont(); ++itFace)
@@ -1272,7 +1338,7 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
             if ( getVertex(*itFace)!=NULL )
             {
               CAttributeVertex * v = removeVertex(*itFace);
-              std::cout<<"remove vertex 1\n";
+              // std::cout<<"remove vertex 1\n";
               if ( !isMarked(alpha2(*itFace), toDelete) )
                 setVertex(alpha2(*itFace), v);
               else if ( !isMarked(alpha12(*itFace), toDelete) )
@@ -1287,7 +1353,7 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
               if ( getVertex(t1)!=NULL )
               {
                 CAttributeVertex * v = removeVertex(t1);
-                std::cout<<"remove vertex 2\n";
+                // std::cout<<"remove vertex 2\n";
                 if ( !isMarked(alpha2(t1), toDelete) )
                   setVertex(alpha2(t1), v);
                 else if ( !isMarked(alpha12(t1), toDelete) )
