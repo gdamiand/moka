@@ -1035,14 +1035,14 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
               if ( cellafter.find(*itcell)==cellafter.end() )
               {
                 disconnection = true;
-                std::cout<<"Disconnect vertex\n";
+                // std::cout<<"Disconnect vertex\n";
                 break;
               }
             }
           }
         }
         vertex.clear();
-        if ( cellafter.empty() ) {std::cout<<"Disconnect vertex\n";disconnection=true;}
+        if ( cellafter.empty() ) disconnection=true;
         else cellafter.clear();
         if ( !disconnection )
         {
@@ -1061,7 +1061,7 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
                 if ( cellafter.find(*itcell)==cellafter.end() )
                 {
                   disconnection = true;
-                  std::cout<<"Disconnect face\n";
+                  //std::cout<<"Disconnect face\n";
                   break;
                 }
               }
@@ -1069,7 +1069,7 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
           }
         }
         face.clear();
-        if ( cellafter.empty() ) { std::cout<<"Disconnect face\n";disconnection=true;}
+        if ( cellafter.empty() ) disconnection=true;
         else cellafter.clear();
         if ( !disconnection )
         {
@@ -1088,7 +1088,7 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
                 if ( cellafter.find(*itcell)==cellafter.end() )
                 {
                   disconnection = true;
-                  std::cout<<"Disconnect volume\n";
+                  // std::cout<<"Disconnect volume\n";
                   break;
                 }
               }
@@ -1096,7 +1096,7 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
           }
         }
         volume.clear();
-        if ( cellafter.empty() ) {std::cout<<"Disconnect volume\n";disconnection=true;}
+        if ( cellafter.empty() ) disconnection=true;
         else cellafter.clear();
 
         if ( !disconnection )
