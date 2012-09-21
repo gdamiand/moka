@@ -882,36 +882,25 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
   CDynamicCoverageAll cov(this);
   while ( cov.cont() )
   {
-    dangling = false;
-    /*  if ( ! FToTreat.empty() ) // TODO process codangling edge ?
-    {
-      do
-      {
-        current = FToTreat.top();
-        FToTreat.pop();
-        if ( !isMarked(current, toDelete) && isDanglingFace(current) )
-          dangling = true;
-      }
-      while ( !dangling && ! FToTreat.empty() );
-    }
-    */
-    if ( !dangling )
-      current = cov++;
+    current = cov++;
 
     if ( !isMarked(current,toDelete) &&
-         !isFree1(current) && !isFree0(current) &&
-         !isFree1(alpha0(current)) &&
-         !isFree2(current) && !isFree1(alpha2(current)) &&
-         !isFree1(alpha02(current)) &&
-         (dangling || !isMarked(current, treated)) )
+         /* !isFree0(current) &&
+              !isFree1(current) &&
+              !isFree2(current) &&
+              !isFree1(alpha0(current)) &&
+              !isFree1(alpha2(current)) &&
+              !isFree1(alpha02(current)) &&
+              alpha1(current)!=alpha2(current) &&
+              alpha01(current)!=alpha02(current) && */
+         !isMarked(current, treated) )
     {      
-      // We contract co-dangling edges and co-degree two edges.
-      // TODO avoid disconnection of cells (how to do that efficiently???)
-      if ( dangling ||
-           findUnionFindTrees(current, indexVertex)!=
+      // We contract co-degree two edges.
+      if ( findUnionFindTrees(current, indexVertex)!=
            findUnionFindTrees(alpha0(current),indexVertex) )
       {
         // First we mark the current edge.
+        //CStaticCoverage23 itEdge(this, current);
         CDynamicCoverage23 itEdge(this, current);
         for ( ; itEdge.cont(); ++itEdge)
         {
@@ -940,10 +929,12 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
         // We manage attributes before to modify the map; otherwise
         // it is too late.
         // Attribute of the second vertex must be removed.
-        CAttributeVertex* secondvertex = removeVertex(alpha0(current));
+        // CAttributeVertex* secondvertex = removeVertex(alpha0(current));
+
+        CVertex secondvertex = *findVertex(alpha0(current));
 
         // Attribute of the first vertex must be placed on a non delete dart
-        for ( itEdge.reinit(); itEdge.cont(); ++itEdge )
+       /* for ( itEdge.reinit(); itEdge.cont(); ++itEdge )
         {
           if ( getVertex(*itEdge)!=NULL )
           {
@@ -967,26 +958,18 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
             break; // We can jump out of the for loop as the attribute is on
                    // a safe dart.
           }
-        }
+        }*/
 
         std::vector<std::pair<CDart*,CDart*> > sews;
-        std::vector< CDart* > unsews;
-        // Wwe push in the stack all the neighboors of the current
+        // Normalement pas la peine std::vector< CDart* > unsews;
+
+        // We push in the stack all the neighboors of the current
         // edge that become co-dangling ??? after the removal.
         // Moreover, we make the removal manually instead of calling
         // contract(current, 1, false) for optimisation reasons.
-        for ( itEdge.reinit(); itEdge.cont(); ++itEdge )
+        //for ( itEdge.reinit(); itEdge.cont(); ++itEdge )
+        for ( CDynamicCoverageEdge itEdge(this,current); itEdge.cont(); ++itEdge )
         {
-          /*
-            // TODO
-            if (alpha23(*itFace)==alpha32(*itFace) &&
-                !isMarked(alpha2(*itFace), toDelete) &&
-                !isFree3(alpha2(*itFace)) )
-            {
-              FToTreat.push(alpha2(*itFace));
-            }
-            */
-
           // Now we update alpha1
           t1 = alpha(*itEdge, 1);
           if ( !isMarked(t1, toDelete) )
@@ -1002,16 +985,16 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
             if ( t2 != alpha(t1, 1) )
             {
               sews.push_back(std::pair<CDart*,CDart*>(t1,alpha1(t1)));
-              unlinkAlpha1(t1);
+              unsew1(t1); //unlinkAlpha1(t1);
               if (!isFree(t2, 1))
               {
                 sews.push_back(std::pair<CDart*,CDart*>(t2,alpha1(t2)));
-                unlinkAlpha1(t2);
+                unsew1(t2); //unlinkAlpha1(t2);
               }
-              if (t1!=t2)
+              if (t1!=t2 && !isMarked(t1, toDelete))
               {
-                unsews.push_back(t1);
-                linkAlpha1(t1,t2);
+                // Normalement pas la peine unsews.push_back(t1);
+                sew1(t1,t2); //linkAlpha1(t1,t2);
                 std::cout<<"link1 "<<t1<<"--"<<t2<<"  ";
               }
             }
@@ -1019,7 +1002,7 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
         }
         std::cout<<std::endl;
 
-        // We test if there is a disconnexion
+        // We test if there is a disconnexion or disparition
         std::vector<CDart*>::iterator itvertex;
         std::set<CDart*> vertexafter;
         bool disconnection = false;
@@ -1043,8 +1026,11 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
             }
           }
         }
-        vertexafter.clear();
+        vertex1.clear();
+        if ( vertexafter.empty() ) disconnection=true;
+        else vertexafter.clear();
         if ( !disconnection )
+        {
           for (itvertex=vertex2.begin(); itvertex!=vertex2.end(); ++itvertex)
           {
             if ( !isMarked(*itvertex, toDelete) )
@@ -1065,6 +1051,10 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
               }
             }
           }
+        }
+        vertex2.clear();
+        if ( vertexafter.empty() ) disconnection=true;
+        else vertexafter.clear();
 
         if ( !disconnection )
         {
@@ -1080,8 +1070,8 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
             alpha0(*itEdge)->setNext(firstDeleteDart);
             firstDeleteDart=*itEdge;
 
-            assert( getVertex(*itEdge)==NULL );
-            assert( getVertex(alpha0(*itEdge))==NULL );
+            //assert( getVertex(*itEdge)==NULL );
+            //assert( getVertex(alpha0(*itEdge))==NULL );
           }
 
           if ( !dangling )
@@ -1095,26 +1085,41 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
             unsetMark( *itEdge, toDelete );
             unsetMark( alpha0(*itEdge), toDelete );
           }
-          std::vector<CDart*>::iterator unsewsit;
+          /* Normalement pas la peine!! std::vector<CDart*>::iterator unsewsit;
           for ( unsewsit=unsews.begin(); unsewsit!=unsews.end();
                 ++unsewsit )
-            unlinkAlpha1(*unsewsit);
+            unlinkAlpha1(*unsewsit);*/
 
           std::vector<std::pair<CDart*,CDart*> >::iterator sewsit;
           for ( sewsit=sews.begin(); sewsit!=sews.end(); ++sewsit )
           {
             std::cout<<(*sewsit).first<<"--"<<(*sewsit).second<<"  ";
-            linkAlpha1((*sewsit).first, (*sewsit).second);
+            if ( alpha1((*sewsit).first)!=((*sewsit).second) )
+            {
+              if ( !isFree1((*sewsit).first) ) unsew1((*sewsit).first);
+              if ( !isFree1((*sewsit).second) ) unsew1((*sewsit).second);
+              /*linkAlpha1*/sew1((*sewsit).first, (*sewsit).second);
+            }
           }
           std::cout<<std::endl;
 
           // And we reput the vertex attribute
-          setVertex(alpha0(current), secondvertex);
+          // setVertex(alpha0(current), secondvertex);
+          updateVertex(alpha0(current), secondvertex);
         }
 
         sews.clear();
-        assert(checkTopology());
+ /*       assert(checkTopology());
         assert(checkEmbeddings(ORBIT_VERTEX, ATTRIBUTE_VERTEX, true));
+        for( CDynamicCoverageAll cov2(this); cov2.cont(); ++cov2 )
+        {
+          assert( !isMarked(*cov2, toDelete) );
+          assert( !isMarked(alpha0(*cov2), toDelete) );
+          assert( !isMarked(alpha1(*cov2), toDelete) );
+          assert( !isMarked(alpha2(*cov2), toDelete) );
+          assert( !isMarked(alpha3(*cov2), toDelete) );
+        }
+        save("in-contract-edges.moka");*/
       }
       else
       {
@@ -1137,7 +1142,7 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
     }
   }
   negateMaskMark(treated);
-  assert( isWholeMapUnmarked(treated) );  
+  //assert( isWholeMapUnmarked(treated) );
 
   save("after-contract-edges.moka");
 
@@ -1163,9 +1168,10 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
   assert(checkTopology());
   assert(checkEmbeddings(ORBIT_VERTEX, ATTRIBUTE_VERTEX, true));
 
+
   // 2) We contract faces.
   cov.reinit();
-  while ( cov.cont() )
+  while ( false ) //cov.cont() )
   {
     /*if ( ! FToTreat.empty() ) TODO co-dangling
     {
@@ -1385,8 +1391,8 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
       }
     }
   }
-  negateMaskMark(treated);
-  assert( isWholeMapUnmarked(treated) );
+  //negateMaskMark(treated);
+  //assert( isWholeMapUnmarked(treated) );
 
   save("after-contract-faces.moka");
 
@@ -1487,8 +1493,8 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
       }
     }
   }
-  negateMaskMark(treated);
   */
+  negateMaskMark(treated);
 
   // 4) We remove all the darts marked toDelete  
   while ( firstDeleteDart!=NULL )
@@ -1498,6 +1504,11 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
     firstDeleteDart = t1;
     ++nbRemove;
   }
+
+  // temp pour debug : comme on parcours pas toute la carte pour contract
+  // edges, on n'a plus tout démarqué.
+  for (cov.reinit(); cov.cont(); ++cov)
+    unsetMark(*cov, treated);
 
   assert( isWholeMapUnmarked(toDelete) );
   assert( isWholeMapUnmarked(treated) );
