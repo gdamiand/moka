@@ -1044,7 +1044,7 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
         vertex.clear();
         if ( cellafter.empty() ) disconnection=true;
         else cellafter.clear();
-        if ( !disconnection )
+/*        if ( !disconnection )
         {
           for (itcell=face.begin(); itcell!=face.end(); ++itcell)
           {
@@ -1098,7 +1098,7 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
         volume.clear();
         if ( cellafter.empty() ) disconnection=true;
         else cellafter.clear();
-
+*/
         if ( !disconnection )
         {
           assert( findUnionFindTrees(current, indexVertex)!=
