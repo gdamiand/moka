@@ -59,38 +59,38 @@ void CGMapGeneric::contract(CDart * ADart, int ADim, bool ADeleteDarts)
   
   CCoverage * it = getStaticCoverage(ADart, ORBIT_CELL[ADim]);
   while ( it->cont() )
+  {
+    current = alpha((*it)++, ADim);
+    if ( !isMarked(current, mark) )
     {
-      current = alpha((*it)++, ADim);
-      if ( !isMarked(current, mark) )
-	{
-	  t2 = alpha(current, ADim);
-	  while ( isMarked(t2, mark) )
-	    {
-	      t2 = alpha(alpha(t2, ADim-1), ADim);
-	    }
-	  
-	  if ( t2 != alpha(current, ADim) )
-	    {
-	      unsew(current, ADim);
-	      if (!isFree(t2, ADim)) unsew(t2, ADim);
-	      if (current!=t2) sew(current, t2, ADim);
-	    }
-	}
+      t2 = alpha(current, ADim);
+      while ( isMarked(t2, mark) )
+      {
+        t2 = alpha(alpha(t2, ADim-1), ADim);
+      }
+
+      if ( t2 != alpha(current, ADim) )
+      {
+        unsew(current, ADim);
+        if (!isFree(t2, ADim)) unsew(t2, ADim);
+        if (current!=t2) sew(current, t2, ADim);
+      }
     }
+  }
 
   if (ADeleteDarts)
-    {
-      for (it->reinit(); it->cont(); )
-	delMapDart((*it)++);
-    }
+  {
+    for (it->reinit(); it->cont(); )
+      delMapDart((*it)++);
+  }
 
   freeMark(mark);
-    
+
   delete it;
 }
 //******************************************************************************
 int CGMapGeneric::contractMarkedCells( int AMarkNumber, int ADim,
-				       bool ADeleteDarts )
+                                       bool ADeleteDarts )
 {
   assert(ADim>=1 && ADim<=3);
 
@@ -98,52 +98,52 @@ int CGMapGeneric::contractMarkedCells( int AMarkNumber, int ADim,
 
   CDynamicCoverageAll cov(this);
   for ( ; cov.cont(); ++cov )
+  {
+    if ( isMarked(*cov, AMarkNumber) )
     {
-      if ( isMarked(*cov, AMarkNumber) )
-	{
-	  if ( !canContract(*cov, ADim) )
-	    {
-	      unmarkOrbit( *cov, ORBIT_CELL[ADim], AMarkNumber );
-	      --nbContract;
-	    }
-	}
+      if ( !canContract(*cov, ADim) )
+      {
+        unmarkOrbit( *cov, ORBIT_CELL[ADim], AMarkNumber );
+        --nbContract;
+      }
     }
+  }
 
   CDart* current = NULL;
   CDart* t2 = NULL;
 
   for ( cov.reinit(); cov.cont(); ++cov )
+  {
+    if (  !isMarked( *cov, AMarkNumber) &&
+          isMarked( alpha(*cov, ADim), AMarkNumber) )
     {
-      if (  !isMarked( *cov, AMarkNumber) &&
-	    isMarked( alpha(*cov, ADim), AMarkNumber) )
-	{
-	  current = *cov;
-	  t2 = alpha(current, ADim);
-	   
-	  while (isMarked(t2, AMarkNumber))
-	    {
-	      t2 = alpha(alpha(t2, ADim-1), ADim);
-	    }
+      current = *cov;
+      t2 = alpha(current, ADim);
 
-	  if ( t2 != alpha(current, ADim) )
-	    {
-	      unsew(current, ADim);
-	      if ( !isFree(t2, ADim) ) unsew(t2, ADim);
-	      if ( t2!=current ) sew(current, t2, ADim);
-	    }
-	}
+      while (isMarked(t2, AMarkNumber))
+      {
+        t2 = alpha(alpha(t2, ADim-1), ADim);
+      }
+
+      if ( t2 != alpha(current, ADim) )
+      {
+        unsew(current, ADim);
+        if ( !isFree(t2, ADim) ) unsew(t2, ADim);
+        if ( t2!=current ) sew(current, t2, ADim);
+      }
     }
+  }
   
   if (ADeleteDarts)
+  {
+    for (cov.reinit(); cov.cont(); )
     {
-      for (cov.reinit(); cov.cont(); )
-	{
-	  if ( isMarked(*cov, AMarkNumber) )
-	    delMapDart(cov++);
-	  else
-	    ++cov;
-	}
+      if ( isMarked(*cov, AMarkNumber) )
+        delMapDart(cov++);
+      else
+        ++cov;
     }
+  }
   
   return nbContract;
 }
