@@ -43,6 +43,18 @@
 //******************************************************************************
 namespace GMap3d
 {
+  enum
+  {
+    NONE              = 0,
+    FACE_REMOVAL      = 1,
+    EDGE_REMOVAL      = 2,
+    VERTEX_REMOVAL    = 4,
+    EDGE_CONTRACTION  = 8,
+    FACE_CONTRACTION  = 16,
+    VOLUME_CONTRACTION= 32
+  };
+
+
   /**
    * Définit la classe CGMapVertex (carte plongée sommets).
    *
