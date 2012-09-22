@@ -885,14 +885,6 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
     current = cov++;
 
     if ( !isMarked(current,toDelete) &&
-         /* !isFree0(current) &&
-              !isFree1(current) &&
-              !isFree2(current) &&
-              !isFree1(alpha0(current)) &&
-              !isFree1(alpha2(current)) &&
-              !isFree1(alpha02(current)) &&
-              alpha1(current)!=alpha2(current) &&
-              alpha01(current)!=alpha02(current) && */
          !isMarked(current, treated) )
     {      
       // We contract co-degree two edges.
@@ -926,7 +918,7 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
           vertex.push_back(*itvertex);
         }
 
-        std::vector<CDart*> face;
+        /*std::vector<CDart*> face;
         for (CDynamicCoverageFace itface(this, current);
              itface.cont(); ++itface)
         {
@@ -938,13 +930,12 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
              itvol.cont(); ++itvol)
         {
           volume.push_back(*itvol);
-        }
+        }*/
 
         // We manage attributes before to modify the map; otherwise
         // it is too late.
         // Attribute of the second vertex must be removed.
         // CAttributeVertex* secondvertex = removeVertex(alpha0(current));
-
         CVertex secondvertex = *findVertex(alpha0(current));
 
         // Attribute of the first vertex must be placed on a non delete dart
@@ -1185,7 +1176,7 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
     }
   }
   negateMaskMark(treated);
-  //assert( isWholeMapUnmarked(treated) );
+  assert( isWholeMapUnmarked(treated) );
 
   save("after-contract-edges.moka");
 
@@ -1214,228 +1205,297 @@ unsigned int CGMapVertex::simplify3DObjectContraction()
 
   // 2) We contract faces.
   cov.reinit();
-  while ( false ) //cov.cont() )
+  while ( cov.cont() )
   {
-    /*if ( ! FToTreat.empty() ) TODO co-dangling
-    {
-      current = FToTreat.top();
-      FToTreat.pop();
-      dangling = true;
-    }
-    else*/
-    {
-      current = cov++;
-      dangling = false;
-    }
+    current = cov++;
 
-    if ( !isMarked(current, toDelete) &&
-         (dangling || !isMarked(current, treated)) )
+    if ( !isMarked(current,toDelete) &&
+         !isMarked(current, treated) )
     {
-      if ( !isFree1(current) )
+      // We contract co-degree two faces.
+      if ( (alpha2(current) !=alpha1(current) ||
+            alpha32(current)!=alpha31(current)) &&
+           alpha10(current)==alpha01(current) &&
+           findUnionFindTrees(current, indexEdge)!=
+           findUnionFindTrees(alpha0(current),indexEdge) )
       {
-        // We contract faces and co-dangling faces.
-        if ( (alpha2(current)!=alpha1(current) &&
-              alpha32(current)!=alpha31(current) &&
-              alpha02(current)!=alpha01(current) &&
-              alpha302(current)!=alpha301(current) ) &&
-             alpha10(current)!=current &&
-             !isFree0(current) && !isFree1(alpha0(current)) &&
-             alpha10(current)==alpha01(current) &&
-             !isFree2(current) && !isFree2(alpha1(current)) &&
-             ( dangling ||
-               (findUnionFindTrees(current, indexEdge)!=
-               findUnionFindTrees(alpha1(current),indexEdge)) &&
-               findUnionFindTrees(current, indexVertex)!=
-               findUnionFindTrees(alpha0(current),indexVertex)) )
+        // First we mark the current face.
+        CDynamicCoverage13 itFace(this, current);
+        for ( ; itFace.cont(); ++itFace)
         {
-          // std::cout<<"Contract one face"<<std::endl;
-          // First we mark the current face.
-          CDynamicCoverage13 itFace(this, current);
-          for ( ; itFace.cont(); ++itFace)
-          {
-            setMark( *itFace, treated );
-            setMark( *itFace, toDelete );
-            setMark( alpha0(*itFace), treated );
-            setMark( alpha0(*itFace), toDelete );
-          }
+          assert ( !isFree0(*itFace) );
+          setMark( *itFace, treated );
+          setMark( alpha0(*itFace), treated );
+          setMark( *itFace, toDelete );
+          setMark( alpha0(*itFace), toDelete );
+        }
 
-          /*std::vector<CDart*> vertex1, vertex2;
+        while ( cov.cont() && isMarked(*cov, treated) )
+          ++cov;
 
-          std::cout<<"v1=";
-          for (CDynamicCoverageVertex itvertex(this, current);
-               itvertex.cont(); ++itvertex)
-          {
-            //std::cout<<*itvertex<<"; ";
-            vertex1.push_back(*itvertex);
-          }
-          std::cout<<vertex1.size()<<"\nv2=";
-          for (CDynamicCoverageVertex itvertex(this, alpha0(current));
-               itvertex.cont(); ++itvertex)
-          {
-            //std::cout<<*itvertex<<"; ";
-            vertex2.push_back(*itvertex);
-          }
-          std::cout<<vertex2.size()<<std::endl;
+        /* TODO
+        std::vector<CDart*> vertex;
+        for (CDynamicCoverageVertex itvertex(this, current);
+             itvertex.cont(); ++itvertex)
+        {
+          vertex.push_back(*itvertex);
+        }
+        for (CDynamicCoverageVertex itvertex(this, alpha0(current));
+             itvertex.cont(); ++itvertex)
+        {
+          vertex.push_back(*itvertex);
+        }
+        */
+        /*std::vector<CDart*> face;
+        for (CDynamicCoverageFace itface(this, current);
+             itface.cont(); ++itface)
+        {
+          face.push_back(*itface);
+        }
 
-          for (CDynamicCoverage01 tmpit(this,current);
-               tmpit.cont(); ++tmpit)
+        std::vector<CDart*> volume;
+        for (CDynamicCoverageVolume itvol(this, current);
+             itvol.cont(); ++itvol)
+        {
+          volume.push_back(*itvol);
+        }*/
+
+        // We manage attributes before to modify the map; otherwise
+        // it is too late.
+        // Attribute of the second vertex must be removed.
+        // CAttributeVertex* secondvertex = removeVertex(alpha0(current));
+        CVertex secondvertex = *findVertex(alpha0(current));
+
+        // Attribute of the first vertex must be placed on a non delete dart
+       /* for ( itFace.reinit(); itFace.cont(); ++itFace )
+        {
+          if ( getVertex(*itFace)!=NULL )
           {
-            std::cout<<"Remove dart "<<*tmpit<<"  "<<"a2="<<alpha2(*tmpit)<<" "<<getVertex(*tmpit)<<std::endl;
-          }
-          if ( !isFree3(current) )
-          {
-            std::cout<<"alpha3: ";
-            for (CDynamicCoverage01 tmpit(this,alpha3(current));
-                 tmpit.cont(); ++tmpit)
+            CAttributeVertex * v = removeVertex(*itFace);
+
+            if ( !isMarked(alpha1(*itFace), toDelete) )
+              setVertex(alpha1(*itFace), v);
+            else if (!isMarked(alpha21(*itFace), toDelete) )
+              setVertex(alpha21(*itFace), v);
+            else if (!isMarked(alpha31(*itFace), toDelete) )
+              setVertex(alpha31(*itFace), v);
+            else if (!isMarked(alpha321(*itFace), toDelete) )
+              setVertex(alpha321(*itFace), v);
+            else if (!isMarked(alpha231(*itFace), toDelete) )
+              setVertex(alpha231(*itFace), v);
+            else
             {
-              std::cout<<"Remove dart "<<*tmpit<<"  "<<"a2="<<alpha2(*tmpit)<<" "<<getVertex(*tmpit)<<std::endl;
+              assert(false);
+              delete v;
             }
-          }*/
+            break; // We can jump out of the for loop as the attribute is on
+                   // a safe dart.
+          }
+        }*/
 
-          while ( cov.cont() && isMarked(*cov, treated) )
-            ++cov;
+        std::vector<std::pair<CDart*,CDart*> > sews;
+        // Normalement pas la peine std::vector< CDart* > unsews;
 
-          // Second we manage vertex attributes, and remove darts
-          // from the list of darts.
+        // We push in the stack all the neighboors of the current
+        // edge that become co-dangling ??? after the removal.
+        // Moreover, we make the removal manually instead of calling
+        // contract(current, 1, false) for optimisation reasons.
+        //for ( itFace.reinit(); itFace.cont(); ++itFace )
+        for ( CDynamicCoverage01 itFace(this,current); itFace.cont(); ++itFace )
+        {
+          // Now we update alpha2
+          t1 = alpha(*itFace, 2);
+          if ( !isMarked(t1, toDelete) )
+          {
+            t2 = *itFace;
+            while ( isMarked(t2, toDelete) )
+            {
+              t2 = alpha12(t2);
+            }
+
+            //std::cout<<t1<<"--"<<alpha1(t1)<<"  ";
+            //std::cout<<t2<<"--"<<alpha1(t2)<<"  ";
+            if ( t2 != alpha(t1, 2) )
+            {
+              sews.push_back(std::pair<CDart*,CDart*>(t1,alpha2(t1)));
+              unsew2(t1); //unlinkAlpha1(t1);
+              if (!isFree(t2, 2))
+              {
+                sews.push_back(std::pair<CDart*,CDart*>(t2,alpha2(t2)));
+                unsew2(t2); //unlinkAlpha1(t2);
+              }
+              if (t1!=t2 && !isMarked(t1, toDelete))
+              {
+                // Normalement pas la peine unsews.push_back(t1);
+                sew2(t1,t2); //linkAlpha1(t1,t2);
+                // std::cout<<"link1 "<<t1<<"--"<<t2<<"  ";
+              }
+            }
+          }
+        }
+        //std::cout<<std::endl;
+
+        // We test if there is a disconnexion or disparition
+     /*   std::vector<CDart*>::iterator itcell;
+        std::set<CDart*> cellafter;
+        bool disconnection = false;
+        for (itcell=vertex.begin(); itcell!=vertex.end(); ++itcell)
+        {
+          if ( !isMarked(*itcell, toDelete) )
+          {
+            if ( cellafter.empty() )
+              for (CDynamicCoverageVertex itcell2(this, *itcell);
+                   itcell2.cont(); ++itcell2)
+              {
+                cellafter.insert(*itcell2);
+              }
+            else
+            {
+              if ( cellafter.find(*itcell)==cellafter.end() )
+              {
+                disconnection = true;
+                // std::cout<<"Disconnect vertex\n";
+                break;
+              }
+            }
+          }
+        }
+        vertex.clear();
+        if ( cellafter.empty() ) disconnection=true;
+        else cellafter.clear();*/
+/*        if ( !disconnection )
+        {
+          for (itcell=face.begin(); itcell!=face.end(); ++itcell)
+          {
+            if ( !isMarked(*itcell, toDelete) )
+            {
+              if ( cellafter.empty() )
+                for (CDynamicCoverageFace itcell2(this, *itcell);
+                     itcell2.cont(); ++itcell2)
+                {
+                  cellafter.insert(*itcell2);
+                }
+              else
+              {
+                if ( cellafter.find(*itcell)==cellafter.end() )
+                {
+                  disconnection = true;
+                  //std::cout<<"Disconnect face\n";
+                  break;
+                }
+              }
+            }
+          }
+        }
+        face.clear();
+        if ( cellafter.empty() ) disconnection=true;
+        else cellafter.clear();
+        if ( !disconnection )
+        {
+          for (itcell=volume.begin(); itcell!=volume.end(); ++itcell)
+          {
+            if ( !isMarked(*itcell, toDelete) )
+            {
+              if ( cellafter.empty() )
+                for (CDynamicCoverageVolume itcell2(this, *itcell);
+                     itcell2.cont(); ++itcell2)
+                {
+                  cellafter.insert(*itcell2);
+                }
+              else
+              {
+                if ( cellafter.find(*itcell)==cellafter.end() )
+                {
+                  disconnection = true;
+                  // std::cout<<"Disconnect volume\n";
+                  break;
+                }
+              }
+            }
+          }
+        }
+        volume.clear();
+        if ( cellafter.empty() ) disconnection=true;
+        else cellafter.clear();
+*/
+        //if ( !disconnection )
+        {
+          assert( findUnionFindTrees(current, indexEdge)!=
+              findUnionFindTrees(alpha1(current),indexEdge) );
+
+          // We remove darts from the list of darts.
           for ( itFace.reinit(); itFace.cont(); ++itFace )
           {
             removeDartInList( *itFace );
-            assert ( !isFree0(*itFace) );
-            {
-              removeDartInList( alpha0(*itFace) );
-              (*itFace)->setNext(alpha0(*itFace));
-              alpha0(*itFace)->setNext(firstDeleteDart);
-            }
-            // else (*itFace)->setNext(firstDeleteDart);
+            removeDartInList( alpha0(*itFace) );
+            (*itFace)->setNext(alpha0(*itFace));
+            alpha0(*itFace)->setNext(firstDeleteDart);
             firstDeleteDart=*itFace;
 
-            //std::cout<<"Remove dart "<<*itFace
-            //        <<" and "<<alpha0(*itFace)<<std::endl;
-
-            if ( getVertex(*itFace)!=NULL )
-            {
-              CAttributeVertex * v = removeVertex(*itFace);
-              // std::cout<<"remove vertex 1\n";
-              if ( !isMarked(alpha2(*itFace), toDelete) )
-                setVertex(alpha2(*itFace), v);
-              else if ( !isMarked(alpha12(*itFace), toDelete) )
-                setVertex(alpha12(*itFace), v);
-              else
-                delete v;
-            }
-
-            assert ( !isFree0(*itFace) );
-            {
-              t1=alpha0(*itFace);
-              if ( getVertex(t1)!=NULL )
-              {
-                CAttributeVertex * v = removeVertex(t1);
-                // std::cout<<"remove vertex 2\n";
-                if ( !isMarked(alpha2(t1), toDelete) )
-                  setVertex(alpha2(t1), v);
-                else if ( !isMarked(alpha12(t1), toDelete) )
-                  setVertex(alpha12(t1), v);
-                else
-                  delete v;
-              }
-            }
-          }
-
-          // Third, we push in the stack all the neighboors of the current
-          // face that become dangling after the removal. TODO
-          // Moreover, we make the contraction manually instead of calling
-          // contract(current, 2, false) for optimisation reasons.
-          for ( itFace.reinit(); itFace.cont(); ++itFace )
-          {
-           /* TODO if ( alpha12(*itEdge)==alpha21(*itEdge) &&
-                 !isMarked(alpha1(*itEdge), toDelete) &&
-                 !isFree2(alpha1(*itEdge)) )
-            {
-              FToTreat.push(alpha1(*itEdge));
-            } */
-
-            // Now we update alpha2
-            t1 = alpha(*itFace, 2);
-            if ( !isMarked(t1, toDelete) )
-            {
-              t2 = *itFace;
-              while ( isMarked(t2, toDelete) )
-              {
-                t2 = alpha12(t2);
-              }
-
-              if ( t2 != alpha(t1, 2) )
-              {
-                unlinkAlpha2(t1);
-                if ( !isFree0(t1) ) unlinkAlpha2(alpha0(t1));
-                if (!isFree(t2, 2))
-                {
-                  unlinkAlpha2(t2);
-                  if ( !isFree0(t2) ) unlinkAlpha2(alpha0(t2));
-                }
-                if (t1!=t2)
-                {
-                  linkAlpha2(t1, t2);
-                  if ( !isFree0(t1) ) linkAlpha2(alpha0(t1), alpha0(t2));
-                }
-              }
-            }
+            //assert( getVertex(*itFace)==NULL );
+            //assert( getVertex(alpha0(*itFace))==NULL );
           }
 
           if ( !dangling )
             mergeUnionFindTrees(current, alpha1(current), indexEdge);
-
-  /*        std::cout<<"After contraction: nv1=";
-          int nbv1 = 0;
-          for (CDynamicCoverageVertex itvertex(this, current);
-               itvertex.cont(); ++itvertex)
-          {
-            ++nbv1;
-          }
-          std::cout<<nbv1<<"\nv2=";
-          int nbv2 = 0;
-          for (CDynamicCoverageVertex itvertex(this, alpha0(current));
-               itvertex.cont(); ++itvertex)
-          {
-            ++nbv2;
-          }
-          std::cout<<nbv2<<std::endl;
-
-          unsigned nbv1survivants=0;
-          for (std::vector<CDart*>::iterator itvector=vertex1.begin();
-               itvector!=vertex1.end(); ++itvector)
-            if ( !isMarked(*itvector, toDelete) ) ++nbv1survivants;
-          unsigned nbv2survivants=0;
-          for (std::vector<CDart*>::iterator itvector=vertex2.begin();
-               itvector!=vertex2.end(); ++itvector)
-            if ( !isMarked(*itvector, toDelete) ) ++nbv2survivants;
-
-          std::cout<<"nv1survivants="<<nbv1survivants<<std::endl;
-          std::cout<<"nv2survivants="<<nbv2survivants<<std::endl;*/
         }
-        else
+     /*   else
         {
-          for ( CDynamicCoverage13 itFace(this, current);
-                itFace.cont(); ++itFace )
+          //std::cout<<"Disconnection: we reput the alpha1.\n";
+          for ( itFace.reinit(); itFace.cont(); ++itFace )
           {
-            setMark( *itFace, treated );
-            setMark( alpha0(*itFace), treated );
+            unsetMark( *itFace, toDelete );
+            unsetMark( alpha0(*itFace), toDelete );
           }
+          / Normalement pas la peine!! std::vector<CDart*>::iterator unsewsit;
+          for ( unsewsit=unsews.begin(); unsewsit!=unsews.end();
+                ++unsewsit )
+            unlinkAlpha1(*unsewsit);/
+
+          std::vector<std::pair<CDart*,CDart*> >::iterator sewsit;
+          for ( sewsit=sews.begin(); sewsit!=sews.end(); ++sewsit )
+          {
+            //std::cout<<(*sewsit).first<<"--"<<(*sewsit).second<<"  ";
+            if ( alpha1((*sewsit).first)!=((*sewsit).second) )
+            {
+              if ( !isFree1((*sewsit).first) ) unsew1((*sewsit).first);
+              if ( !isFree1((*sewsit).second) ) unsew1((*sewsit).second);
+              //linkAlpha1
+              sew1((*sewsit).first, (*sewsit).second);
+            }
+          }
+          //std::cout<<std::endl;
+
+          // And we reput the vertex attribute
+          // setVertex(alpha0(current), secondvertex);
+          updateVertex(alpha0(current), secondvertex);
+        }*/
+
+        //sews.clear();
+ /*       assert(checkTopology());
+        assert(checkEmbeddings(ORBIT_VERTEX, ATTRIBUTE_VERTEX, true));
+        for( CDynamicCoverageAll cov2(this); cov2.cont(); ++cov2 )
+        {
+          assert( !isMarked(*cov2, toDelete) );
+          assert( !isMarked(alpha0(*cov2), toDelete) );
+          assert( !isMarked(alpha1(*cov2), toDelete) );
+          assert( !isMarked(alpha2(*cov2), toDelete) );
+          assert( !isMarked(alpha3(*cov2), toDelete) );
         }
+        save("in-contract-edges.moka");*/
       }
       else
       {
-        for ( CDynamicCoverage3 itFace(this, current);
+        for ( CDynamicCoverageFace itFace(this, current);
               itFace.cont(); ++itFace )
         {
           setMark( *itFace, treated );
-          setMark( alpha0(*itFace), treated );
         }
       }
     }
   }
-  //negateMaskMark(treated);
-  //assert( isWholeMapUnmarked(treated) );
+  negateMaskMark(treated);
+  assert( isWholeMapUnmarked(treated) );
 
   save("after-contract-faces.moka");
 
