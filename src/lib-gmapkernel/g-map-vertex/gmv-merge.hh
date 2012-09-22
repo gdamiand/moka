@@ -68,18 +68,23 @@ int mergeMarkedAlignedCells(int ADim, int AMarkNumber, bool ADeleteDarts);
  *  they are not removed but only marked.
  *  @return the number of "removed" darts.
  */
-unsigned int simplify3DObject(int AMark0, int AMark1=-1, int AMark2=-1);
+unsigned int simplify3DObject(int AMark0, int AMark1, int AMark2=-1);
 
 /** Simplify the map. Equivalent to simplify3DObject(-1,-1,-1) but optimized.
- */
-unsigned int simplify3DObject();
+  * optosimplify contains a value giving which cells will be simplified:
+  * a or between NONE,FACE_REMOVAL,EDGE_REMOVAL,VERTEX_REMOVAL,
+  * EDGE_CONTRACTION, FACE_CONTRACTION, VOLUME_CONTRACTION.
+  */
+unsigned int simplify3DObject(unsigned int optosimplify = FACE_REMOVAL |
+    EDGE_REMOVAL | VERTEX_REMOVAL | EDGE_CONTRACTION |
+    FACE_CONTRACTION | VOLUME_CONTRACTION );
 
 /** Simplify the map using removal operations only.
  */
-unsigned int simplify3DObjectRemoval();
+unsigned int simplify3DObjectRemoval(unsigned int optosimplify);
 
 /** Simplify the map using removal operations only.
  */
-unsigned int simplify3DObjectContraction();
+unsigned int simplify3DObjectContraction(unsigned int optosimplify);
 
 //******************************************************************************
