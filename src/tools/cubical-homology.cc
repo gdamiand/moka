@@ -30,6 +30,43 @@
 using namespace std;
 using namespace GMap3d;
 
+void displayCharacteristics(CGMapVertex& g, const char* txt)
+{
+  int nbdarts, nbvertices, nbedges, nbfaces, nbvolumes, nbcc;
+  g.getGlobalCharacteristics(&nbdarts,&nbvertices,&nbedges,
+                             &nbfaces,&nbvolumes,&nbcc,
+                             NULL,NULL,NULL,NULL);
+  std::cout<<txt<<": darts="<<nbdarts
+           <<", vertices="<<nbvertices
+           <<", edges="<<nbedges
+           <<", faces="<<nbfaces
+           <<", volumes="<<nbvolumes
+           <<", cc="<<nbcc<<std::endl;
+}
+
+void computeHomology(CGMapVertex& g, const char* txt)
+{
+  // Compute the homology on the simplified representation.
+  CChrono c;
+  c.start();
+
+  CHomology h(&g);
+  h.computeVolumicHomology();
+
+  c.stop();
+  std::cout<<txt<<": ";
+  c.display("Homology computation time");
+
+  std::cout<<"Memory used: "<<h.size()<<" bytes."<<endl;
+
+  // Display Betti numbers
+  std::cout<<"Betti numbers Free (0,1,2,3): "<<h.getH0FreeGenerators()
+           <<", "<<h.getH1FreeGenerators()<<", "<<h.getH2FreeGenerators()
+           <<", "<<h.getH3FreeGenerators()<<endl;
+  std::cout<<"Betti numbers Torsion (1,2): "<<h.getH1TorsionGenerators()
+           <<", "<<h.getH2TorsionGenerators()<<endl;
+}
+
 int main(int argc, char** argv)
 {
   if ( argc==1 || !strcmp(argv[1],"-?") || !strcmp(argv[1],"-h") )
@@ -40,70 +77,68 @@ int main(int argc, char** argv)
   }
 
   // First we compute the 3G-map of the white voxels.
-  CGMapVertex g;
-  CExtractionImage ext(&g);
-  if ( !ext.extractOneRegionVoxels(argv[1],0,0,3,65535,65535,65535,0) )
+  CGMapVertex g1, g2, g3, g4;
+  CExtractionImage ext1(&g1);
+  CExtractionImage ext2(&g2);
+  CExtractionImage ext3(&g3);
+  CExtractionImage ext4(&g4);
+  if ( !ext1.extractOneRegionVoxels(argv[1],0,0,3,65535,65535,65535,0) ||
+       !ext2.extractOneRegionVoxels(argv[1],0,0,3,65535,65535,65535,0) ||
+       !ext3.extractOneRegionVoxels(argv[1],0,0,3,65535,65535,65535,0) ||
+       !ext4.extractOneRegionVoxels(argv[1],0,0,3,65535,65535,65535,0) )
   {
     cout<<"Problem during extraction of voxels from "<<argv[1]<<endl;
     exit(EXIT_FAILURE);
   }
   
-  g.randomizeDarts();
+  // g1.randomizeDarts();
   
-  int nbdarts, nbvertices, nbedges, nbfaces, nbvolumes, nbcc;
-  g.getGlobalCharacteristics(&nbdarts,&nbvertices,&nbedges,
-                             &nbfaces,&nbvolumes,&nbcc,
-                             NULL,NULL,NULL,NULL);
-  std::cout<<"Map before simplification: darts="<<nbdarts
-           <<", vertices="<<nbvertices
-           <<", edges="<<nbedges
-           <<", faces="<<nbfaces
-           <<", volumes="<<nbvolumes
-           <<", cc="<<nbcc<<std::endl;
-
-  // g.save("extract-map.moka");
+  displayCharacteristics(g1, "Map before simplification:");
+  // computeHomology(g1, "original map");
 
   CChrono c;
   c.start();
   // Here simplify the map
-  g.simplify3DObject();
+  g1.simplify3DObject(FACE_REMOVAL | EDGE_REMOVAL | VERTEX_REMOVAL |
+                     EDGE_CONTRACTION | FACE_CONTRACTION |
+                     VOLUME_CONTRACTION);
   c.stop();
-  c.display("Simplification time");
+  c.display("Simplification total time");
+
+  c.reset();
+  c.start();
+  g2.simplify3DObject(FACE_REMOVAL | EDGE_REMOVAL | VERTEX_REMOVAL);
+  c.stop();
+  c.display("Simplification removals only time");
+
+  c.reset();
+  c.start();
+  g3.simplify3DObject(EDGE_CONTRACTION | FACE_CONTRACTION |
+                      VOLUME_CONTRACTION);
+  c.stop();
+  c.display("Simplification contractions only time");
+
 
   // g.save("simplify-map.moka");
 
-  g.getGlobalCharacteristics(&nbdarts,&nbvertices,&nbedges,
-                             &nbfaces,&nbvolumes,&nbcc,
-                             NULL,NULL,NULL,NULL);
-  std::cout<<"Map after simplification: darts="<<nbdarts
-           <<", vertices="<<nbvertices
-           <<", edges="<<nbedges
-           <<", faces="<<nbfaces
-           <<", volumes="<<nbvolumes
-           <<", cc="<<nbcc<<std::endl;
+  displayCharacteristics(g2, "Map after removals only: ");
+  displayCharacteristics(g3, "Map after contractions only: ");
+  displayCharacteristics(g1, "Map after removals and contractions: ");
 
-  // Now compute the homology on the simplified representation.
-  CChrono c2;
-  c.start();
-  c2.start();
-  
-  CHomology h(&g);
-  h.computeVolumicHomology();
+  computeHomology(g2, "simplif removals only");
+  computeHomology(g3, "simplif contractions only");
+  computeHomology(g1, "simplif removal+contractions");
 
-  c.stop();
-  c2.stop();
-  c2.display("Homology computation time");
+  g4.simplify3DObject(FACE_REMOVAL);
+  displayCharacteristics(g4, "Map after face removal: ");
+  g4.simplify3DObject(EDGE_REMOVAL);
+  displayCharacteristics(g4, "Map after edge removal: ");
+  g4.simplify3DObject(VERTEX_REMOVAL);
+  displayCharacteristics(g4, "Map after vertex removal: ");
+  g4.simplify3DObject(EDGE_CONTRACTION);
+  displayCharacteristics(g4, "Map after edge contraction: ");
+  g4.simplify3DObject(FACE_CONTRACTION);
+  displayCharacteristics(g4, "Map after face contraction: ");
 
-  c.display("TOTAL:");  
-  
-  std::cout<<"Memory used: "<<h.size()<<" bytes."<<endl;
-
-  // Display Betti numbers
-  std::cout<<"Betti numbers Free (0,1,2,3): "<<h.getH0FreeGenerators()
-           <<", "<<h.getH1FreeGenerators()<<", "<<h.getH2FreeGenerators()
-           <<", "<<h.getH3FreeGenerators()<<endl;
-  std::cout<<"Betti numbers Torsion (1,2): "<<h.getH1TorsionGenerators()
-           <<", "<<h.getH2TorsionGenerators()<<endl;
-  
-  exit(EXIT_SUCCESS);
+  return EXIT_SUCCESS;
 }
