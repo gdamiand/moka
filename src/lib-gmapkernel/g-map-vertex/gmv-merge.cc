@@ -835,11 +835,12 @@ unsigned int CGMapVertex::simplify3DObjectRemoval(unsigned int optosimplify)
         }
       }
     }
+    negateMaskMark(treated);
+    assert( isWholeMapUnmarked(treated) );
+    //save("after-all-removal.moka");
   }
-  //save("after-all-removal.moka");
   
   // 4) We remove all the darts marked toDelete
-  negateMaskMark(treated);
   while ( firstDeleteDart!=NULL )
   {
     t1 = firstDeleteDart->getNext();
@@ -1215,6 +1216,11 @@ unsigned int CGMapVertex::simplify3DObjectContraction(unsigned int optosimplify)
       if ( !isMarked(current,toDelete) &&
            !isMarked(current, treated) )
       {
+        /* std::cout<<"face:";
+        for (CDynamicCoverage01 ittmp(this,current);ittmp.cont();++ittmp)
+          std::cout<<*ittmp<<", ";
+        std::cout<<std::endl; */
+
         // We contract co-degree two faces.
         if ( (alpha2(current) !=alpha1(current) ||
               alpha32(current)!=alpha31(current)) &&
@@ -1601,7 +1607,6 @@ unsigned int CGMapVertex::simplify3DObjectContraction(unsigned int optosimplify)
     }
   }
   */
-  negateMaskMark(treated);
 
   // 4) We remove all the darts marked toDelete
   while ( firstDeleteDart!=NULL )

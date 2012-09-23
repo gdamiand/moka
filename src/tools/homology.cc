@@ -44,7 +44,7 @@ void displayCharacteristics(CGMapVertex& g, const char* txt)
            <<", cc="<<nbcc<<std::endl;
 }
 
-void computeHomology(CGMapVertex& g)
+void computeHomology(CGMapVertex& g, const char* txt)
 {
   // Compute the homology on the simplified representation.
   CChrono c;
@@ -54,6 +54,7 @@ void computeHomology(CGMapVertex& g)
   h.computeVolumicHomology();
 
   c.stop();
+  std::cout<<txt<<": ";
   c.display("Homology computation time");
 
   std::cout<<"Memory used: "<<h.size()<<" bytes."<<endl;
@@ -84,9 +85,9 @@ int main(int argc, char** argv)
     return EXIT_FAILURE;
   }
 
-  //g.randomizeDarts();
+  g1.randomizeDarts();
   displayCharacteristics(g1, "Map before simplification:");
-  computeHomology(g1);
+  computeHomology(g1, "original map");
 
   CChrono c;
   c.start();
@@ -117,9 +118,9 @@ int main(int argc, char** argv)
   displayCharacteristics(g3, "Map after contractions only: ");
   displayCharacteristics(g1, "Map after removals and contractions: ");
 
-  computeHomology(g1);
-  computeHomology(g2);
-  computeHomology(g3);
+  computeHomology(g2, "simplif removals only");
+  computeHomology(g3, "simplif contractions only");
+  computeHomology(g1, "simplif removal+contractions");
 
   g4.simplify3DObject(FACE_REMOVAL);
   displayCharacteristics(g4, "Map after face removal: ");
