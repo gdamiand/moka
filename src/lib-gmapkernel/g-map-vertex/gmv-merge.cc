@@ -956,35 +956,35 @@ unsigned int CGMapVertex::simplify3DObjectContraction(unsigned int optosimplify)
           // We manage attributes before to modify the map; otherwise
           // it is too late.
           // Attribute of the second vertex must be removed.
-          // CAttributeVertex* secondvertex = removeVertex(alpha0(current));
-          CVertex secondvertex = *findVertex(alpha0(current));
+          CAttributeVertex* secondvertex = removeVertex(alpha0(current));
+         // CVertex secondvertex = *findVertex(alpha0(current));
 
           // Attribute of the first vertex must be placed on a non delete dart
-          /* for ( itEdge.reinit(); itEdge.cont(); ++itEdge )
-        {
-          if ( getVertex(*itEdge)!=NULL )
+          for ( itEdge.reinit(); itEdge.cont(); ++itEdge )
           {
-            CAttributeVertex * v = removeVertex(*itEdge);
-
-            if ( !isMarked(alpha1(*itEdge), toDelete) )
-              setVertex(alpha1(*itEdge), v);
-            else if (!isMarked(alpha21(*itEdge), toDelete) )
-              setVertex(alpha21(*itEdge), v);
-            else if (!isMarked(alpha31(*itEdge), toDelete) )
-              setVertex(alpha31(*itEdge), v);
-            else if (!isMarked(alpha321(*itEdge), toDelete) )
-              setVertex(alpha321(*itEdge), v);
-            else if (!isMarked(alpha231(*itEdge), toDelete) )
-              setVertex(alpha231(*itEdge), v);
-            else
+            if ( getVertex(*itEdge)!=NULL )
             {
-              assert(false);
-              delete v;
+              CAttributeVertex * v = removeVertex(*itEdge);
+
+              if ( !isMarked(alpha1(*itEdge), toDelete) )
+                setVertex(alpha1(*itEdge), v);
+              else if (!isMarked(alpha21(*itEdge), toDelete) )
+                setVertex(alpha21(*itEdge), v);
+              else if (!isMarked(alpha31(*itEdge), toDelete) )
+                setVertex(alpha31(*itEdge), v);
+              else if (!isMarked(alpha321(*itEdge), toDelete) )
+                setVertex(alpha321(*itEdge), v);
+              else if (!isMarked(alpha231(*itEdge), toDelete) )
+                setVertex(alpha231(*itEdge), v);
+              else
+              {
+                assert(false);
+                delete v;
+              }
+              break; // We can jump out of the for loop as the attribute is on
+                     // a safe dart.
             }
-            break; // We can jump out of the for loop as the attribute is on
-                   // a safe dart.
           }
-        }*/
 
           std::vector<std::pair<CDart*,CDart*> > sews;
           // Normalement pas la peine std::vector< CDart* > unsews;
@@ -1011,16 +1011,19 @@ unsigned int CGMapVertex::simplify3DObjectContraction(unsigned int optosimplify)
               if ( t2 != alpha(t1, 1) )
               {
                 sews.push_back(std::pair<CDart*,CDart*>(t1,alpha1(t1)));
-                unsew1(t1); //unlinkAlpha1(t1);
+                //unsew1(t1);
+                unlinkAlpha1(t1);
                 if (!isFree(t2, 1))
                 {
                   sews.push_back(std::pair<CDart*,CDart*>(t2,alpha1(t2)));
-                  unsew1(t2); //unlinkAlpha1(t2);
+                  //unsew1(t2);
+                  unlinkAlpha1(t2);
                 }
                 if (t1!=t2 && !isMarked(t1, toDelete))
                 {
                   // Normalement pas la peine unsews.push_back(t1);
-                  sew1(t1,t2); //linkAlpha1(t1,t2);
+                  //sew1(t1,t2);
+                  linkAlpha1(t1,t2);
                   // std::cout<<"link1 "<<t1<<"--"<<t2<<"  ";
                 }
               }
@@ -1151,16 +1154,20 @@ unsigned int CGMapVertex::simplify3DObjectContraction(unsigned int optosimplify)
               //std::cout<<(*sewsit).first<<"--"<<(*sewsit).second<<"  ";
               if ( alpha1((*sewsit).first)!=((*sewsit).second) )
               {
-                if ( !isFree1((*sewsit).first) ) unsew1((*sewsit).first);
-                if ( !isFree1((*sewsit).second) ) unsew1((*sewsit).second);
+                if ( !isFree1((*sewsit).first) )
+                  unlinkAlpha1((*sewsit).first);
+                  //unsew1((*sewsit).first);
+                if ( !isFree1((*sewsit).second) )
+                  //unsew1((*sewsit).second);
+                  unlinkAlpha1((*sewsit).second);
                 /*linkAlpha1*/sew1((*sewsit).first, (*sewsit).second);
               }
             }
             //std::cout<<std::endl;
 
             // And we reput the vertex attribute
-            // setVertex(alpha0(current), secondvertex);
-            updateVertex(alpha0(current), secondvertex);
+            setVertex(alpha0(current), secondvertex);
+            //updateVertex(alpha0(current), secondvertex);
           }
 
           sews.clear();
