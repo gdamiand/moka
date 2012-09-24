@@ -80,11 +80,11 @@ int main(int argc, char** argv)
   CGMapVertex g1, g2, g3, g4;
   CExtractionImage ext1(&g1);
   CExtractionImage ext2(&g2);
-  CExtractionImage ext3(&g3);
+  //CExtractionImage ext3(&g3);
   CExtractionImage ext4(&g4);
   if ( !ext1.extractOneRegionVoxels(argv[1],0,0,3,65535,65535,65535,0) ||
        !ext2.extractOneRegionVoxels(argv[1],0,0,3,65535,65535,65535,0) ||
-       !ext3.extractOneRegionVoxels(argv[1],0,0,3,65535,65535,65535,0) ||
+       //!ext3.extractOneRegionVoxels(argv[1],0,0,3,65535,65535,65535,0) ||
        !ext4.extractOneRegionVoxels(argv[1],0,0,3,65535,65535,65535,0) )
   {
     cout<<"Problem during extraction of voxels from "<<argv[1]<<endl;
@@ -111,22 +111,21 @@ int main(int argc, char** argv)
   c.stop();
   c.display("Simplification removals only time");
 
-  c.reset();
+  /*c.reset();
   c.start();
   g3.simplify3DObject(EDGE_CONTRACTION | FACE_CONTRACTION |
                       VOLUME_CONTRACTION);
   c.stop();
-  c.display("Simplification contractions only time");
-
+  c.display("Simplification contractions only time");*/
 
   // g.save("simplify-map.moka");
 
   displayCharacteristics(g2, "Map after removals only: ");
-  displayCharacteristics(g3, "Map after contractions only: ");
+  // displayCharacteristics(g3, "Map after contractions only: ");
   displayCharacteristics(g1, "Map after removals and contractions: ");
 
   computeHomology(g2, "simplif removals only");
-  computeHomology(g3, "simplif contractions only");
+  //computeHomology(g3, "simplif contractions only");
   computeHomology(g1, "simplif removal+contractions");
 
   g4.simplify3DObject(FACE_REMOVAL);
