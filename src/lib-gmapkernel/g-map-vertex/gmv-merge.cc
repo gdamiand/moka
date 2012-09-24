@@ -939,7 +939,7 @@ unsigned int CGMapVertex::simplify3DObjectContraction(unsigned int optosimplify)
             vertex.push_back(*itvertex);
           }
 
-          /*std::vector<CDart*> face;
+          std::vector<CDart*> face;
         for (CDynamicCoverageFace itface(this, current);
              itface.cont(); ++itface)
         {
@@ -951,7 +951,7 @@ unsigned int CGMapVertex::simplify3DObjectContraction(unsigned int optosimplify)
              itvol.cont(); ++itvol)
         {
           volume.push_back(*itvol);
-        }*/
+        }
 
           // We manage attributes before to modify the map; otherwise
           // it is too late.
@@ -994,7 +994,8 @@ unsigned int CGMapVertex::simplify3DObjectContraction(unsigned int optosimplify)
           // Moreover, we make the removal manually instead of calling
           // contract(current, 1, false) for optimisation reasons.
           //for ( itEdge.reinit(); itEdge.cont(); ++itEdge )
-          for ( CDynamicCoverageEdge itEdge(this,current); itEdge.cont(); ++itEdge )
+          for ( CDynamicCoverageEdge itEdge(this,current); itEdge.cont();
+                ++itEdge )
           {
             // Now we update alpha1
             t1 = alpha(*itEdge, 1);
@@ -1059,25 +1060,25 @@ unsigned int CGMapVertex::simplify3DObjectContraction(unsigned int optosimplify)
           vertex.clear();
           if ( cellafter.empty() ) disconnection=true;
           else cellafter.clear();
-          /*        if ( !disconnection )
-        {
-          for (itcell=face.begin(); itcell!=face.end(); ++itcell)
+          if ( !disconnection )
           {
-            if ( !isMarked(*itcell, toDelete) )
+            for (itcell=face.begin(); itcell!=face.end(); ++itcell)
             {
-              if ( cellafter.empty() )
-                for (CDynamicCoverageFace itcell2(this, *itcell);
-                     itcell2.cont(); ++itcell2)
-                {
-                  cellafter.insert(*itcell2);
-                }
-              else
+              if ( !isMarked(*itcell, toDelete) )
               {
-                if ( cellafter.find(*itcell)==cellafter.end() )
+                if ( cellafter.empty() )
+                  for (CDynamicCoverageFace itcell2(this, *itcell);
+                       itcell2.cont(); ++itcell2)
+                  {
+                    cellafter.insert(*itcell2);
+                  }
+                else
                 {
-                  disconnection = true;
-                  //std::cout<<"Disconnect face\n";
-                  break;
+                  if ( cellafter.find(*itcell)==cellafter.end() )
+                  {
+                    disconnection = true;
+                    //std::cout<<"Disconnect face\n";
+                    break;
                 }
               }
             }
@@ -1113,7 +1114,7 @@ unsigned int CGMapVertex::simplify3DObjectContraction(unsigned int optosimplify)
         volume.clear();
         if ( cellafter.empty() ) disconnection=true;
         else cellafter.clear();
-*/
+
           if ( !disconnection )
           {
             assert( findUnionFindTrees(current, indexVertex)!=
@@ -1171,17 +1172,17 @@ unsigned int CGMapVertex::simplify3DObjectContraction(unsigned int optosimplify)
           }
 
           sews.clear();
-          /*       assert(checkTopology());
-        assert(checkEmbeddings(ORBIT_VERTEX, ATTRIBUTE_VERTEX, true));
-        for( CDynamicCoverageAll cov2(this); cov2.cont(); ++cov2 )
-        {
-          assert( !isMarked(*cov2, toDelete) );
-          assert( !isMarked(alpha0(*cov2), toDelete) );
-          assert( !isMarked(alpha1(*cov2), toDelete) );
-          assert( !isMarked(alpha2(*cov2), toDelete) );
-          assert( !isMarked(alpha3(*cov2), toDelete) );
-        }
-        save("in-contract-edges.moka");*/
+          assert(checkTopology());
+          assert(checkEmbeddings(ORBIT_VERTEX, ATTRIBUTE_VERTEX, true));
+          for( CDynamicCoverageAll cov2(this); cov2.cont(); ++cov2 )
+          {
+            assert( !isMarked(*cov2, toDelete) );
+            assert( !isMarked(alpha0(*cov2), toDelete) );
+            assert( !isMarked(alpha1(*cov2), toDelete) );
+            assert( !isMarked(alpha2(*cov2), toDelete) );
+            assert( !isMarked(alpha3(*cov2), toDelete) );
+          }
+          //save("in-contract-edges.moka");
         }
         else
         {

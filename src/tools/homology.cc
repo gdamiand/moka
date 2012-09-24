@@ -87,7 +87,7 @@ int main(int argc, char** argv)
 
   g1.randomizeDarts();
   displayCharacteristics(g1, "Map before simplification:");
-  computeHomology(g1, "original map");
+  // computeHomology(g1, "original map");
 
   CChrono c;
   c.start();
