@@ -76,62 +76,110 @@ int main(int argc, char** argv)
     exit(EXIT_FAILURE);
   }
 
-  // First we load the map.
-  CGMapVertex g1, g2, g3, g4;
-  if ( !g1.load(argv[1]) || !g2.load(argv[1]) || !g3.load(argv[1]) ||
-       !g4.load(argv[1]) )
+  CChrono c;
+
   {
-    cout<<"Problem during loading of "<<argv[1]<<endl;
-    return EXIT_FAILURE;
+    // First we load the map.
+    CGMapVertex g1;
+    CExtractionImage ext1(&g1);
+    if ( !g1.load(argv[1]) )
+    {
+      cout<<"Problem during loading of "<<argv[1]<<endl;
+      return EXIT_FAILURE;
+    }
+
+    std::cout<<"###################### ORIGINAL GMAP ######################\n";
+    displayCharacteristics(g1, "Original map");
+    //computeHomology(g1, "Original map");
+
+    std::cout<<"###################### REMOVAL ONLY ######################\n";
+    c.reset();
+    c.start();
+    g1.simplify3DObject(FACE_REMOVAL | EDGE_REMOVAL | VERTEX_REMOVAL);
+    c.stop();
+    displayCharacteristics(g1, "Map simplified");
+    c.display("Simplification removals only ");
+
+    computeHomology(g1, "");
   }
 
-  g1.randomizeDarts();
-  displayCharacteristics(g1, "Map before simplification:");
-  // computeHomology(g1, "original map");
+  {
+    // First we load the map.
+    CGMapVertex g1;
+    CExtractionImage ext1(&g1);
+    if ( !g1.load(argv[1]) )
+    {
+      cout<<"Problem during loading of "<<argv[1]<<endl;
+      return EXIT_FAILURE;
+    }
 
-  CChrono c;
-  c.start();
-  // Here simplify the map
-  g1.simplify3DObject(FACE_REMOVAL | EDGE_REMOVAL | VERTEX_REMOVAL |
-                     EDGE_CONTRACTION | FACE_CONTRACTION |
-                     VOLUME_CONTRACTION);
-  c.stop();
-  c.display("Simplification total time");
+    // g1.randomizeDarts();
 
-  c.reset();
-  c.start();
-  g2.simplify3DObject(FACE_REMOVAL | EDGE_REMOVAL | VERTEX_REMOVAL);
-  c.stop();
-  c.display("Simplification removals only time");
+    // std::cout<<"###################### ORIGINAL GMAP ######################\n";
+    //displayCharacteristics(g1, "Original map");
+    //computeHomology(g1, "Original map");
 
-  c.reset();
-  c.start();
-  g3.simplify3DObject(EDGE_CONTRACTION | FACE_CONTRACTION |
+    std::cout<<"###################### REMOVAL AND CONTRACTION ######################\n";
+    c.reset();
+    c.start();
+    // Here simplify the map at its maximum
+    g1.simplify3DObject(FACE_REMOVAL | EDGE_REMOVAL | VERTEX_REMOVAL |
+                        EDGE_CONTRACTION | FACE_CONTRACTION |
+                        VOLUME_CONTRACTION);
+    c.stop();
+    displayCharacteristics(g1, "Map simplified");
+    c.display("Total simplification");
+
+    computeHomology(g1, "");
+
+    // g.save("simplify-map.moka");
+  }
+
+
+/*  {
+    std::cout<<"###################### CONTRACTION ONLY ######################\n";
+
+    // First we load the map.
+    CGMapVertex g1;
+    CExtractionImage ext1(&g1);
+    if ( !g1.load(argv[1]) )
+    {
+      cout<<"Problem during loading of "<<argv[1]<<endl;
+      return EXIT_FAILURE;
+    }
+
+    c.reset();
+    c.start();
+    g1.simplify3DObject(EDGE_CONTRACTION | FACE_CONTRACTION |
                       VOLUME_CONTRACTION);
-  c.stop();
-  c.display("Simplification contractions only time");
+    c.stop();
+    displayCharacteristics(g1, "Map simplified");
+    c.display("Simplification contractions only ");
 
+ //   computeHomology(g1, "");
+  }*/
 
-  // g.save("simplify-map.moka");
-
-  displayCharacteristics(g2, "Map after removals only: ");
-  displayCharacteristics(g3, "Map after contractions only: ");
-  displayCharacteristics(g1, "Map after removals and contractions: ");
-
-  computeHomology(g2, "simplif removals only");
-  computeHomology(g3, "simplif contractions only");
-  computeHomology(g1, "simplif removal+contractions");
-
-  g4.simplify3DObject(FACE_REMOVAL);
-  displayCharacteristics(g4, "Map after face removal: ");
-  g4.simplify3DObject(EDGE_REMOVAL);
-  displayCharacteristics(g4, "Map after edge removal: ");
-  g4.simplify3DObject(VERTEX_REMOVAL);
-  displayCharacteristics(g4, "Map after vertex removal: ");
-  g4.simplify3DObject(EDGE_CONTRACTION);
-  displayCharacteristics(g4, "Map after edge contraction: ");
-  g4.simplify3DObject(FACE_CONTRACTION);
-  displayCharacteristics(g4, "Map after face contraction: ");
+  {
+    std::cout<<"###################### DIFFERENT SIMPLIFICATIONS ######################\n";
+    // First we load the map.
+    CGMapVertex g1;
+    CExtractionImage ext1(&g1);
+    if ( !g1.load(argv[1]) )
+    {
+      cout<<"Problem during loading of "<<argv[1]<<endl;
+      return EXIT_FAILURE;
+    }
+    g1.simplify3DObject(FACE_REMOVAL);
+    displayCharacteristics(g1, "Map after face removal: ");
+    g1.simplify3DObject(EDGE_REMOVAL);
+    displayCharacteristics(g1, "Map after edge removal: ");
+    g1.simplify3DObject(VERTEX_REMOVAL);
+    displayCharacteristics(g1, "Map after vertex removal: ");
+    g1.simplify3DObject(EDGE_CONTRACTION);
+    displayCharacteristics(g1, "Map after edge contraction: ");
+    g1.simplify3DObject(FACE_CONTRACTION);
+    displayCharacteristics(g1, "Map after face contraction: ");
+  }
 
   return EXIT_SUCCESS;
 }
