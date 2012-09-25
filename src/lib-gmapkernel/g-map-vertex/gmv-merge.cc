@@ -1214,7 +1214,7 @@ unsigned int CGMapVertex::simplify3DObjectContraction(unsigned int optosimplify)
   }
 
   // 2) We contract faces.
-  if ( optosimplify & FACE_CONTRACTION )
+  if ( false ) //optosimplify & FACE_CONTRACTION )
   {
     cov.reinit();
     while ( cov.cont() )
