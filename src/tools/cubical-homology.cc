@@ -37,11 +37,11 @@ void displayCharacteristics(CGMapVertex& g, const char* txt)
                              &nbfaces,&nbvolumes,&nbcc,
                              NULL,NULL,NULL,NULL);
   std::cout<<txt<<": darts="<<nbdarts
-           <<", vertices="<<nbvertices
-           <<", edges="<<nbedges
-           <<", faces="<<nbfaces
-           <<", volumes="<<nbvolumes
-           <<", cc="<<nbcc<<std::endl;
+          <<", vertices="<<nbvertices
+         <<", edges="<<nbedges
+        <<", faces="<<nbfaces
+       <<", volumes="<<nbvolumes
+      <<", cc="<<nbcc<<std::endl;
 }
 
 void computeHomology(CGMapVertex& g, const char* txt)
@@ -54,17 +54,17 @@ void computeHomology(CGMapVertex& g, const char* txt)
   h.computeVolumicHomology();
 
   c.stop();
-  std::cout<<txt<<": ";
+  std::cout<<txt;
   c.display("Homology computation time");
 
   std::cout<<"Memory used: "<<h.size()<<" bytes."<<endl;
 
   // Display Betti numbers
   std::cout<<"Betti numbers Free (0,1,2,3): "<<h.getH0FreeGenerators()
-           <<", "<<h.getH1FreeGenerators()<<", "<<h.getH2FreeGenerators()
-           <<", "<<h.getH3FreeGenerators()<<endl;
+          <<", "<<h.getH1FreeGenerators()<<", "<<h.getH2FreeGenerators()
+         <<", "<<h.getH3FreeGenerators()<<endl;
   std::cout<<"Betti numbers Torsion (1,2): "<<h.getH1TorsionGenerators()
-           <<", "<<h.getH2TorsionGenerators()<<endl;
+          <<", "<<h.getH2TorsionGenerators()<<endl;
 }
 
 int main(int argc, char** argv)
@@ -72,72 +72,111 @@ int main(int argc, char** argv)
   if ( argc==1 || !strcmp(argv[1],"-?") || !strcmp(argv[1],"-h") )
   {
     cout<<"Usage1 : a.out image (3D png). Pour calculer l'homology de"<<endl
-        <<"  l'objet blanc dans l'image."<<endl;
+       <<"  l'objet blanc dans l'image."<<endl;
     exit(EXIT_FAILURE);
   }
-
-  // First we compute the 3G-map of the white voxels.
-  CGMapVertex g1, g2, g3, g4;
-  CExtractionImage ext1(&g1);
-  CExtractionImage ext2(&g2);
-  //CExtractionImage ext3(&g3);
-  CExtractionImage ext4(&g4);
-  if ( !ext1.extractOneRegionVoxels(argv[1],0,0,3,65535,65535,65535,0) ||
-       !ext2.extractOneRegionVoxels(argv[1],0,0,3,65535,65535,65535,0) ||
-       //!ext3.extractOneRegionVoxels(argv[1],0,0,3,65535,65535,65535,0) ||
-       !ext4.extractOneRegionVoxels(argv[1],0,0,3,65535,65535,65535,0) )
-  {
-    cout<<"Problem during extraction of voxels from "<<argv[1]<<endl;
-    exit(EXIT_FAILURE);
-  }
-  
-  // g1.randomizeDarts();
-  
-  displayCharacteristics(g1, "Map before simplification:");
-  // computeHomology(g1, "original map");
 
   CChrono c;
-  c.start();
-  // Here simplify the map
-  g1.simplify3DObject(FACE_REMOVAL | EDGE_REMOVAL | VERTEX_REMOVAL |
-                     EDGE_CONTRACTION | FACE_CONTRACTION |
-                     VOLUME_CONTRACTION);
-  c.stop();
-  c.display("Simplification total time");
 
-  c.reset();
-  c.start();
-  g2.simplify3DObject(FACE_REMOVAL | EDGE_REMOVAL | VERTEX_REMOVAL);
-  c.stop();
-  c.display("Simplification removals only time");
+  {
+    // First we compute the 3G-map of the white voxels.
+    CGMapVertex g1;
+    CExtractionImage ext1(&g1);
+    if ( !ext1.extractOneRegionVoxels(argv[1],0,0,3,65535,65535,65535,0) )
+    {
+      cout<<"Problem during extraction of voxels from "<<argv[1]<<endl;
+      exit(EXIT_FAILURE);
+    }
 
-  /*c.reset();
-  c.start();
-  g3.simplify3DObject(EDGE_CONTRACTION | FACE_CONTRACTION |
+    std::cout<<"###################### ORIGINAL GMAP ######################\n";
+    displayCharacteristics(g1, "Original map");
+    //computeHomology(g1, "Original map");
+
+    std::cout<<"###################### REMOVAL ONLY ######################\n";
+    c.reset();
+    c.start();
+    g1.simplify3DObject(FACE_REMOVAL | EDGE_REMOVAL | VERTEX_REMOVAL);
+    c.stop();
+    displayCharacteristics(g1, "Map simplified");
+    c.display("Simplification removals only ");
+
+    computeHomology(g1, "");
+  }
+
+  {
+    CGMapVertex g1;
+    CExtractionImage ext1(&g1);
+    if ( !ext1.extractOneRegionVoxels(argv[1],0,0,3,65535,65535,65535,0) )
+    {
+      cout<<"Problem during extraction of voxels from "<<argv[1]<<endl;
+      exit(EXIT_FAILURE);
+    }
+
+    // g1.randomizeDarts();
+
+    // std::cout<<"###################### ORIGINAL GMAP ######################\n";
+    //displayCharacteristics(g1, "Original map");
+    //computeHomology(g1, "Original map");
+
+    std::cout<<"###################### REMOVAL AND CONTRACTION ######################\n";
+    c.reset();
+    c.start();
+    // Here simplify the map at its maximum
+    g1.simplify3DObject(FACE_REMOVAL | EDGE_REMOVAL | VERTEX_REMOVAL |
+                        EDGE_CONTRACTION | FACE_CONTRACTION |
+                        VOLUME_CONTRACTION);
+    c.stop();
+    displayCharacteristics(g1, "Map simplified");
+    c.display("Total simplification");
+
+    computeHomology(g1, "");
+
+    // g.save("simplify-map.moka");
+  }
+
+
+/*  {
+    std::cout<<"###################### CONTRACTION ONLY ######################\n";
+
+    CGMapVertex g1;
+    CExtractionImage ext1(&g1);
+    if ( !ext1.extractOneRegionVoxels(argv[1],0,0,3,65535,65535,65535,0) )
+    {
+      cout<<"Problem during extraction of voxels from "<<argv[1]<<endl;
+      exit(EXIT_FAILURE);
+    }
+
+    c.reset();
+    c.start();
+    g1.simplify3DObject(EDGE_CONTRACTION | FACE_CONTRACTION |
                       VOLUME_CONTRACTION);
-  c.stop();
-  c.display("Simplification contractions only time");*/
+    c.stop();
+    displayCharacteristics(g1, "Map simplified");
+    c.display("Simplification contractions only ");
 
-  // g.save("simplify-map.moka");
+ //   computeHomology(g1, "");
+  }*/
 
-  displayCharacteristics(g2, "Map after removals only: ");
-  // displayCharacteristics(g3, "Map after contractions only: ");
-  displayCharacteristics(g1, "Map after removals and contractions: ");
-
-  computeHomology(g2, "simplif removals only");
-  //computeHomology(g3, "simplif contractions only");
-  computeHomology(g1, "simplif removal+contractions");
-
-  g4.simplify3DObject(FACE_REMOVAL);
-  displayCharacteristics(g4, "Map after face removal: ");
-  g4.simplify3DObject(EDGE_REMOVAL);
-  displayCharacteristics(g4, "Map after edge removal: ");
-  g4.simplify3DObject(VERTEX_REMOVAL);
-  displayCharacteristics(g4, "Map after vertex removal: ");
-  g4.simplify3DObject(EDGE_CONTRACTION);
-  displayCharacteristics(g4, "Map after edge contraction: ");
-  g4.simplify3DObject(FACE_CONTRACTION);
-  displayCharacteristics(g4, "Map after face contraction: ");
+  {
+    std::cout<<"###################### DIFFERENT SIMPLIFICATIONS ######################\n";
+    CGMapVertex g1;
+    CExtractionImage ext1(&g1);
+    if ( !ext1.extractOneRegionVoxels(argv[1],0,0,3,65535,65535,65535,0) )
+    {
+      cout<<"Problem during extraction of voxels from "<<argv[1]<<endl;
+      exit(EXIT_FAILURE);
+    }
+    g1.simplify3DObject(FACE_REMOVAL);
+    displayCharacteristics(g1, "Map after face removal: ");
+    g1.simplify3DObject(EDGE_REMOVAL);
+    displayCharacteristics(g1, "Map after edge removal: ");
+    g1.simplify3DObject(VERTEX_REMOVAL);
+    displayCharacteristics(g1, "Map after vertex removal: ");
+    g1.simplify3DObject(EDGE_CONTRACTION);
+    displayCharacteristics(g1, "Map after edge contraction: ");
+    g1.simplify3DObject(FACE_CONTRACTION);
+    displayCharacteristics(g1, "Map after face contraction: ");
+  }
 
   return EXIT_SUCCESS;
 }
