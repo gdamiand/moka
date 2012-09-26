@@ -51,7 +51,7 @@ void computeHomology(CGMapVertex& g, const char* txt)
   c.start();
 
   CHomology h(&g);
-  h.computeVolumicHomology();
+  h.computeSurfacicHomology();
 
   c.stop();
   std::cout<<txt<<": ";
@@ -60,11 +60,9 @@ void computeHomology(CGMapVertex& g, const char* txt)
   std::cout<<"Memory used: "<<h.size()<<" bytes."<<endl;
 
   // Display Betti numbers
-  std::cout<<"Betti numbers Free (0,1,2,3): "<<h.getH0FreeGenerators()
-           <<", "<<h.getH1FreeGenerators()<<", "<<h.getH2FreeGenerators()
-           <<", "<<h.getH3FreeGenerators()<<endl;
-  std::cout<<"Betti numbers Torsion (1,2): "<<h.getH1TorsionGenerators()
-           <<", "<<h.getH2TorsionGenerators()<<endl;
+  std::cout<<"Betti numbers Free (0,1,2): "<<h.getH0FreeGenerators()
+           <<", "<<h.getH1FreeGenerators()<<", "<<h.getH2FreeGenerators()<<endl;
+  std::cout<<"Betti numbers Torsion (1,2): "<<h.getH1TorsionGenerators()<<endl;
 }
 
 int main(int argc, char** argv)
@@ -72,7 +70,7 @@ int main(int argc, char** argv)
   if ( argc==1 || !strcmp(argv[1],"-?") || !strcmp(argv[1],"-h") )
   {
     cout<<"Usage1 : a.out mokafile (.moka). Pour calculer l'homology de"<<endl
-        <<"  la 3G-carte."<<endl;
+        <<"  la 2G-carte."<<endl;
     exit(EXIT_FAILURE);
   }
 
@@ -95,7 +93,7 @@ int main(int argc, char** argv)
     std::cout<<"###################### REMOVAL ONLY ######################\n";
     c.reset();
     c.start();
-    g1.simplify3DObject(FACE_REMOVAL | EDGE_REMOVAL | VERTEX_REMOVAL);
+    g1.simplify2DObject(EDGE_REMOVAL | VERTEX_REMOVAL);
     c.stop();
     displayCharacteristics(g1, "Map simplified");
     c.display("Simplification removals only ");
@@ -123,9 +121,8 @@ int main(int argc, char** argv)
     c.reset();
     c.start();
     // Here simplify the map at its maximum
-    g1.simplify3DObject(FACE_REMOVAL | EDGE_REMOVAL | VERTEX_REMOVAL |
-                        EDGE_CONTRACTION | FACE_CONTRACTION |
-                        VOLUME_CONTRACTION);
+    g1.simplify2DObject(EDGE_REMOVAL | VERTEX_REMOVAL |
+                        EDGE_CONTRACTION | FACE_CONTRACTION);
     c.stop();
     displayCharacteristics(g1, "Map simplified");
     c.display("Total simplification");
@@ -150,8 +147,7 @@ int main(int argc, char** argv)
 
     c.reset();
     c.start();
-    g1.simplify3DObject(EDGE_CONTRACTION | FACE_CONTRACTION |
-                      VOLUME_CONTRACTION);
+    g1.simplify3DObject(EDGE_CONTRACTION | FACE_CONTRACTION);
     c.stop();
     displayCharacteristics(g1, "Map simplified");
     c.display("Simplification contractions only ");
@@ -169,16 +165,12 @@ int main(int argc, char** argv)
       cout<<"Problem during loading of "<<argv[1]<<endl;
       return EXIT_FAILURE;
     }
-    g1.simplify3DObject(FACE_REMOVAL);
-    displayCharacteristics(g1, "Map after face removal: ");
     g1.simplify3DObject(EDGE_REMOVAL);
     displayCharacteristics(g1, "Map after edge removal: ");
     g1.simplify3DObject(VERTEX_REMOVAL);
     displayCharacteristics(g1, "Map after vertex removal: ");
     g1.simplify3DObject(EDGE_CONTRACTION);
     displayCharacteristics(g1, "Map after edge contraction: ");
-    g1.simplify3DObject(FACE_CONTRACTION);
-    displayCharacteristics(g1, "Map after face contraction: ");
   }
 
   return EXIT_SUCCESS;
