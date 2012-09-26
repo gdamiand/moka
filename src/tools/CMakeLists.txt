@@ -5,6 +5,9 @@ target_link_libraries (exampleBasic corefinement gmapkernel)
 add_executable(submapTest submap.cc)
 target_link_libraries (submapTest gmapkernel)
 #-------------------------------------------------------------------------------
+add_executable(compute-homology2d homology2d.cc)
+target_link_libraries (compute-homology2d gmapkernel)
+#-------------------------------------------------------------------------------
 add_executable(compute-homology homology.cc)
 target_link_libraries (compute-homology gmapkernel)
 #-------------------------------------------------------------------------------

@@ -70,7 +70,33 @@ int mergeMarkedAlignedCells(int ADim, int AMarkNumber, bool ADeleteDarts);
  */
 unsigned int simplify3DObject(int AMark0, int AMark1, int AMark2=-1);
 
-/** Simplify the map. Equivalent to simplify3DObject(-1,-1,-1) but optimized.
+/** Simplify the 2G-map by removing each degree two edge, each dangling edge, and
+ *  then each degree two vertex. There is no fictive edge shifting.
+ *  AMarki is a mark used to mark darts deleted by i-removal.
+ *  If AMarki==-1, corresponding darts are removed from the map. Otherwise,
+ *  they are not removed but only marked.
+ *  @return the number of removed darts.
+ */
+unsigned int simplify2DObject(int AMark0, int AMark1);
+
+/** Simplify the 2G-map.
+  * optosimplify contains a value giving which cells will be simplified:
+  * a or between NONE,EDGE_REMOVAL,VERTEX_REMOVAL,
+  * EDGE_CONTRACTION, FACE_CONTRACTION.
+  */
+unsigned int simplify2DObject(unsigned int optosimplify = EDGE_REMOVAL |
+    VERTEX_REMOVAL | EDGE_CONTRACTION | FACE_CONTRACTION );
+
+/** Simplify the map using removal operations only.
+ */
+unsigned int simplify2DObjectRemoval(unsigned int optosimplify);
+
+/** Simplify the map using removal operations only.
+ */
+unsigned int simplify2DObjectContraction(unsigned int optosimplify);
+
+/** Simplify the 3G-map.
+  * Equivalent to simplify3DObject(-1,-1,-1) but optimized.
   * optosimplify contains a value giving which cells will be simplified:
   * a or between NONE,FACE_REMOVAL,EDGE_REMOVAL,VERTEX_REMOVAL,
   * EDGE_CONTRACTION, FACE_CONTRACTION, VOLUME_CONTRACTION.

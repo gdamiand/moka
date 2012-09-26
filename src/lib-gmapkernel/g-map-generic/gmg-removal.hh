@@ -112,16 +112,7 @@ int removeMarkedEdgesWithoutDisconnectionWithFaceShifting(int AMarkNumber);
  */
 int removeMarkedFacesButKeepBalls(int AMarkNumber);
 
-/** Simplify the map by removing each degree two edge, each dangling edge, and
- *  then each degree two vertex. There is no fictive edge shifting.
- *  AMarki is a mark used to mark darts deleted by i-removal.
- *  If AMarki==-1, corresponding darts are removed from the map. Otherwise,
- *  they are not removed but only marked.
- *  @return the number of removed darts.
- */
-unsigned int simplify2DObject(int AMark0=-1, int AMark1=-1);
-
-/* Simplify3DObject is defined in file g-map-vertex/gmv-merge.hh
- * because vertex attributes must be updates.
+/* Simplify2DObject and Simplify3DObject are defined in
+ * file g-map-vertex/gmv-merge.hh because vertex attributes must be updates.
  */
 //******************************************************************************
