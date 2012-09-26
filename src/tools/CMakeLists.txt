@@ -14,3 +14,6 @@ target_link_libraries (compute-homology gmapkernel)
 add_executable(compute-cubical-homology cubical-homology.cc)
 target_link_libraries (compute-cubical-homology gmapkernel)
 #-------------------------------------------------------------------------------
+add_executable(convert-off-to-moka convert-off-to-moka.cc)
+target_link_libraries (convert-off-to-moka gmapkernel)
+#-------------------------------------------------------------------------------

@@ -147,7 +147,7 @@ int main(int argc, char** argv)
 
     c.reset();
     c.start();
-    g1.simplify3DObject(EDGE_CONTRACTION | FACE_CONTRACTION);
+    g1.simplify2DObject(EDGE_CONTRACTION | FACE_CONTRACTION);
     c.stop();
     displayCharacteristics(g1, "Map simplified");
     c.display("Simplification contractions only ");
@@ -165,12 +165,15 @@ int main(int argc, char** argv)
       cout<<"Problem during loading of "<<argv[1]<<endl;
       return EXIT_FAILURE;
     }
-    g1.simplify3DObject(EDGE_REMOVAL);
+    g1.simplify2DObject(EDGE_REMOVAL);
     displayCharacteristics(g1, "Map after edge removal: ");
-    g1.simplify3DObject(VERTEX_REMOVAL);
+    computeHomology(g1, "");
+    g1.simplify2DObject(VERTEX_REMOVAL);
     displayCharacteristics(g1, "Map after vertex removal: ");
-    g1.simplify3DObject(EDGE_CONTRACTION);
+    computeHomology(g1, "");
+    g1.simplify2DObject(EDGE_CONTRACTION);
     displayCharacteristics(g1, "Map after edge contraction: ");
+    computeHomology(g1, "");
   }
 
   return EXIT_SUCCESS;
