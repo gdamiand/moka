@@ -914,11 +914,11 @@ unsigned int CGMapVertex::simplify3DObjectContraction(unsigned int optosimplify)
         for ( ; itEdge.cont(); ++itEdge)
         {
           assert ( !isFree0(*itEdge) );
-          if ( isFree1(*itEdge) ||
-               alpha1(*itEdge)==alpha2(*itEdge) ||
-               alpha01(*itEdge)==alpha02(*itEdge) ||
+          if ( //isFree1(*itEdge) ||
+               alpha1(*itEdge)==alpha2(*itEdge) &&
+               alpha01(*itEdge)==alpha02(*itEdge) /* ||
                alpha1(*itEdge)==alpha3(*itEdge) ||
-               alpha01(*itEdge)==alpha03(*itEdge)  )
+               alpha01(*itEdge)==alpha03(*itEdge)*/  )
             toremove = false;
 
           setMark( *itEdge, treated );
