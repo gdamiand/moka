@@ -86,35 +86,10 @@ int main(int argc, char** argv)
       return EXIT_FAILURE;
     }
 
-    std::cout<<"###################### ORIGINAL GMAP ######################\n";
-    displayCharacteristics(g1, "Original map");
-    //computeHomology(g1, "Original map");
-
-    std::cout<<"###################### REMOVAL ONLY ######################\n";
-    c.reset();
-    c.start();
-    g1.simplify2DObject(EDGE_REMOVAL | VERTEX_REMOVAL);
-    c.stop();
-    displayCharacteristics(g1, "Map simplified");
-    c.display("Simplification removals only ");
-
-    computeHomology(g1, "");
-  }
-
-  {
-    // First we load the map.
-    CGMapVertex g1;
-    CExtractionImage ext1(&g1);
-    if ( !g1.load(argv[1]) )
-    {
-      cout<<"Problem during loading of "<<argv[1]<<endl;
-      return EXIT_FAILURE;
-    }
-
     // g1.randomizeDarts();
 
-    // std::cout<<"###################### ORIGINAL GMAP ######################\n";
-    //displayCharacteristics(g1, "Original map");
+    std::cout<<"###################### ORIGINAL GMAP ######################\n";
+    displayCharacteristics(g1, "Original map");
     //computeHomology(g1, "Original map");
 
     std::cout<<"###################### REMOVAL AND CONTRACTION ######################\n";
@@ -130,6 +105,31 @@ int main(int argc, char** argv)
     computeHomology(g1, "");
 
     // g.save("simplify-map.moka");
+  }
+
+  {
+    // First we load the map.
+    CGMapVertex g1;
+    CExtractionImage ext1(&g1);
+    if ( !g1.load(argv[1]) )
+    {
+      cout<<"Problem during loading of "<<argv[1]<<endl;
+      return EXIT_FAILURE;
+    }
+
+    //std::cout<<"###################### ORIGINAL GMAP ######################\n";
+    //displayCharacteristics(g1, "Original map");
+    //computeHomology(g1, "Original map");
+
+    std::cout<<"###################### REMOVAL ONLY ######################\n";
+    c.reset();
+    c.start();
+    g1.simplify2DObject(EDGE_REMOVAL | VERTEX_REMOVAL);
+    c.stop();
+    displayCharacteristics(g1, "Map simplified");
+    c.display("Simplification removals only ");
+
+    computeHomology(g1, "");
   }
 
 
@@ -167,13 +167,13 @@ int main(int argc, char** argv)
     }
     g1.simplify2DObject(EDGE_REMOVAL);
     displayCharacteristics(g1, "Map after edge removal: ");
-    computeHomology(g1, "");
+    //computeHomology(g1, "");
     g1.simplify2DObject(VERTEX_REMOVAL);
     displayCharacteristics(g1, "Map after vertex removal: ");
-    computeHomology(g1, "");
+    //computeHomology(g1, "");
     g1.simplify2DObject(EDGE_CONTRACTION);
     displayCharacteristics(g1, "Map after edge contraction: ");
-    computeHomology(g1, "");
+    //computeHomology(g1, "");
   }
 
   return EXIT_SUCCESS;
