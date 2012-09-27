@@ -909,7 +909,9 @@ unsigned int CGMapVertex::simplify3DObjectContraction(unsigned int optosimplify)
            !isMarked(current, treated) )
       {
         // We contract co-degree two edges.
-        if ( findUnionFindTrees(current, indexVertex)!=
+        if ( (alpha1(current) !=alpha2(current) ||
+              alpha01(current)!=alpha02(current)) &&
+             findUnionFindTrees(current, indexVertex)!=
              findUnionFindTrees(alpha0(current),indexVertex) )
         {
           // First we mark the current edge.
@@ -2255,13 +2257,16 @@ unsigned int CGMapVertex::simplify2DObjectContraction(unsigned int optosimplify)
     while ( cov.cont() )
     {
       current = cov++;
+      assert(isFree3(current));
 
       if ( !isMarked(current,toDelete) &&
            !isMarked(current, treated) )
       {
         // We contract co-degree two edges.
-        if ( findUnionFindTrees(current, indexVertex)!=
-             findUnionFindTrees(alpha0(current),indexVertex) )
+        if ((alpha1(current) !=alpha2(current) ||
+             alpha01(current)!=alpha02(current)) &&
+            findUnionFindTrees(current, indexVertex)!=
+            findUnionFindTrees(alpha0(current),indexVertex) )
         {
           // First we mark the current edge.
           //CStaticCoverage23 itEdge(this, current);

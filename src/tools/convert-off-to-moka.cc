@@ -53,17 +53,18 @@ int main(int argc, char** argv)
 
   CGMapVertex m1;
   ifstream file(argv[1]);
-  if ( !file.is_open() || m1.importOff3D(file)==NULL )
+  if ( !file.is_open() || !m1.load(argv[1])) // m1.importOff3D(file)==NULL )
   {
     cout<<"Erreur lors de l'import du off "<<argv[1]<<endl;
     return EXIT_FAILURE;
   }
   
   int thisMark = m1.getNewMark();
+  int treated = m1.getNewMark();
   for ( CDynamicCoverageAll it(&m1); it.cont(); ++it)
   {
-    if(!m1.isFree(*it,3) && !m1.isMarked(*it,thisMark) &&
-       !m1.isMarked(m1.alpha3(*it),thisMark))
+    if(!m1.isFree(*it,3) && !m1.isMarked(*it,treated))
+      //&& !m1.isMarked(m1.alpha3(*it),thisMark))
     {
       //Parcours du volume à la main pour traiter le cas des faces alpha_2 = alpha_3
       std::queue<CDart*> parcours;
@@ -74,13 +75,15 @@ int main(int argc, char** argv)
         CDart *current = parcours.front();
         parcours.pop();
         
-        if(!m1.isMarked(current,thisMark))
+        if(!m1.isMarked(current,treated))
         {
           m1.setMark(current,thisMark);
+          m1.setMark(current,treated);
+          m1.setMark(m1.alpha3(current),treated);
 
           for ( int i=0; i<2; ++i) // case i=0 and i=1
             if( !m1.isFree(current,i) &&
-                !m1.isMarked(m1.alpha(current,i),thisMark) )
+                !m1.isMarked(m1.alpha(current,i),treated) )
             {
               parcours.push(m1.alpha(current,i));
             }
@@ -88,7 +91,7 @@ int main(int argc, char** argv)
           //Special case for alpha2: if alpha2=alpha3, we must not use alpha2
           // otherwise we get the second half shape.
           if( !m1.isFree2(current) &&
-              !m1.isMarked(m1.alpha2(current),thisMark) &&
+              !m1.isMarked(m1.alpha2(current),treated) &&
               m1.alpha2(current) != m1.alpha3(current)&&
               m1.alpha20(current) != m1.alpha3(current) )
           {
@@ -98,7 +101,12 @@ int main(int argc, char** argv)
       }
     }
   }
+  m1.markIncidentCells(ORBIT_01, thisMark);
   m1.deleteMarkedDarts(thisMark);
+
+  m1.negateMaskMark(treated);
+  m1.freeMark(treated);
+  m1.freeMark(thisMark);
 
   stringstream s;
   s<<argv[1]<<".moka";
