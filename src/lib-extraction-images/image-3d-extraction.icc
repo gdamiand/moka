@@ -724,8 +724,10 @@ bool CExtractionImage::extractOneRegionVoxels(CImage3d * AImage,
   if (! AImage->isOk())
     return false;
 
+#ifdef DEBUG_EXTRACT_IMAGE
   std::cout<<"Début extractOneRegionVoxels:"<<std::flush;
-  
+#endif
+
   int toKeep = FMap->getNewMark();
   
   // Pour garder les brins déjà existant.
@@ -835,8 +837,6 @@ bool CExtractionImage::extractOneRegionVoxels(CImage3d * AImage,
 #ifdef DEBUG_EXTRACT_IMAGE
     std::cout << "Ok pour l'extraction de la plaque num "
               << AImage->getPlaneActu() << std::endl;
-#else
-    std::cout<<"."<<std::flush;
 #endif
     
     ++k;
@@ -892,12 +892,9 @@ bool CExtractionImage::extractOneRegionVoxels(CImage3d * AImage,
 
 #ifdef DEBUG_EXTRACT_IMAGE
   std::cout << "Ok pour l'extraction d'une région : terminée.  ";
-#else
-  std::cout<<"Done.  ";
+  std::cout<<nbpoints<<" voxels."<<std::endl;
 #endif
 
-  std::cout<<nbpoints<<" voxels."<<std::endl;
-  
   return true;
 }
 //******************************************************************************
