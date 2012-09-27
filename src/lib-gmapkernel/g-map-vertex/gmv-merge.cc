@@ -909,22 +909,38 @@ unsigned int CGMapVertex::simplify3DObjectContraction(unsigned int optosimplify)
            !isMarked(current, treated) )
       {
         // We contract co-degree two edges.
-        if ( (alpha1(current) !=alpha2(current) ||
-              alpha01(current)!=alpha02(current)) &&
-             findUnionFindTrees(current, indexVertex)!=
-             findUnionFindTrees(alpha0(current),indexVertex) )
+        bool toremove = true;
+        CDynamicCoverage23 itEdge(this, current);
+        for ( ; itEdge.cont(); ++itEdge)
+        {
+          assert ( !isFree0(*itEdge) );
+          if ( isFree1(*itEdge) ||
+               alpha1(*itEdge)==alpha2(*itEdge) ||
+               alpha01(*itEdge)==alpha02(*itEdge) ||
+               alpha1(*itEdge)==alpha3(*itEdge) ||
+               alpha01(*itEdge)==alpha03(*itEdge)  )
+            toremove = false;
+
+          setMark( *itEdge, treated );
+          setMark( alpha0(*itEdge), treated );
+        }
+
+        if ( findUnionFindTrees(current, indexVertex)==
+           findUnionFindTrees(alpha0(current),indexVertex) )
+          toremove = false;
+
+        if ( toremove )
         {
           // First we mark the current edge.
           //CStaticCoverage23 itEdge(this, current);
-          CDynamicCoverage23 itEdge(this, current);
-          for ( ; itEdge.cont(); ++itEdge)
+          //std::cout<<"edge contracted: ";
+          for ( itEdge.reinit(); itEdge.cont(); ++itEdge )
           {
-            assert ( !isFree0(*itEdge) );
-            setMark( *itEdge, treated );
-            setMark( alpha0(*itEdge), treated );
             setMark( *itEdge, toDelete );
             setMark( alpha0(*itEdge), toDelete );
+            //std::cout<<*itEdge<<",  "<<alpha0(*itEdge)<<", ";
           }
+          // std::cout<<std::endl;
 
           while ( cov.cont() && isMarked(*cov, treated) )
             ++cov;
@@ -940,20 +956,30 @@ unsigned int CGMapVertex::simplify3DObjectContraction(unsigned int optosimplify)
           {
             vertex.push_back(*itvertex);
           }
+          std::sort(vertex.begin(), vertex.end());
 
-          std::vector<CDart*> face;
-          for (CDynamicCoverageFace itface(this, current);
-               itface.cont(); ++itface)
-          {
-            face.push_back(*itface);
-          }
+          std::vector<std::vector<CDart*> > faces;
+          int markface = getNewMark();
+          for ( itEdge.reinit(); itEdge.cont(); ++itEdge )
+            if ( !isMarked(*itEdge, markface) )
+            {
+              faces.push_back(std::vector<CDart*>());
+              std::vector<std::vector<CDart*> >::iterator lastface=faces.end()-1;
+              for (CDynamicCoverageFace itface(this, *itEdge);
+                   itface.cont(); ++itface)
+              {
+                (*lastface).push_back(*itface);
+                setMark(*itface, markface);
+              }
+              std::sort(lastface->begin(), lastface->end());
+            }
 
-          std::vector<CDart*> volume;
+          /*std::vector<CDart*> volume;
           for (CDynamicCoverageVolume itvol(this, current);
                itvol.cont(); ++itvol)
           {
             volume.push_back(*itvol);
-          }
+          }*/
 
           // We manage attributes before to modify the map; otherwise
           // it is too late.
@@ -980,7 +1006,7 @@ unsigned int CGMapVertex::simplify3DObjectContraction(unsigned int optosimplify)
                 setVertex(alpha231(*itEdge), v);
               else
               {
-                assert(false);
+                //assert(false);
                 delete v;
               }
               break; // We can jump out of the for loop as the attribute is on
@@ -996,14 +1022,14 @@ unsigned int CGMapVertex::simplify3DObjectContraction(unsigned int optosimplify)
           // Moreover, we make the removal manually instead of calling
           // contract(current, 1, false) for optimisation reasons.
           //for ( itEdge.reinit(); itEdge.cont(); ++itEdge )
-          for ( CDynamicCoverageEdge itEdge(this,current); itEdge.cont();
-                ++itEdge )
+          for ( CDynamicCoverageEdge itEdge2(this,current); itEdge2.cont();
+                ++itEdge2 )
           {
             // Now we update alpha1
-            t1 = alpha(*itEdge, 1);
+            t1 = alpha(*itEdge2, 1);
             if ( !isMarked(t1, toDelete) )
             {
-              t2 = *itEdge;
+              t2 = *itEdge2;
               while ( isMarked(t2, toDelete) )
               {
                 t2 = alpha01(t2);
@@ -1035,61 +1061,161 @@ unsigned int CGMapVertex::simplify3DObjectContraction(unsigned int optosimplify)
           //std::cout<<std::endl;
 
           // We test if there is a disconnexion or disparition
-          std::vector<CDart*>::iterator itcell;
-          std::set<CDart*> cellafter;
+          std::vector<CDart*>::iterator itcell, itcell2;
+          std::vector<CDart*> cellafter;
           bool disconnection = false;
-          for (itcell=vertex.begin(); itcell!=vertex.end(); ++itcell)
+          itcell=vertex.begin();
+          while( itcell!=vertex.end() && isMarked(*itcell, toDelete) )
+            ++itcell;
+
+          /*std::cout<<"v before: ";
+          for (std::vector<CDart*>::iterator ittmp=vertex.begin();
+               ittmp!=vertex.end(); ++ittmp)
+            std::cout<<*ittmp<<", ";
+          std::cout<<std::endl;*/
+
+          if ( itcell==vertex.end() )
           {
-            if ( !isMarked(*itcell, toDelete) )
+            disconnection = true; // Case where vertex disapeared
+            // std::cout<<"vertex disconnexion cas 1\n";
+          }
+          else
+          {
+            for (CDynamicCoverageVertex itv(this, *itcell);
+                 itv.cont(); ++itv)
             {
-              if ( cellafter.empty() )
-                for (CDynamicCoverageVertex itcell2(this, *itcell);
-                     itcell2.cont(); ++itcell2)
-                {
-                  cellafter.insert(*itcell2);
-                }
+              cellafter.push_back(*itv);
+            }
+            std::sort(cellafter.begin(), cellafter.end() );
+
+            /*std::cout<<"v after: ";
+            for (std::vector<CDart*>::iterator ittmp=cellafter.begin();
+                 ittmp!=cellafter.end(); ++ittmp)
+              std::cout<<*ittmp<<", ";
+            std::cout<<std::endl;*/
+
+            itcell2 = cellafter.begin();
+            while ( !disconnection && itcell2!=cellafter.end() )
+            {
+              while ( itcell!=vertex.end() &&
+                      isMarked(*itcell, toDelete) )
+                ++itcell;
+
+              if ( itcell==vertex.end() )
+              {
+                //std::cout<<"vertex disconnexion cas 2\n";
+                disconnection = true; // all darts after are not before
+              }
+              else if ( (*itcell)!=(*itcell2) )
+              {
+                //std::cout<<"vertex disconnexion cas 3 "<<*itcell<<" != "<<*itcell2<<std::endl;
+                disconnection = true; // one dart before not find after
+              }
               else
               {
-                if ( cellafter.find(*itcell)==cellafter.end() )
-                {
-                  disconnection = true;
-                  // std::cout<<"Disconnect vertex\n";
-                  break;
-                }
+                ++itcell;
+                ++itcell2;
               }
             }
+
+            if ( !disconnection )
+            {
+              while ( itcell!=vertex.end() &&
+                      isMarked(*itcell, toDelete) )
+                ++itcell;
+              if ( itcell!=vertex.end() )
+              {
+                disconnection = true; // all darts after are not before
+                //std::cout<<"vertex disconnexion cas 4\n";
+              }
+              //else std::cout<<"No disconnection\n";
+            }
           }
+
+          //if ( disconnection ) std::cout<<"Disconnect vertex\n";
           vertex.clear();
-          if ( cellafter.empty() ) disconnection=true;
-          else cellafter.clear();
+          cellafter.clear();
           if ( !disconnection )
           {
-            for (itcell=face.begin(); itcell!=face.end(); ++itcell)
+            for ( std::vector<std::vector<CDart*> >::iterator itfaces=faces.begin(),
+                  itfacesend=faces.end(); itfaces!=itfacesend; ++itfaces )
             {
-              if ( !isMarked(*itcell, toDelete) )
+              itcell=(*itfaces).begin();
+              while( itcell!=(*itfaces).end() && isMarked(*itcell, toDelete) )
               {
-                if ( cellafter.empty() )
-                  for (CDynamicCoverageFace itcell2(this, *itcell);
-                       itcell2.cont(); ++itcell2)
-                  {
-                    cellafter.insert(*itcell2);
-                  }
-                else
+                unsetMark(*itcell, markface);
+                ++itcell;
+              }
+
+              if ( itcell==(*itfaces).end() )
+              {
+                disconnection = true; // Case where face disapeared
+                // std::cout<<"face disconnexion cas 1\n";
+              }
+              else
+              {
+                for (CDynamicCoverageFace itv(this, *itcell);
+                     itv.cont(); ++itv)
                 {
-                  if ( cellafter.find(*itcell)==cellafter.end() )
+                  cellafter.push_back(*itv);
+                }
+                std::sort(cellafter.begin(), cellafter.end() );
+
+                itcell2 = cellafter.begin();
+                while ( !disconnection && itcell2!=cellafter.end() )
+                {
+                  while ( itcell!=vertex.end() &&
+                          isMarked(*itcell, toDelete) )
                   {
-                    disconnection = true;
-                    //std::cout<<"Disconnect face\n";
-                    break;
+                    unsetMark(*itcell, markface);
+                    ++itcell;
                   }
+
+                  if ( itcell==(*itfaces).end() )
+                  {
+                    //std::cout<<"face disconnexion cas 2\n";
+                    disconnection = true; // all darts after are not before
+                  }
+                  else if ( (*itcell)!=(*itcell2) )
+                  {
+                    //std::cout<<"face disconnection cas 3 "<<*itcell<<" != "<<*itcell2<<std::endl;
+                    disconnection = true; // one dart before not find after
+                  }
+                  else
+                  {
+                    ++itcell;
+                    ++itcell2;
+                  }
+                }
+
+                if ( !disconnection )
+                {
+                  while ( itcell!=(*itfaces).end() &&
+                          isMarked(*itcell, toDelete) )
+                  {
+                    unsetMark(*itcell, markface);
+                    ++itcell;
+                  }
+                  if ( itcell!=vertex.end() )
+                  {
+                    disconnection = true; // all darts after are not before
+                    while ( itcell!=(*itfaces).end() )
+                    {
+                      unsetMark(*itcell, markface);
+                      ++itcell;
+                    }
+                    //std::cout<<"face disconnexion cas 4\n";
+                  }
+                  //else std::cout<<"No disconnection\n";
                 }
               }
             }
           }
-          face.clear();
-          if ( cellafter.empty() ) disconnection=true;
-          else cellafter.clear();
-          if ( !disconnection )
+          faces.clear();
+          cellafter.clear();
+          assert( !isWholeMapUnmarked(markface) );
+          freeMark(markface);
+          /*if ( !disconnection )
           {
             for (itcell=volume.begin(); itcell!=volume.end(); ++itcell)
             {
@@ -1106,7 +1232,7 @@ unsigned int CGMapVertex::simplify3DObjectContraction(unsigned int optosimplify)
                   if ( cellafter.find(*itcell)==cellafter.end() )
                   {
                     disconnection = true;
-                    // std::cout<<"Disconnect volume\n";
+                    std::cout<<"Disconnect volume\n";
                     break;
                   }
                 }
@@ -1115,7 +1241,7 @@ unsigned int CGMapVertex::simplify3DObjectContraction(unsigned int optosimplify)
           }
           volume.clear();
           if ( cellafter.empty() ) disconnection=true;
-          else cellafter.clear();
+          else cellafter.clear();*/
 
           if ( !disconnection )
           {
@@ -1186,24 +1312,6 @@ unsigned int CGMapVertex::simplify3DObjectContraction(unsigned int optosimplify)
           }*/
           //save("in-contract-edges.moka");
         }
-        else
-        {
-          for ( CDynamicCoverage23 itEdge(this, current);
-                itEdge.cont(); ++itEdge )
-          {
-            setMark( *itEdge, treated );
-            setMark( alpha0(*itEdge), treated );
-          }
-        }
-      }
-      else
-      {
-        for ( CDynamicCoverage23 itEdge(this, current);
-              itEdge.cont(); ++itEdge )
-        {
-          setMark( *itEdge, treated );
-          setMark( alpha0(*itEdge), treated );
-        }
       }
     }
     negateMaskMark(treated);
@@ -1212,7 +1320,7 @@ unsigned int CGMapVertex::simplify3DObjectContraction(unsigned int optosimplify)
     // save("after-contract-edges.moka");
 
     assert(checkTopology());
-    assert(checkEmbeddings(ORBIT_VERTEX, ATTRIBUTE_VERTEX, true));
+  //  assert(checkEmbeddings(ORBIT_VERTEX, ATTRIBUTE_VERTEX, true));
   }
 
   // 2) We contract faces.
@@ -1564,7 +1672,7 @@ unsigned int CGMapVertex::simplify3DObjectContraction(unsigned int optosimplify)
     // save("after-contract-faces.moka");
 
     assert(checkTopology());
-    assert(checkEmbeddings(ORBIT_VERTEX, ATTRIBUTE_VERTEX, true));
+    //assert(checkEmbeddings(ORBIT_VERTEX, ATTRIBUTE_VERTEX, true));
   }
 
   // 3) We contract volumes.
@@ -1688,7 +1796,7 @@ unsigned int CGMapVertex::simplify3DObjectContraction(unsigned int optosimplify)
 
   // save("after-simplification-3D-contraction.moka");
   assert(checkTopology());
-  assert(checkEmbeddings(ORBIT_VERTEX, ATTRIBUTE_VERTEX, true));
+  // assert(checkEmbeddings(ORBIT_VERTEX, ATTRIBUTE_VERTEX, true));
 
   return nbRemove;
 }
