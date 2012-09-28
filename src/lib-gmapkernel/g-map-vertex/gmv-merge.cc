@@ -1164,7 +1164,7 @@ unsigned int CGMapVertex::simplify3DObjectContraction(unsigned int optosimplify)
                 itcell2 = cellafter.begin();
                 while ( !disconnection && itcell2!=cellafter.end() )
                 {
-                  while ( itcell!=vertex.end() &&
+                  while ( itcell!=(*itfaces).end() &&
                           isMarked(*itcell, toDelete) )
                   {
                     unsetMark(*itcell, markface);
@@ -1173,16 +1173,18 @@ unsigned int CGMapVertex::simplify3DObjectContraction(unsigned int optosimplify)
 
                   if ( itcell==(*itfaces).end() )
                   {
-                    //std::cout<<"face disconnexion cas 2\n";
+                    // std::cout<<"face disconnexion cas 2\n";
                     disconnection = true; // all darts after are not before
                   }
                   else if ( (*itcell)!=(*itcell2) )
                   {
-                    //std::cout<<"face disconnection cas 3 "<<*itcell<<" != "<<*itcell2<<std::endl;
+                    unsetMark(*itcell, markface);
+                    // std::cout<<"face disconnection cas 3 "<<*itcell<<" != "<<*itcell2<<std::endl;
                     disconnection = true; // one dart before not find after
                   }
                   else
                   {
+                    unsetMark(*itcell, markface);
                     ++itcell;
                     ++itcell2;
                   }
@@ -1196,24 +1198,36 @@ unsigned int CGMapVertex::simplify3DObjectContraction(unsigned int optosimplify)
                     unsetMark(*itcell, markface);
                     ++itcell;
                   }
-                  if ( itcell!=vertex.end() )
+                  if ( itcell!=(*itfaces).end() )
                   {
-                    disconnection = true; // all darts after are not before
-                    while ( itcell!=(*itfaces).end() )
-                    {
-                      unsetMark(*itcell, markface);
-                      ++itcell;
-                    }
+                    disconnection = true; // all darts after are not before                   
                     //std::cout<<"face disconnexion cas 4\n";
                   }
-                  //else std::cout<<"No disconnection\n";
+                  // else std::cout<<"No disconnection\n";
                 }
+              }
+              while ( itcell!=(*itfaces).end() )
+              {
+                unsetMark(*itcell, markface);
+                ++itcell;
+              }
+            }
+          }
+          else
+          { // If there is already a disconnection, we need only to erase mark
+            for ( std::vector<std::vector<CDart*> >::iterator itfaces=faces.begin(),
+                  itfacesend=faces.end(); itfaces!=itfacesend; ++itfaces )
+            {
+              for ( itcell=(*itfaces).begin(); itcell!=(*itfaces).end();
+                    ++itcell )
+              {
+                unsetMark(*itcell, markface);
               }
             }
           }
           faces.clear();
           cellafter.clear();
-          assert( !isWholeMapUnmarked(markface) );
+          assert( isWholeMapUnmarked(markface) );
           freeMark(markface);
           /*if ( !disconnection )
           {
@@ -1779,11 +1793,6 @@ unsigned int CGMapVertex::simplify3DObjectContraction(unsigned int optosimplify)
     firstDeleteDart = t1;
     ++nbRemove;
   }
-
-  // temp pour debug : comme on parcours pas toute la carte pour contract
-  // edges, on n'a plus tout démarqué.
-  for (cov.reinit(); cov.cont(); ++cov)
-    unsetMark(*cov, treated);
 
   assert( isWholeMapUnmarked(toDelete) );
   assert( isWholeMapUnmarked(treated) );
@@ -3003,11 +3012,6 @@ unsigned int CGMapVertex::simplify2DObjectContraction(unsigned int optosimplify)
     firstDeleteDart = t1;
     ++nbRemove;
   }
-
-  // temp pour debug : comme on parcours pas toute la carte pour contract
-  // edges, on n'a plus tout démarqué.
-  for (cov.reinit(); cov.cont(); ++cov)
-    unsetMark(*cov, treated);
 
   assert( isWholeMapUnmarked(toDelete) );
   assert( isWholeMapUnmarked(treated) );
