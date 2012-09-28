@@ -79,34 +79,10 @@ int main(int argc, char** argv)
   CChrono c;
 
   {
-    // First we compute the 3G-map of the white voxels.
     CGMapVertex g1;
     CExtractionImage ext1(&g1);
-    if ( !ext1.extractOneRegionVoxels(argv[1],0,0,3,65535,65535,65535,0) )
-    {
-      cout<<"Problem during extraction of voxels from "<<argv[1]<<endl;
-      exit(EXIT_FAILURE);
-    }
-
-    std::cout<<"###################### ORIGINAL GMAP ######################\n";
-    displayCharacteristics(g1, "Original map");
-    //computeHomology(g1, "Original map");
-
-    std::cout<<"###################### REMOVAL ONLY ######################\n";
-    c.reset();
-    c.start();
-    g1.simplify3DObject(FACE_REMOVAL | EDGE_REMOVAL | VERTEX_REMOVAL);
-    c.stop();
-    displayCharacteristics(g1, "Map simplified");
-    c.display("Simplification removals only ");
-
-    computeHomology(g1, "");
-  }
-
-  {
-    CGMapVertex g1;
-    CExtractionImage ext1(&g1);
-    if ( !ext1.extractOneRegionVoxels(argv[1],0,0,3,65535,65535,65535,0) )
+    if ( !ext1.extractOneRegionVoxels(argv[1],0,0,3,0,0,0,0) )
+      //if ( !ext1.extractOneRegionVoxels(argv[1],0,0,3,65535,65535,65535,0) )
     {
       cout<<"Problem during extraction of voxels from "<<argv[1]<<endl;
       exit(EXIT_FAILURE);
@@ -114,8 +90,8 @@ int main(int argc, char** argv)
 
     // g1.randomizeDarts();
 
-    // std::cout<<"###################### ORIGINAL GMAP ######################\n";
-    //displayCharacteristics(g1, "Original map");
+    std::cout<<"###################### ORIGINAL GMAP ######################\n";
+    displayCharacteristics(g1, "Original map");
     //computeHomology(g1, "Original map");
 
     std::cout<<"###################### REMOVAL AND CONTRACTION ######################\n";
@@ -134,13 +110,39 @@ int main(int argc, char** argv)
     // g.save("simplify-map.moka");
   }
 
+  {
+    // First we compute the 3G-map of the white voxels.
+    CGMapVertex g1;
+    CExtractionImage ext1(&g1);
+    //    if ( !ext1.extractOneRegionVoxels(argv[1],0,0,3,65535,65535,65535,0) )
+    if ( !ext1.extractOneRegionVoxels(argv[1],0,0,3,0,0,0,0) )
+    {
+      cout<<"Problem during extraction of voxels from "<<argv[1]<<endl;
+      exit(EXIT_FAILURE);
+    }
+
+    //std::cout<<"###################### ORIGINAL GMAP ######################\n";
+    //displayCharacteristics(g1, "Original map");
+    //computeHomology(g1, "Original map");
+
+    std::cout<<"###################### REMOVAL ONLY ######################\n";
+    c.reset();
+    c.start();
+    g1.simplify3DObject(FACE_REMOVAL | EDGE_REMOVAL | VERTEX_REMOVAL);
+    c.stop();
+    displayCharacteristics(g1, "Map simplified");
+    c.display("Simplification removals only ");
+
+    computeHomology(g1, "");
+  }
 
 /*  {
     std::cout<<"###################### CONTRACTION ONLY ######################\n";
 
     CGMapVertex g1;
     CExtractionImage ext1(&g1);
-    if ( !ext1.extractOneRegionVoxels(argv[1],0,0,3,65535,65535,65535,0) )
+    if ( !ext1.extractOneRegionVoxels(argv[1],0,0,3,0,0,0,0) )
+    //if ( !ext1.extractOneRegionVoxels(argv[1],0,0,3,65535,65535,65535,0) )
     {
       cout<<"Problem during extraction of voxels from "<<argv[1]<<endl;
       exit(EXIT_FAILURE);
@@ -161,7 +163,8 @@ int main(int argc, char** argv)
     std::cout<<"###################### DIFFERENT SIMPLIFICATIONS ######################\n";
     CGMapVertex g1;
     CExtractionImage ext1(&g1);
-    if ( !ext1.extractOneRegionVoxels(argv[1],0,0,3,65535,65535,65535,0) )
+    if ( !ext1.extractOneRegionVoxels(argv[1],0,0,3,0,0,0,0) )
+      //if ( !ext1.extractOneRegionVoxels(argv[1],0,0,3,65535,65535,65535,0) )
     {
       cout<<"Problem during extraction of voxels from "<<argv[1]<<endl;
       exit(EXIT_FAILURE);
