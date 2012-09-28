@@ -100,7 +100,7 @@ int main(int argc, char** argv)
     displayCharacteristics(g1, "Map simplified");
     c.display("Simplification removals only ");
 
-    computeHomology(g1, "");
+    //    computeHomology(g1, "");
   }
 
   {

@@ -54,16 +54,16 @@ void computeHomology(CGMapVertex& g, const char* txt)
   h.computeVolumicHomology();
 
   c.stop();
-  std::cout<<txt;
-  c.display("Homology computation time");
+  std::cout<<"Time for homology ";
+  c.display(txt);
 
-  std::cout<<"Memory used: "<<h.size()<<" bytes."<<endl;
+  std::cout<<"Memory used "<<txt<<": "<<h.size()<<" bytes."<<endl;
 
   // Display Betti numbers
-  std::cout<<"Betti numbers Free (0,1,2,3): "<<h.getH0FreeGenerators()
+  std::cout<<"Betti numbers Free "<<txt<<" (0,1,2,3): "<<h.getH0FreeGenerators()
           <<", "<<h.getH1FreeGenerators()<<", "<<h.getH2FreeGenerators()
          <<", "<<h.getH3FreeGenerators()<<endl;
-  std::cout<<"Betti numbers Torsion (1,2): "<<h.getH1TorsionGenerators()
+  std::cout<<"Betti numbers Torsion "<<txt<<" (1,2): "<<h.getH1TorsionGenerators()
           <<", "<<h.getH2TorsionGenerators()<<endl;
 }
 
@@ -85,7 +85,7 @@ void process(char* file, int mode,bool withoriginal, const char*txt)
   {
     std::cout<<"###################### ORIGINAL GMAP ######################\n";
     displayCharacteristics(g1, "Original map");
-    //computeHomology(g1, "Original map");
+    //computeHomology(g1, "Homology original map");
   }
   
   std::cout<<"###################### "<<txt<<" ######################\n";
@@ -93,10 +93,12 @@ void process(char* file, int mode,bool withoriginal, const char*txt)
   // Here simplify the map at its maximum
   g1.simplify3DObject(mode);
   c.stop();
-  displayCharacteristics(g1, "Map simplified");
-  c.display("Total simplification");
+  std::string txt2("Map simplified " + std::string(txt));
+  displayCharacteristics(g1, txt2.c_str());
+  txt2 = std::string("Simplif time ") + std::string(txt);
+  c.display(txt2.c_str());
   
-  computeHomology(g1, "");
+  computeHomology(g1, txt);
 }
 
 int main(int argc, char** argv)
@@ -111,13 +113,13 @@ int main(int argc, char** argv)
 
   process(argv[1], FACE_REMOVAL | EDGE_REMOVAL | VERTEX_REMOVAL |
           EDGE_CONTRACTION | FACE_CONTRACTION | VOLUME_CONTRACTION,
-          true, "REMOVAL AND CONTRACTION");
+          true, "remov & contract");
 
   process(argv[1], FACE_REMOVAL | EDGE_REMOVAL | VERTEX_REMOVAL,
-          false, "REMOVAL ONLY");
+          false, "removal only   ");
 
   //  process(argv[1], EDGE_CONTRACTION | FACE_CONTRACTION | VOLUME_CONTRACTION,
-  //          true, "CONTRACTION ONLY");
+  //          true, "contraction only");
 
   {
     std::cout<<"###################### DIFFERENT SIMPLIFICATIONS ######################\n";
