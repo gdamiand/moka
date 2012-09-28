@@ -114,10 +114,10 @@ int main(int argc, char** argv)
           true, "REMOVAL AND CONTRACTION");
 
   process(argv[1], FACE_REMOVAL | EDGE_REMOVAL | VERTEX_REMOVAL,
-          true, "REMOVAL ONLY");
+          false, "REMOVAL ONLY");
 
-  process(argv[1], EDGE_CONTRACTION | FACE_CONTRACTION | VOLUME_CONTRACTION,
-          true, "CONTRACTION ONLY");
+  //  process(argv[1], EDGE_CONTRACTION | FACE_CONTRACTION | VOLUME_CONTRACTION,
+  //          true, "CONTRACTION ONLY");
 
   {
     std::cout<<"###################### DIFFERENT SIMPLIFICATIONS ######################\n";
