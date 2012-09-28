@@ -67,6 +67,38 @@ void computeHomology(CGMapVertex& g, const char* txt)
           <<", "<<h.getH2TorsionGenerators()<<endl;
 }
 
+void process(char* file, int mode,bool withoriginal, const char*txt)
+{
+  CChrono c;
+  CGMapVertex g1;
+  CExtractionImage ext1(&g1);
+  if ( !ext1.extractOneRegionVoxels(file,0,0,3,0,0,0,0) )
+    //if ( !ext1.extractOneRegionVoxels(file,0,0,3,65535,65535,65535,0) )
+  {
+    cout<<"Problem during extraction of voxels from "<<file<<endl;
+    exit(EXIT_FAILURE);
+  }
+
+  // g1.randomizeDarts();
+
+  if ( withoriginal)
+  {
+    std::cout<<"###################### ORIGINAL GMAP ######################\n";
+    displayCharacteristics(g1, "Original map");
+    //computeHomology(g1, "Original map");
+  }
+  
+  std::cout<<"###################### "<<txt<<" ######################\n";
+  c.start();
+  // Here simplify the map at its maximum
+  g1.simplify3DObject(mode);
+  c.stop();
+  displayCharacteristics(g1, "Map simplified");
+  c.display("Total simplification");
+  
+  computeHomology(g1, "");
+}
+
 int main(int argc, char** argv)
 {
   if ( argc==1 || !strcmp(argv[1],"-?") || !strcmp(argv[1],"-h") )
@@ -76,88 +108,16 @@ int main(int argc, char** argv)
     exit(EXIT_FAILURE);
   }
 
-  CChrono c;
 
-  {
-    CGMapVertex g1;
-    CExtractionImage ext1(&g1);
-    if ( !ext1.extractOneRegionVoxels(argv[1],0,0,3,0,0,0,0) )
-      //if ( !ext1.extractOneRegionVoxels(argv[1],0,0,3,65535,65535,65535,0) )
-    {
-      cout<<"Problem during extraction of voxels from "<<argv[1]<<endl;
-      exit(EXIT_FAILURE);
-    }
+  process(argv[1], FACE_REMOVAL | EDGE_REMOVAL | VERTEX_REMOVAL |
+          EDGE_CONTRACTION | FACE_CONTRACTION | VOLUME_CONTRACTION,
+          true, "REMOVAL AND CONTRACTION");
 
-    // g1.randomizeDarts();
+  process(argv[1], FACE_REMOVAL | EDGE_REMOVAL | VERTEX_REMOVAL,
+          true, "REMOVAL ONLY");
 
-    std::cout<<"###################### ORIGINAL GMAP ######################\n";
-    displayCharacteristics(g1, "Original map");
-    //computeHomology(g1, "Original map");
-
-    std::cout<<"###################### REMOVAL AND CONTRACTION ######################\n";
-    c.reset();
-    c.start();
-    // Here simplify the map at its maximum
-    g1.simplify3DObject(FACE_REMOVAL | EDGE_REMOVAL | VERTEX_REMOVAL |
-                        EDGE_CONTRACTION | FACE_CONTRACTION |
-                        VOLUME_CONTRACTION);
-    c.stop();
-    displayCharacteristics(g1, "Map simplified");
-    c.display("Total simplification");
-
-    computeHomology(g1, "");
-
-    // g.save("simplify-map.moka");
-  }
-
-  {
-    // First we compute the 3G-map of the white voxels.
-    CGMapVertex g1;
-    CExtractionImage ext1(&g1);
-    //    if ( !ext1.extractOneRegionVoxels(argv[1],0,0,3,65535,65535,65535,0) )
-    if ( !ext1.extractOneRegionVoxels(argv[1],0,0,3,0,0,0,0) )
-    {
-      cout<<"Problem during extraction of voxels from "<<argv[1]<<endl;
-      exit(EXIT_FAILURE);
-    }
-
-    //std::cout<<"###################### ORIGINAL GMAP ######################\n";
-    //displayCharacteristics(g1, "Original map");
-    //computeHomology(g1, "Original map");
-
-    std::cout<<"###################### REMOVAL ONLY ######################\n";
-    c.reset();
-    c.start();
-    g1.simplify3DObject(FACE_REMOVAL | EDGE_REMOVAL | VERTEX_REMOVAL);
-    c.stop();
-    displayCharacteristics(g1, "Map simplified");
-    c.display("Simplification removals only ");
-
-    computeHomology(g1, "");
-  }
-
-/*  {
-    std::cout<<"###################### CONTRACTION ONLY ######################\n";
-
-    CGMapVertex g1;
-    CExtractionImage ext1(&g1);
-    if ( !ext1.extractOneRegionVoxels(argv[1],0,0,3,0,0,0,0) )
-    //if ( !ext1.extractOneRegionVoxels(argv[1],0,0,3,65535,65535,65535,0) )
-    {
-      cout<<"Problem during extraction of voxels from "<<argv[1]<<endl;
-      exit(EXIT_FAILURE);
-    }
-
-    c.reset();
-    c.start();
-    g1.simplify3DObject(EDGE_CONTRACTION | FACE_CONTRACTION |
-                      VOLUME_CONTRACTION);
-    c.stop();
-    displayCharacteristics(g1, "Map simplified");
-    c.display("Simplification contractions only ");
-
- //   computeHomology(g1, "");
-  }*/
+  process(argv[1], EDGE_CONTRACTION | FACE_CONTRACTION | VOLUME_CONTRACTION,
+          true, "CONTRACTION ONLY");
 
   {
     std::cout<<"###################### DIFFERENT SIMPLIFICATIONS ######################\n";
