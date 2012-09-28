@@ -25,6 +25,7 @@
 #include <cstring>
 #include "g-map-vertex.hh"
 #include "chrono.hh"
+#include "extraction-images.hh"
 
 using namespace std;
 using namespace GMap3d;
@@ -52,8 +53,21 @@ int main(int argc, char** argv)
   }
 
   CGMapVertex m1;
+
+  /*
+    CExtractionImage ext1(&m1);
+    if ( !ext1.extractOneRegionVoxels(argv[1],0,0,3,0,0,0,0) )
+    {
+    cout<<"Problem during extraction of voxels from "<<argv[1]<<endl;
+    return EXIT_FAILURE;
+    }
+    m1.simplify3DObject(FACE_REMOVAL);
+    m1.save("gmap.moka");
+    return EXIT_SUCCESS;
+  */
+  
   ifstream file(argv[1]);
-  if ( !file.is_open() || !m1.load(argv[1])) // m1.importOff3D(file)==NULL )
+  if ( !file.is_open() || m1.importOff3D(file)==NULL ) // !m1.load(argv[1]))
   {
     cout<<"Erreur lors de l'import du off "<<argv[1]<<endl;
     return EXIT_FAILURE;
@@ -64,7 +78,6 @@ int main(int argc, char** argv)
   for ( CDynamicCoverageAll it(&m1); it.cont(); ++it)
   {
     if(!m1.isFree(*it,3) && !m1.isMarked(*it,treated))
-      //&& !m1.isMarked(m1.alpha3(*it),thisMark))
     {
       //Parcours du volume à la main pour traiter le cas des faces alpha_2 = alpha_3
       std::queue<CDart*> parcours;
