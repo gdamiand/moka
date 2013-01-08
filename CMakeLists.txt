@@ -149,8 +149,8 @@ endif ( MODULE_COREFINEMENT )
 #-------------------------------------------------------------------------------
 if ( MODULE_EXTRACTION_IMAGE )
 
-  FIND_PACKAGE(ImageMagick REQUIRED)
-  FIND_PACKAGE(ImageMagick COMPONENTS Magick++ REQUIRED)
+  FIND_PACKAGE(ImageMagick)
+  FIND_PACKAGE(ImageMagick COMPONENTS Magick++)
 
   if ( NOT (ImageMagick_FOUND AND ImageMagick_Magick++_FOUND ) )
     add_definitions(-DMODULE_EXTRACTION_WITHOUT_MAGICK)
