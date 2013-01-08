@@ -175,6 +175,6 @@ add_subdirectory (src/lib-controler-gmap lib-controler-gmap)
 add_subdirectory (src/lib-homology lib-homology)
 add_subdirectory (src/mokaQtIhm mokaQtIhm)
 
-add_subdirectory (src/tools tools) # EXCLUDE_FROM_ALL)
+add_subdirectory (src/tools tools EXCLUDE_FROM_ALL)
 #-------------------------------------------------------------------------------
 
