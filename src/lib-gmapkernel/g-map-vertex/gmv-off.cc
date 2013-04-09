@@ -177,7 +177,7 @@ CDart* CGMapVertex::importOff2D(std::istream & AStream)
       if (!AStream.good())
       {
          cout << "Problème de lecture : pas assez d'arêtes" << endl;
-         return false;
+         return NULL;
       }
 
       // Le nombre de sommets
