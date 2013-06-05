@@ -306,22 +306,22 @@ typedef std::bitset<16> TMask16;
 /// Attention, les bits de poids fort sont à gauche.
 
 /// Masque 'faux'.
-const TMask16 MASK_FALSE((unsigned int) 0x0000); // 0000 0000 0000 0000
+const TMask16 MASK_FALSE(std::string("0000000000000000"));
 /// Mask 'vrai'.
-const TMask16 MASK_TRUE((unsigned int) 0xFFFF); // 1111 1111 1111 1111
+const TMask16 MASK_TRUE(std::string("1111111111111111"));
 
 /// Masque de toutes les orbites contenant l'involution alpha0 dans leur
 /// ensemble définition.
-const TMask16 MASK0((unsigned int) 0xAAAA); // 1010 1010 1010 1010
+const TMask16 MASK0(std::string("1010101010101010"));
 /// Masque de toutes les orbites contenant l'involution alpha1 dans leur
 /// ensemble définition.
-const TMask16 MASK1((unsigned int) 0xCCCC); // 1100 1100 1100 1100
+const TMask16 MASK1(std::string("1100110011001100"));
 /// Masque de toutes les orbites contenant l'involution alpha2 dans leur
 /// ensemble définition.
-const TMask16 MASK2((unsigned int) 0xF0F0); // 1111 0000 1111 0000
+const TMask16 MASK2(std::string("1111000011110000"));
 /// Masque de toutes les orbites contenant l'involution alpha3 dans leur
 /// ensemble définition.
-const TMask16 MASK3((unsigned int) 0xFF00); // 1111 1111 0000 0000
+const TMask16 MASK3(std::string("1111111100000000"));
 
 /// Masques de toutes les orbites contenant alphai et pas alphaj :
 const TMask16 MASK0M2(MASK0 & ~MASK2);
