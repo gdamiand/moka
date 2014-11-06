@@ -390,3 +390,29 @@ bool CControlerGMap::exportOff3D(const char* AFilename)
    return res;
 }
 //******************************************************************************
+bool CControlerGMap::importTetmesh(const char* AFilename) {
+   bool res = false;
+
+   if (canApplyOperation(COperation(OPERATION_LOAD, SUB_OPERATION_ADD_MAP, -1)))
+   {
+      undoRedoPreSave();
+
+      if (FMap->importTetmesh(AFilename)!=NULL)
+      {
+         undoRedoPostSaveOk();
+         setModelChanged();
+         setMessage(string("Import TetMesh ") + AFilename + " done");
+         res = true;
+      }
+      else
+      {
+         undoRedoPostSaveFailed();
+         setMessage(string("Error during import TetMesh ")+AFilename);
+      }
+
+      assert(isMapOk());
+   }
+
+   return res;
+}
+//******************************************************************************

@@ -1064,7 +1064,7 @@ void Window::callbackImport()
    int type;
    QStringList type_load;
 
-   type_load << "Off (*.off)";
+   type_load << "Off (*.off)" << "TetMesh (*.tetmesh)";
 
    std::string filename = getOpenFileName("Import a file",
                                           type_load, &type) ;
@@ -1075,8 +1075,8 @@ void Window::callbackImport()
 
       switch (type)
       {
-         case 0 :
-         case 1 : res = getControler()->importOff(filename.c_str()); break;
+         case 0 : res = getControler()->importOff(filename.c_str()); break;
+         case 1 : res = getControler()->importTetmesh(filename.c_str()); break;
          default : break;
       }
 
