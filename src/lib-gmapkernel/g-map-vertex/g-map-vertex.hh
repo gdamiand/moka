@@ -29,6 +29,7 @@
 #include <cstdio>
 #include <fstream>
 #include <set> // pour les méthodes auxiliaires de co-raffinement.
+#include <map> 
 
 #include "g-map-generic.hh"
 #include "dart-vertex.hh"
@@ -131,6 +132,11 @@ namespace GMap3d
     // @name Import et export au format off
     // @{
 #include "gmv-off.hh"
+    // @}
+
+    // @name Import au format tetmesh
+    // @{
+#include "gmv-tetmesh.hh"
     // @}
 
     // Calcul du dual d'une carte, en dimension 2 ou 3.

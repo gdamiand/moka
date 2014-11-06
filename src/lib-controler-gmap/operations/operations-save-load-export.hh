@@ -62,4 +62,7 @@ bool extractOneRegionVoxels( const std::string & AFilename,
 bool importOff( const char* AFilename );
 bool exportOff( const char* AFilename ); // La dimension est celle de la carte
 bool exportOff3D( const char* AFilename ); // La dimension est toujours 3
+
+// Import au format tetmesh (liste de sommets et liste de tetra)
+bool importTetmesh( const char* AFilename );
 //******************************************************************************
