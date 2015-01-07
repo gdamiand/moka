@@ -141,9 +141,9 @@ bool CControlerGMap::createMesh()
 
 	  bool created[3][2] =
 	  {
-	    { F & CUBE_X1, F & CUBE_X2 },
-	    { F & CUBE_Y1, F & CUBE_Y2 },
-	    { F & CUBE_Z1, F & CUBE_Z2 }
+	    { (F & CUBE_X1)!=0, (F & CUBE_X2)!=0 },
+	    { (F & CUBE_Y1)!=0, (F & CUBE_Y2)!=0 },
+	    { (F & CUBE_Z1)!=0, (F & CUBE_Z2)!=0 }
 	  };
 
 	  FMap->createCubeIMeshed(SX,SY,SZ, SD, created, & handle1, & handle2);
