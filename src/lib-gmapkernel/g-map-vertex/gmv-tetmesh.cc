@@ -25,7 +25,7 @@
 #include "g-map-vertex.hh"
 #include "streams.hh"
 #include <cstring>
-#include <sstream>
+#include <fstream>
 #include <map>
 using namespace std;
 using namespace GMap3d;
@@ -115,50 +115,61 @@ CDart* CGMapVertex::importTetmesh(std::istream & AStream)
    string line;
    map<triplet, CDart*> faces;
    CDart* first=NULL;
-   std::stringstream sStream;
+   int n;
    
    // skip Vertices label
    std::getline(AStream, line);
-   assert( line=="Vertices" );
+   if ( line!="MeshVersionFormatted 1" )
+   {
+     std::cout<<"File not in mesh format.\n";
+     return NULL;
+   }
    
-   std::getline(AStream, line); // num_vertices x
-   sStream << line;
-   sStream >> num_vertices;
-   sStream.clear();
+   AStream >> line;
+   if ( line!="Dimension" )
+   {
+     std::cout<<"File not a correct mesh format.\n";
+     return NULL;
+   }
 
-   // reverse the order of the vertices
+   AStream>>n;
+   if ( n!=3 )
+   {
+     std::cout<<"File not a 3D mesh.\n";
+     return NULL;
+   }  
+
+   // Search the Vertices labels
+   do { std::getline(AStream, line); } while(AStream && line!="Vertices");
+   if ( line!="Vertices" ) return NULL;
+   
+   AStream >> num_vertices;
+
+   // reserve the array of vertices
    points.reserve(num_vertices);
    
    for(i = 0; i < num_vertices; ++i)
    {
      float x, y, z;
-     std::getline(AStream, line);
-     sStream << line;
-     sStream >> x >> y >> z;
-     std::getline(sStream, line);
-     sStream.clear();
-     
+     AStream >> x >> y >> z;
+     std::getline(AStream, line); // to skip the rest of the line
+     if ( !AStream )
+     { std::cout<<"Pb: not enough vertices.\n"; return NULL; } 
      points.push_back(CVertex(x, y, z));
    }
 
-   // skip Tetrahedra label
-   std::getline(AStream, line);
-   assert( line=="Tetrahedra" );
-
-   // read number of tetraeders
-   std::getline(AStream, line); // num_tetras x
-   sStream << line;
-   sStream >> num_tetras;
-   sStream.clear();
+   // Search the Tetrahedra labels
+   do { std::getline(AStream, line); } while(AStream && line!="Tetrahedra");
+   if ( line!="Tetrahedra" ) return NULL;
+   AStream >> num_tetras;
 
    for(i = 0; i < num_tetras; ++i)
    {
      int v0,v1,v2,v3;
-     std::getline(AStream, line);
-     sStream << line;
-     sStream >> v0 >> v1 >> v2 >> v3;
-     std::getline(sStream, line);
-     sStream.clear();
+     AStream >> v0 >> v1 >> v2 >> v3;
+     std::getline(AStream, line); // to skip the rest of the line
+     if ( !AStream )
+     { std::cout<<"Pb: not enough tetrahedra.\n"; return NULL; } 
 
      CDart* dart=createNewTetra
        (&points[v0-1], &points[v1-1], &points[v2-1], &points[v3-1], faces);

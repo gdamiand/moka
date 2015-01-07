@@ -1064,7 +1064,7 @@ void Window::callbackImport()
    int type;
    QStringList type_load;
 
-   type_load << "Off (*.off)" << "TetMesh (*.tetmesh)";
+   type_load << "Off (*.off)" << "Mesh (*.mesh)";
 
    std::string filename = getOpenFileName("Import a file",
                                           type_load, &type) ;
