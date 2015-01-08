@@ -65,4 +65,10 @@ bool exportOff3D( const char* AFilename ); // La dimension est toujours 3
 
 // Import au format tetmesh (liste de sommets et liste de tetra)
 bool importTetmesh( const char* AFilename );
+
+#ifdef WITH_ASSIMP
+// Import avec la librairie ASSIMP
+bool importWithAssimp( const char* AFilename );
+#endif
+
 //******************************************************************************

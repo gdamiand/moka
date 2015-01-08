@@ -23,7 +23,8 @@ add_library (gmapkernel
   g-map-vertex/attribute-vertex.cc g-map-vertex/gmv-geometry.cc
   g-map-vertex/gmv-null-length-edge.cc g-map-vertex/gmv-save.cc  
   g-map-vertex/dart-vertex.cc g-map-vertex/gmv-geo-sew.cc
-  g-map-vertex/gmv-off.cc g-map-vertex/gmv-stop-up.cc  
+  g-map-vertex/gmv-stop-up.cc
+  g-map-vertex/gmv-off.cc g-map-vertex/gmv-assimp.cc
   g-map-vertex/gmv-burstview.cc g-map-vertex/gmv-inline.cc
   g-map-vertex/gmv-plating.cc g-map-vertex/gmv-thickening.cc
   g-map-vertex/gmv-deformation.cc g-map-vertex/gmv-insertion.cc
@@ -69,4 +70,8 @@ if ( MODULE_EXTRACTION_IMAGE )
 endif ( MODULE_EXTRACTION_IMAGE )
 
 target_link_libraries (gmapkernel homology)
+
+if ( ASSIMP_FOUND )
+  target_link_libraries (gmapkernel ${ASSIMP_LIBRARIES})
+endif ( ASSIMP_FOUND )
 #-------------------------------------------------------------------------------

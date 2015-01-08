@@ -1064,7 +1064,11 @@ void Window::callbackImport()
    int type;
    QStringList type_load;
 
+#ifdef WITH_ASSIMP
+   type_load << "Assimp (*.*)" << "Mesh (*.mesh)";
+#else
    type_load << "Off (*.off)" << "Mesh (*.mesh)";
+#endif // WITH_ASSIMP
 
    std::string filename = getOpenFileName("Import a file",
                                           type_load, &type) ;
@@ -1075,7 +1079,12 @@ void Window::callbackImport()
 
       switch (type)
       {
-         case 0 : res = getControler()->importOff(filename.c_str()); break;
+         case 0 : 
+#ifdef WITH_ASSIMP
+             res = getControler()->importWithAssimp(filename.c_str()); break;
+#else
+             res = getControler()->importOff(filename.c_str()); break;
+#endif // WITH_ASSIMP
          case 1 : res = getControler()->importTetmesh(filename.c_str()); break;
          default : break;
       }

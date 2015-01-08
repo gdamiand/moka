@@ -106,7 +106,6 @@ bool CControlerGMap::loadMap(const char * AFilename)
       }
 
       assert(isMapOk());
-      std::cout<<"isMapOk ? "<<isMapOk()<<std::endl;
    }
 
    return res;
@@ -349,6 +348,37 @@ bool CControlerGMap::importOff(const char* AFilename)
 
    return res;
 }
+//******************************************************************************
+#ifdef WITH_ASSIMP
+//******************************************************************************
+bool CControlerGMap::importWithAssimp(const char* AFilename)
+{
+  bool res = false;
+  
+  if (canApplyOperation(COperation(OPERATION_LOAD, SUB_OPERATION_ADD_MAP, -1)))
+  {
+    undoRedoPreSave();
+    
+    if (FMap->importWithAssimp(AFilename)!=NULL)
+    {
+      undoRedoPostSaveOk();
+      setModelChanged();
+      setMessage(string("Import With Assimp ") + AFilename + " done");
+      res = true;
+    }
+    else
+    {
+      undoRedoPostSaveFailed();
+      setMessage(string("Error during import OFF ")+AFilename);
+    }
+    
+    assert(isMapOk());
+  }
+  
+  return res;
+}
+//******************************************************************************
+#endif
 //******************************************************************************
 bool CControlerGMap::exportOff(const char* AFilename)
 {
