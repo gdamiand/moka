@@ -127,7 +127,12 @@ namespace GMap3d
     // @name Chargement et sauvegarde
     // @{
 #include "gmv-save.hh"
-    // @}
+    // @}    
+      
+      // @name Import avec lib assimp
+      // @{
+#include "gmv-assimp.hh"
+      // @}
 
     // @name Import et export au format off
     // @{

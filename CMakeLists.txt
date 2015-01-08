@@ -11,9 +11,6 @@ project(moka)
 # Debug       = non inline + assert 
 # Release     = inline     + no-assert + O3
 
-#SET(CMAKE_CXX_FLAGS_DEBUG "-g -Wall")
-#SET(CMAKE_CXX_FLAGS_RELEASE "-DINLINE_FLAG -O3 -finline-functions -DNDEBUG")
-
 # If like me you have some problems under windows, set these variable to
 # the correct pathes and file.
 IF (WIN32) 
@@ -32,6 +29,8 @@ OPTION(BUILD_SHARED_LIBS "Build shared libraries." OFF)
 # For profilling
 # ADD_DEFINITIONS("-pg")
 # SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pg")
+
+# To enable c++11
 # ADD_DEFINITIONS("-std=c++11")
 
 #-------------------------------------------------------------------------------
@@ -66,6 +65,16 @@ else (CMAKE_BUILD_TYPE STREQUAL "Debug")
    message( STATUS "***** MODE RELEASE ****" )
    ADD_DEFINITIONS(-DINLINE_FLAG)
 endif (CMAKE_BUILD_TYPE STREQUAL  "Debug")
+
+#------------------------------------------------------------------------------
+# Includes for ASSIMP
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
+find_package(ASSIMP)
+
+if ( ASSIMP_FOUND )
+   ADD_DEFINITIONS(-DWITH_ASSIMP)
+   include_directories(${ASSIMP_INCLUDE_DIRS})
+endif ( ASSIMP_FOUND )
 
 #------------------------------------------------------------------------------
 # Includes for gmapkernel
@@ -109,7 +118,7 @@ if (MODULE_COREFINEMENT)
 
   add_subdirectory (src/lib-corefinement lib-corefinement)
 endif (MODULE_COREFINEMENT)
-  
+#-------------------------------------------------------------------------------
 if (MODULE_MESH)
   add_definitions(-DMODULE_MESH)
 
@@ -127,7 +136,6 @@ if (MODULE_ROUNDING)
 
   add_subdirectory (src/lib-rounding lib-rounding)
 endif (MODULE_ROUNDING)
-
 #-------------------------------------------------------------------------------
 if (MODULE_SPAMOD)
   add_definitions(-DMODULE_SPAMOD)
