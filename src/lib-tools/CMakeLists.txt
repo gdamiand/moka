@@ -1,6 +1,4 @@
 #-------------------------------------------------------------------------------
-add_library (tools
-  attribute-bounding-box.cc bounding-box.cc general-tools.cc
-  message-macros.cc time.cc
-  )
+file(GLOB_RECURSE source_files *.cc *.hh *.icc)
+add_library (tools ${source_files})
 #-------------------------------------------------------------------------------

@@ -1,10 +1,6 @@
 #-------------------------------------------------------------------------------
-add_library (spamod
-  spamod-api.cc main/analytic-view.cc main/gmap-ops.cc main/k2-view.cc
-  main/voxel-view.cc main/euclidian-view.cc main/ineq-op.cc
-  main/topologic-view.cc
-)
-
+file(GLOB_RECURSE source_files *.cc *.hh *.icc)
+add_library (spamod ${source_files})
 #-------------------------------------------------------------------------------
 find_package(GLUT)
 find_package(OpenGL)

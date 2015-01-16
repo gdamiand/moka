@@ -1,5 +1,4 @@
 #-------------------------------------------------------------------------------
-add_library (rounding
-  rounding-generic.cc rounding-interface.cc rounding-vertex.cc
-)
+file(GLOB_RECURSE source_files *.cc *.hh *.icc)
+add_library (rounding ${source_files})
 #-------------------------------------------------------------------------------
