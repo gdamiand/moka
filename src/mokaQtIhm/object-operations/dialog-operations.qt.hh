@@ -27,7 +27,7 @@
 //--------- Include autres classes developees ----------
 #include "floatSpinBox.qt.hh"
 #include "controler-gmap.hh"
-#include "dialog-types.qt.hh"
+#include "dialog-types.hh"
 
 //--------------------- Include QT --------------------
 #include <QtGui/QCheckBox>
