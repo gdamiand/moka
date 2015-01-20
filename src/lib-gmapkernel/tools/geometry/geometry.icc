@@ -19,16 +19,19 @@
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Contributor(s): Víctor Manuel Soto Francés
  */
 
 //******************************************************************************
 #include "transformation-matrix.hh"
 #include <cassert>
+#include <map>
 //******************************************************************************
 INLINE
 CVertex CGeometry::orthoProjectVertexOnLine(const CVertex& AVertex,
-					    const CVertex& ALineVertex,
-					    const CVertex& ALineDirection)
+                                            const CVertex& ALineVertex,
+                                            const CVertex& ALineDirection)
 {
   assert(!ALineDirection.isNull());
 
@@ -37,19 +40,19 @@ CVertex CGeometry::orthoProjectVertexOnLine(const CVertex& AVertex,
   assert(!isZero(n2));
 
   TCoordinate t =
-    ( ( AVertex.getX() - ALineVertex.getX() ) * ALineDirection.getX() +
-      ( AVertex.getY() - ALineVertex.getY() ) * ALineDirection.getY() +
-      ( AVertex.getZ() - ALineVertex.getZ() ) * ALineDirection.getZ() ) / n2;
+      ( ( AVertex.getX() - ALineVertex.getX() ) * ALineDirection.getX() +
+        ( AVertex.getY() - ALineVertex.getY() ) * ALineDirection.getY() +
+        ( AVertex.getZ() - ALineVertex.getZ() ) * ALineDirection.getZ() ) / n2;
 
   return ALineVertex + t*ALineDirection;
 }
 //******************************************************************************
 INLINE
 CVertex CGeometry::orthoProjectVertexOnPlane(const CVertex& AVertex,
-					     const TCoordinate& AA,
-					     const TCoordinate& AB,
-					     const TCoordinate& AC,
-					     const TCoordinate& AD)
+                                             const TCoordinate& AA,
+                                             const TCoordinate& AB,
+                                             const TCoordinate& AC,
+                                             const TCoordinate& AD)
 {
   /* Le plan alpha pour équation A*x + B*y + C*z + D = 0.
    *
@@ -92,29 +95,29 @@ CVertex CGeometry::orthoProjectVertexOnPlane(const CVertex& AVertex,
 //******************************************************************************
 INLINE
 CVertex CGeometry::orthoProjectVertexOnPlane(const CVertex& AVertex,
-					     const CVertex& APlaneVertex,
-					     const CVertex& APlaneNormal)
+                                             const CVertex& APlaneVertex,
+                                             const CVertex& APlaneNormal)
 {
   assert(!APlaneNormal.isNull());
 
   /* Soient X , Y , Z  les coordonnées de AVertex.
-   * Soient X0, Y0, Z0 les coordonnées de APlaneVertex.
-   * Soient XN, YN, ZN les composantes de APlaneNormal.
-   *
-   * Le plan alpha pour équation A*x + B*y + C*z + D = 0, avec:
-   *
-   * A = XN
-   * B = YN
-   * C = ZN
-   * D = - (A*X0 + B*Y0 + C*Z0)
-   */
+      * Soient X0, Y0, Z0 les coordonnées de APlaneVertex.
+      * Soient XN, YN, ZN les composantes de APlaneNormal.
+      *
+      * Le plan alpha pour équation A*x + B*y + C*z + D = 0, avec:
+      *
+      * A = XN
+      * B = YN
+      * C = ZN
+      * D = - (A*X0 + B*Y0 + C*Z0)
+      */
 
 #define A (APlaneNormal.getX())
 #define B (APlaneNormal.getY())
 #define C (APlaneNormal.getZ())
 #define D (- (A * APlaneVertex.getX() + \
-	      B * APlaneVertex.getY() + \
-	      C * APlaneVertex.getZ()))
+  B * APlaneVertex.getY() + \
+  C * APlaneVertex.getZ()))
 
   return orthoProjectVertexOnPlane(AVertex, A, B, C, D);
 
@@ -134,55 +137,55 @@ CVertex CGeometry::orthoProjectVertexOnPlane(const CVertex& AVertex,
 //******************************************************************************
 INLINE
 CVertex CGeometry::centralHomothety(const CVertex& AVertex,
-				    const CVertex& ACenter,
-				    const TCoordinate& ACoef)
+                                    const CVertex& ACenter,
+                                    const TCoordinate& ACoef)
 {
   return ACenter + ACoef*(AVertex-ACenter);
 }
 //******************************************************************************
 INLINE
 CVertex CGeometry::centralHomothety(const CVertex& AVertex,
-				    const CVertex& ACenter,
-				    const CVertex& ACoef)
+                                    const CVertex& ACenter,
+                                    const CVertex& ACoef)
 {
   return ACenter + ACoef.multiply(AVertex-ACenter);
 }
 //******************************************************************************
 INLINE
 CVertex CGeometry::axialHomothety(const CVertex& AVertex,
-				  const CVertex& ALineVertex,
-				  const CVertex& ALineDirection,
-				  const TCoordinate& ACoef)
+                                  const CVertex& ALineVertex,
+                                  const CVertex& ALineDirection,
+                                  const TCoordinate& ACoef)
 {
   assert(!ALineDirection.isNull());
   CVertex center = orthoProjectVertexOnLine(AVertex,
-					    ALineVertex, ALineDirection);
+                                            ALineVertex, ALineDirection);
   return center + ACoef*(AVertex-center);
 }
 //******************************************************************************
 INLINE
 CVertex CGeometry::planarHomothety(const CVertex& AVertex,
-				   const CVertex& APlaneVertex,
-				   const CVertex& APlaneNormal,
-				   const TCoordinate& ACoef)
+                                   const CVertex& APlaneVertex,
+                                   const CVertex& APlaneNormal,
+                                   const TCoordinate& ACoef)
 {
   assert(!APlaneNormal.isNull());
   CVertex center = orthoProjectVertexOnPlane(AVertex,
-					     APlaneVertex, APlaneNormal);
+                                             APlaneVertex, APlaneNormal);
   return center + ACoef*(AVertex-center);
 }
 //******************************************************************************
 INLINE
 TCoordinate CGeometry::distanceToVertex(const CVertex& AVertex,
-				   const CVertex& AOtherVertex)
+                                        const CVertex& AOtherVertex)
 {
   return (AVertex-AOtherVertex).norm();
 }
 //******************************************************************************
 INLINE
 TCoordinate CGeometry::distanceToLine(const CVertex& AVertex,
-				 const CVertex& ALineVertex,
-				 const CVertex& ALineDirection)
+                                      const CVertex& ALineVertex,
+                                      const CVertex& ALineDirection)
 {
   CVertex proj = orthoProjectVertexOnLine(AVertex, ALineVertex, ALineDirection);
   return (AVertex-proj).norm();
@@ -190,8 +193,8 @@ TCoordinate CGeometry::distanceToLine(const CVertex& AVertex,
 //******************************************************************************
 INLINE
 TCoordinate CGeometry::distanceToPlane(const CVertex& AVertex,
-				  const CVertex& APlaneVertex,
-				  const CVertex& APlaneNormal)
+                                       const CVertex& APlaneVertex,
+                                       const CVertex& APlaneNormal)
 {
   CVertex proj = orthoProjectVertexOnPlane(AVertex, APlaneVertex, APlaneNormal);
   return (AVertex-proj).norm();
@@ -199,8 +202,8 @@ TCoordinate CGeometry::distanceToPlane(const CVertex& AVertex,
 //******************************************************************************
 INLINE
 CVertex CGeometry::getBissectrix(const CVertex& AVector1,
-				 const CVertex& AVector2,
-				 const CVertex& ANormal)
+                                 const CVertex& AVector2,
+                                 const CVertex& ANormal)
 {
   assert(!AVector1.isNull());
   assert(!AVector2.isNull());
@@ -209,19 +212,19 @@ CVertex CGeometry::getBissectrix(const CVertex& AVector1,
   CVertex V2 = AVector2 / AVector2.norm();
 
   if ((V1+V2).isNull())
-    {
-      if (ANormal.isNull())
-	return getNormalVector(V1);
-      else
-	return V1*ANormal;
-    }
+  {
+    if (ANormal.isNull())
+      return getNormalVector(V1);
+    else
+      return V1*ANormal;
+  }
   else
-    {
-      if (isPositive((AVector1*AVector2).dot(ANormal)))
-	return V1+V2;
-      else
-	return -(V1+V2);
-    }
+  {
+    if (isPositive((AVector1*AVector2).dot(ANormal)))
+      return V1+V2;
+    else
+      return -(V1+V2);
+  }
 }
 //******************************************************************************
 INLINE
@@ -242,7 +245,7 @@ CVertex CGeometry::getNormalVector(const CVertex& AVector)
 //******************************************************************************
 INLINE
 CVertex CGeometry::getNormalVector(const CVertex& AVector1,
-				   const CVertex& AVector2)
+                                   const CVertex& AVector2)
 {
   TCoordinate n1 = AVector1.norm();
   TCoordinate n2 = AVector2.norm();
@@ -260,15 +263,15 @@ CVertex CGeometry::getNormalVector(const CVertex& AVector1,
 //******************************************************************************
 INLINE
 CVertex CGeometry::getNormalVector(const CVertex& AVertex1,
-				   const CVertex& AVertex2,
-				   const CVertex& AVertex3)
+                                   const CVertex& AVertex2,
+                                   const CVertex& AVertex3)
 { return getNormalVector(AVertex2-AVertex1, AVertex3-AVertex2); }
 //******************************************************************************
 INLINE
 CVertex CGeometry::getLinesIntersection(const CVertex& ALine1Vertex1,
-					const CVertex& ALine1Vertex2,
-					const CVertex& ALine2Vertex1,
-					const CVertex& ALine2Vertex2)
+                                        const CVertex& ALine1Vertex2,
+                                        const CVertex& ALine2Vertex1,
+                                        const CVertex& ALine2Vertex2)
 {
   assert(ALine1Vertex1 != ALine1Vertex2);
   assert(ALine2Vertex1 != ALine2Vertex2);
@@ -296,15 +299,15 @@ CVertex CGeometry::getLinesIntersection(const CVertex& ALine1Vertex1,
 //******************************************************************************
 INLINE
 bool CGeometry::areColinear(const CVertex& AVector1,
-			    const CVertex& AVector2)
+                            const CVertex& AVector2)
 {
   return (AVector1*AVector2).isNull();
 }
 //******************************************************************************
 INLINE
 TCoordinate CGeometry::getAngle(const CVertex& AVector1,
-				const CVertex& AVector2,
-				const CVertex& ANormal)
+                                const CVertex& AVector2,
+                                const CVertex& ANormal)
 {
   // Formule:  V1.V2 = Norm(V1) * Norm(V2) * Cos ( Angle(V1,V2) )
 
@@ -328,7 +331,7 @@ TCoordinate CGeometry::getAngle(const CVertex& AVector1,
 //******************************************************************************
 INLINE
 CVertex CGeometry::getAngles(const CVertex& AVx,
-			     const CVertex& AVz)
+                             const CVertex& AVz)
 {
   if (AVx.isNull() || AVz.isNull())
     return ORIGIN;
@@ -370,9 +373,9 @@ CVertex CGeometry::getAngles(const CVertex& AVx,
 //******************************************************************************
 INLINE
 int CGeometry::localiseVertexComparedToLine(const CVertex& AVertex,
-					    const CVertex& ALineVertex,
-					    const CVertex& ALineDirection,
-					    const CVertex& APlaneNormal)
+                                            const CVertex& ALineVertex,
+                                            const CVertex& ALineDirection,
+                                            const CVertex& APlaneNormal)
 {
   assert(!ALineDirection.isNull());
   assert(!APlaneNormal.isNull());
@@ -385,14 +388,14 @@ int CGeometry::localiseVertexComparedToLine(const CVertex& AVertex,
 //******************************************************************************
 INLINE
 void CGeometry::getSegmentsIntersection(const CVertex& AVertexA,
-					const CVertex& AVertexB,
-					const CVertex& AVertexC,
-					const CVertex& AVertexD,
-					const CVertex& APlaneNormal,
-					int& AIntersection1On,
-					CVertex& AIntersection1,
-					int& AIntersection2On,
-					CVertex& AIntersection2)
+                                        const CVertex& AVertexB,
+                                        const CVertex& AVertexC,
+                                        const CVertex& AVertexD,
+                                        const CVertex& APlaneNormal,
+                                        int& AIntersection1On,
+                                        CVertex& AIntersection1,
+                                        int& AIntersection2On,
+                                        CVertex& AIntersection2)
 {
   assert(!APlaneNormal.isNull());
 
@@ -401,138 +404,138 @@ void CGeometry::getSegmentsIntersection(const CVertex& AVertexA,
 
   // Cas où un des deux segments au moins est de longueur nulle:
   if (nullLength1 || nullLength2)
+  {
+    // Les deux segments sont de longueur nulle, pas d'intersection:
+    if (nullLength1 && nullLength2)
     {
-      // Les deux segments sont de longueur nulle, pas d'intersection:
-      if (nullLength1 && nullLength2)
-	{
-	  AIntersection1On = AIntersection2On = 0;
-	  return;
-	}
-
-      // Un seul segment est de longueur nulle.
-      // Il y alpha au plus un sommet à insérer:
-      AIntersection1On = 0;
-      AIntersection2On = 0;
-
+      AIntersection1On = AIntersection2On = 0;
       return;
     }
+
+    // Un seul segment est de longueur nulle.
+    // Il y alpha au plus un sommet à insérer:
+    AIntersection1On = 0;
+    AIntersection2On = 0;
+
+    return;
+  }
 
   // Les deux segments ne sont pas de longueur nulle:
   CVertex directionAB = AVertexB - AVertexA;
   CVertex directionCD = AVertexD - AVertexC;
 
   int A = localiseVertexComparedToLine(AVertexA,
-				       AVertexC, directionCD,
-				       APlaneNormal);
+                                       AVertexC, directionCD,
+                                       APlaneNormal);
 
   int B = localiseVertexComparedToLine(AVertexB,
-				       AVertexC, directionCD,
-				       APlaneNormal);
+                                       AVertexC, directionCD,
+                                       APlaneNormal);
 
   if (A==0 && B==0)
+  {
+    // Les deux arêtes sont alignées (co-raffinement 1d):
+    // Tri de A, B, C et D:
+    const CVertex * vertices[4] =
+    { & AVertexA, & AVertexB, & AVertexC, & AVertexD };
+
+    CVertex normal = directionAB * APlaneNormal;
+
+    assert(!normal.isNull());
+    normal /= normal.norm();
+
+    int i,j;
+
+    // Tri à bulle, guère moins efficace qu'un quick-sort vu la taille du
+    // tableau (4 éléments):
+    for (i=0; i<3; ++i)
+      for (j=i+1; j<4; ++j)
+        if (localiseVertexComparedToLine(*vertices[i], *vertices[j],
+                                         normal, APlaneNormal) == 1)
+        {
+          const CVertex * tmp = vertices[i];
+          vertices[i] = vertices[j];
+          vertices[j] = tmp;
+        }
+
+    bool firstSegment[4];
+
+    for (i=0; i<4; ++i)
+      firstSegment[i] = vertices[i]==&AVertexA || vertices[i]==&AVertexB;
+
+    // Intersections:
+    if (firstSegment[0]==firstSegment[1])
     {
-      // Les deux arêtes sont alignées (co-raffinement 1d):
-      // Tri de A, B, C et D:
-      const CVertex * vertices[4] =
-      { & AVertexA, & AVertexB, & AVertexC, & AVertexD };
-
-      CVertex normal = directionAB * APlaneNormal;
-
-      assert(!normal.isNull());
-      normal /= normal.norm();
-
-      int i,j;
-
-      // Tri à bulle, guère moins efficace qu'un quick-sort vu la taille du
-      // tableau (4 éléments):
-      for (i=0; i<3; ++i)
-	for (j=i+1; j<4; ++j)
-	  if (localiseVertexComparedToLine(*vertices[i], *vertices[j],
-					   normal, APlaneNormal) == 1)
-	    {
-	      const CVertex * tmp = vertices[i];
-	      vertices[i] = vertices[j];
-	      vertices[j] = tmp;
-	    }
-
-      bool firstSegment[4];
-
-      for (i=0; i<4; ++i)
-	firstSegment[i] = vertices[i]==&AVertexA || vertices[i]==&AVertexB;
-
-      // Intersections:
-      if (firstSegment[0]==firstSegment[1])
-	{
-	  // Les segments sont disjoints:
-	  AIntersection1On = AIntersection2On = 0;
-	}
+      // Les segments sont disjoints:
+      AIntersection1On = AIntersection2On = 0;
+    }
+    else
+    {
+      // Les segments se chevauchent, ou l'un est compris dans l'autre:
+      if (*vertices[0] == *vertices[1])
+        AIntersection1On = 0;
       else
-	{
-	  // Les segments se chevauchent, ou l'un est compris dans l'autre:
-	  if (*vertices[0] == *vertices[1])
-	    AIntersection1On = 0;
-	  else
-	    {
-	      AIntersection1On = firstSegment[0] ? 1 : 2;
-	      AIntersection1   = * vertices[1];
-	    }
-	
-	  if (*vertices[2] == *vertices[3])
-	    AIntersection2On = 0;
-	  else
-	    {
-	      AIntersection2On = firstSegment[3] ? 1 : 2;
-	      AIntersection2   = * vertices[2];
-	    }
-	}
+      {
+        AIntersection1On = firstSegment[0] ? 1 : 2;
+        AIntersection1   = * vertices[1];
+      }
+
+      if (*vertices[2] == *vertices[3])
+        AIntersection2On = 0;
+      else
+      {
+        AIntersection2On = firstSegment[3] ? 1 : 2;
+        AIntersection2   = * vertices[2];
+      }
     }
+  }
   else
+  {
+    // Les deux arêtes sont disjointes ou se croisent en un point unique:
+    int C = localiseVertexComparedToLine(AVertexC,
+                                         AVertexA, directionAB,
+                                         APlaneNormal);
+
+    int D = localiseVertexComparedToLine(AVertexD,
+                                         AVertexA, directionAB,
+                                         APlaneNormal);
+
+    // assert(C!=0 || D!=0);
+
+    int combineAB = combineSigns(A,B);
+    int combineCD = combineSigns(C,D);
+
+    AIntersection1On = (combineAB==-1 && combineCD<=0) ? 1 : 0;
+    AIntersection2On = (combineCD==-1 && combineAB<=0) ? 2 : 0;
+
+    if (AIntersection1On!=0 || AIntersection2On!=0)
     {
-      // Les deux arêtes sont disjointes ou se croisent en un point unique:
-      int C = localiseVertexComparedToLine(AVertexC,
-					   AVertexA, directionAB,
-					   APlaneNormal);
-
-      int D = localiseVertexComparedToLine(AVertexD,
-					   AVertexA, directionAB,
-					   APlaneNormal);
-
-      // assert(C!=0 || D!=0);
-
-      int combineAB = combineSigns(A,B);
-      int combineCD = combineSigns(C,D);
-
-      AIntersection1On = (combineAB==-1 && combineCD<=0) ? 1 : 0;
-      AIntersection2On = (combineCD==-1 && combineAB<=0) ? 2 : 0;
-
-      if (AIntersection1On!=0 || AIntersection2On!=0)
-	{
-	  AIntersection1 = AIntersection2 =
-	    getLinesIntersection(AVertexA, AVertexB, AVertexC, AVertexD);
-	}
+      AIntersection1 = AIntersection2 =
+          getLinesIntersection(AVertexA, AVertexB, AVertexC, AVertexD);
     }
+  }
 }
 //******************************************************************************
 INLINE
 void CGeometry::getSegmentsIntersection2d(const CVertex& AVertexA,
-					  const CVertex& AVertexB,
-					  const CVertex& AVertexC,
-					  const CVertex& AVertexD,
-					  int& AIntersection1On,
-					  CVertex& AIntersection1,
-					  int& AIntersection2On,
-					  CVertex& AIntersection2)
+                                          const CVertex& AVertexB,
+                                          const CVertex& AVertexC,
+                                          const CVertex& AVertexD,
+                                          int& AIntersection1On,
+                                          CVertex& AIntersection1,
+                                          int& AIntersection2On,
+                                          CVertex& AIntersection2)
 {
   getSegmentsIntersection(AVertexA, AVertexB, AVertexC, AVertexD,
-			  OZ,
-			  AIntersection1On, AIntersection1,
-			  AIntersection2On, AIntersection2);
+                          OZ,
+                          AIntersection1On, AIntersection1,
+                          AIntersection2On, AIntersection2);
 }
 //******************************************************************************
 INLINE
 CVertex CGeometry::getRoundingNormalVector(const CVertex& AVertex1, 
-					   const CVertex& AVertex2,
-					   const CVertex& AVertex3)
+                                           const CVertex& AVertex2,
+                                           const CVertex& AVertex3)
 {
 #define A (AVertex1)
 #define B (AVertex2)
@@ -549,5 +552,522 @@ CVertex CGeometry::getRoundingNormalVector(const CVertex& AVertex1,
 #undef A
 #undef B
 #undef C
+}
+//******************************************************************************
+/*! V1= start point
+ *  V2= end point
+ *  V3= auxiliary point (baricentre?)
+ *  Point=V1
+ *  line =V1^V2
+ *  plane=V3^V1^V2 (must have the sense imposed by @param sense)
+ */
+CMultivector CGeometry::getMVectorPLV(nklein::GeometricAlgebra< double,4 > &
+                                      faceplane,
+                                      const CVertex& AVertex1,
+                                      const CVertex& AVertex2,
+                                      const CVertex& AVertex3,
+                                      int sense, int VolumeOrientation)
+{
+  assert(VolumeOrientation==1 || VolumeOrientation==-1);
+  CMultivector MVector;
+  nklein::GeometricAlgebra< double, 4 > Point[3],Line,Plane,I;
+  nklein::GeometricAlgebra< double, 4 > PointD,LineD,PlaneD,VolumeD;
+  nklein::GeometricAlgebra< double, 4 > ResultD;
+  const double scale=1.;
+  I[e0|e1|e2|e3]=1;// I=I^{1} in R4
+
+  /** point */
+  Point[0][e0]=1;
+  Point[0][e1]=AVertex3.getX()*scale;
+  Point[0][e2]=AVertex3.getY()*scale;
+  Point[0][e3]=AVertex3.getZ()*scale;
+
+  Point[1][e0]=1;
+  Point[1][e1]=AVertex1.getX()*scale;
+  Point[1][e2]=AVertex1.getY()*scale;
+  Point[1][e3]=AVertex1.getZ()*scale;
+
+  Point[2][e0]=1;
+  Point[2][e1]=AVertex2.getX()*scale;
+  Point[2][e2]=AVertex2.getY()*scale;
+  Point[2][e3]=AVertex2.getZ()*scale;
+
+  PointD=Point[1]*I;//! dual point tri-vector
+
+  /** line */
+  Line=Point[1]^Point[2];
+  LineD=Line*I; //! dual line bi-vector
+
+  /** plane */
+  Plane=Point[0]^Point[1]^Point[2];
+  PlaneD=Plane*I;//! dual plane vector
+  if(cmpPlaneSense(PlaneD,faceplane)*sense<0)//! the senses are opposite:correct
+  {
+    //SI HACE FALTA se aplica a todo (aunque los agujeros los corregí)
+    Plane=Point[0]^Point[2]^Point[1];
+    PlaneD=Plane*I;//! dual plane vector
+  }
+
+
+  /** volume */
+  VolumeD[0]=VolumeOrientation;
+
+  /** adding resulting grades */
+  ResultD=PointD+LineD+PlaneD+VolumeD;
+
+  MVector.setMD(ResultD);
+  return MVector;
+}
+//******************************************************************************
+/*!
+ * Takes two planes in dual projective representation and compares their
+ * orientation.
+ * @return in {-1,+1,99}, opposite, same. NOT SAME PLANE (norm infinite)
+ */
+int CGeometry::cmpPlaneSense(nklein::GeometricAlgebra< double, 4> &planeD1,
+                             nklein::GeometricAlgebra< double, 4> &planeD2)
+{
+  nklein::GeometricAlgebra< double, 4 > planeD1h,planeD2h;
+  double xx,max=0;
+  const double TOL=0.0001;
+
+  /*! Check if same plane */
+  //OJO: mirar a ver si es proximo a cero
+  if(planeD1[e1]!=0 && planeD2[e1]!=0)//! homogenize
+  {
+    xx=planeD1[e0];
+    planeD1h[e0]=1.;
+    planeD1h[e1]=planeD1[e1]/xx;
+    planeD1h[e2]=planeD1[e2]/xx;
+    planeD1h[e3]=planeD1[e3]/xx;
+    xx=planeD2[e0];
+    planeD2h[e0]=1.;
+    planeD2h[e1]=planeD2[e1]/xx;
+    planeD2h[e2]=planeD2[e2]/xx;
+    planeD2h[e3]=planeD2[e3]/xx;
+  }
+  xx=fabs(planeD1h[e0]-planeD2h[e0]); if( xx>max) max=xx;
+  xx=fabs(planeD1h[e1]-planeD2h[e1]); if( xx>max) max=xx;
+  xx=fabs(planeD1h[e2]-planeD2h[e2]); if( xx>max) max=xx;
+  xx=fabs(planeD1h[e3]-planeD2h[e3]); if( xx>max) max=xx;
+  if (xx > TOL)
+    return 99;
+
+  /*! comparison */
+  /*! no passing through origin e0 != 0*/
+  if( planeD1[e0]!=0)//the other must be also !=0 here
+  {
+    if( planeD1[e0]*planeD2[e0]>0 )
+      return 1;
+    else
+      return -1;
+  }
+  /*! passing through origin */
+  if( (planeD1*planeD2)[0] > 0)
+    return 1;
+  else
+    return -1;
+}
+
+//******************************************************************************
+/*!
+ *  Point= e123 => dual point at origin (gives the orientation to the point)
+ *  Point= e123+x e320 + y e130+ ze210 => point at (x,y,z)
+ *  Line=Line0+LineInf; Line0=e23+e13+e12 , LineInf= e10+e20+e30
+ *  Line0 => line through origin, LineInf => shift from origin
+ */
+void CGeometry::sortPencil( std::vector< nklein::GeometricAlgebra<double, 4> >
+                            &MvVector,
+                            std::vector< int > &order)
+{
+  Coord3D p3D;
+  std::multimap<Coord3D,int,CompareCoord3D> mmapPLUS,mmapMINUS;//double cover
+  std::multimap<Coord3D,int,CompareCoord3D> mmapPLUSINF,mmapMINUSINF;
+  std::multimap<Coord3D,int,CompareCoord3D>::iterator it;
+  std::multimap<Coord3D,int,CompareCoord3D>::reverse_iterator rit;
+  nklein::GeometricAlgebra< double, 4 > Mv,Point,Line,I,Plane,O,t;
+  nklein::GeometricAlgebra< double, 4 > PointD,LineD,PlaneD,dummy;
+  nklein::GeometricAlgebra< double, 4 > vector1,vector2;
+  bool origin;
+  int i;
+  double sign,inf,xabs,reverse;
+  const double tol=0.0000000000000001;
+
+  std::cout<<"sortPencil()\n";
+  /** initialize */
+  order.clear();
+  I[e0|e1|e2|e3]=1.0;
+  O[e0]=1.0;//O[e1]=O[e2]=O[e3]=0.0;
+  //t[e1]=10.0;
+
+  /** check that the edge-line does not go through origin */
+  origin=false;
+  LineD=(MvVector[0]).Grade(2);
+  if(LineD[e0|e1]==0 && LineD[e0|e2]==0 && LineD[e0|e3]==0)
+    origin=true;
+
+  /** Translate if necessary */
+  // X is the flat
+  // translate multivectors T[Mv]*=(T[Mv])*=X*-e0^(t_|X*) in the dual
+  // in the original is; T[Mv]=X+t^(e0_|X)
+  if(origin)
+  {
+    PlaneD=(MvVector[0]).Grade(1);Plane=PlaneD*I;
+    vector2=(O*Plane).Grade(3-1);//! direction of flat plane
+    LineD =(MvVector[0]).Grade(2);Line =LineD*I;
+    vector1=(O*Line).Grade(2-1);//! direction of flat line
+    t=(vector1*vector2).Grade(2-1);//! direction normal to line in plane
+    std::cout<<"t="<< t[e1]<<","<<t[e2]<<","<<t[e3]<<"\n";
+
+    for( i=0; i < MvVector.size() ; ++i)
+    {
+      if(i>0)//! translate for i=0 is nonsense
+      {
+        PlaneD=(MvVector[i]).Grade(1);Plane=PlaneD*I;
+        dummy=(O*Plane).Grade(3-1);
+        dummy=t^dummy;
+        dummy=Plane+dummy;
+        dummy=dummy*I;
+        PlaneD=dummy;
+      }
+      LineD =(MvVector[i]).Grade(2);Line =LineD*I;
+      PointD=(MvVector[i]).Grade(3);Point=PointD*I;
+
+      dummy=(O*Line).Grade(2-1);
+      dummy=t^dummy;
+      dummy=Line+dummy;
+      dummy=dummy*I;
+      LineD=dummy;
+
+      dummy=(O*Point).Grade(1-1);
+      dummy=t^dummy;
+      dummy=Point+dummy;
+      dummy=dummy*I;
+      PointD=dummy;
+      //PlaneD=PlaneD-O^((t*PlaneD).Grade(0));
+      //LineD =LineD -O^((t*LineD).Grade(1));
+      //PointD=PointD-O^((t*PointD).Grade(2));
+      MvVector[i]=MvVector[i][0]+PlaneD+LineD+PointD;
+    }
+  }
+
+  /** at this point v2=>v1 not through origin */
+
+  /** get the negative side branch */
+  /** search the direction from -INF to +INF*/
+  /** reverse help to make ordering quicker using mmaps*/
+  reverse=1;
+  LineD=MvVector[0].Grade(2);
+  Line=LineD*I;
+  Plane=Line^O;
+  PlaneD=Plane*I; // points to the negative branch
+  p3D.coord[0]=PlaneD[e1];
+  p3D.coord[1]=PlaneD[e2];
+  p3D.coord[2]=PlaneD[e3];
+  mmapPLUS.insert(std::pair<Coord3D,int>(p3D,0));
+  p3D.coord[0]=-PlaneD[e1];
+  p3D.coord[1]=-PlaneD[e2];
+  p3D.coord[2]=-PlaneD[e3];
+  mmapPLUS.insert(std::pair<Coord3D,int>(p3D,1));
+  if( (*mmapPLUS.begin()).second > (*mmapPLUS.end()).second )
+    reverse=-1;
+  mmapPLUS.clear();
+  std::cout<< "Neg Branch="<<PlaneD[e1]<<","<<PlaneD[e2]<<","<<PlaneD[e3]<<"\n";
+  std::cout<< "Pos Branch="<<-PlaneD[e1]<<","<<-PlaneD[e2]<<","<<-PlaneD[e3]<<"\n";
+  std::cout<< "Reverse= "<<reverse<< "\n";
+
+  for( i=0; i < MvVector.size() ; ++i)
+  {
+    Mv=MvVector[i].Grade(1);//! plane in dual space
+    xabs=fabs(Mv[e0]);
+    if(xabs>tol)//to avoid dividing by a very small number
+    {
+      sign=(Mv[e0]>0? 1:-1);//! {-1,+1}
+      Mv[e0]=1;
+      p3D.coord[0]=Mv[e1]=Mv[e1]/xabs*sign;//sign:to turn always in same direction
+      p3D.coord[1]=Mv[e2]=Mv[e2]/xabs*sign;
+      p3D.coord[2]=Mv[e3]=Mv[e3]/xabs*sign;
+    }
+    else if( 0<xabs && xabs < tol)
+    {
+      sign=(Mv[e0]>0? -1:+1);//! {-1,+1},since PlaneD points to the negative branch
+      Mv[e0]=0.0;
+      p3D.coord[0]=Mv[e1]=PlaneD[e1]*sign;
+      p3D.coord[1]=Mv[e2]=PlaneD[e2]*sign;
+      p3D.coord[2]=Mv[e3]=PlaneD[e3]*sign;
+      sign=0;
+    }
+    else //xabs==0
+    {
+      p3D.coord[0]=Mv[e1];
+      p3D.coord[1]=Mv[e2];
+      p3D.coord[2]=Mv[e3];
+      sign=0;
+    }
+
+    if( sign>0 )
+    {
+      mmapPLUS.insert(std::pair<Coord3D,int>(p3D,i));
+    }
+    else if( sign<0 )
+    {
+      mmapMINUS.insert(std::pair<Coord3D,int>(p3D,i));
+    }
+    else //! sign==0: plane through origin.Point at infinity (+) or (-)
+    {
+      inf=(Mv*PlaneD)[0];//escalar product
+      if( inf>0 ) //negative branch
+        mmapMINUSINF.insert(std::pair<Coord3D,int>(p3D,i));
+      else
+        mmapPLUSINF.insert(std::pair<Coord3D,int>(p3D,i));
+    }
+  }
+
+  /** compose order */
+  /** +INF,MINUS,-INF,PLUS */
+  for(it=mmapPLUSINF.begin(); it!=mmapPLUSINF.end() ;++it)
+  {
+    order.push_back((*it).second);
+    std::cout<<"+INF: ";
+    std::cout << (*it).first.coord[0]<<" , ";
+    std::cout << (*it).first.coord[1]<<" , ";
+    std::cout << (*it).first.coord[2]<<"\n";
+  }
+  for(it=mmapMINUS.begin(); it!=mmapMINUS.end() && reverse>0 ;++it)
+  {
+    order.push_back((*it).second);
+    std::cout<<"MIN  : ";
+    std::cout << (*it).first.coord[0]<<" , ";
+    std::cout << (*it).first.coord[1]<<" , ";
+    std::cout << (*it).first.coord[2]<<"\n";
+  }
+  for(rit=mmapMINUS.rbegin(); rit!=mmapMINUS.rend() && reverse<0 ;++rit)
+  {
+    order.push_back((*rit).second);
+    std::cout<<"MINr : ";
+    std::cout << (*rit).first.coord[0]<<" , ";
+    std::cout << (*rit).first.coord[1]<<" , ";
+    std::cout << (*rit).first.coord[2]<<"\n";
+  }
+  for(it=mmapMINUSINF.begin(); it!=mmapMINUSINF.end() ;++it)
+  {
+    order.push_back((*it).second);
+    std::cout<<"-INF: ";
+    std::cout << (*it).first.coord[0]<<" , ";
+    std::cout << (*it).first.coord[1]<<" , ";
+    std::cout << (*it).first.coord[2]<<"\n";
+  }
+  for(it=mmapPLUS.begin(); it!=mmapPLUS.end() && reverse>0 ;++it)
+  {
+    order.push_back((*it).second);
+    std::cout<<"PLUS : ";
+    std::cout << (*it).first.coord[0]<<" , ";
+    std::cout << (*it).first.coord[1]<<" , ";
+    std::cout << (*it).first.coord[2]<<"\n";
+  }
+  for(rit=mmapPLUS.rbegin(); rit!=mmapPLUS.rend() && reverse<0 ;++rit)
+  {
+    order.push_back((*rit).second);
+    std::cout<<"PLUSr:";
+    std::cout << (*rit).first.coord[0]<<" , ";
+    std::cout << (*rit).first.coord[1]<<" , ";
+    std::cout << (*rit).first.coord[2]<<"\n";
+  }
+
+}
+//******************************************************************************
+/*!
+ *  Point= e123 => dual point at origin (gives the orientation to the point)
+ *  Point= e123+x e320 + y e130+ ze210 => point at (x,y,z)
+ *  Line=Line0+LineInf; Line0=e23+e13+e12 , LineInf= e10+e20+e30
+ *  Line0 => line through origin, LineInf => shift from origin
+ */
+void CGeometry::sortPencil2( std::vector< nklein::GeometricAlgebra<double, 4> >
+                             &MvVector, std::vector< int > &order)
+{
+  typedef double long64;
+  Coord3D p3D;
+  std::map<long64,int> mapPLUS,mapMINUS;//double cover
+  std::map<long64,int> mapPLUSINF,mapMINUSINF;
+  std::map<long64,int>::iterator it;
+  nklein::GeometricAlgebra< double, 4 > Mv,Point,Line,I,Plane,O,t;
+  nklein::GeometricAlgebra< double, 4 > PointD,LineD,PlaneD,dummy;
+  nklein::GeometricAlgebra< double, 4 > vector1,vector2;
+  bool origin;
+  int i;
+  double sign,inf,xabs;
+  const double tol=0.0000000000000001;
+
+  std::cout<<"sortPencil()\n";
+  /** initialize */
+  order.clear();
+  I[e0|e1|e2|e3]=1.0;
+  O[e0]=1.0;//O[e1]=O[e2]=O[e3]=0.0;
+  //t[e1]=10.0;
+
+  /** check that the edge-line does not go through origin */
+  origin=false;
+  LineD=(MvVector[0]).Grade(2);
+  if(LineD[e0|e1]==0 && LineD[e0|e2]==0 && LineD[e0|e3]==0)
+    origin=true;
+
+  /** Translate if necessary */
+  // X is the flat
+  // translate multivectors T[Mv]*=(T[Mv])*=X*-e0^(t_|X*) in the dual
+  // in the original is; T[Mv]=X+t^(e0_|X)
+  if(origin)
+  {
+    PlaneD=(MvVector[0]).Grade(1);Plane=PlaneD*I;
+    vector2=(O*Plane).Grade(3-1);//! direction of flat plane
+    LineD =(MvVector[0]).Grade(2);Line =LineD*I;
+    vector1=(O*Line).Grade(2-1);//! direction of flat line
+    t=(vector1*vector2).Grade(2-1);//! direction normal to line in plane
+    std::cout<<"t="<< t[e1]<<","<<t[e2]<<","<<t[e3]<<"\n";
+
+    for( i=0; i < MvVector.size() ; ++i)
+    {
+      if(i>0)//! translate for i=0 is nonsense
+      {
+        PlaneD=(MvVector[i]).Grade(1);Plane=PlaneD*I;
+        dummy=(O*Plane).Grade(3-1);
+        dummy=t^dummy;
+        dummy=Plane+dummy;
+        dummy=dummy*I;
+        PlaneD=dummy;
+      }
+      LineD =(MvVector[i]).Grade(2);Line =LineD*I;
+      PointD=(MvVector[i]).Grade(3);Point=PointD*I;
+
+      dummy=(O*Line).Grade(2-1);
+      dummy=t^dummy;
+      dummy=Line+dummy;
+      dummy=dummy*I;
+      LineD=dummy;
+
+      dummy=(O*Point).Grade(1-1);
+      dummy=t^dummy;
+      dummy=Point+dummy;
+      dummy=dummy*I;
+      PointD=dummy;
+      //PlaneD=PlaneD-O^((t*PlaneD).Grade(0));
+      //LineD =LineD -O^((t*LineD).Grade(1));
+      //PointD=PointD-O^((t*PointD).Grade(2));
+      MvVector[i]=MvVector[i][0]+PlaneD+LineD+PointD;
+    }
+  }
+
+  /** at this point v2=>v1 not through origin */
+
+  /** get the negative side branch */
+  /** search the direction from -INF to +INF*/
+  /** reverse help to make ordering quicker using mmaps*/
+  LineD=MvVector[0].Grade(2);
+  Line=LineD*I;
+  Plane=Line^O;
+  PlaneD=Plane*I; // points to the negative branch
+  PlaneD[e1]*=-1;
+  PlaneD[e2]*=-1;
+  PlaneD[e3]*=-1;
+  std::cout<< "+ Sense="<<PlaneD[e1]<<","<<PlaneD[e2]<<","<<PlaneD[e3]<<"\n";
+
+  for( i=0; i < MvVector.size() ; ++i)
+  {
+    Mv=MvVector[i].Grade(1);//! plane in dual space
+    xabs=fabs(Mv[e0]);
+    if(xabs>tol)//to avoid dividing by a very small number
+    {
+      sign=(Mv[e0]>0? 1:-1);//! {-1,+1}
+      Mv[e0]=1;
+      p3D.coord[0]=Mv[e1]=Mv[e1]/xabs*sign;//sign:to turn always in same direction
+      p3D.coord[1]=Mv[e2]=Mv[e2]/xabs*sign;
+      p3D.coord[2]=Mv[e3]=Mv[e3]/xabs*sign;
+    }
+    else
+    {
+      sign=0;
+    }
+    //        else if( 0<xabs && xabs < tol)
+    //        {
+    //            sign=(Mv[e0]>0? 1:-1);//! {-1,+1},since PlaneD points to the + branch
+    //            Mv[e0]=0.0;
+    //            p3D.coord[0]=Mv[e1]=PlaneD[e1]*sign;
+    //            p3D.coord[1]=Mv[e2]=PlaneD[e2]*sign;
+    //            p3D.coord[2]=Mv[e3]=PlaneD[e3]*sign;
+    //            sign=0;
+    //        }
+    //        else //xabs==0
+    //        {
+    //            p3D.coord[0]=Mv[e1];
+    //            p3D.coord[1]=Mv[e2];
+    //            p3D.coord[2]=Mv[e3];
+    //            sign=0;
+    //        }
+
+
+    long64 xl;
+    long64 escala=1;
+    //xl=(long64) (PlaneD*Mv)[0];
+    xl=PlaneD[e1]*Mv[e1]+PlaneD[e2]*Mv[e2]+PlaneD[e3]*Mv[e3];
+    xl*=escala;
+    if( sign>0 )
+    {
+      mapPLUS.insert(std::pair<long64,int>(xl,i));//check que no se repite
+    }
+    else if( sign<0 )
+    {
+      mapMINUS.insert(std::pair<long64,int>(xl,i));//check que no se repite
+    }
+    else //! sign==0: plane through origin.Point at infinity (+) or (-)
+    {
+      if( xl>0 ) //+ branch
+        mapPLUSINF.insert(std::pair<long64,int>(xl,i));//solo debe haber 1 como max
+      else
+        mapMINUSINF.insert(std::pair<long64,int>(xl,i));//solo debe haber 1 como max
+    }
+  }
+
+  if(mapPLUSINF.size()>1 || mapMINUSINF.size()>1)
+    std::cout<< "AQUI\n";
+
+  /** compose order */
+  /** +INF,MINUS,-INF,PLUS */
+  for(it=mapPLUSINF.begin(); it!=mapPLUSINF.end() ;++it)
+  {
+    order.push_back((*it).second);
+    std::cout<<"+INF: "<<(*it).first<<"\t:";
+    std::cout << MvVector[(*it).second][e0]<<" , ";
+    std::cout << MvVector[(*it).second][e1]<<" , ";
+    std::cout << MvVector[(*it).second][e2]<<" , ";
+    std::cout << MvVector[(*it).second][e3]<<"\n";
+  }
+  for(it=mapMINUS.begin(); it!=mapMINUS.end() ;++it)
+  {
+    order.push_back((*it).second);
+    std::cout<<"MIN  : "<<(*it).first<<"("<<(*it).second<<")\t:";
+    std::cout << MvVector[(*it).second][0]<<" + ";
+    std::cout << MvVector[(*it).second][e0]<<" e0, ";
+    std::cout << MvVector[(*it).second][e1]/MvVector[(*it).second][e0]<<" e1/e0, ";
+    std::cout << MvVector[(*it).second][e2]/MvVector[(*it).second][e0]<<" e2/e0, ";
+    std::cout << MvVector[(*it).second][e3]/MvVector[(*it).second][e0]<<" e3/e0\n";
+  }
+  for(it=mapMINUSINF.begin(); it!=mapMINUSINF.end() ;++it)
+  {
+    order.push_back((*it).second);
+    std::cout<<"-INF: "<<(*it).first<<"\t:";
+    std::cout << MvVector[(*it).second][e0]<<" , ";
+    std::cout << MvVector[(*it).second][e1]<<" , ";
+    std::cout << MvVector[(*it).second][e2]<<" , ";
+    std::cout << MvVector[(*it).second][e3]<<"\n";
+  }
+  for(it=mapPLUS.begin(); it!=mapPLUS.end() ;++it)
+  {
+    order.push_back((*it).second);
+    std::cout<<"PLUS : "<<(*it).first<<"("<<(*it).second<<")\t:";
+    std::cout << MvVector[(*it).second][0]<<" + ";
+    std::cout << MvVector[(*it).second][e0]<<" e0, ";
+    std::cout << MvVector[(*it).second][e1]/MvVector[(*it).second][e0]<<" e1/e0, ";
+    std::cout << MvVector[(*it).second][e2]/MvVector[(*it).second][e0]<<" e2/e0, ";
+    std::cout << MvVector[(*it).second][e3]/MvVector[(*it).second][e0]<<" e3/e0\n";
+  }
 }
 //******************************************************************************

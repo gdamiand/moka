@@ -1,7 +1,5 @@
 /*
  * lib-gmapkernel : Un noyau de 3-G-cartes et des opérations.
- * Copyright (C) 2004, Moka Team, Université de Poitiers, Laboratoire SIC
- *               http://www.sic.sp2mi.univ-poitiers.fr/
  * Copyright (C) 2009, Guillaume Damiand, CNRS, LIRIS,
  *               guillaume.damiand@liris.cnrs.fr, http://liris.cnrs.fr/
  *
@@ -19,20 +17,28 @@
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Author(s): Víctor Manuel Soto Francés
+ * Copyright (C) 2009, Víctor Manuel Soto Francés
  */
 
 //******************************************************************************
-#include "math-extension.hh"
-#include "vertex.hh"
+#ifndef GEOMA_DATA_HH
+#define GEOMA_DATA_HH
 //******************************************************************************
-const TCoordinate EPSILON = 1E-5;
+namespace nklein {
+  namespace nklein_priv {
+    template<const unsigned int P, const unsigned int Q>
+    int GeomMultTable< P, Q >::multTable[ 1U << (P+Q) ][ 1U << (P+Q) ];
+    
+    template<const unsigned int N>
+    int GeomGradeTable<N>::gradeTable[ 1U << (N) ];
+  };
+  
+  static const char* GeometricAlgebraVersion
+  = "nklein::GeometricAlgebra::version: "
+    "v1.2.2007.08.20"                                                        ;
+};
 //******************************************************************************
-TCoordinate det(const CVertex & ALine1, const CVertex & ALine2,
-		const CVertex & ALine3)
-{
-  return
-    ALine1.getX()*(ALine2.getY()*ALine3.getZ() - ALine2.getZ()*ALine3.getY()) -
-    ALine1.getY()*(ALine2.getX()*ALine3.getZ() - ALine2.getZ()*ALine3.getX()) +
-    ALine1.getZ()*(ALine2.getX()*ALine3.getY() - ALine2.getY()*ALine3.getX());
-}
+#endif // GEOMA_DATA_HH
 //******************************************************************************

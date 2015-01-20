@@ -46,6 +46,7 @@ CDart* importOff2D(std::istream & AStream);
  * déroulé, NULL sinon
  */
 CDart* importOff3D(std::istream & AStream);
+CDart* importOff3D_VSF(std::istream & AStream);
 
 /**
  * Sous fonction utile pour ajouter une arête entre les sommets
@@ -58,6 +59,19 @@ CDart* addEdgeOFF( std::vector< CVertex >& AInitVertices,
                    unsigned long int AV1, unsigned long int AV2,
                    int AIndex, CDart* APrec );
 
+//! VICTOR
+CDart* addEdgeOFF_VSF( std::vector< CVertex >& AInitVertices,
+                       std::vector< std::list<CDart*> >& ATestVertices,
+                   unsigned long int AV1, unsigned long int AV2,
+                   int AIndex, CDart* APrec,
+                   CVertex AVertex,
+                   nklein::GeometricAlgebra< double,4 > &faceplane);
+//! VICTOR
+void computeOFFSenses_VSF( std::vector< std::list<int> >& face,
+                           std::vector< CVertex >& AInitVertices,
+                           nklein::GeometricAlgebra< double,4 > &faceplane,
+                           CVertex &baricentro,
+                           std::vector< int > &faceseq);
 /**
  * La face incidente à ADart vient d'être créé. Cherche à coudre toute
  * ses arêtes par alpha2 en utilisant pour cela les arêtes existantes
@@ -66,6 +80,9 @@ CDart* addEdgeOFF( std::vector< CVertex >& AInitVertices,
  */
 void linkFaceAlpha2OFF( std::vector< std::list<CDart*> >& ATestVertices,
                         int AIndex, CDart* ADart );
+//! VICTOR
+void  linkFacesAlpha2OFF_VSF(std::vector< std::list<CDart*> >& ATestVertices,
+                             int AIndex);
 
 /** 
  * @return la dimension du fichier off en lisant l'entête: 2, 3 ou -1 si erreur

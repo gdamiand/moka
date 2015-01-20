@@ -19,6 +19,8 @@
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Contributor(s): Víctor Manuel Soto Francés
  */
 
 //******************************************************************************
@@ -28,6 +30,8 @@
 #include "inline-macro.hh"
 #include "math-extension.hh"
 #include "vertex.hh"
+#include "multivector.hh"
+#include <vector>
 //******************************************************************************
 
 /**
@@ -62,8 +66,8 @@ public:
    * @precondition ! ADirection.isNull()
    */
   static CVertex orthoProjectVertexOnLine(const CVertex& AVertex,
-					  const CVertex& ALineVertex,
-					  const CVertex& ALineDirection);
+                                          const CVertex& ALineVertex,
+                                          const CVertex& ALineDirection);
 
   /**
    * Calcule le projeté orthogonal de AVertex sur le plan d'équation
@@ -75,8 +79,8 @@ public:
    */
   static CVertex
   orthoProjectVertexOnPlane(const CVertex& AVertex,
-			    const TCoordinate& AA, const TCoordinate& AB,
-			    const TCoordinate& AC, const TCoordinate& AD);
+                            const TCoordinate& AA, const TCoordinate& AB,
+                            const TCoordinate& AC, const TCoordinate& AD);
 
   /**
    * Calcule le projeté orthogonal de AVertex sur le plan de vecteur normal
@@ -90,8 +94,8 @@ public:
    * @precondition !ANormal.isNull()
    */
   static CVertex orthoProjectVertexOnPlane(const CVertex& AVertex,
-					   const CVertex& APlaneVertex,
-					   const CVertex& APlaneNormal);
+                                           const CVertex& APlaneVertex,
+                                           const CVertex& APlaneNormal);
 
   // @}
   // @name Homothéties
@@ -107,8 +111,8 @@ public:
    * @return L'image de AVertex par l'homothétie donnée
    */
   static CVertex centralHomothety(const CVertex& AVertex,
-				  const CVertex& ACenter,
-				  const TCoordinate& ACoef);
+                                  const CVertex& ACenter,
+                                  const TCoordinate& ACoef);
 
   /**
    * Calcule l'image de AVertex par l'homothétie de centre ACenter et de
@@ -120,8 +124,8 @@ public:
    * @return L'image de AVertex par l'homothétie donnée
    */
   static CVertex centralHomothety(const CVertex& AVertex,
-				  const CVertex& ACenter,
-				  const CVertex& ACoef);
+                                  const CVertex& ACenter,
+                                  const CVertex& ACoef);
 
   /**
    * Calcule l'image de AVertex par l'homothétie axiale de coefficient ACoef et
@@ -137,9 +141,9 @@ public:
    * @precondition ! ALineDirection.isNull()
    */
   static CVertex axialHomothety(const CVertex& AVertex,
-				const CVertex& ALineVertex,
-				const CVertex& ALineDirection,
-				const TCoordinate& ACoef);
+                                const CVertex& ALineVertex,
+                                const CVertex& ALineDirection,
+                                const TCoordinate& ACoef);
 
   /**
    * Calcule l'image de AVertex par l'homothétie planaire de coefficient ACoef
@@ -155,9 +159,9 @@ public:
    * @precondition ! APlaneNormal.isNull()
    */
   static CVertex planarHomothety(const CVertex& AVertex,
-				 const CVertex& APlaneVertex,
-				 const CVertex& APlaneNormal,
-				 const TCoordinate& ACoef);
+                                 const CVertex& APlaneVertex,
+                                 const CVertex& APlaneNormal,
+                                 const TCoordinate& ACoef);
 
   // @}
   // @name Calcul de la distance d'un sommet à un autre objet
@@ -171,7 +175,7 @@ public:
    * @return La distance entre les deux sommets
    */
   static TCoordinate distanceToVertex(const CVertex& AVertex,
-				      const CVertex& AOtherVertex);
+                                      const CVertex& AOtherVertex);
 
   /**
    * Calcule la distance euclidienne du sommet AVertex à la droite de vecteur
@@ -186,8 +190,8 @@ public:
    * @precondition ! ALineDirection.isNull()
    */
   static TCoordinate distanceToLine(const CVertex& AVertex,
-				    const CVertex& ALineVertex,
-				    const CVertex& ALineDirection);
+                                    const CVertex& ALineVertex,
+                                    const CVertex& ALineDirection);
 
   /**
    * Calcule la distance euclidienne du sommet AVertex au plan de vecteur
@@ -202,8 +206,8 @@ public:
    * @precondition ! APlaneNormal.isNull()
    */
   static TCoordinate distanceToPlane(const CVertex& AVertex,
-				     const CVertex& APlaneVertex,
-				     const CVertex& APlaneNormal);
+                                     const CVertex& APlaneVertex,
+                                     const CVertex& APlaneNormal);
 
   // @}
   // @name Fonctions géométriques diverses
@@ -221,8 +225,8 @@ public:
    * @return La bissectrice des vecteurs AVector1 et AVector2
    */
   static CVertex getBissectrix(const CVertex& AVector1,
-			       const CVertex& AVector2,
-			       const CVertex& ANormal = ORIGIN);
+                               const CVertex& AVector2,
+                               const CVertex& ANormal = ORIGIN);
 
   /**
    * Calcule un vecteur normal à AVector, si possible se trouvant dans le plan
@@ -247,15 +251,15 @@ public:
    *  @return Un vecteur normal à AVector1 et AVector2
    */
   static CVertex getNormalVector(const CVertex& AVector1,
-				 const CVertex& AVector2);
+                                 const CVertex& AVector2);
 
   /**
    *  Calcule un vecteur normal aux vecteurs (AVertex1,AVertex2) et
    * (AVertex2,AVertex3).
    */
   static CVertex getNormalVector(const CVertex& AVertex1,
-				 const CVertex& AVertex2,
-				 const CVertex& AVertex3);
+                                 const CVertex& AVertex2,
+                                 const CVertex& AVertex3);
 
   /**
    * Calcule l'intersection entre deux droites.
@@ -272,9 +276,9 @@ public:
    * @precondition ALine2Vertex1 != ALine2Vertex2
    */
   static CVertex getLinesIntersection(const CVertex& ALine1Vertex1,
-				      const CVertex& ALine1Vertex2,
-				      const CVertex& ALine2Vertex1,
-				      const CVertex& ALine2Vertex2);
+                                      const CVertex& ALine1Vertex2,
+                                      const CVertex& ALine2Vertex1,
+                                      const CVertex& ALine2Vertex2);
 
   /**
    * Teste si deux vecteurs sont colinéaires.
@@ -297,8 +301,8 @@ public:
    * @return Un angle
    */
   static TCoordinate getAngle(const CVertex& AVector1,
-			      const CVertex& AVector2,
-			      const CVertex& ANormal = ORIGIN);
+                              const CVertex& AVector2,
+                              const CVertex& ANormal = ORIGIN);
 
   /**
    * Calcule les 3 angles de rotation permettant d'obtenir le repère
@@ -341,9 +345,9 @@ public:
    * @precondition !APlaneNormal.isNull()
    */
   static int localiseVertexComparedToLine(const CVertex& AVertex,
-					  const CVertex& ALineVertex,
-					  const CVertex& ALineDirection,
-					  const CVertex& APlaneNormal);
+                                          const CVertex& ALineVertex,
+                                          const CVertex& ALineDirection,
+                                          const CVertex& APlaneNormal);
 
   /**
    * Teste si les segments AB et CD s'intersectent.
@@ -382,27 +386,27 @@ public:
    * @precondition !APlaneNormal.isNull()
    */
   static void getSegmentsIntersection(const CVertex& AVertexA,
-				      const CVertex& AVertexB,
-				      const CVertex& AVertexC,
-				      const CVertex& AVertexD,
-				      const CVertex& APlaneNormal,
-				      int& AIntersection1On,
-				      CVertex& AIntersection1,
-				      int& AIntersection2On,
-				      CVertex& AIntersection2);
+                                      const CVertex& AVertexB,
+                                      const CVertex& AVertexC,
+                                      const CVertex& AVertexD,
+                                      const CVertex& APlaneNormal,
+                                      int& AIntersection1On,
+                                      CVertex& AIntersection1,
+                                      int& AIntersection2On,
+                                      CVertex& AIntersection2);
 
   /**
    *  Méthode équivalente à getSegmentsIntersection, mais qui travaille dans
    *  le plan.
    */
   static void getSegmentsIntersection2d(const CVertex& AVertexA,
-					const CVertex& AVertexB,
-					const CVertex& AVertexC,
-					const CVertex& AVertexD,
-					int& AIntersection1On,
-					CVertex& AIntersection1,
-					int& AIntersection2On,
-					CVertex& AIntersection2);
+                                        const CVertex& AVertexB,
+                                        const CVertex& AVertexC,
+                                        const CVertex& AVertexD,
+                                        int& AIntersection1On,
+                                        CVertex& AIntersection1,
+                                        int& AIntersection2On,
+                                        CVertex& AIntersection2);
 
   // @}
   // @name Méthodes pour le chanfreinage :
@@ -414,9 +418,77 @@ public:
    *   au vecteur AB dans le plan ABC.
    */
   static CVertex getRoundingNormalVector(const CVertex& AVertex1, 
-					 const CVertex& AVertex2,
-					 const CVertex& AVertex3);
+                                         const CVertex& AVertex2,
+                                         const CVertex& AVertex3);
 
+  // @}
+
+  // @{
+  // @name Methods using mutivectors
+  //! VICTOR
+  /**
+   * @param AVertex1==>AVertex2,VolumenOrientation two values (-1,+1)
+   * @return Dual multivector representation; Point,Line,Volume (PLV)
+   */
+  static CMultivector
+  getMVectorPLV(nklein::GeometricAlgebra< double,4 > &faceplane,
+                const CVertex& AVertex1,
+                const CVertex& AVertex2,
+                const CVertex& AVertex3,
+                int sense, int VolumeOrientation);
+
+  //--used in sortpencil()
+  static double cint(double x)
+  {
+    double dummy;
+    if (modf(x,&dummy)>=.5)
+      return x>=0?ceil(x):floor(x);
+    else
+      return x<0?ceil(x):floor(x);
+  };
+
+  static double redondeo(double r,unsigned places)
+  {
+    double off=pow(10,places);
+    return cint(r*off)/off;
+  };
+
+  struct Coord3D
+  { double coord[3]; };
+  struct CompareCoord3D
+  {
+    bool operator()(const Coord3D& lhs, const Coord3D& rhs)
+    {
+      unsigned dec=10;
+      double lhsx=redondeo(lhs.coord[0],dec);
+      double rhsx=redondeo(rhs.coord[0],dec);
+      double lhsy=redondeo(lhs.coord[1],dec);
+      double rhsy=redondeo(rhs.coord[1],dec);
+      double lhsz=redondeo(lhs.coord[2],dec);
+      double rhsz=redondeo(rhs.coord[2],dec);
+      if( lhsx < rhsx )
+        return true;
+      if( rhsx < lhsx )
+        return false;
+      if( lhsy < rhsy )
+        return true;
+      if( rhsy < lhsy )
+        return false;
+      if( lhsz < rhsz )
+        return true;
+      return false;
+    }
+  };
+
+  //--sortpencil
+  //typedef signed long long long64;
+  static int cmpPlaneSense(nklein::GeometricAlgebra< double, 4> &planeD1,
+                           nklein::GeometricAlgebra< double, 4> &planeD2);
+
+  static void sortPencil(std::vector< nklein::GeometricAlgebra< double, 4 > >
+                         &subVector, std::vector< int > &order);
+  static void sortPencil2(std::vector< nklein::GeometricAlgebra< double, 4 > >
+                          &subVector, std::vector< int > &order);
   // @}
 };
 //******************************************************************************
