@@ -1,7 +1,5 @@
 /*
  * lib-gmapkernel : Un noyau de 3-G-cartes et des opérations.
- * Copyright (C) 2004, Moka Team, Université de Poitiers, Laboratoire SIC
- *               http://www.sic.sp2mi.univ-poitiers.fr/
  * Copyright (C) 2009, Guillaume Damiand, CNRS, LIRIS,
  *               guillaume.damiand@liris.cnrs.fr, http://liris.cnrs.fr/
  *
@@ -19,20 +17,50 @@
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+ *
+ * Author(s): Víctor Manuel Soto Francés
+*/
 
 //******************************************************************************
-#include "math-extension.hh"
-#include "vertex.hh"
-//******************************************************************************
-const TCoordinate EPSILON = 1E-5;
-//******************************************************************************
-TCoordinate det(const CVertex & ALine1, const CVertex & ALine2,
-		const CVertex & ALine3)
+/*INLINE
+CMultivector::CMultivector(const CDart *dart,CVertex *AVertex)
 {
-  return
-    ALine1.getX()*(ALine2.getY()*ALine3.getZ() - ALine2.getZ()*ALine3.getY()) -
-    ALine1.getY()*(ALine2.getX()*ALine3.getZ() - ALine2.getZ()*ALine3.getX()) +
-    ALine1.getZ()*(ALine2.getX()*ALine3.getY() - ALine2.getY()*ALine3.getX());
-}
+  nklein::GeometricAlgebra< double, 4 > Q;
+  CDart *nextdart;
+  CAttributeVertex *attVertex;
+
+  // Initialize
+  MD=0;
+  Ih[e0|e1|e2|e3]=1;
+
+  // pto inicial y final
+  attVertex=(CAttributeVertex*) dart->getAttribute(ORBIT_VERTEX, ATTRIBUTE_VERTEX);
+
+  P[e0]=1.0;
+  P[e1]=attVertex->getX();
+  P[e2]=attVertex->getY();
+  P[e3]=attVertex->getZ();
+  PD=P*Ih;
+  MD.Grade(3)=PD;//!< dual point
+
+  nextdart=dart->getAlpha0();
+  attVertex=(CAttributeVertex*) nextdart->getAttribute(ORBIT_VERTEX, ATTRIBUTE_VERTEX);
+  Q[e0]=1.0;
+  Q[e1]=attVertex->getX();
+  Q[e2]=attVertex->getY();
+  Q[e3]=attVertex->getZ();
+
+  L=P^Q;
+  LD=L*Ih;
+  MD.Grade(2)=LD;//!< dual line
+
+  // Baricentre
+  B[e0]=1.0;
+  B[e1]=CVertex->getX();
+  B[e2]=CVertex->getY();
+  B[e3]=CVertex->getZ();
+
+  if(AVertex != NULL)
+    Sense(dart);
+}*/
 //******************************************************************************
