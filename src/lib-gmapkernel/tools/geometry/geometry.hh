@@ -361,7 +361,7 @@ public:
    * coordonnées du point d'intersection à AIntersection-, sinon
    * AIntersection- n'est pas modifié.
    *
-   * Remarque : s'il n'y alpha qu'une seule intersection, celle-ci n'est pas
+   * Remarque : s'il n'y a qu'une seule intersection, celle-ci n'est pas
    * forcément placée dans AIntersection1.
    *
    * La méthode fonctionne dans toutes les configurations (arêtes disjointes,
