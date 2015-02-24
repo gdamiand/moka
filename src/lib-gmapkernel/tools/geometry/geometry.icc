@@ -413,7 +413,7 @@ void CGeometry::getSegmentsIntersection(const CVertex& AVertexA,
     }
 
     // Un seul segment est de longueur nulle.
-    // Il y alpha au plus un sommet à insérer:
+    // Il y a au plus un sommet à insérer:
     AIntersection1On = 0;
     AIntersection2On = 0;
 
@@ -561,6 +561,7 @@ CVertex CGeometry::getRoundingNormalVector(const CVertex& AVertex1,
  *  line =V1^V2
  *  plane=V3^V1^V2 (must have the sense imposed by @param sense)
  */
+INLINE
 CMultivector CGeometry::getMVectorPLV(nklein::GeometricAlgebra< double,4 > &
                                       faceplane,
                                       const CVertex& AVertex1,
@@ -624,6 +625,7 @@ CMultivector CGeometry::getMVectorPLV(nklein::GeometricAlgebra< double,4 > &
  * orientation.
  * @return in {-1,+1,99}, opposite, same. NOT SAME PLANE (norm infinite)
  */
+INLINE
 int CGeometry::cmpPlaneSense(nklein::GeometricAlgebra< double, 4> &planeD1,
                              nklein::GeometricAlgebra< double, 4> &planeD2)
 {
@@ -676,6 +678,7 @@ int CGeometry::cmpPlaneSense(nklein::GeometricAlgebra< double, 4> &planeD1,
  *  Line=Line0+LineInf; Line0=e23+e13+e12 , LineInf= e10+e20+e30
  *  Line0 => line through origin, LineInf => shift from origin
  */
+INLINE
 void CGeometry::sortPencil( std::vector< nklein::GeometricAlgebra<double, 4> >
                             &MvVector,
                             std::vector< int > &order)
@@ -882,6 +885,7 @@ void CGeometry::sortPencil( std::vector< nklein::GeometricAlgebra<double, 4> >
  *  Line=Line0+LineInf; Line0=e23+e13+e12 , LineInf= e10+e20+e30
  *  Line0 => line through origin, LineInf => shift from origin
  */
+INLINE
 void CGeometry::sortPencil2( std::vector< nklein::GeometricAlgebra<double, 4> >
                              &MvVector, std::vector< int > &order)
 {
