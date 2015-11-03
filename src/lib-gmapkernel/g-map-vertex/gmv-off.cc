@@ -363,8 +363,6 @@ CDart* CGMapVertex::addEdgeOFF_VSF(vector< CVertex >& AInitVertices,
                                    CVertex AVertex,
                                    nklein::GeometricAlgebra< double,4 > &faceplane)
 {
-   if(AV1==AV2)
-       std::cout<<"AQUI\n";
    list<CDart*>& tmp1 = ATestVertices[AV1];
    list<CDart*>& tmp2 = ATestVertices[AV2];
 
@@ -418,7 +416,7 @@ CDart* CGMapVertex::addEdgeOFF_VSF(vector< CVertex >& AInitVertices,
    return dart2;
 }
 //******************************************************************************
-CDart* CGMapVertex::importOff3D(std::istream & AStream)
+/*CDart* CGMapVertex::importOff3D(std::istream & AStream)
 {
   // Lecture des sommets à charger:
   vector< CVertex > initVertices;
@@ -512,7 +510,7 @@ CDart* CGMapVertex::importOff3D(std::istream & AStream)
   freeDirectInfo(index);
 
   return first;
-}
+}*/
 //******************************************************************************
 /**
  *  Compute sense of the outer polygon and correct the sense of its holes
@@ -662,9 +660,9 @@ void CGMapVertex::computeOFFSenses_VSF(vector< list<int> >& face,
     delete [] Points[i];
 }
 //******************************************************************************
-CDart* CGMapVertex::importOff3D_VSF(std::istream & AStream)
+//CDart* CGMapVertex::importOff3D_VSF(std::istream & AStream)
+CDart* CGMapVertex::importOff3D(std::istream & AStream)
 {
-  // Lectura de los puntos 3D
   vector< CVertex > initVertices;
   vector< list<CDart*> > testVertices;
   vector< list<int> > face;
@@ -680,7 +678,8 @@ CDart* CGMapVertex::importOff3D_VSF(std::istream & AStream)
   unsigned long int v1, v2, vf;
 
   AStream >> txt;
-  if (txt != "OFFVSF" && txt != "OFF3DVSF")
+  //if (txt != "OFFVSF" && txt != "OFF3DVSF")
+  if (txt != "OFF" && txt != "OFF3D")
   {
     cout << "Input problem : file is not OFF format" << endl;
     return NULL;
@@ -690,10 +689,8 @@ CDart* CGMapVertex::importOff3D_VSF(std::istream & AStream)
   unsigned int nbFaces = 0;
   unsigned int doubleNbAretes = 0;
 
-  /** Lectura geometria */
   AStream >> nbSommets >> nbFaces >> doubleNbAretes;
 
-  /** Lectura vertices */
   while (nbSommets > 0)
   {
     if (!AStream.good())

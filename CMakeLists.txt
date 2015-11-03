@@ -26,7 +26,7 @@ ENDIF (WIN32)
 # To use dynamic libraires (on) or static (OFF)
 OPTION(BUILD_SHARED_LIBS "Build shared libraries." OFF)
 
-# For profilling
+# For profilling with gprof
 # ADD_DEFINITIONS("-pg")
 # SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pg")
 
