@@ -1081,9 +1081,9 @@ void Window::callbackImport()
       {
          case 0 : 
 #ifdef WITH_ASSIMP
-             res = getControler()->importWithAssimp(filename.c_str()); break;
+           res = getControler()->importWithAssimp(filename.c_str()); break;
 #else
-             res = getControler()->importOff(filename.c_str()); break;
+           res = getControler()->importOff(filename.c_str()); break;
 #endif // WITH_ASSIMP
          case 1 : res = getControler()->importTetmesh(filename.c_str()); break;
          default : break;
