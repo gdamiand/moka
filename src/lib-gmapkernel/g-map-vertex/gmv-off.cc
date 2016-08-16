@@ -913,8 +913,9 @@ bool CGMapVertex::exportOff3D(std::ostream & AStream)
   int directInfoIndex = getNewDirectInfo();
   int markVertex = getNewMark();
   int markFace   = getNewMark();
+  int markVolume = getNewMark();
   unsigned long int nbV = 0;
-  unsigned int nbE = 0; // TODO compter les arêtes
+  unsigned int nbE = 0; // TODO compter les arêtes (ou pas, pas utilisé dans le OFF)
   unsigned int nbF = 0;
 
   for (it.reinit(); it.cont(); ++it)
@@ -926,16 +927,28 @@ bool CGMapVertex::exportOff3D(std::ostream & AStream)
         setDirectInfo(*it2, directInfoIndex, (void*)nbV);
       ++nbV;
     }
+
     if (!isMarked(*it, markFace))
     {
       bool faceOuverte = false;
       for (CDynamicCoverage01 itFace(this,*it); itFace.cont(); ++itFace)
       {
         if (isFree0(*it)||isFree1(*it)) faceOuverte=true;
-        setMark(alpha3(*itFace), markFace);
         setMark(*itFace, markFace);
       }
       if ( !faceOuverte ) ++nbF;
+    }
+    
+    if (!isMarked(*it, markVolume) && !isMarked(alpha0(*it), markVolume))
+    {
+      if (isOrientable(*it,ORBIT_VOLUME))
+      {
+        halfMarkOrbit(*it, ORBIT_VOLUME, markVolume);
+      }
+      else
+      {
+        markOrbit(*it, ORBIT_VOLUME, markVolume);
+      }
     }
   }
 
@@ -959,7 +972,7 @@ bool CGMapVertex::exportOff3D(std::ostream & AStream)
   negateMaskMark(markFace);
   for (it.reinit(); it.cont(); ++it)
   {
-    if (!isMarked(*it, markFace))
+    if (!isMarked(*it, markFace) && isMarked(*it, markVolume))
     {
       CDynamicCoverage01 itFace(this,*it);
       int n=0; bool faceOuverte = false;
@@ -979,21 +992,22 @@ bool CGMapVertex::exportOff3D(std::ostream & AStream)
           AStream << (unsigned long int)getDirectInfo(*itFace, directInfoIndex)
                   << " ";
 
-          setMark(alpha3(*itFace), markFace);
           setMark(itFace++, markFace); assert(itFace.cont());
-
-          setMark(alpha3(*itFace), markFace);
           setMark(itFace++, markFace);
         }
         AStream << endl;
       }
       else
-        markOrbit(*it, ORBIT_FACE, markFace);
+        markOrbit(*it, ORBIT_01, markFace);
     }
   }
 
+  for (it.reinit(); it.cont(); ++it)
+    unsetMark(*it, markVolume);
+  
   negateMaskMark(markVertex); freeMark(markVertex);
   negateMaskMark(markFace); freeMark(markFace);
+  freeMark(markVolume);
   freeDirectInfo(directInfoIndex);
 
   return true;
