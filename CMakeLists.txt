@@ -162,19 +162,18 @@ endif ( MODULE_COREFINEMENT )
 #-------------------------------------------------------------------------------
 if ( MODULE_EXTRACTION_IMAGE )
 
-  FIND_PACKAGE(ImageMagick)
   FIND_PACKAGE(ImageMagick COMPONENTS Magick++)
 
-  if ( NOT (ImageMagick_FOUND AND ImageMagick_Magick++_FOUND ) )
+  if ( NOT (ImageMagick_Magick++_FOUND ) )
     add_definitions(-DMODULE_EXTRACTION_WITHOUT_MAGICK)
     message(STATUS "Warning: Magick++ not installed, module extraction image does not able to load images.")
-  else ( NOT (ImageMagick_FOUND AND ImageMagick_Magick++_FOUND ) )
+  else ( NOT (ImageMagick_Magick++_FOUND ) )
      # We need to use pkg_check_modules in order to retreive the compiler options
      # required for ImageMagick (I think it is bug that it is not done by find_package)
      find_package(PkgConfig)
      pkg_check_modules(MAGICKXX Magick++)
      add_definitions(${MAGICKXX_CFLAGS})
-  endif ( NOT (ImageMagick_FOUND AND ImageMagick_Magick++_FOUND ) )
+  endif ( NOT (ImageMagick_Magick++_FOUND ) )
 
   add_definitions(-DMODULE_EXTRACTION_IMAGE)
   include_directories(${CMAKE_SOURCE_DIR}/src/lib-extraction-images)
