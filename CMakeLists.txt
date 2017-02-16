@@ -167,10 +167,13 @@ if ( MODULE_EXTRACTION_IMAGE )
 
   if ( NOT (ImageMagick_FOUND AND ImageMagick_Magick++_FOUND ) )
     add_definitions(-DMODULE_EXTRACTION_WITHOUT_MAGICK)
-    messaege(STATUS "Warning: Magick++ not installed, module extraction image does not able to load images.")
+    message(STATUS "Warning: Magick++ not installed, module extraction image does not able to load images.")
   else ( NOT (ImageMagick_FOUND AND ImageMagick_Magick++_FOUND ) )
-    INCLUDE_DIRECTORIES(${ImageMagick_INCLUDE_DIRS} 
-      ${ImageMagick_Magick++_INCLUDE_DIRS})    
+     # We need to use pkg_check_modules in order to retreive the compiler options
+     # required for ImageMagick (I think it is bug that it is not done by find_package)
+     find_package(PkgConfig)
+     pkg_check_modules(MAGICKXX Magick++)
+     add_definitions(${MAGICKXX_CFLAGS})
   endif ( NOT (ImageMagick_FOUND AND ImageMagick_Magick++_FOUND ) )
 
   add_definitions(-DMODULE_EXTRACTION_IMAGE)
