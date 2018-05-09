@@ -127,7 +127,7 @@ void GLWindow::closeEvent(QCloseEvent * e)
 //************************************************************
 void GLWindow::paintGL()
 {
-  QPainter p(this);
+//  QPainter p(this);
 
   makeCurrent();
   glPushAttrib(GL_ALL_ATTRIB_BITS);
@@ -154,16 +154,16 @@ void GLWindow::paintGL()
   glPopMatrix();
   glPopAttrib();
 
-  if (FDragMode)
-    {
-      p.setPen(Qt::white) ;
-      p.drawRect(FStartX, FStartY, FCurX - FStartX, FCurY - FStartY);
-      if ( FOwner->getControler()->getModeDeselectionAtStop() )
-	p.drawText(FStartX, FStartY, "Deselect");
-      else
-	p.drawText(FStartX, FStartY, "Select");
-    }
-  p.end();
+//  if (FDragMode)
+//    {
+//      p.setPen(Qt::white) ;
+//      p.drawRect(FStartX, FStartY, FCurX - FStartX, FCurY - FStartY);
+//      if ( FOwner->getControler()->getModeDeselectionAtStop() )
+//	p.drawText(FStartX, FStartY, "Deselect");
+//      else
+//	p.drawText(FStartX, FStartY, "Select");
+//    }
+//  p.end();
 }
 //************************************************************
 // Modif de la taille de la fenetre
