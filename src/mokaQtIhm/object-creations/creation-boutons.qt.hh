@@ -31,8 +31,8 @@ class CreationObjet ;
 #include "controler-gmap.hh"
 
 //--------------------- Include QT --------------------
-#include <QtGui/QPushButton>
-#include <QtGui/QBoxLayout>
+#include <QtWidgets/QPushButton>
+#include <QtWidgets/QBoxLayout>
 
 /*******************************************************/
 /* CLASSE BoutonsCreation                              */

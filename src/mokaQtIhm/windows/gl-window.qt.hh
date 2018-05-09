@@ -35,7 +35,7 @@
 #include "controler-gmap.hh"
 
 //------------------ Include QT -------------------
-#include <QtGui/QWorkspace>
+#include <QtWidgets/QMdiArea>
 
 class Window ;
 
@@ -52,7 +52,7 @@ public:
    * @param owner Fenetre mere
    * @param selection Pointeur sur la barre de selection
    */
-  GLWindow ( TView AViewType , QWorkspace * parent , Window * owner ,
+  GLWindow ( TView AViewType , QMdiArea * parent , Window * owner ,
 	     SelectBar * selection ) ;
 
   /**
@@ -63,7 +63,7 @@ public:
    * @param share Vue avec laquelle elle partage le contexte OpenGL
    * @param selection Pointeur sur la barre de selection
    */
-  GLWindow ( TView AViewType , QWorkspace * parent , 
+  GLWindow ( TView AViewType , QMdiArea * parent ,
 	     Window * owner , GLWindow * share , SelectBar * selection  ) ;
   
   /**

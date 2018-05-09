@@ -26,8 +26,8 @@
 #include "HtmlEntities.hh"
 #include "SpaceWidget.qt.hh"
 
-#include <QtGui/QLabel>
-#include <QtGui/QHBoxLayout>
+#include <QtWidgets/QLabel>
+#include <QtWidgets/QHBoxLayout>
 
 /*******************************************************************/
 /* CLASSE  creationTore                                        */

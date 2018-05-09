@@ -54,7 +54,7 @@ public:
    * @param owner Fenetre principale
    * @param share Vue avec laquelle est partage le contexte OpenGL
    */
-  GLMultiWindow ( QWorkspace * parent , Window * owner , GLWindow * share ,
+  GLMultiWindow ( QMdiArea * parent , Window * owner , GLWindow * share ,
 		  SelectBar * selection ) ;
   
   /**

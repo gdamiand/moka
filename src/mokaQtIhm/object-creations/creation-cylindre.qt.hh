@@ -31,9 +31,9 @@ class Window ;
 #include "creation-objet.qt.hh"
 
 //--------------------- Include QT --------------------
-#include <QtGui/QMainWindow>
-#include <QtGui/QToolBar>
-#include <QtGui/QCheckBox>
+#include <QtWidgets/QMainWindow>
+#include <QtWidgets/QToolBar>
+#include <QtWidgets/QCheckBox>
 
 /*******************************************************************/
 /* CLASSE creationCylindre                                         */

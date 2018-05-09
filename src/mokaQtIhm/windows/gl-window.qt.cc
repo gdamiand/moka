@@ -34,7 +34,7 @@ using namespace GMap3d ;
 //*****************************************************
 // Constructeurs
 //*****************************************************
-GLWindow :: GLWindow(TView AViewType , QWorkspace * parent ,
+GLWindow :: GLWindow(TView AViewType , QMdiArea * parent ,
                      Window * owner , SelectBar * selection) :
       QGLWidget(QGLFormat(QGL::SampleBuffers), parent , 0, Qt::SubWindow),
       FViewType(AViewType),
@@ -46,11 +46,11 @@ GLWindow :: GLWindow(TView AViewType , QWorkspace * parent ,
 {
    string str = getViewTypeString();
    setWindowTitle(*HTML::decode(&str));
-   parent->addWindow(this);
+   parent->addSubWindow(this);
    setAcceptDrops(true);
 }
 
-GLWindow :: GLWindow(TView AViewType , QWorkspace * parent ,
+GLWindow :: GLWindow(TView AViewType , QMdiArea * parent ,
                      Window * owner , GLWindow * share ,
                      SelectBar * selection) :
       QGLWidget(parent, share , Qt::SubWindow) ,
@@ -63,7 +63,7 @@ GLWindow :: GLWindow(TView AViewType , QWorkspace * parent ,
 {
    string str = getViewTypeString();
    setWindowTitle(*HTML::decode(&str));
-   parent->addWindow(this);
+   parent->addSubWindow(this);
    setAcceptDrops(true);
 }
 //******************************************************

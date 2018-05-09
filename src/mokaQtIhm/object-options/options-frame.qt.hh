@@ -35,9 +35,9 @@
 
 
 //--------------------- Include QT --------------------
-#include <QtGui/QDialog>
-#include <QtGui/QPushButton>
-#include <QtGui/QTabWidget>
+#include <QtWidgets/QDialog>
+#include <QtWidgets/QPushButton>
+#include <QtWidgets/QTabWidget>
 
 
 

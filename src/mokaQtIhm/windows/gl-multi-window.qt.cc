@@ -45,7 +45,7 @@ using namespace GMap3d ;
 // Constructeur
 //*******************************************************
 
-GLMultiWindow :: GLMultiWindow ( QWorkspace * parent , Window * owner ,
+GLMultiWindow :: GLMultiWindow ( QMdiArea * parent , Window * owner ,
 				 GLWindow * share , SelectBar * selection ) :
   GLWindow       ( VIEW_ISO , parent , owner , share , selection ),
   FCliqued       (0),
@@ -53,7 +53,7 @@ GLMultiWindow :: GLMultiWindow ( QWorkspace * parent , Window * owner ,
 {
   string str = getViewTypeString();
   setWindowTitle(*HTML::decode(&str));
-  parent->addWindow(this);
+  parent->addSubWindow(this);
 }
 
 

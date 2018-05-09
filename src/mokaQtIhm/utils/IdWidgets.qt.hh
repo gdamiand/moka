@@ -24,10 +24,10 @@
 #ifndef _IDWIDGETS_H
 #define _IDWIDGETS_H
 
-#include <QtGui/QPushButton>
-#include <QtGui/QRadioButton>
-#include <QtGui/QAction>
-#include <QtGui/QWidget>
+#include <QtWidgets/QPushButton>
+#include <QtWidgets/QRadioButton>
+#include <QtWidgets/QAction>
+#include <QtWidgets/QWidget>
 
 
 // Des QPushButton avec un identifiant.

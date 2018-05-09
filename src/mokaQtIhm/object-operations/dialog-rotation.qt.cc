@@ -27,9 +27,9 @@
 #include "SpaceWidget.qt.hh"
 
 #include <QtGui/QPixmap>
-#include <QtGui/QLabel>
-#include <QtGui/QBoxLayout>
-#include <QtGui/QGridLayout>
+#include <QtWidgets/QLabel>
+#include <QtWidgets/QBoxLayout>
+#include <QtWidgets/QGridLayout>
 
 // Constructeur
 //-------------

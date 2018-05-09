@@ -25,10 +25,11 @@
 #include "window.qt.hh"
 #include "HtmlEntities.hh"
 
-#include <QtGui/QGridLayout>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QLabel>
-#include <Qt3Support/Q3Accel>
+#include <QtWidgets/QGridLayout>
+#include <QtWidgets/QHBoxLayout>
+#include <QtWidgets/QLabel>
+#include <QtWidgets/QShortcut>
+//#include <Qt3Support/Q3Accel>
 
 
 // Constructeur
@@ -44,9 +45,10 @@ OptionsCarac :: OptionsCarac(Window * parent)
 
    // Definition du raccourci
 
-   Q3Accel * Raccourci = new Q3Accel(this) ;
-   Raccourci -> insertItem(QKeySequence(Qt :: Key_Space) , 9) ;
-   Raccourci -> connectItem(9 , this , SLOT(close()))  ;
+//   Q3Accel * Raccourci = new Q3Accel(this) ;
+   QShortcut * AShortcut = new QShortcut(QKeySequence(Qt :: Key_Space), this, SLOT(close()));
+//   Raccourci -> insertItem(QKeySequence(Qt :: Key_Space) , 9) ;
+//   Raccourci -> connectItem(9 , this , SLOT(close()))  ;
 
    QHBoxLayout * placement = new QHBoxLayout(this) ;
 

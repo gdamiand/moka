@@ -25,10 +25,10 @@
 #include "window.qt.hh"
 #include "HtmlEntities.hh"
 
-#include <QtGui/QGridLayout>
-#include <QtGui/QLabel>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QHBoxLayout>
+#include <QtWidgets/QGridLayout>
+#include <QtWidgets/QLabel>
+#include <QtWidgets/QVBoxLayout>
+#include <QtWidgets/QHBoxLayout>
 
 
 // Constructeur

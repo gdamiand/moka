@@ -25,8 +25,8 @@
 #include "window.qt.hh"
 #include "HtmlEntities.hh"
 
-#include <QtGui/QLabel>
-#include <QtGui/QBoxLayout>
+#include <QtWidgets/QLabel>
+#include <QtWidgets/QBoxLayout>
 
 // Constructeur
 //-------------

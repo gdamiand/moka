@@ -26,10 +26,10 @@
 #include "options-frame.qt.hh"
 #include "HtmlEntities.hh"
 
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QGridLayout>
-#include <QtGui/QLabel>
-#include <QtGui/QVBoxLayout>
+#include <QtWidgets/QHBoxLayout>
+#include <QtWidgets/QGridLayout>
+#include <QtWidgets/QLabel>
+#include <QtWidgets/QVBoxLayout>
 
 #define SCALE_MAX (1.0)
 

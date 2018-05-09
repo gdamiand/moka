@@ -31,8 +31,8 @@ class Window ;
 #include "creation-objet.qt.hh"
 
 //--------------------- Include QT --------------------
-#include <QtGui/QCheckBox>
-#include <QtGui/QComboBox>
+#include <QtWidgets/QCheckBox>
+#include <QtWidgets/QComboBox>
 
 /*******************************************************************/
 /* CLASSE creationMaillage                                         */

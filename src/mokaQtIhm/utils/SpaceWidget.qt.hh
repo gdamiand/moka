@@ -24,8 +24,8 @@
 #ifndef _SPACEWIDGET_H
 #define _SPACEWIDGET_H
 
-#include <QtGui/QBoxLayout>
-#include <QtGui/QWidget>
+#include <QtWidgets/QBoxLayout>
+#include <QtWidgets/QWidget>
 
 
 class SpaceWidget : public QWidget

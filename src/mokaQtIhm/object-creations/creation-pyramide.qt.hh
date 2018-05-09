@@ -30,7 +30,7 @@ class Window ;
 
 
 //--------------------- Include QT --------------------
-#include <QtGui/QCheckBox>
+#include <QtWidgets/QCheckBox>
 
 /*******************************************************************/
 /* CLASSE CreationPyramide                                         */

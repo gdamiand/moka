@@ -26,7 +26,7 @@
 #include "HtmlEntities.hh"
 #include "SpaceWidget.qt.hh"
 
-#include <QtGui/QLabel>
+#include <QtWidgets/QLabel>
 
 /*******************************************************************/
 /* CLASSE CreationPolygone                                         */

@@ -25,9 +25,10 @@
 #include "window.qt.hh"
 
 #include <QtGui/QPixmap>
-#include <QtGui/QLabel>
-#include <QtGui/QBoxLayout>
-#include <Qt3Support/Q3Accel>
+#include <QtWidgets/QLabel>
+#include <QtWidgets/QBoxLayout>
+#include <QtWidgets/QShortcut>
+//#include <Qt3Support/Q3Accel>
 
 static const char * const coordLabels [ 3 ] =
 {
@@ -217,9 +218,10 @@ BoitePositionnement ::  BoitePositionnement(CreationObjet * lien ,
                       SIGNAL(clicked()) , this ,
                       SLOT(hide())) ;
 
-   Q3Accel * Raccourci = new Q3Accel(this) ;
-   Raccourci -> insertItem(QKeySequence(Qt::Key_Space) , 2) ;
-   Raccourci -> connectItem(2 , FLien , SLOT(cancel())) ;
+   QShortcut* NewShortcut = new QShortcut(QKeySequence ( Qt::Key_Space ), this, SLOT(cancel()));
+//   Q3Accel * Raccourci = new Q3Accel(this) ;
+//   Raccourci -> insertItem(QKeySequence(Qt::Key_Space) , 2) ;
+//   Raccourci -> connectItem(2 , FLien , SLOT(cancel())) ;
 }
 
 //*******************************************

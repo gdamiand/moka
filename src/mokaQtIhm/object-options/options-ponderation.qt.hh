@@ -29,12 +29,12 @@
 #include "floatSpinBox.qt.hh"
 
 //--------------------- Include QT --------------------
-#include <QtGui/QPushButton>
-#include <QtGui/QCheckBox>
-#include <QtGui/QComboBox>
-#include <QtGui/QLabel>
-#include <QtGui/QTabWidget>
-#include <QtGui/QGroupBox>
+#include <QtWidgets/QPushButton>
+#include <QtWidgets/QCheckBox>
+#include <QtWidgets/QComboBox>
+#include <QtWidgets/QLabel>
+#include <QtWidgets/QTabWidget>
+#include <QtWidgets/QGroupBox>
 
 
 

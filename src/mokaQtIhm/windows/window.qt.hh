@@ -698,7 +698,7 @@ private:
   GMap3d :: CControlerGMap * FControler ;
 
   // Pointeur sur un workspace
-  QWorkspace * FWorkspace ;
+  QMdiArea * FWorkspace ;
   
   // Pointeur sur la fenetre de construction active
   CreationObjet * FCreationActive ;

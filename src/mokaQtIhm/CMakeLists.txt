@@ -1,3 +1,5 @@
+set(CMAKE_CXX_STANDARD 14)
+
 #-------------------------------------------------------------------------------
 include_directories(object-creations/ 
                     object-mesh/ 
@@ -11,24 +13,27 @@ file(GLOB_RECURSE NEED_MOCS *.qt.hh)
 set (QT_RESOURCES Icones/icones.qrc)
 #-------------------------------------------------------------------------------
 # We need QT4 library
-SET( QT_USE_QT3SUPPORT TRUE )
-SET( QT_USE_QTOPENGL  TRUE )
-SET( QT_USE_QTGUI  TRUE )
+#SET( QT_USE_QT3SUPPORT TRUE )
+#SET( QT_USE_QTOPENGL  TRUE )
+#SET( QT_USE_QTGUI  TRUE )
 
-FIND_PACKAGE(Qt4 REQUIRED)
-INCLUDE(${QT_USE_FILE})
+#FIND_PACKAGE(Qt4 REQUIRED)
+#INCLUDE(${QT_USE_FILE})
+
+find_package(Qt5Widgets)
 
 add_definitions(${QT_DEFINITIONS})
 include_directories (${QT_QTOPENGL_INCLUDE_DIR})
 INCLUDE_DIRECTORIES( ${CMAKE_BINARY_DIR} )
 
-QT4_WRAP_CPP(MOC_SRCS ${NEED_MOCS})
-QT4_ADD_RESOURCES(RESOURCES_SRCS ${QT_RESOURCES})
+QT5_WRAP_CPP(MOC_SRCS ${NEED_MOCS})
+QT5_ADD_RESOURCES(RESOURCES_SRCS ${QT_RESOURCES})
 #-------------------------------------------------------------------------------
-add_executable(mokaQt ${IHM_SRCS} ${MOC_SRCS} ${RESOURCES_SRCS} ${NEED_MOCS})
+add_executable(mokaQt ${IHM_SRCS} ${MOC_SRCS} ${QT_RESOURCES} ${NEED_MOCS})
 
 target_link_libraries (mokaQt controler-gmap controler gmapkernel)
 
-target_link_libraries(mokaQt ${QT_LIBRARIES} ${QT_QT3SUPPORT_LIBRARY})
-target_link_libraries(mokaQt ${QT_QTOPENGL_LIBRARY})
+#target_link_libraries(mokaQt ${QT_LIBRARIES} ${QT_QT3SUPPORT_LIBRARY})
+target_link_libraries(mokaQt Qt5::Widgets Qt5::Core Qt5::Gui)
+#target_link_libraries(mokaQt ${QT_QTOPENGL_LIBRARY})
 #-------------------------------------------------------------------------------

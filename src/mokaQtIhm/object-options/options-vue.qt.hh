@@ -28,13 +28,13 @@
 #include "controler-gmap.hh"
 #include "IdWidgets.qt.hh"
 
-#include <QtGui/QSpinBox>
-#include <QtGui/QCheckBox>
-#include <QtGui/QComboBox>
-#include <QtGui/QSlider>
-#include <QtGui/QLabel>
-#include <QtGui/QPushButton>
-#include <QtGui/QGroupBox>
+#include <QtWidgets/QSpinBox>
+#include <QtWidgets/QCheckBox>
+#include <QtWidgets/QComboBox>
+#include <QtWidgets/QSlider>
+#include <QtWidgets/QLabel>
+#include <QtWidgets/QPushButton>
+#include <QtWidgets/QGroupBox>
 
 class Window ;
 
