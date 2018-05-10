@@ -35,6 +35,8 @@
 #include <QtWidgets/QMessageBox>
 #include <QtWidgets/QStatusBar>
 #include <QtWidgets/QFileDialog>
+#include <QtWidgets/QMdiArea>
+#include <QtWidgets/QMdiSubWindow>
 //#include <Qt3Support/Q3Accel>
 
 
@@ -74,8 +76,8 @@ Window :: Window() :
    // Creation du workspace
    FWorkspace = new QMdiArea(this) ;
    setCentralWidget(FWorkspace) ;
-   connect(FWorkspace, SIGNAL(windowActivated(QWidget *)),
-           this, SLOT(windowActivated(QWidget *)));
+   connect(FWorkspace, SIGNAL(subWindowActivated(QMdiSubWindow *)),
+           this, SLOT(subWindowActivated(QMdiSubWindow *)));
 
    // Affectation du mode du controleur
    FControler -> setMode(MODE_SELECTION) ;
@@ -248,7 +250,7 @@ void Window::repaint()
       // Appel de la methode sur toutes les vues ouvertes
       QList<QMdiSubWindow*> vues = FWorkspace -> subWindowList() ;
       for (int i = 0 ; i < int (vues . count()) ; i++)
-	((GLWindow *) vues.at(i))->updateGL(); //paintGL(); //update(); //repaint() ;
+        ((GLWindow *) vues.at(i)->widget())->updateGL(); //paintGL(); //update(); //repaint() ;
 
       updateStatusBar();
       is_repainting = false;
@@ -260,7 +262,7 @@ void Window::closeEvent(QCloseEvent *)
    FControler -> saveAllParameters(getCurrentViewId());
 }
 
-void Window::windowActivated(QWidget * w)
+void Window::subWindowActivated(QMdiSubWindow * w)
 {
    if (w == NULL) return;
 
@@ -341,7 +343,7 @@ OptionsVolumicHomology * Window::getOptionsVolumicHomologyActive() const
 //*****************************************
 void Window :: bascule(TView type)
 {
-   assert(FWorkspace->activeSubWindow() != NULL);
+   assert(FWorkspace->activeSubWindow()->widget() != NULL);
 
    bool find = false;
    int  actu = 0;
@@ -352,7 +354,7 @@ void Window :: bascule(TView type)
 
    while (!find && actu < int(vues.count()))
    {
-      if ((GLWindow*)FWorkspace->activeSubWindow() == (GLWindow*)vues.at(actu))
+      if ((GLWindow*)FWorkspace->activeSubWindow()->widget() == (GLWindow*)vues.at(actu)->widget())
          find = true;
       else
          ++actu;
@@ -380,7 +382,7 @@ void Window :: bascule(TView type)
    }
    else
    {
-      if (((GLWindow*)FWorkspace->activeSubWindow())->getViewType() != type)
+      if (((GLWindow*)FWorkspace->activeSubWindow()->widget())->getViewType() != type)
       {
          // Soit on cree une vue avec le bon type.
          switch (type)
@@ -770,9 +772,9 @@ void Window :: setAxisDisplay(bool b)
 
 TViewId Window :: getCurrentViewId() const
 {
-   assert(FWorkspace->activeSubWindow() != NULL);
+   assert(FWorkspace->activeSubWindow()->widget() != NULL);
 
-   return ((GLWindow *) FWorkspace -> activeSubWindow())
+   return ((GLWindow *) FWorkspace -> activeSubWindow()->widget())
           -> getCliquedViewId() ;
 }
 
@@ -803,7 +805,7 @@ void Window :: callbackKeyUp()
 {
    int view = getCurrentViewId();
 
-   switch (((GLWindow *) FWorkspace -> activeSubWindow()) -> getViewType())
+   switch (((GLWindow *) FWorkspace -> activeSubWindow()->widget()) -> getViewType())
    {
       case VIEW_XYZ :
       {
@@ -821,7 +823,7 @@ void Window :: callbackKeyDown()
 {
    int view = getCurrentViewId();
 
-   switch (((GLWindow *) FWorkspace -> activeSubWindow()) -> getViewType())
+   switch (((GLWindow *) FWorkspace -> activeSubWindow()->widget()) -> getViewType())
    {
       case VIEW_XYZ :
       {
@@ -839,7 +841,7 @@ void Window :: callbackKeyLeft()
 {
    int view = getCurrentViewId();
 
-   switch (((GLWindow *) FWorkspace -> activeSubWindow()) -> getViewType())
+   switch (((GLWindow *) FWorkspace -> activeSubWindow()->widget()) -> getViewType())
    {
       case VIEW_XYZ :
       {
@@ -857,7 +859,7 @@ void Window :: callbackKeyRight()
 {
    int view = getCurrentViewId();
 
-   switch (((GLWindow *) FWorkspace -> activeSubWindow()) -> getViewType())
+   switch (((GLWindow *) FWorkspace -> activeSubWindow()->widget()) -> getViewType())
    {
       case VIEW_XYZ :
       {
@@ -873,7 +875,7 @@ void Window :: callbackKeyRight()
 
 void Window :: callbackKeyCtrlUp()
 {
-   if (((GLWindow *) FWorkspace -> activeSubWindow()) -> getViewType() == VIEW_XYZ)
+   if (((GLWindow *) FWorkspace -> activeSubWindow()->widget()) -> getViewType() == VIEW_XYZ)
    {
       FControler -> verticalRotationEye(getCurrentViewId(), true);
       repaint();
@@ -882,7 +884,7 @@ void Window :: callbackKeyCtrlUp()
 
 void Window :: callbackKeyCtrlDown()
 {
-   if (((GLWindow *) FWorkspace -> activeSubWindow()) -> getViewType() == VIEW_XYZ)
+   if (((GLWindow *) FWorkspace -> activeSubWindow()->widget()) -> getViewType() == VIEW_XYZ)
    {
       FControler -> verticalRotationEye(getCurrentViewId(), false);
       repaint();
@@ -891,7 +893,7 @@ void Window :: callbackKeyCtrlDown()
 
 void Window :: callbackKeyCtrlLeft()
 {
-   if (((GLWindow *) FWorkspace -> activeSubWindow()) -> getViewType() == VIEW_XYZ)
+   if (((GLWindow *) FWorkspace -> activeSubWindow()->widget()) -> getViewType() == VIEW_XYZ)
    {
       FControler -> moveEyeLateral(getCurrentViewId(), false);
       repaint();
@@ -900,7 +902,7 @@ void Window :: callbackKeyCtrlLeft()
 
 void Window :: callbackKeyCtrlRight()
 {
-   if (((GLWindow *) FWorkspace -> activeSubWindow()) -> getViewType() == VIEW_XYZ)
+   if (((GLWindow *) FWorkspace -> activeSubWindow()->widget()) -> getViewType() == VIEW_XYZ)
    {
       FControler -> moveEyeLateral(getCurrentViewId(), true);
       repaint();
@@ -909,7 +911,7 @@ void Window :: callbackKeyCtrlRight()
 
 void Window :: callbackKeyShiftUp()
 {
-   if (((GLWindow *) FWorkspace -> activeSubWindow()) -> getViewType() == VIEW_XYZ)
+   if (((GLWindow *) FWorkspace -> activeSubWindow()->widget()) -> getViewType() == VIEW_XYZ)
    {
       TViewId AView = getCurrentViewId();
       float coeff =
@@ -921,7 +923,7 @@ void Window :: callbackKeyShiftUp()
 
 void Window :: callbackKeyShiftDown()
 {
-   if (((GLWindow *) FWorkspace -> activeSubWindow()) -> getViewType() == VIEW_XYZ)
+   if (((GLWindow *) FWorkspace -> activeSubWindow()->widget()) -> getViewType() == VIEW_XYZ)
    {
       TViewId AView = getCurrentViewId();
       float coeff =
@@ -933,7 +935,7 @@ void Window :: callbackKeyShiftDown()
 
 void Window :: callbackKeyShiftLeft()
 {
-   if (((GLWindow *) FWorkspace -> activeSubWindow()) -> getViewType() == VIEW_XYZ)
+   if (((GLWindow *) FWorkspace -> activeSubWindow()->widget()) -> getViewType() == VIEW_XYZ)
    {
       FControler -> horizontalRotationEye(getCurrentViewId(), true, 90);
       repaint();
@@ -942,7 +944,7 @@ void Window :: callbackKeyShiftLeft()
 
 void Window :: callbackKeyShiftRight()
 {
-   if (((GLWindow *) FWorkspace -> activeSubWindow()) -> getViewType() == VIEW_XYZ)
+   if (((GLWindow *) FWorkspace -> activeSubWindow()->widget()) -> getViewType() == VIEW_XYZ)
    {
       FControler -> horizontalRotationEye(getCurrentViewId(), false, 90);
       repaint();
@@ -3028,7 +3030,7 @@ void Window :: basculeViewMulti()
 
 void Window :: deleteView()
 {
-   GLWindow * active = ((GLWindow *) FWorkspace -> activeSubWindow()) ;
+   GLWindow * active = ((GLWindow *) FWorkspace -> activeSubWindow()->widget()) ;
    active -> closeEvent(NULL) ;
 }
 
@@ -3064,21 +3066,21 @@ void Window :: OperationUngroupAllDrawing()
 
 void Window :: OperationUngroupGeneral()
 {
-   GLWindow * active = ((GLWindow *) FWorkspace -> activeSubWindow()) ;
+   GLWindow * active = ((GLWindow *) FWorkspace -> activeSubWindow()->widget()) ;
    FControler -> viewUngroup(active -> getCliquedViewId()) ;
    repaint() ;
 }
 
 void Window :: OperationUngroupPrecompiles()
 {
-   GLWindow * active = ((GLWindow *) FWorkspace -> activeSubWindow()) ;
+   GLWindow * active = ((GLWindow *) FWorkspace -> activeSubWindow()->widget()) ;
    FControler -> viewUngroupPrecompiles(active -> getCliquedViewId()) ;
    repaint() ;
 }
 
 void Window :: OperationUngroupEyePos()
 {
-   GLWindow * active = ((GLWindow *) FWorkspace -> activeSubWindow()) ;
+   GLWindow * active = ((GLWindow *) FWorkspace -> activeSubWindow()->widget()) ;
    FControler -> viewUngroupParameter(active -> getCliquedViewId() ,
                                       PARAMETER_EYE_POSITION) ;
    repaint() ;
@@ -3086,7 +3088,7 @@ void Window :: OperationUngroupEyePos()
 
 void Window :: OperationUngroupAimedPos()
 {
-   GLWindow * active = ((GLWindow *) FWorkspace -> activeSubWindow()) ;
+   GLWindow * active = ((GLWindow *) FWorkspace -> activeSubWindow()->widget()) ;
    FControler -> viewUngroupParameter(active -> getCliquedViewId() ,
                                       PARAMETER_AIMED_POSITION) ;
    repaint() ;
@@ -3094,7 +3096,7 @@ void Window :: OperationUngroupAimedPos()
 
 void Window :: OperationUngroupDrawing()
 {
-   GLWindow * active = ((GLWindow *) FWorkspace -> activeSubWindow()) ;
+   GLWindow * active = ((GLWindow *) FWorkspace -> activeSubWindow()->widget()) ;
    FControler -> viewUngroupParameter(active -> getCliquedViewId() ,
                                       PARAMETER_DRAWING) ;
    repaint() ;
@@ -3102,21 +3104,21 @@ void Window :: OperationUngroupDrawing()
 
 void Window :: OperationGroupAllGeneral()
 {
-   GLWindow * active = ((GLWindow *) FWorkspace -> activeSubWindow()) ;
+   GLWindow * active = ((GLWindow *) FWorkspace -> activeSubWindow()->widget()) ;
    FControler -> viewGroupAll(active -> getCliquedViewId()) ;
    repaint() ;
 }
 
 void Window :: OperationGroupAllPrecomp()
 {
-   GLWindow * active = ((GLWindow *) FWorkspace -> activeSubWindow()) ;
+   GLWindow * active = ((GLWindow *) FWorkspace -> activeSubWindow()->widget()) ;
    FControler -> viewGroupAllPrecompiles(active -> getCliquedViewId()) ;
    repaint() ;
 }
 
 void Window :: OperationGroupAllEyePos()
 {
-   GLWindow * active = ((GLWindow *) FWorkspace -> activeSubWindow()) ;
+   GLWindow * active = ((GLWindow *) FWorkspace -> activeSubWindow()->widget()) ;
    FControler -> viewGroupAllParameter(active -> getCliquedViewId() ,
                                        PARAMETER_EYE_POSITION) ;
    repaint() ;
@@ -3124,7 +3126,7 @@ void Window :: OperationGroupAllEyePos()
 
 void Window :: OperationGroupAllAimedPos()
 {
-   GLWindow * active = ((GLWindow *) FWorkspace -> activeSubWindow()) ;
+   GLWindow * active = ((GLWindow *) FWorkspace -> activeSubWindow()->widget()) ;
    FControler -> viewGroupAllParameter(active -> getCliquedViewId() ,
                                        PARAMETER_AIMED_POSITION) ;
    repaint() ;
@@ -3132,7 +3134,7 @@ void Window :: OperationGroupAllAimedPos()
 
 void Window :: OperationGroupAllDrawing()
 {
-   GLWindow * active = ((GLWindow *) FWorkspace -> activeSubWindow()) ;
+   GLWindow * active = ((GLWindow *) FWorkspace -> activeSubWindow()->widget()) ;
    FControler -> viewGroupAllParameter(active -> getCliquedViewId() ,
                                        PARAMETER_DRAWING) ;
    repaint() ;
@@ -3140,7 +3142,7 @@ void Window :: OperationGroupAllDrawing()
 
 void Window :: OperationGroupGeneral()
 {
-   GLWindow * active = ((GLWindow *) FWorkspace -> activeSubWindow()) ;
+   GLWindow * active = ((GLWindow *) FWorkspace -> activeSubWindow()->widget()) ;
    FControler -> viewGroup(active -> getCliquedViewId(),
                            FDoubleCliquee -> getDoubleCliquedViewId());
    repaint() ;
@@ -3148,7 +3150,7 @@ void Window :: OperationGroupGeneral()
 
 void Window :: OperationGroupPrecomp()
 {
-   GLWindow * active = ((GLWindow *) FWorkspace -> activeSubWindow()) ;
+   GLWindow * active = ((GLWindow *) FWorkspace -> activeSubWindow()->widget()) ;
    FControler->viewGroupPrecompiles(active -> getCliquedViewId(),
                                     FDoubleCliquee->getDoubleCliquedViewId());
    repaint() ;
@@ -3156,7 +3158,7 @@ void Window :: OperationGroupPrecomp()
 
 void Window :: OperationGroupEyePos()
 {
-   GLWindow * active = ((GLWindow *) FWorkspace -> activeSubWindow()) ;
+   GLWindow * active = ((GLWindow *) FWorkspace -> activeSubWindow()->widget()) ;
    FControler -> viewGroupParameter(active -> getCliquedViewId() ,
                                     FDoubleCliquee -> getDoubleCliquedViewId(),
                                     PARAMETER_EYE_POSITION) ;
@@ -3165,7 +3167,7 @@ void Window :: OperationGroupEyePos()
 
 void Window :: OperationGroupAimedPos()
 {
-   GLWindow * active = ((GLWindow *) FWorkspace -> activeSubWindow()) ;
+   GLWindow * active = ((GLWindow *) FWorkspace -> activeSubWindow()->widget()) ;
    FControler -> viewGroupParameter(active -> getCliquedViewId() ,
                                     FDoubleCliquee -> getDoubleCliquedViewId(),
                                     PARAMETER_AIMED_POSITION) ;
@@ -3174,7 +3176,7 @@ void Window :: OperationGroupAimedPos()
 
 void Window :: OperationGroupDrawing()
 {
-   GLWindow * active = ((GLWindow *) FWorkspace -> activeSubWindow()) ;
+   GLWindow * active = ((GLWindow *) FWorkspace -> activeSubWindow()->widget()) ;
    FControler -> viewGroupParameter(active -> getCliquedViewId() ,
                                     FDoubleCliquee -> getDoubleCliquedViewId(),
                                     PARAMETER_DRAWING) ;

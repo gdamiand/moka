@@ -29,11 +29,11 @@ INCLUDE_DIRECTORIES( ${CMAKE_BINARY_DIR} )
 QT5_WRAP_CPP(MOC_SRCS ${NEED_MOCS})
 QT5_ADD_RESOURCES(RESOURCES_SRCS ${QT_RESOURCES})
 #-------------------------------------------------------------------------------
-add_executable(mokaQt ${IHM_SRCS} ${MOC_SRCS} ${QT_RESOURCES} ${NEED_MOCS})
+add_executable(mokaQt ${IHM_SRCS} ${MOC_SRCS} ${RESOURCES_SRCS} ${NEED_MOCS})
 
 target_link_libraries (mokaQt controler-gmap controler gmapkernel)
-
+qt5_use_modules(mokaQt Core Gui Widgets OpenGL)
 #target_link_libraries(mokaQt ${QT_LIBRARIES} ${QT_QT3SUPPORT_LIBRARY})
-target_link_libraries(mokaQt Qt5::Widgets Qt5::Core Qt5::Gui)
+#target_link_libraries(mokaQt Qt5::Widgets Qt5::Core Qt5::Gui)
 #target_link_libraries(mokaQt ${QT_QTOPENGL_LIBRARY})
 #-------------------------------------------------------------------------------

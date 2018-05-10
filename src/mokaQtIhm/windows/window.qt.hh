@@ -194,7 +194,7 @@ public slots:
   /**
    *  Pour detecter le changement de fenetre active dans le workspace.
    */
-  void windowActivated( QWidget * w );
+  void subWindowActivated( QMdiSubWindow * w );
   
   void callbackKeyUp();
   void callbackKeyDown();
