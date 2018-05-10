@@ -369,7 +369,7 @@ void Window :: bascule(TView type)
 
    while (!find && actu != first)
    {
-      if (((GLWindow*)vues.at(actu))->getViewType() == type)
+      if (((GLWindow*)vues.at(actu)->widget())->getViewType() == type)
          find = true;
       else
          actu = (actu + 1) % vues.count();
@@ -378,7 +378,7 @@ void Window :: bascule(TView type)
    if (find)
    {
       // Soit on active la vue
-      ((GLWindow*)vues.at(actu))->setFocus();
+      ((GLWindow*)vues.at(actu)->widget())->setFocus();
    }
    else
    {
