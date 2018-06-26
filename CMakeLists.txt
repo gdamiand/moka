@@ -40,6 +40,7 @@ OPTION(MODULE_ROUNDING "Activate rounding module" ON)
 OPTION(MODULE_COREFINEMENT "Activate corefining module" ON)
 OPTION(MODULE_SPAMOD "Activate spamod module" OFF)
 OPTION(MODULE_EXTRACTION_IMAGE "Activate extraction image module (require ImageMagick++)" ON)
+OPTION(DISABLE_SELECTION_BOX "Disable the selection box on a 3D view" OFF)
 
 #-------------------------------------------------------------------------------
 # Some compiler options that we can enable with some ADD_DEFINITIONS(xxx).
@@ -179,6 +180,10 @@ if ( MODULE_EXTRACTION_IMAGE )
   include_directories(${CMAKE_SOURCE_DIR}/src/lib-extraction-images)
   add_subdirectory   (src/lib-extraction-images lib-extraction-images)
 endif ( MODULE_EXTRACTION_IMAGE )
+#-------------------------------------------------------------------------------
+if (DISABLE_SELECTION_BOX)
+  add_definitions(-DDISABLE_SELECTION_BOX)
+endif (DISABLE_SELECTION_BOX)
 #-------------------------------------------------------------------------------
 add_subdirectory (src/lib-gmapkernel lib-gmapkernel)
 add_subdirectory (src/lib-controler lib-controler)
