@@ -127,7 +127,9 @@ void GLWindow::closeEvent(QCloseEvent * e)
 //************************************************************
 void GLWindow::paintGL()
 {
+#ifndef DISABLE_SELECTION_BOX
   QPainter p(this);
+#endif
 
   makeCurrent();
   glPushAttrib(GL_ALL_ATTRIB_BITS);
@@ -154,16 +156,18 @@ void GLWindow::paintGL()
   glPopMatrix();
   glPopAttrib();
 
+#ifndef DISABLE_SELECTION_BOX
   if (FDragMode)
     {
       p.setPen(Qt::white) ;
       p.drawRect(FStartX, FStartY, FCurX - FStartX, FCurY - FStartY);
       if ( FOwner->getControler()->getModeDeselectionAtStop() )
-	p.drawText(FStartX, FStartY, "Deselect");
+        p.drawText(FStartX, FStartY, "Deselect");
       else
-	p.drawText(FStartX, FStartY, "Select");
+        p.drawText(FStartX, FStartY, "Select");
     }
   p.end();
+#endif
 }
 //************************************************************
 // Modif de la taille de la fenetre

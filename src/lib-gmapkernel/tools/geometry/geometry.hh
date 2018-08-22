@@ -457,7 +457,7 @@ public:
   { double coord[3]; };
   struct CompareCoord3D
   {
-    bool operator()(const Coord3D& lhs, const Coord3D& rhs)
+    bool operator()(const Coord3D& lhs, const Coord3D& rhs) const
     {
       unsigned dec=10;
       double lhsx=redondeo(lhs.coord[0],dec);
