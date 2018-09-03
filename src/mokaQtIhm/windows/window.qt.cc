@@ -37,8 +37,7 @@
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QMdiArea>
 #include <QtWidgets/QMdiSubWindow>
-//#include <Qt3Support/Q3Accel>
-
+#include <QtWidgets/QShortcut>
 
 //***************************************
 // Constructeur
@@ -93,83 +92,29 @@ Window :: Window() :
    FVueMere -> showMaximized() ;
 
    // Création des racourcis clavier : todo passer tout en QT4
-//   Q3Accel* Raccourci = new Q3Accel(this) ;
-
-//   Raccourci -> insertItem(QKeySequence("Alt+F9") , 8) ;
-//   Raccourci -> connectItem(8 , this ,
-//                            SLOT(callbackToggleNormal())) ;
-
-//   Raccourci -> insertItem(QKeySequence(Qt::Key_F9) , 9) ;
-//   Raccourci -> connectItem(9 , this ,
-//                            SLOT(callbackToggleSews())) ;
-
-//   Raccourci -> insertItem(QKeySequence(Qt::Key_F10) , 10) ;
-//   Raccourci -> connectItem(10 , this ,
-//                            SLOT(callbackToggleVertices())) ;
-
-//   Raccourci -> insertItem(QKeySequence(Qt::Key_F11) , 11) ;
-//   Raccourci -> connectItem(11 , this ,
-//                            SLOT(callbackToggleFaces())) ;
-
-//   Raccourci -> insertItem(QKeySequence(Qt::Key_F12) , 12) ;
-//   Raccourci -> connectItem(12 , this ,
-//                            SLOT(callbackToggleGrille())) ;
-
-//   Raccourci -> insertItem(QKeySequence("Alt+F11") , 14) ;
-//   Raccourci -> connectItem(14 , this ,
-//                            SLOT(callbackTournerButton())) ;
-
-//   Raccourci -> insertItem(QKeySequence(Qt::Key_Space) , 1) ;
-//   Raccourci -> connectItem(1 , this ,
-//                            SLOT(callbackHideAllWindow())) ;
-
-//   Raccourci -> insertItem(QKeySequence(Qt::Key_Up) , 15) ;
-//   Raccourci -> connectItem(15, this, SLOT(callbackKeyUp()));
-
-//   Raccourci -> insertItem(QKeySequence(Qt::Key_Down) , 16) ;
-//   Raccourci -> connectItem(16, this, SLOT(callbackKeyDown()));
-
-//   Raccourci -> insertItem(QKeySequence(Qt::Key_Left) , 17) ;
-//   Raccourci -> connectItem(17, this, SLOT(callbackKeyLeft()));
-
-//   Raccourci -> insertItem(QKeySequence(Qt::Key_Right) , 18) ;
-//   Raccourci -> connectItem(18, this, SLOT(callbackKeyRight()));
-
-//   Raccourci -> insertItem(QKeySequence(Qt::CTRL + Qt::Key_Up) , 19) ;
-//   Raccourci -> connectItem(19, this, SLOT(callbackKeyCtrlUp()));
-
-//   Raccourci -> insertItem(QKeySequence(Qt::CTRL + Qt::Key_Down) , 20) ;
-//   Raccourci -> connectItem(20, this, SLOT(callbackKeyCtrlDown()));
-
-//   Raccourci -> insertItem(QKeySequence(Qt::CTRL + Qt::Key_Left) , 21) ;
-//   Raccourci -> connectItem(21, this, SLOT(callbackKeyCtrlLeft()));
-
-//   Raccourci -> insertItem(QKeySequence(Qt::CTRL + Qt::Key_Right) , 22) ;
-//   Raccourci -> connectItem(22, this, SLOT(callbackKeyCtrlRight()));
-
-//   Raccourci -> insertItem(QKeySequence(Qt::SHIFT + Qt::Key_Up) , 23) ;
-//   Raccourci -> connectItem(23, this, SLOT(callbackKeyShiftUp()));
-
-//   Raccourci -> insertItem(QKeySequence(Qt::SHIFT + Qt::Key_Down) , 24) ;
-//   Raccourci -> connectItem(24, this, SLOT(callbackKeyShiftDown()));
-
-//   Raccourci -> insertItem(QKeySequence(Qt::SHIFT + Qt::Key_Left) , 25) ;
-//   Raccourci -> connectItem(25, this, SLOT(callbackKeyShiftLeft()));
-
-//   Raccourci -> insertItem(QKeySequence(Qt::SHIFT + Qt::Key_Right) , 26);
-//   Raccourci -> connectItem(26, this, SLOT(callbackKeyShiftRight()));
-
-//   Raccourci -> insertItem(QKeySequence(Qt::SHIFT + Qt::Key_F8) , 27) ;
-//   Raccourci -> connectItem(27 , this , SLOT(callbackVueCompacte())) ;
-
-//   Raccourci -> insertItem(QKeySequence(Qt::SHIFT + Qt::Key_F9) , 28) ;
-//   Raccourci -> connectItem(28 , this , SLOT(callbackVueSemiEclatee()));
-
-//   Raccourci -> insertItem(QKeySequence(Qt::SHIFT + Qt::Key_F10) , 29) ;
-//   Raccourci -> connectItem(29 , this , SLOT(callbackVueMoka())) ;
-
-//   Raccourci -> insertItem(QKeySequence(Qt::SHIFT + Qt::Key_F11) , 30) ;
-//   Raccourci -> connectItem(30 , this , SLOT(callbackVueTopoFil())) ;
+   new QShortcut(QKeySequence ( "Alt+F9" ), this, SLOT(callbackToggleNormal()));
+   new QShortcut(QKeySequence ( Qt::Key_F9 ), this, SLOT(callbackToggleSews()));
+   new QShortcut(QKeySequence ( Qt::Key_F10 ), this, SLOT(callbackToggleVertices()));
+   new QShortcut(QKeySequence ( Qt::Key_F11 ), this, SLOT(callbackToggleFaces()));
+   new QShortcut(QKeySequence ( Qt::Key_F12 ), this, SLOT(callbackToggleGrille()));
+   new QShortcut(QKeySequence ( "Alt+F11" ), this, SLOT(callbackTournerButton()));
+   new QShortcut(QKeySequence ( Qt::Key_Space ), this, SLOT(callbackHideAllWindow()));
+   new QShortcut(QKeySequence ( Qt::Key_Up ), this, SLOT(callbackKeyUp()));
+   new QShortcut(QKeySequence ( Qt::Key_Down ), this, SLOT(callbackKeyDown()));
+   new QShortcut(QKeySequence ( Qt::Key_Left ), this, SLOT(callbackKeyLeft()));
+   new QShortcut(QKeySequence ( Qt::Key_Right ), this, SLOT(callbackKeyRight()));
+   new QShortcut(QKeySequence ( Qt::CTRL + Qt::Key_Up ), this, SLOT(callbackKeyCtrlUp()));
+   new QShortcut(QKeySequence ( Qt::CTRL + Qt::Key_Down ), this, SLOT(callbackKeyCtrlDown()));
+   new QShortcut(QKeySequence ( Qt::CTRL + Qt::Key_Left ), this, SLOT(callbackKeyCtrlLeft()));
+   new QShortcut(QKeySequence ( Qt::CTRL + Qt::Key_Right ), this, SLOT(callbackKeyCtrlRight()));
+   new QShortcut(QKeySequence ( Qt::SHIFT + Qt::Key_Up ), this, SLOT(callbackKeyShiftUp()));
+   new QShortcut(QKeySequence ( Qt::SHIFT + Qt::Key_Down ), this, SLOT(callbackKeyShiftDown()));
+   new QShortcut(QKeySequence ( Qt::SHIFT + Qt::Key_Left ), this, SLOT(callbackKeyShiftLeft()));
+   new QShortcut(QKeySequence ( Qt::SHIFT + Qt::Key_Right ), this, SLOT(callbackKeyShiftRight()));
+   new QShortcut(QKeySequence ( Qt::SHIFT + Qt::Key_F8 ), this, SLOT(callbackVueCompacte()));
+   new QShortcut(QKeySequence ( Qt::SHIFT + Qt::Key_F9 ), this, SLOT(callbackVueSemiEclatee()));
+   new QShortcut(QKeySequence ( Qt::SHIFT + Qt::Key_F10 ), this, SLOT(callbackVueMoka()));
+   new QShortcut(QKeySequence ( Qt::SHIFT + Qt::Key_F11 ), this, SLOT(callbackVueTopoFil()));
 
    // Creation des Toolbars
    FCreationBrin      = new CreationBrin(this , FControler);
