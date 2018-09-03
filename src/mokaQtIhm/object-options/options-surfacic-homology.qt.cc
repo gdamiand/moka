@@ -30,7 +30,6 @@
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QShortcut>
-//#include <Qt3Support/Q3Accel>
 
 #ifndef _WINDOWS
 #include "chrono.hh"
@@ -50,10 +49,7 @@ OptionsSurfacicHomology :: OptionsSurfacicHomology(Window * parent) :
 
    // Definition du raccourci
 
-   QShortcut* newShortcut = new QShortcut(QKeySequence(Qt :: Key_Space), this, SLOT(close()));
-//   Q3Accel * Raccourci = new Q3Accel(this) ;
-//   Raccourci -> insertItem(QKeySequence(Qt :: Key_Space) , 9) ;
-//   Raccourci -> connectItem(9 , this , SLOT(close()))  ;
+   new QShortcut(QKeySequence(Qt :: Key_Space), this, SLOT(close()));
 
    QVBoxLayout * placement = new QVBoxLayout(this) ;
 

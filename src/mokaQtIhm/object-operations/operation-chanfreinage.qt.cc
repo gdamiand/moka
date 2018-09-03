@@ -28,8 +28,6 @@
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QBoxLayout>
 #include <QtWidgets/QShortcut>
-//#include <Qt3Support/Q3Accel>
-
 
 // Constructeur
 //-------------
@@ -44,11 +42,9 @@ OperationChanfreinage :: OperationChanfreinage ( Window * parent )
 
   // Definition des raccourcis claviers
 
-//  Q3Accel * Raccourci = new Q3Accel ( this ) ;
-//  Raccourci -> insertItem ( QKeySequence ( Qt :: Key_Space ) , 9 ) ;
-//  Raccourci -> connectItem ( 9 , FParent ,
-//			     SLOT ( callbackHideAllWindow ( ) ) )  ;
-  QShortcut* NewShortcut = new QShortcut(QKeySequence ( Qt :: Key_Space ), this, SLOT ( callbackHideAllWindow ( ) ) );
+  QShortcut* keySpace = new QShortcut(this);
+  keySpace->setKey(QKeySequence ( Qt :: Key_Space ));
+  connect(keySpace, SIGNAL(activated()), FParent, SLOT ( callbackHideAllWindow ( ) ) );
 
   QBoxLayout * placement = new QBoxLayout ( QBoxLayout::TopToBottom, this ) ; 
   
