@@ -29,7 +29,6 @@
 #include <QtGui/QPixmap>
 #include <QtWidgets/QColorDialog>
 #include <QtWidgets/QShortcut>
-//#include <Qt3Support/Q3Accel>
 
 //**********************************************************
 // Elements dont on peut modifier la couleur

@@ -25,7 +25,6 @@
 #include "window.qt.hh"
 #include "HtmlEntities.hh"
 
-//#include <Qt3Support/Q3Accel>
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QShortcut>
 
@@ -62,50 +61,26 @@ OptionsFrame :: OptionsFrame ( Window * parent )
   FDivers = new OptionsDivers ( parent , main_tab ) ;
   main_tab -> addTab ( FDivers , "&Misc" ) ;
 
-  // Definition des raccourcis
-//  Q3Accel * Raccourci = new Q3Accel ( this ) ;
+  // Definition of shortcuts
+  new QShortcut(QKeySequence ( Qt::Key_F2 ), this, SLOT(callbackShowAffichage()));
+  new QShortcut(QKeySequence ( Qt::Key_F3 ), this, SLOT(callbackShowVue()));
+  new QShortcut(QKeySequence ( Qt::Key_F4 ), this, SLOT(callbackShowPonderation()));
+  new QShortcut(QKeySequence ( Qt::Key_F5 ), this, SLOT(callbackShowExtrusion()));
+  new QShortcut(QKeySequence ( Qt::Key_F6 ), this, SLOT(callbackShowInterpolation()));
+  new QShortcut(QKeySequence ( Qt::Key_F7 ), this, SLOT(callbackShowDivers()));
+  new QShortcut(QKeySequence ( Qt::Key_F8 ), this, SLOT(callbackShowDivers()));
+  new QShortcut(QKeySequence ( Qt::Key_F9 ), this, SLOT(callbackToggleSews()));
+  new QShortcut(QKeySequence ( "Alt+F9" ), this, SLOT(callbackToggleNormal()));
+  new QShortcut(QKeySequence ( Qt::Key_F9 ), this, SLOT(callbackToggleSews()));
+  new QShortcut(QKeySequence ( Qt::Key_F10 ), this, SLOT(callbackToggleVertices()));
+  new QShortcut(QKeySequence ( Qt::Key_F11 ), this, SLOT(callbackToggleFaces()));
+  new QShortcut(QKeySequence ( Qt::Key_F12 ), this, SLOT(callbackToggleGrille()));
 
-//  Raccourci -> insertItem ( QKeySequence ( Qt::Key_F2 ) , 2 ) ;
-//  Raccourci -> connectItem ( 2 , this , SLOT ( callbackShowAffichage ( ) ) ) ;
+  QShortcut* keySpace = new QShortcut(this);
+  keySpace->setKey(QKeySequence ( Qt::Key_Space ));
+  connect(keySpace, SIGNAL(activated()), parent, SLOT(callbackHideAllWindow()));
 
-//  Raccourci -> insertItem ( QKeySequence ( Qt::Key_F3 ) , 3 ) ;
-//  Raccourci -> connectItem ( 3 , this , SLOT ( callbackShowVue ( ) ) ) ;
-
-//  Raccourci -> insertItem ( QKeySequence ( Qt::Key_F4 ) , 4 ) ;
-//  Raccourci -> connectItem ( 4 , this , SLOT ( callbackShowPonderation ( ) ) ) ;
-
-//  Raccourci -> insertItem ( QKeySequence ( Qt::Key_F5 ) , 5 ) ;
-//  Raccourci -> connectItem ( 5 , this , SLOT ( callbackShowExtrusion ( ) ) ) ;
-
-//  Raccourci -> insertItem ( QKeySequence ( Qt::Key_F6 ) , 6 ) ;
-//  Raccourci -> connectItem ( 6 , this , SLOT ( callbackShowInterpolation()));
-
-//  Raccourci -> insertItem ( QKeySequence ( Qt::Key_F7 ) , 7 ) ;
-//  Raccourci->connectItem(7, this, SLOT(callbackShowDivers()));
-  
-////  Raccourci -> insertItem ( QKeySequence ( Qt::Key_F8 ) , 15 ) ;
-////  Raccourci -> connectItem ( 15 , this , SLOT ( callbackShowDivers ( ) ) ) ;
-
-//  Raccourci -> insertItem ( QKeySequence ( "Alt+F9" ) , 8 ) ;
-//  Raccourci -> connectItem ( 8 , this , SLOT ( callbackToggleNormal ( ) ) ) ;
-
-//  Raccourci -> insertItem ( QKeySequence ( Qt::Key_F9 ) , 9 ) ;
-//  Raccourci -> connectItem ( 9 , this , SLOT ( callbackToggleSews ( ) ) ) ;
-
-//  Raccourci -> insertItem ( QKeySequence ( Qt::Key_F10 ) , 10 ) ;
-//  Raccourci -> connectItem ( 10 , this , SLOT ( callbackToggleVertices ( ) ) ) ;
-
-//  Raccourci -> insertItem ( QKeySequence ( Qt::Key_F11 ) , 11 ) ;
-//  Raccourci -> connectItem ( 11 , this , SLOT ( callbackToggleFaces ( ) ) ) ;
-
-//  Raccourci -> insertItem ( QKeySequence ( Qt::Key_F12 ) , 12 ) ;
-//  Raccourci -> connectItem ( 12 , this , SLOT ( callbackToggleGrille ( ) ) ) ;
-
-//  Raccourci->insertItem ( QKeySequence ( Qt :: Key_Space ) , 13 ) ;
-//  Raccourci->connectItem(13, parent, SLOT (callbackHideAllWindow()));
-
-//  Raccourci -> insertItem ( QKeySequence ( "Alt+F11" ) , 14 ) ;
-//  Raccourci -> connectItem ( 14 , this , SLOT (callbackTournerButton() ))  ;
+  new QShortcut(QKeySequence ( "Alt+F11" ), this, SLOT(callbackTournerButton()));
   
   connect(main_tab,SIGNAL(currentChanged(int)),this,SLOT(updateTab(int)));
   

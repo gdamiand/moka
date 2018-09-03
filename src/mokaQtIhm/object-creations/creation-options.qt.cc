@@ -28,7 +28,6 @@
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QBoxLayout>
 #include <QtWidgets/QShortcut>
-//#include <Qt3Support/Q3Accel>
 
 static const char * const coordLabels [ 3 ] =
 {
