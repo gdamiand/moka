@@ -218,10 +218,9 @@ BoitePositionnement ::  BoitePositionnement(CreationObjet * lien ,
                       SIGNAL(clicked()) , this ,
                       SLOT(hide())) ;
 
-   QShortcut* NewShortcut = new QShortcut(QKeySequence ( Qt::Key_Space ), this, SLOT(cancel()));
-//   Q3Accel * Raccourci = new Q3Accel(this) ;
-//   Raccourci -> insertItem(QKeySequence(Qt::Key_Space) , 2) ;
-//   Raccourci -> connectItem(2 , FLien , SLOT(cancel())) ;
+   QShortcut* keySpace = new QShortcut(this);
+   keySpace->setKey(QKeySequence ( Qt::Key_Space ));
+   connect(keySpace, SIGNAL(activated()), FLien, SLOT(cancel()));
 }
 
 //*******************************************

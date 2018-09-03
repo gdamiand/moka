@@ -106,9 +106,9 @@ OptionCouleurs :: OptionCouleurs(Window * parent)
    QObject :: connect(FModifiables , SIGNAL(activated(int)) , this ,
                       SLOT(changeColor())) ;
 
-//   Q3Accel * Raccourci = new Q3Accel(this) ;
-//   Raccourci -> insertItem(QKeySequence(Qt::Key_Space) , 2) ;
-//   Raccourci -> connectItem(2 , this , SLOT(close())) ;
+   QShortcut* keySpace = new QShortcut(this);
+   keySpace->setKey(QKeySequence ( Qt::Key_Space ));
+   connect(keySpace, SIGNAL(activated()), this, SLOT(close()));
 
    addWidget(new SpaceWidget(15, 1));
    addWidget(FModifiables);
