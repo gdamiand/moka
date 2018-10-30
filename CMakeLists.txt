@@ -74,7 +74,7 @@ find_package(ASSIMP)
 
 if ( ASSIMP_FOUND )
    ADD_DEFINITIONS(-DWITH_ASSIMP)
-   include_directories(${ASSIMP_INCLUDE_DIRS})
+   include_directories(${ASSIMP_INCLUDE_DIR})
 endif ( ASSIMP_FOUND )
 
 #------------------------------------------------------------------------------
