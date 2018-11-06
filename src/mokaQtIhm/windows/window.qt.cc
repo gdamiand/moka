@@ -98,7 +98,7 @@ Window :: Window() :
    new QShortcut(QKeySequence ( Qt::Key_F11 ), this, SLOT(callbackToggleFaces()));
    new QShortcut(QKeySequence ( Qt::Key_F12 ), this, SLOT(callbackToggleGrille()));
    new QShortcut(QKeySequence ( "Alt+F11" ), this, SLOT(callbackTournerButton()));
-   new QShortcut(QKeySequence ( Qt::Key_Space ), this, SLOT(callbackHideAllWindow()));
+//   new QShortcut(QKeySequence ( Qt::Key_Space ), this, SLOT(callbackHideAllWindow()));
    new QShortcut(QKeySequence ( Qt::Key_Up ), this, SLOT(callbackKeyUp()));
    new QShortcut(QKeySequence ( Qt::Key_Down ), this, SLOT(callbackKeyDown()));
    new QShortcut(QKeySequence ( Qt::Key_Left ), this, SLOT(callbackKeyLeft()));
