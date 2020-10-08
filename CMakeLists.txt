@@ -31,8 +31,11 @@ OPTION(BUILD_SHARED_LIBS "Build shared libraries." OFF)
 # SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pg")
 
 # To enable c++11
- ADD_DEFINITIONS("-std=c++11")
+ADD_DEFINITIONS("-std=c++11")
 
+# Decide which opengl driver use.
+set(OpenGL_GL_PREFERENCE GLVND)
+ 
 #-------------------------------------------------------------------------------
 # Some modules that we can enable or disable.
 OPTION(MODULE_MESH "Activate mesh module" ON)

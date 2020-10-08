@@ -158,14 +158,14 @@ void GLWindow::paintGL()
 
 #ifndef DISABLE_SELECTION_BOX
   if (FDragMode)
-    {
-      p.setPen(Qt::white) ;
-      p.drawRect(FStartX, FStartY, FCurX - FStartX, FCurY - FStartY);
-      if ( FOwner->getControler()->getModeDeselectionAtStop() )
-        p.drawText(FStartX, FStartY, "Deselect");
-      else
-        p.drawText(FStartX, FStartY, "Select");
-    }
+  {
+    p.setPen(Qt::white) ;
+    p.drawRect(FStartX, FStartY, FCurX - FStartX, FCurY - FStartY);
+    if ( FOwner->getControler()->getModeDeselectionAtStop() )
+    { p.drawText(FStartX, FStartY, "Deselect"); }
+    else
+    { p.drawText(FStartX, FStartY, "Select"); }
+  }
   p.end();
 #endif
 }

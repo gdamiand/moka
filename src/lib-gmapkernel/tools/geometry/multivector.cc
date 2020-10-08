@@ -41,7 +41,7 @@ CMultivector::CMultivector(const CMultivector & AMv)
 //******************************************************************************
 /** Compute sense of the face according to the First stored
  */
-double CMultivector::computeLAV()
+void CMultivector::computeLAV()
 {
   nklein::GeometricAlgebra< double, 4 > plane,Rh,Mh,Th,Sh;
   nklein::GeometricAlgebra< double, 4 > line;

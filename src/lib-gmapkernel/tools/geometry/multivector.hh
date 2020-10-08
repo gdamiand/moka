@@ -68,7 +68,7 @@ public:
   //CMultivector(const GMap3d::CDart *,GMap3d::CVertex *AVertex=NULL);
 
 private:
-  double computeLAV(void);
+  void computeLAV(void);
   nklein::GeometricAlgebra<double, 4 > getPoint(const GMap3d::CDart * dart);
 };
 //******************************************************************************
