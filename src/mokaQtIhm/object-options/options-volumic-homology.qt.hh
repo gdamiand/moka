@@ -34,9 +34,9 @@
 //--------------------- Include QT --------------------
 
 #include <QtOpenGL/QGLWidget>
-#include <QtGui/QLabel>
-#include <QtGui/QDialog>
-#include <QtGui/QGroupBox>
+#include <QtWidgets/QLabel>
+#include <QtWidgets/QDialog>
+#include <QtWidgets/QGroupBox>
 
 
 class Window ;

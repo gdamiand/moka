@@ -30,9 +30,9 @@
 #include "floatSpinBox.qt.hh"
 
 //--------------------- Include QT --------------------
-#include <QtGui/QComboBox>
-#include <QtGui/QPushButton>
-#include <QtGui/QToolBar>
+#include <QtWidgets/QComboBox>
+#include <QtWidgets/QPushButton>
+#include <QtWidgets/QToolBar>
 
 
 

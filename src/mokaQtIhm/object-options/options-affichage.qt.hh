@@ -29,12 +29,12 @@
 #include "options-vue.qt.hh"
 
 //--------------------- Include QT --------------------
-#include <QtGui/QSpinBox>
-#include <QtGui/QCheckBox>
-#include <QtGui/QLabel>
-#include <QtGui/QRadioButton>
-#include <QtGui/QTabWidget>
-#include <QtGui/QGroupBox>
+#include <QtWidgets/QSpinBox>
+#include <QtWidgets/QCheckBox>
+#include <QtWidgets/QLabel>
+#include <QtWidgets/QRadioButton>
+#include <QtWidgets/QTabWidget>
+#include <QtWidgets/QGroupBox>
 
 class Window ;
 

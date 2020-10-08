@@ -31,7 +31,7 @@ OPTION(BUILD_SHARED_LIBS "Build shared libraries." OFF)
 # SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pg")
 
 # To enable c++11
-# ADD_DEFINITIONS("-std=c++11")
+ ADD_DEFINITIONS("-std=c++11")
 
 #-------------------------------------------------------------------------------
 # Some modules that we can enable or disable.
@@ -74,7 +74,7 @@ find_package(ASSIMP)
 
 if ( ASSIMP_FOUND )
    ADD_DEFINITIONS(-DWITH_ASSIMP)
-   include_directories(${ASSIMP_INCLUDE_DIRS})
+   include_directories(${ASSIMP_INCLUDE_DIR})
 endif ( ASSIMP_FOUND )
 
 #------------------------------------------------------------------------------

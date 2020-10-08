@@ -32,9 +32,9 @@ using namespace GMap3d ;
 class Window ;
 
 //------------------ Include QT -------------------
-#include <QtGui/QPushButton>
-#include <QtGui/QToolBar>
-#include <QtGui/QGroupBox>
+#include <QtWidgets/QPushButton>
+#include <QtWidgets/QToolBar>
+#include <QtWidgets/QGroupBox>
 #include "IdWidgets.qt.hh"
 
 class SelectBar : public QToolBar

@@ -29,11 +29,11 @@
 using namespace GMap3d ;
 
 //------------------ Include QT -------------------
-#include <QtGui/QLabel>
-#include <QtGui/QSpinBox>
-#include <QtGui/QCheckBox>
-#include <QtGui/QPushButton>
-#include <QtGui/QDialog>
+#include <QtWidgets/QLabel>
+#include <QtWidgets/QSpinBox>
+#include <QtWidgets/QCheckBox>
+#include <QtWidgets/QPushButton>
+#include <QtWidgets/QDialog>
 
 
 class Window ;

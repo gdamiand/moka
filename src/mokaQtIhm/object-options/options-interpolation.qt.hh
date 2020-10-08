@@ -28,12 +28,12 @@
 #include "controler-gmap.hh"
 
 //--------------------- Include QT --------------------
-#include <QtGui/QSpinBox>
-#include <QtGui/QCheckBox>
-#include <QtGui/QComboBox>
-#include <QtGui/QLabel>
-#include <QtGui/QTabWidget>
-#include <QtGui/QGroupBox>
+#include <QtWidgets/QSpinBox>
+#include <QtWidgets/QCheckBox>
+#include <QtWidgets/QComboBox>
+#include <QtWidgets/QLabel>
+#include <QtWidgets/QTabWidget>
+#include <QtWidgets/QGroupBox>
 
 
 class Window ;

@@ -31,10 +31,10 @@ class Window ;
 class CreationObjet ;
 
 //-------------------- Include QT --------------------
-#include <QtGui/QPushButton>
-#include <QtGui/QLabel>
-#include <QtGui/QToolBar>
-#include <QtGui/QDialog>
+#include <QtWidgets/QPushButton>
+#include <QtWidgets/QLabel>
+#include <QtWidgets/QToolBar>
+#include <QtWidgets/QDialog>
 
 /*****************************************************/
 /* CLASSE BoitePositionnement                        */

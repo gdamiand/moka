@@ -32,9 +32,9 @@ using namespace std ;
 #include <string.h>
 
 //------------- Include QT --------------
-#include <QtGui/QSpinBox>
+#include <QtWidgets/QSpinBox>
 #include <QtGui/QValidator> 
-#include <QtGui/QLineEdit> 
+#include <QtWidgets/QLineEdit>
 #include <QtCore/QString>
 
 class FloatSpinBox : public QDoubleSpinBox

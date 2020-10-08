@@ -29,9 +29,9 @@ class Window ;
 
 //------------------ Include QT -------------------
 
-#include <QtGui/QMenuBar>
-#include <QtGui/QMenu>
-#include <QtGui/QAction>
+#include <QtWidgets/QMenuBar>
+#include <QtWidgets/QMenu>
+#include <QtWidgets/QAction>
 
 
 

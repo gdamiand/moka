@@ -28,8 +28,8 @@
 #include "dialog-operations.qt.hh"
 
 //--------------------- Include QT --------------------
-#include <QtGui/QComboBox>
-#include <QtGui/QLabel>
+#include <QtWidgets/QComboBox>
+#include <QtWidgets/QLabel>
 
 class Window ;
 

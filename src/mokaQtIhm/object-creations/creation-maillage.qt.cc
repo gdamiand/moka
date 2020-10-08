@@ -26,9 +26,9 @@
 #include "HtmlEntities.hh"
 #include "SpaceWidget.qt.hh"
 
-#include <QtGui/QLabel>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QVBoxLayout>
+#include <QtWidgets/QLabel>
+#include <QtWidgets/QHBoxLayout>
+#include <QtWidgets/QVBoxLayout>
 
 
 /*******************************************************************/

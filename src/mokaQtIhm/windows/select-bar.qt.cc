@@ -25,8 +25,8 @@
 #include "window.qt.hh"
 #include "HtmlEntities.hh"
 
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QToolTip>
+#include <QtWidgets/QVBoxLayout>
+#include <QtWidgets/QToolTip>
 
 #define NB_SELECTION_BOUTONS 16
 

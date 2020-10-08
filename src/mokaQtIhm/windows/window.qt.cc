@@ -31,12 +31,13 @@
 #include <string>
 
 #include <QtGui/QPixmap>
-#include <QtGui/QToolButton>
-#include <QtGui/QMessageBox>
-#include <QtGui/QStatusBar>
-#include <QtGui/QFileDialog>
-#include <Qt3Support/Q3Accel>
-
+#include <QtWidgets/QToolButton>
+#include <QtWidgets/QMessageBox>
+#include <QtWidgets/QStatusBar>
+#include <QtWidgets/QFileDialog>
+#include <QtWidgets/QMdiArea>
+#include <QtWidgets/QMdiSubWindow>
+#include <QtWidgets/QShortcut>
 
 //***************************************
 // Constructeur
@@ -72,10 +73,10 @@ Window :: Window() :
    setMenuBar(main_menu);
 
    // Creation du workspace
-   FWorkspace = new QWorkspace(this) ;
+   FWorkspace = new QMdiArea(this) ;
    setCentralWidget(FWorkspace) ;
-   connect(FWorkspace, SIGNAL(windowActivated(QWidget *)),
-           this, SLOT(windowActivated(QWidget *)));
+   connect(FWorkspace, SIGNAL(subWindowActivated(QMdiSubWindow *)),
+           this, SLOT(subWindowActivated(QMdiSubWindow *)));
 
    // Affectation du mode du controleur
    FControler -> setMode(MODE_SELECTION) ;
@@ -91,83 +92,29 @@ Window :: Window() :
    FVueMere -> showMaximized() ;
 
    // Création des racourcis clavier : todo passer tout en QT4
-   Q3Accel* Raccourci = new Q3Accel(this) ;
-
-   Raccourci -> insertItem(QKeySequence("Alt+F9") , 8) ;
-   Raccourci -> connectItem(8 , this ,
-                            SLOT(callbackToggleNormal())) ;
-
-   Raccourci -> insertItem(QKeySequence(Qt::Key_F9) , 9) ;
-   Raccourci -> connectItem(9 , this ,
-                            SLOT(callbackToggleSews())) ;
-
-   Raccourci -> insertItem(QKeySequence(Qt::Key_F10) , 10) ;
-   Raccourci -> connectItem(10 , this ,
-                            SLOT(callbackToggleVertices())) ;
-
-   Raccourci -> insertItem(QKeySequence(Qt::Key_F11) , 11) ;
-   Raccourci -> connectItem(11 , this ,
-                            SLOT(callbackToggleFaces())) ;
-
-   Raccourci -> insertItem(QKeySequence(Qt::Key_F12) , 12) ;
-   Raccourci -> connectItem(12 , this ,
-                            SLOT(callbackToggleGrille())) ;
-
-   Raccourci -> insertItem(QKeySequence("Alt+F11") , 14) ;
-   Raccourci -> connectItem(14 , this ,
-                            SLOT(callbackTournerButton())) ;
-
-   Raccourci -> insertItem(QKeySequence(Qt::Key_Space) , 1) ;
-   Raccourci -> connectItem(1 , this ,
-                            SLOT(callbackHideAllWindow())) ;
-
-   Raccourci -> insertItem(QKeySequence(Qt::Key_Up) , 15) ;
-   Raccourci -> connectItem(15, this, SLOT(callbackKeyUp()));
-
-   Raccourci -> insertItem(QKeySequence(Qt::Key_Down) , 16) ;
-   Raccourci -> connectItem(16, this, SLOT(callbackKeyDown()));
-
-   Raccourci -> insertItem(QKeySequence(Qt::Key_Left) , 17) ;
-   Raccourci -> connectItem(17, this, SLOT(callbackKeyLeft()));
-
-   Raccourci -> insertItem(QKeySequence(Qt::Key_Right) , 18) ;
-   Raccourci -> connectItem(18, this, SLOT(callbackKeyRight()));
-
-   Raccourci -> insertItem(QKeySequence(Qt::CTRL + Qt::Key_Up) , 19) ;
-   Raccourci -> connectItem(19, this, SLOT(callbackKeyCtrlUp()));
-
-   Raccourci -> insertItem(QKeySequence(Qt::CTRL + Qt::Key_Down) , 20) ;
-   Raccourci -> connectItem(20, this, SLOT(callbackKeyCtrlDown()));
-
-   Raccourci -> insertItem(QKeySequence(Qt::CTRL + Qt::Key_Left) , 21) ;
-   Raccourci -> connectItem(21, this, SLOT(callbackKeyCtrlLeft()));
-
-   Raccourci -> insertItem(QKeySequence(Qt::CTRL + Qt::Key_Right) , 22) ;
-   Raccourci -> connectItem(22, this, SLOT(callbackKeyCtrlRight()));
-
-   Raccourci -> insertItem(QKeySequence(Qt::SHIFT + Qt::Key_Up) , 23) ;
-   Raccourci -> connectItem(23, this, SLOT(callbackKeyShiftUp()));
-
-   Raccourci -> insertItem(QKeySequence(Qt::SHIFT + Qt::Key_Down) , 24) ;
-   Raccourci -> connectItem(24, this, SLOT(callbackKeyShiftDown()));
-
-   Raccourci -> insertItem(QKeySequence(Qt::SHIFT + Qt::Key_Left) , 25) ;
-   Raccourci -> connectItem(25, this, SLOT(callbackKeyShiftLeft()));
-
-   Raccourci -> insertItem(QKeySequence(Qt::SHIFT + Qt::Key_Right) , 26);
-   Raccourci -> connectItem(26, this, SLOT(callbackKeyShiftRight()));
-
-   Raccourci -> insertItem(QKeySequence(Qt::SHIFT + Qt::Key_F8) , 27) ;
-   Raccourci -> connectItem(27 , this , SLOT(callbackVueCompacte())) ;
-
-   Raccourci -> insertItem(QKeySequence(Qt::SHIFT + Qt::Key_F9) , 28) ;
-   Raccourci -> connectItem(28 , this , SLOT(callbackVueSemiEclatee()));
-
-   Raccourci -> insertItem(QKeySequence(Qt::SHIFT + Qt::Key_F10) , 29) ;
-   Raccourci -> connectItem(29 , this , SLOT(callbackVueMoka())) ;
-
-   Raccourci -> insertItem(QKeySequence(Qt::SHIFT + Qt::Key_F11) , 30) ;
-   Raccourci -> connectItem(30 , this , SLOT(callbackVueTopoFil())) ;
+   new QShortcut(QKeySequence ( "Alt+F9" ), this, SLOT(callbackToggleNormal()));
+   new QShortcut(QKeySequence ( Qt::Key_F9 ), this, SLOT(callbackToggleSews()));
+   new QShortcut(QKeySequence ( Qt::Key_F10 ), this, SLOT(callbackToggleVertices()));
+   new QShortcut(QKeySequence ( Qt::Key_F11 ), this, SLOT(callbackToggleFaces()));
+   new QShortcut(QKeySequence ( Qt::Key_F12 ), this, SLOT(callbackToggleGrille()));
+   new QShortcut(QKeySequence ( "Alt+F11" ), this, SLOT(callbackTournerButton()));
+//   new QShortcut(QKeySequence ( Qt::Key_Space ), this, SLOT(callbackHideAllWindow()));
+   new QShortcut(QKeySequence ( Qt::Key_Up ), this, SLOT(callbackKeyUp()));
+   new QShortcut(QKeySequence ( Qt::Key_Down ), this, SLOT(callbackKeyDown()));
+   new QShortcut(QKeySequence ( Qt::Key_Left ), this, SLOT(callbackKeyLeft()));
+   new QShortcut(QKeySequence ( Qt::Key_Right ), this, SLOT(callbackKeyRight()));
+   new QShortcut(QKeySequence ( Qt::CTRL + Qt::Key_Up ), this, SLOT(callbackKeyCtrlUp()));
+   new QShortcut(QKeySequence ( Qt::CTRL + Qt::Key_Down ), this, SLOT(callbackKeyCtrlDown()));
+   new QShortcut(QKeySequence ( Qt::CTRL + Qt::Key_Left ), this, SLOT(callbackKeyCtrlLeft()));
+   new QShortcut(QKeySequence ( Qt::CTRL + Qt::Key_Right ), this, SLOT(callbackKeyCtrlRight()));
+   new QShortcut(QKeySequence ( Qt::SHIFT + Qt::Key_Up ), this, SLOT(callbackKeyShiftUp()));
+   new QShortcut(QKeySequence ( Qt::SHIFT + Qt::Key_Down ), this, SLOT(callbackKeyShiftDown()));
+   new QShortcut(QKeySequence ( Qt::SHIFT + Qt::Key_Left ), this, SLOT(callbackKeyShiftLeft()));
+   new QShortcut(QKeySequence ( Qt::SHIFT + Qt::Key_Right ), this, SLOT(callbackKeyShiftRight()));
+   new QShortcut(QKeySequence ( Qt::SHIFT + Qt::Key_F8 ), this, SLOT(callbackVueCompacte()));
+   new QShortcut(QKeySequence ( Qt::SHIFT + Qt::Key_F9 ), this, SLOT(callbackVueSemiEclatee()));
+   new QShortcut(QKeySequence ( Qt::SHIFT + Qt::Key_F10 ), this, SLOT(callbackVueMoka()));
+   new QShortcut(QKeySequence ( Qt::SHIFT + Qt::Key_F11 ), this, SLOT(callbackVueTopoFil()));
 
    // Creation des Toolbars
    FCreationBrin      = new CreationBrin(this , FControler);
@@ -246,9 +193,9 @@ void Window::repaint()
       QMainWindow::repaint() ;      // Appel de la methode de la classe mere
 
       // Appel de la methode sur toutes les vues ouvertes
-      QWidgetList vues = FWorkspace -> windowList() ;
+      QList<QMdiSubWindow*> vues = FWorkspace -> subWindowList() ;
       for (int i = 0 ; i < int (vues . count()) ; i++)
-	((GLWindow *) vues.at(i))->updateGL(); //paintGL(); //update(); //repaint() ;
+        ((GLWindow *) vues.at(i)->widget())->updateGL(); //paintGL(); //update(); //repaint() ;
 
       updateStatusBar();
       is_repainting = false;
@@ -260,7 +207,7 @@ void Window::closeEvent(QCloseEvent *)
    FControler -> saveAllParameters(getCurrentViewId());
 }
 
-void Window::windowActivated(QWidget * w)
+void Window::subWindowActivated(QMdiSubWindow * w)
 {
    if (w == NULL) return;
 
@@ -341,18 +288,18 @@ OptionsVolumicHomology * Window::getOptionsVolumicHomologyActive() const
 //*****************************************
 void Window :: bascule(TView type)
 {
-   assert(FWorkspace->activeWindow() != NULL);
+   assert(FWorkspace->activeSubWindow()->widget() != NULL);
 
    bool find = false;
    int  actu = 0;
    int  first;
 
    // On cherche tout d'abord la vue active.
-   QWidgetList vues = FWorkspace -> windowList() ;
+   QList<QMdiSubWindow*> vues = FWorkspace -> subWindowList() ;
 
    while (!find && actu < int(vues.count()))
    {
-      if ((GLWindow*)FWorkspace->activeWindow() == (GLWindow*)vues.at(actu))
+      if ((GLWindow*)FWorkspace->activeSubWindow()->widget() == (GLWindow*)vues.at(actu)->widget())
          find = true;
       else
          ++actu;
@@ -367,7 +314,7 @@ void Window :: bascule(TView type)
 
    while (!find && actu != first)
    {
-      if (((GLWindow*)vues.at(actu))->getViewType() == type)
+      if (((GLWindow*)vues.at(actu)->widget())->getViewType() == type)
          find = true;
       else
          actu = (actu + 1) % vues.count();
@@ -376,11 +323,11 @@ void Window :: bascule(TView type)
    if (find)
    {
       // Soit on active la vue
-      ((GLWindow*)vues.at(actu))->setFocus();
+      ((GLWindow*)vues.at(actu)->widget())->setFocus();
    }
    else
    {
-      if (((GLWindow*)FWorkspace->activeWindow())->getViewType() != type)
+      if (((GLWindow*)FWorkspace->activeSubWindow()->widget())->getViewType() != type)
       {
          // Soit on cree une vue avec le bon type.
          switch (type)
@@ -517,10 +464,9 @@ std::string Window::getOpenFileName(const QString & caption,
                                     int * ind_filter)
 {
    QString filename;
-   QFileDialog open_dialog(0, caption, current_dir.path());
+   QFileDialog open_dialog(0, caption, current_dir.path(), filters.join(";;"));
 
    if (ind_filter != NULL) *ind_filter = -1;
-   open_dialog.setFilters(filters);
    open_dialog.setAcceptMode(QFileDialog::AcceptOpen);
    open_dialog.setFileMode(QFileDialog::ExistingFile);
 
@@ -532,7 +478,7 @@ std::string Window::getOpenFileName(const QString & caption,
       if (ind_filter != NULL)
       {
          for ((*ind_filter) = 0;
-               filters.at(*ind_filter) != open_dialog.selectedFilter();
+               filters.at(*ind_filter) != open_dialog.selectedNameFilter();
                (*ind_filter)++);
       }
       return filename.toStdString();
@@ -561,13 +507,12 @@ std::string Window::getSaveFileName(const QString & caption,
    assert(FileDialog == NULL);
 
    QString filename;
-   FileDialog = new QFileDialog(0, caption, current_dir.path());
+   FileDialog = new QFileDialog(0, caption, current_dir.path(), filters.join(";;"));
 
    connect(FileDialog, SIGNAL(filterSelected(const QString &)),
            this, SLOT(filterSelected(const QString &)));
 
    if (ind_filter != NULL) *ind_filter = -1;
-   FileDialog->setFilters(filters);
    FileDialog->setAcceptMode(QFileDialog::AcceptSave);
    FileDialog->setFileMode(QFileDialog::AnyFile);
    filterSelected(filters.at(0));
@@ -580,7 +525,7 @@ std::string Window::getSaveFileName(const QString & caption,
       if (ind_filter != NULL)
       {
          for ((*ind_filter) = 0;
-               filters.at(*ind_filter) != FileDialog->selectedFilter();
+               filters.at(*ind_filter) != FileDialog->selectedNameFilter();
                (*ind_filter)++);
       }
 
@@ -772,9 +717,9 @@ void Window :: setAxisDisplay(bool b)
 
 TViewId Window :: getCurrentViewId() const
 {
-   assert(FWorkspace->activeWindow() != NULL);
+   assert(FWorkspace->activeSubWindow()->widget() != NULL);
 
-   return ((GLWindow *) FWorkspace -> activeWindow())
+   return ((GLWindow *) FWorkspace -> activeSubWindow()->widget())
           -> getCliquedViewId() ;
 }
 
@@ -805,7 +750,7 @@ void Window :: callbackKeyUp()
 {
    int view = getCurrentViewId();
 
-   switch (((GLWindow *) FWorkspace -> activeWindow()) -> getViewType())
+   switch (((GLWindow *) FWorkspace -> activeSubWindow()->widget()) -> getViewType())
    {
       case VIEW_XYZ :
       {
@@ -823,7 +768,7 @@ void Window :: callbackKeyDown()
 {
    int view = getCurrentViewId();
 
-   switch (((GLWindow *) FWorkspace -> activeWindow()) -> getViewType())
+   switch (((GLWindow *) FWorkspace -> activeSubWindow()->widget()) -> getViewType())
    {
       case VIEW_XYZ :
       {
@@ -841,7 +786,7 @@ void Window :: callbackKeyLeft()
 {
    int view = getCurrentViewId();
 
-   switch (((GLWindow *) FWorkspace -> activeWindow()) -> getViewType())
+   switch (((GLWindow *) FWorkspace -> activeSubWindow()->widget()) -> getViewType())
    {
       case VIEW_XYZ :
       {
@@ -859,7 +804,7 @@ void Window :: callbackKeyRight()
 {
    int view = getCurrentViewId();
 
-   switch (((GLWindow *) FWorkspace -> activeWindow()) -> getViewType())
+   switch (((GLWindow *) FWorkspace -> activeSubWindow()->widget()) -> getViewType())
    {
       case VIEW_XYZ :
       {
@@ -875,7 +820,7 @@ void Window :: callbackKeyRight()
 
 void Window :: callbackKeyCtrlUp()
 {
-   if (((GLWindow *) FWorkspace -> activeWindow()) -> getViewType() == VIEW_XYZ)
+   if (((GLWindow *) FWorkspace -> activeSubWindow()->widget()) -> getViewType() == VIEW_XYZ)
    {
       FControler -> verticalRotationEye(getCurrentViewId(), true);
       repaint();
@@ -884,7 +829,7 @@ void Window :: callbackKeyCtrlUp()
 
 void Window :: callbackKeyCtrlDown()
 {
-   if (((GLWindow *) FWorkspace -> activeWindow()) -> getViewType() == VIEW_XYZ)
+   if (((GLWindow *) FWorkspace -> activeSubWindow()->widget()) -> getViewType() == VIEW_XYZ)
    {
       FControler -> verticalRotationEye(getCurrentViewId(), false);
       repaint();
@@ -893,7 +838,7 @@ void Window :: callbackKeyCtrlDown()
 
 void Window :: callbackKeyCtrlLeft()
 {
-   if (((GLWindow *) FWorkspace -> activeWindow()) -> getViewType() == VIEW_XYZ)
+   if (((GLWindow *) FWorkspace -> activeSubWindow()->widget()) -> getViewType() == VIEW_XYZ)
    {
       FControler -> moveEyeLateral(getCurrentViewId(), false);
       repaint();
@@ -902,7 +847,7 @@ void Window :: callbackKeyCtrlLeft()
 
 void Window :: callbackKeyCtrlRight()
 {
-   if (((GLWindow *) FWorkspace -> activeWindow()) -> getViewType() == VIEW_XYZ)
+   if (((GLWindow *) FWorkspace -> activeSubWindow()->widget()) -> getViewType() == VIEW_XYZ)
    {
       FControler -> moveEyeLateral(getCurrentViewId(), true);
       repaint();
@@ -911,7 +856,7 @@ void Window :: callbackKeyCtrlRight()
 
 void Window :: callbackKeyShiftUp()
 {
-   if (((GLWindow *) FWorkspace -> activeWindow()) -> getViewType() == VIEW_XYZ)
+   if (((GLWindow *) FWorkspace -> activeSubWindow()->widget()) -> getViewType() == VIEW_XYZ)
    {
       TViewId AView = getCurrentViewId();
       float coeff =
@@ -923,7 +868,7 @@ void Window :: callbackKeyShiftUp()
 
 void Window :: callbackKeyShiftDown()
 {
-   if (((GLWindow *) FWorkspace -> activeWindow()) -> getViewType() == VIEW_XYZ)
+   if (((GLWindow *) FWorkspace -> activeSubWindow()->widget()) -> getViewType() == VIEW_XYZ)
    {
       TViewId AView = getCurrentViewId();
       float coeff =
@@ -935,7 +880,7 @@ void Window :: callbackKeyShiftDown()
 
 void Window :: callbackKeyShiftLeft()
 {
-   if (((GLWindow *) FWorkspace -> activeWindow()) -> getViewType() == VIEW_XYZ)
+   if (((GLWindow *) FWorkspace -> activeSubWindow()->widget()) -> getViewType() == VIEW_XYZ)
    {
       FControler -> horizontalRotationEye(getCurrentViewId(), true, 90);
       repaint();
@@ -944,7 +889,7 @@ void Window :: callbackKeyShiftLeft()
 
 void Window :: callbackKeyShiftRight()
 {
-   if (((GLWindow *) FWorkspace -> activeWindow()) -> getViewType() == VIEW_XYZ)
+   if (((GLWindow *) FWorkspace -> activeSubWindow()->widget()) -> getViewType() == VIEW_XYZ)
    {
       FControler -> horizontalRotationEye(getCurrentViewId(), false, 90);
       repaint();
@@ -2955,12 +2900,12 @@ void Window :: callbackGoAlpha3()
 //***************************************
 void Window :: tile()
 {
-   FWorkspace -> tile() ;
+   FWorkspace -> tileSubWindows(); ;
 }
 
 void Window :: cascade()
 {
-   FWorkspace -> cascade() ;
+   FWorkspace -> cascadeSubWindows();
 }
 
 void Window :: addView3D()
@@ -3030,7 +2975,7 @@ void Window :: basculeViewMulti()
 
 void Window :: deleteView()
 {
-   GLWindow * active = ((GLWindow *) FWorkspace -> activeWindow()) ;
+   GLWindow * active = ((GLWindow *) FWorkspace -> activeSubWindow()->widget()) ;
    active -> closeEvent(NULL) ;
 }
 
@@ -3066,21 +3011,21 @@ void Window :: OperationUngroupAllDrawing()
 
 void Window :: OperationUngroupGeneral()
 {
-   GLWindow * active = ((GLWindow *) FWorkspace -> activeWindow()) ;
+   GLWindow * active = ((GLWindow *) FWorkspace -> activeSubWindow()->widget()) ;
    FControler -> viewUngroup(active -> getCliquedViewId()) ;
    repaint() ;
 }
 
 void Window :: OperationUngroupPrecompiles()
 {
-   GLWindow * active = ((GLWindow *) FWorkspace -> activeWindow()) ;
+   GLWindow * active = ((GLWindow *) FWorkspace -> activeSubWindow()->widget()) ;
    FControler -> viewUngroupPrecompiles(active -> getCliquedViewId()) ;
    repaint() ;
 }
 
 void Window :: OperationUngroupEyePos()
 {
-   GLWindow * active = ((GLWindow *) FWorkspace -> activeWindow()) ;
+   GLWindow * active = ((GLWindow *) FWorkspace -> activeSubWindow()->widget()) ;
    FControler -> viewUngroupParameter(active -> getCliquedViewId() ,
                                       PARAMETER_EYE_POSITION) ;
    repaint() ;
@@ -3088,7 +3033,7 @@ void Window :: OperationUngroupEyePos()
 
 void Window :: OperationUngroupAimedPos()
 {
-   GLWindow * active = ((GLWindow *) FWorkspace -> activeWindow()) ;
+   GLWindow * active = ((GLWindow *) FWorkspace -> activeSubWindow()->widget()) ;
    FControler -> viewUngroupParameter(active -> getCliquedViewId() ,
                                       PARAMETER_AIMED_POSITION) ;
    repaint() ;
@@ -3096,7 +3041,7 @@ void Window :: OperationUngroupAimedPos()
 
 void Window :: OperationUngroupDrawing()
 {
-   GLWindow * active = ((GLWindow *) FWorkspace -> activeWindow()) ;
+   GLWindow * active = ((GLWindow *) FWorkspace -> activeSubWindow()->widget()) ;
    FControler -> viewUngroupParameter(active -> getCliquedViewId() ,
                                       PARAMETER_DRAWING) ;
    repaint() ;
@@ -3104,21 +3049,21 @@ void Window :: OperationUngroupDrawing()
 
 void Window :: OperationGroupAllGeneral()
 {
-   GLWindow * active = ((GLWindow *) FWorkspace -> activeWindow()) ;
+   GLWindow * active = ((GLWindow *) FWorkspace -> activeSubWindow()->widget()) ;
    FControler -> viewGroupAll(active -> getCliquedViewId()) ;
    repaint() ;
 }
 
 void Window :: OperationGroupAllPrecomp()
 {
-   GLWindow * active = ((GLWindow *) FWorkspace -> activeWindow()) ;
+   GLWindow * active = ((GLWindow *) FWorkspace -> activeSubWindow()->widget()) ;
    FControler -> viewGroupAllPrecompiles(active -> getCliquedViewId()) ;
    repaint() ;
 }
 
 void Window :: OperationGroupAllEyePos()
 {
-   GLWindow * active = ((GLWindow *) FWorkspace -> activeWindow()) ;
+   GLWindow * active = ((GLWindow *) FWorkspace -> activeSubWindow()->widget()) ;
    FControler -> viewGroupAllParameter(active -> getCliquedViewId() ,
                                        PARAMETER_EYE_POSITION) ;
    repaint() ;
@@ -3126,7 +3071,7 @@ void Window :: OperationGroupAllEyePos()
 
 void Window :: OperationGroupAllAimedPos()
 {
-   GLWindow * active = ((GLWindow *) FWorkspace -> activeWindow()) ;
+   GLWindow * active = ((GLWindow *) FWorkspace -> activeSubWindow()->widget()) ;
    FControler -> viewGroupAllParameter(active -> getCliquedViewId() ,
                                        PARAMETER_AIMED_POSITION) ;
    repaint() ;
@@ -3134,7 +3079,7 @@ void Window :: OperationGroupAllAimedPos()
 
 void Window :: OperationGroupAllDrawing()
 {
-   GLWindow * active = ((GLWindow *) FWorkspace -> activeWindow()) ;
+   GLWindow * active = ((GLWindow *) FWorkspace -> activeSubWindow()->widget()) ;
    FControler -> viewGroupAllParameter(active -> getCliquedViewId() ,
                                        PARAMETER_DRAWING) ;
    repaint() ;
@@ -3142,7 +3087,7 @@ void Window :: OperationGroupAllDrawing()
 
 void Window :: OperationGroupGeneral()
 {
-   GLWindow * active = ((GLWindow *) FWorkspace -> activeWindow()) ;
+   GLWindow * active = ((GLWindow *) FWorkspace -> activeSubWindow()->widget()) ;
    FControler -> viewGroup(active -> getCliquedViewId(),
                            FDoubleCliquee -> getDoubleCliquedViewId());
    repaint() ;
@@ -3150,7 +3095,7 @@ void Window :: OperationGroupGeneral()
 
 void Window :: OperationGroupPrecomp()
 {
-   GLWindow * active = ((GLWindow *) FWorkspace -> activeWindow()) ;
+   GLWindow * active = ((GLWindow *) FWorkspace -> activeSubWindow()->widget()) ;
    FControler->viewGroupPrecompiles(active -> getCliquedViewId(),
                                     FDoubleCliquee->getDoubleCliquedViewId());
    repaint() ;
@@ -3158,7 +3103,7 @@ void Window :: OperationGroupPrecomp()
 
 void Window :: OperationGroupEyePos()
 {
-   GLWindow * active = ((GLWindow *) FWorkspace -> activeWindow()) ;
+   GLWindow * active = ((GLWindow *) FWorkspace -> activeSubWindow()->widget()) ;
    FControler -> viewGroupParameter(active -> getCliquedViewId() ,
                                     FDoubleCliquee -> getDoubleCliquedViewId(),
                                     PARAMETER_EYE_POSITION) ;
@@ -3167,7 +3112,7 @@ void Window :: OperationGroupEyePos()
 
 void Window :: OperationGroupAimedPos()
 {
-   GLWindow * active = ((GLWindow *) FWorkspace -> activeWindow()) ;
+   GLWindow * active = ((GLWindow *) FWorkspace -> activeSubWindow()->widget()) ;
    FControler -> viewGroupParameter(active -> getCliquedViewId() ,
                                     FDoubleCliquee -> getDoubleCliquedViewId(),
                                     PARAMETER_AIMED_POSITION) ;
@@ -3176,7 +3121,7 @@ void Window :: OperationGroupAimedPos()
 
 void Window :: OperationGroupDrawing()
 {
-   GLWindow * active = ((GLWindow *) FWorkspace -> activeWindow()) ;
+   GLWindow * active = ((GLWindow *) FWorkspace -> activeSubWindow()->widget()) ;
    FControler -> viewGroupParameter(active -> getCliquedViewId() ,
                                     FDoubleCliquee -> getDoubleCliquedViewId(),
                                     PARAMETER_DRAWING) ;

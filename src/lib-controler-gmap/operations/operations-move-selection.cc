@@ -62,6 +62,7 @@ bool CControlerGMap::goForward1()
   CDart* next = FMap->go(CGMapGeneric::Forward, getLastSelectedDart(),
 			 getSelectionOrbit(), getSelectionMark(), true);
   selectDart(next);
+  setSelectionChanged();
   setMessage("Forward selection done");
   return true;
 }
@@ -74,6 +75,7 @@ bool CControlerGMap::goForward0()
   CDart* next = FMap->go(CGMapGeneric::Forward, getLastSelectedDart(),
 			 getSelectionOrbit(), getSelectionMark(), false);
   selectDart(next);
+  setSelectionChanged();
   setMessage("Forward deselection done");
   return true;
 }
@@ -86,6 +88,7 @@ bool CControlerGMap::goBackward1()
   CDart* next = FMap->go(CGMapGeneric::Backward, getLastSelectedDart(),
 			 getSelectionOrbit(), getSelectionMark(), true);
   selectDart(next);
+  setSelectionChanged();
   setMessage("Backward selection done");
   return true;
 }
@@ -98,6 +101,7 @@ bool CControlerGMap::goBackward0()
   CDart* next = FMap->go(CGMapGeneric::Backward, getLastSelectedDart(),
 			 getSelectionOrbit(), getSelectionMark(), false);
   selectDart(next);
+  setSelectionChanged();
   setMessage("Backward deselection done");
   return true;
 }
@@ -110,6 +114,7 @@ bool CControlerGMap::goLeft1()
   CDart* next = FMap->go(CGMapGeneric::Left, getLastSelectedDart(),
 			 getSelectionOrbit(), getSelectionMark(), true);
   selectDart(next);
+  setSelectionChanged();
   setMessage("Left selection done");
   return true;
 }
@@ -122,6 +127,7 @@ bool CControlerGMap::goLeft0()
   CDart* next = FMap->go(CGMapGeneric::Left, getLastSelectedDart(),
 			 getSelectionOrbit(), getSelectionMark(), false);
   selectDart(next);
+  setSelectionChanged();
   setMessage("Left deselection done");
   return true;
 }
@@ -134,6 +140,7 @@ bool CControlerGMap::goRight1()
   CDart* next = FMap->go(CGMapGeneric::Right, getLastSelectedDart(),
 			 getSelectionOrbit(), getSelectionMark(), true);
   selectDart(next);
+  setSelectionChanged();
   setMessage("Right selection done");
   return true;
 }
@@ -146,6 +153,7 @@ bool CControlerGMap::goRight0()
   CDart* next = FMap->go(CGMapGeneric::Right, getLastSelectedDart(),
 			 getSelectionOrbit(), getSelectionMark(), false);
   selectDart(next);
+  setSelectionChanged();
   setMessage("Right deselection done");
   return true;
 }
@@ -160,6 +168,7 @@ bool CControlerGMap::goForward1Rep()
 					getSelectionOrbit(),
 					getSelectionMark(), true);
   selectDart(next);
+  setSelectionChanged();
   setMessage("Forward selection done");
   return true;
 }
@@ -174,6 +183,7 @@ bool CControlerGMap::goForward0Rep()
 					getSelectionOrbit(),
 					getSelectionMark(), false);
   selectDart(next);
+  setSelectionChanged();
   setMessage("Forward deselection done");
   return true;
 }
@@ -188,6 +198,7 @@ bool CControlerGMap::goBackward1Rep()
 					getSelectionOrbit(),
 					getSelectionMark(), true);
   selectDart(next);
+  setSelectionChanged();
   setMessage("Backward selection done");
   return true;
 }
@@ -202,6 +213,7 @@ bool CControlerGMap::goBackward0Rep()
 					getSelectionOrbit(),
 					getSelectionMark(), false);
   selectDart(next);
+  setSelectionChanged();
   setMessage("Backward deselection done");
   return true;
 }
@@ -216,6 +228,7 @@ bool CControlerGMap::goLeft1Rep()
 					getSelectionOrbit(),
 					getSelectionMark(), true);
   selectDart(next);
+  setSelectionChanged();
   setMessage("Left selection done");
   return true;
 }
@@ -230,6 +243,7 @@ bool CControlerGMap::goLeft0Rep()
 					getSelectionOrbit(),
 					getSelectionMark(), false);
   selectDart(next);
+  setSelectionChanged();
   setMessage("Left deselection done");
   return true;
 }
@@ -244,6 +258,7 @@ bool CControlerGMap::goRight1Rep()
 					getSelectionOrbit(),
 					getSelectionMark(), true);
   selectDart(next);
+  setSelectionChanged();
   setMessage("Right selection done");
   return true;
 }
@@ -258,6 +273,7 @@ bool CControlerGMap::goRight0Rep()
 					getSelectionOrbit(),
 					getSelectionMark(), false);
   selectDart(next);
+  setSelectionChanged();
   setMessage("Right deselection done");
   return true;
 }
@@ -282,6 +298,7 @@ bool CControlerGMap::goAlphai( unsigned int ADim )
   if ( !FMap->isFree(getLastSelectedDart(),ADim) )
     {
       selectDart(FMap->alpha(getLastSelectedDart(),ADim));
+      setSelectionChanged();
       setMessage("Selection by alpha", ADim, " done");
     }
   else

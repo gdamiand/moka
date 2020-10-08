@@ -26,8 +26,6 @@
 #include "window.qt.hh"
 #include "HtmlEntities.hh"
 
-// #include <Qt3Support/Q3Accel>
-
 //***********************************
 // Constructeurs                    *
 //***********************************
@@ -52,20 +50,8 @@ BoutonsCreation::BoutonsCreation(CreationObjet * parent , QBoxLayout * layout)
 
    // Raccourcis claviers
 
-   /*  Q3Accel * Raccourci = new Q3Accel ( this ) ;
-       Raccourci -> insertItem ( QKeySequence ( Qt::Key_Space ) , 2 ) ;
-       Raccourci -> connectItem ( 2 , this ,
-                              SLOT ( cancel ( ) ) ) ;
-   */
-
    FReinitialiser->setShortcut(Qt::Key_Space);
    FOptions->setShortcut(Qt::CTRL + Qt::Key_P);
-
-   /*
-   Raccourci -> insertItem ( QKeySequence ( Qt::CTRL + Qt::Key_P ) , 3 ) ;
-   Raccourci -> connectItem ( 3 , this ,
-                              SLOT ( options ( ) ) ) ;
-   */
 
    // Mise en place des ecoutes
    QObject::connect(FReinitialiser , SIGNAL(clicked()) , this,

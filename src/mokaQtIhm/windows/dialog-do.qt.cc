@@ -24,9 +24,9 @@
 #include "dialog-do.qt.hh"
 #include "window.qt.hh"
 
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QLabel>
+#include <QtWidgets/QVBoxLayout>
+#include <QtWidgets/QHBoxLayout>
+#include <QtWidgets/QLabel>
 
 //**********************************************
 // Constructeur

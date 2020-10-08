@@ -30,11 +30,11 @@
 #include "dialog-types.hh"
 
 //--------------------- Include QT --------------------
-#include <QtGui/QCheckBox>
-#include <QtGui/QPushButton>
-#include <QtGui/QLabel>
-#include <QtGui/QToolBar>
-#include <QtGui/QBoxLayout>
+#include <QtWidgets/QCheckBox>
+#include <QtWidgets/QPushButton>
+#include <QtWidgets/QLabel>
+#include <QtWidgets/QToolBar>
+#include <QtWidgets/QBoxLayout>
 
 
 /*******************************************************************/

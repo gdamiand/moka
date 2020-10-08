@@ -29,9 +29,9 @@
 #include "floatSpinBox.qt.hh"
 
 //--------------------- Include QT --------------------
-#include <QtGui/QPushButton>
-#include <QtGui/QLabel>
-#include <QtGui/QDialog>
+#include <QtWidgets/QPushButton>
+#include <QtWidgets/QLabel>
+#include <QtWidgets/QDialog>
 
 
 class Window ;

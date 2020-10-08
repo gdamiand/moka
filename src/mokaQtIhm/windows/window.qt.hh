@@ -194,7 +194,7 @@ public slots:
   /**
    *  Pour detecter le changement de fenetre active dans le workspace.
    */
-  void windowActivated( QWidget * w );
+  void subWindowActivated( QMdiSubWindow * w );
   
   void callbackKeyUp();
   void callbackKeyDown();
@@ -698,7 +698,7 @@ private:
   GMap3d :: CControlerGMap * FControler ;
 
   // Pointeur sur un workspace
-  QWorkspace * FWorkspace ;
+  QMdiArea * FWorkspace ;
   
   // Pointeur sur la fenetre de construction active
   CreationObjet * FCreationActive ;

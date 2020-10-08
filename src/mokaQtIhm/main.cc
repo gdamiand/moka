@@ -22,7 +22,7 @@
  */
 
 //******************************************************************************
-#include <QtGui/QApplication>
+#include <QtWidgets/QApplication>
 #include "window.qt.hh"
 #include <cstring>
 

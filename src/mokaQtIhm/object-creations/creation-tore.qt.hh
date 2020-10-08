@@ -29,7 +29,7 @@
 class Window ;
 
 //--------------------- Include QT --------------------
-#include <QtGui/QSlider>
+#include <QtWidgets/QSlider>
 
 /*******************************************************************/
 /* CLASSE CreationTore                                             */
