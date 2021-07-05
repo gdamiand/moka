@@ -39,16 +39,16 @@ void Matrice::desallocate()
 bool Matrice::allocate(int nbli,int nbcol)
 {
   desallocate();
-  
+
   nb_lignes=nbli;
   nb_colonnes=nbcol;
 
   FSize = sizeof(int*)*nbli + sizeof(int)*nbcol*nbli;
   FValid = false;
-  
+
   mat = new int*[nbli];
   if ( mat==NULL ) return false;
-  
+
   for (int i = 0 ; i < nbli ; i++)
   {
     mat[i] = new int [nbcol] ;
@@ -57,12 +57,13 @@ bool Matrice::allocate(int nbli,int nbcol)
   }
 
   FValid=true;
+  return true;
 }
 
 Matrice::Matrice(int nbli,int nbcol) : FSize(0), FValid(false), mat(NULL)
 {
   allocate(nbli,nbcol);
-  
+
   if ( valid() )
     for(int i = 0 ; i < nbli ; i++)
     {
@@ -131,7 +132,7 @@ coord Matrice::verifyOthers(int pos)
   coord c;
   c.i=-1;
   c.j=-1;
-  
+
   for(int i=pos+1;i<nb_lignes;i++)
   {
     for(int j=pos+1;j<nb_colonnes;j++)
@@ -176,9 +177,9 @@ void  Matrice::multGauche(Matrice * op2)
   int c=nb_colonnes;
 
   assert( a==nb_lignes );
-  
+
   Matrice *mattmp=new Matrice(a,c);
-  
+
   for(int i=0;i<a;i++)
   {
     for(int j=0;j<c;j++)
@@ -204,7 +205,7 @@ void Matrice::setMatrice(Matrice * m)
 {
   assert(nb_lignes==m->nb_lignes);
   assert(nb_colonnes==m->nb_colonnes);
-  
+
   for(int i=0;i<nb_lignes;i++)
   {
     for(int j=0;j<nb_colonnes;j++)
@@ -339,4 +340,3 @@ int Matrice::nbTorsion()
   }
   return nb_t;
 }
-
