@@ -37,6 +37,7 @@
 #include <assimp/postprocess.h> // Post processing flags
 
 using namespace GMap3d;
+typedef unsigned int uint;
 
 //******************************************************************************
 CDart *CGMapVertex::importWithAssimp(const char* AFilename)
