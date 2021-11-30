@@ -592,7 +592,7 @@ class CAngularEdgeComparator
 			 int AVertexDI)
     : FMap(AMap), FCenter(ACenter), FVertexDI(AVertexDI) {}
   
-  bool operator () (CDart * AEdge1, CDart * AEdge2)
+  bool operator () (CDart * AEdge1, CDart * AEdge2) const
   {
     CVertex v1 = *getVertex(a0(AEdge1)) - FCenter;
     CVertex v2 = *getVertex(a0(AEdge2)) - FCenter;

@@ -985,7 +985,7 @@ public:
 		  int AVertexDI = -1)
     : FTools(ATools), FAxis(AAxis), FVertexDI(AVertexDI) {}
 
-  bool operator () (CDart * AFace1, CDart * AFace2)
+  bool operator () (CDart * AFace1, CDart * AFace2) const
   {
     CVertex v1 = FTools.faceNormalVector(AFace1, FVertexDI);
     CVertex v2 = FTools.faceNormalVector(AFace2, FVertexDI);
