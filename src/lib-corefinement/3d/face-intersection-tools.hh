@@ -108,7 +108,7 @@ namespace GMap3d {
       FRefY = FAxis * FRefX;
     }
     
-    int getArea(const CVertex & AVector)
+    int getArea(const CVertex & AVector) const
     {
       if (AVector.dot(FRefX) > 0.0) {
 	if (AVector.dot(FRefY) > 0.0) return 0;
@@ -120,7 +120,7 @@ namespace GMap3d {
       }
     }
 
-    bool operator () (CDart * AFace1, CDart * AFace2)
+    bool operator () (CDart * AFace1, CDart * AFace2) const
     {
       CVertex n1, n2;
       CPlane *plane;

@@ -527,7 +527,8 @@ void CGMapVertex::computeOFFSenses_VSF(vector< list<int> >& face,
                                        CVertex &baricentro,
                                        vector< int > &faceseq)
 {
-  nklein::GeometricAlgebra< double, 4 >* Points[face.size()],B,I,Line;
+  nklein::GeometricAlgebra< double, 4 >** Points = new nklein::GeometricAlgebra< double, 4 >*[face.size()];
+  nklein::GeometricAlgebra< double, 4 > B, I, Line;
   nklein::GeometricAlgebra< double, 4 > planeOuter, planeOuterD;
   nklein::GeometricAlgebra< double, 4 > planeHole, planeHoleD;
   double tol=0.00001;
@@ -658,6 +659,7 @@ void CGMapVertex::computeOFFSenses_VSF(vector< list<int> >& face,
   /** destroy */
   for(int i=0;i<face.size();i++)
     delete [] Points[i];
+  delete[] Points;
 }
 //******************************************************************************
 //CDart* CGMapVertex::importOff3D_VSF(std::istream & AStream)
