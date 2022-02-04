@@ -144,6 +144,8 @@ public:
    */
   virtual OptionsVolumicHomology * getOptionsVolumicHomologyActive() const ;
 
+  GLWindow* getActiveSubWindow() const;
+
   /**
    * Accesseur sur le numero de la fenetre active
    * @return Pointeur sur la boite active
@@ -689,98 +691,101 @@ public:
   GMap3d::CParameterVertex*     getParameterVertex() const;
   
 #ifdef MODULE_SPAMOD
-  GMap3d::CParameterSpamod*     	  getParameterSpamod		  () const;
+  GMap3d::CParameterSpamod*       getParameterSpamod() const;
 #endif // MODULE_SPAMOD
 
   //************************************************************************/
 private:
   // Pointeur sur le controleur
-  GMap3d :: CControlerGMap * FControler ;
+  GMap3d::CControlerGMap * FControler=nullptr;
 
   // Pointeur sur un workspace
-  QMdiArea * FWorkspace ;
+  QMdiArea * FWorkspace=nullptr;
   
+  // Pointeur vers la sous fenetre active
+  GLWindow* FActiveWidget=nullptr;
+
   // Pointeur sur la fenetre de construction active
-  CreationObjet * FCreationActive ;
+  CreationObjet * FCreationActive=nullptr;
   
   // Pointeurs sur chacunes des toolbars de construction.
-  CreationObjet * FCreationBrin ;
-  CreationObjet * FCreationCylindre ;
-  CreationObjet * FCreationMaillage ;
-  CreationObjet * FCreationPolygone ;
-  CreationObjet * FCreationPyramide ;
-  CreationObjet * FCreationSphere ;
-  CreationObjet * FCreationTore ; 
+  CreationObjet * FCreationBrin=nullptr;
+  CreationObjet * FCreationCylindre=nullptr;
+  CreationObjet * FCreationMaillage=nullptr;
+  CreationObjet * FCreationPolygone=nullptr;
+  CreationObjet * FCreationPyramide=nullptr;
+  CreationObjet * FCreationSphere=nullptr;
+  CreationObjet * FCreationTore=nullptr;
   
   // Pointeurs sur chacunes des toolbars d'operation.
-  dialogOperations * FDialogRotation ;
-  dialogOperations * FDialogHomothetie ;
-  dialogOperations * FDialogTranslation ;
-  dialogOperations * FDialogMoveto ;
+  dialogOperations * FDialogRotation=nullptr;
+  dialogOperations * FDialogHomothetie=nullptr;
+  dialogOperations * FDialogTranslation=nullptr;
+  dialogOperations * FDialogMoveto=nullptr;
    
 #ifdef MODULE_GEOLOGY
   // Pointeur sur la fenetre de construction active
-  DialogMesh * FMeshActive ;
+  DialogMesh * FMeshActive=nullptr;
 #endif // MODULE_GEOLOGY
   
   // Pointeur sur l'operation active 
   // Operations : Rotation, translation, homothetie, moveto
-  dialogOperations * FOperationActive ;
+  dialogOperations * FOperationActive=nullptr;
 
   // Pointeur sur l'ensemble des actions
-  OptionsFrame * FOptionsFrame ;
+  OptionsFrame * FOptionsFrame=nullptr;
 
   // Pointeur sur la boite de dialogue chanfreinage
-  OperationChanfreinage * FOperationChanfreinage ;
+  OperationChanfreinage * FOperationChanfreinage=nullptr;
 
   // Pointeur sur la boite de dialogue des caracteristiques topologiques
-  OptionsCarac * FOptionsCarac ;
+  OptionsCarac * FOptionsCarac=nullptr;
 
   // Pointeur sur la boite de dialogue de calcul de l'homology surfacique
-  OptionsSurfacicHomology * FOptionsSurfacicHomology ;
+  OptionsSurfacicHomology * FOptionsSurfacicHomology=nullptr;
 
   // Pointeur sur la boite de dialogue de calcul de l'homology volumique
-  OptionsVolumicHomology * FOptionsVolumicHomology ;
+  OptionsVolumicHomology * FOptionsVolumicHomology=nullptr;
 
   // Pointeur sur la boite de dialogue de configuration des Undo/Redo
-  DialogDo * FDialogDo ;
+  DialogDo * FDialogDo=nullptr;
 
   // Vue mere
-  GLWindow * FVueMere ;
+  GLWindow * FVueMere=nullptr;
 
   // Derniere vue double cliquee
-  GLWindow * FDoubleCliquee ;
+  GLWindow * FDoubleCliquee=nullptr;
 
   // Barre de selection
-  SelectBar * FSelection ;
+  SelectBar * FSelection=nullptr;
 
   // Boite des couleurs
-  OptionCouleurs * FCouleurs ;
-  bool color_active;
+  OptionCouleurs * FCouleurs=nullptr;
+  bool color_active=false;
 
-  Window * FParent; 
+  Window * FParent=nullptr;
   
-  MenuBar * main_menu;
+  MenuBar * main_menu=nullptr;
   
   // Les Toolbars.
-  QToolBar * fichier;
-  QToolBar * edition;
-  QToolBar * creation;
-  QToolBar * operations;
-  QToolBar * vues;
-  QToolBar * selection;
+  QToolBar * fichier=nullptr;
+  QToolBar * edition=nullptr;
+  QToolBar * creation=nullptr;
+  QToolBar * operations=nullptr;
+  QToolBar * vues=nullptr;
+  QToolBar * selection=nullptr;
   
   // Les actions dynamiques.
-  QAction * charger_act;
-  QAction * sauver_act;
-  QAction * importer_act;
-  QAction * exporter_act;
+  QAction * charger_act=nullptr;
+  QAction * sauver_act=nullptr;
+  QAction * importer_act=nullptr;
+  QAction * exporter_act=nullptr;
   
   // Le repertoire courant.
   QDir current_dir;
   
   // La boite de dialogue de sélection de fichier en cours.
-  QFileDialog* FileDialog;  
+  QFileDialog* FileDialog=nullptr;
 };
 
 #endif
