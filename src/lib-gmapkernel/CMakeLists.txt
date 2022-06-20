@@ -32,7 +32,7 @@ if ( MODULE_EXTRACTION_IMAGE )
   target_link_libraries (gmapkernel extraction-images)
 endif ( MODULE_EXTRACTION_IMAGE )
 #-------------------------------------------------------------------------------
-if ( ASSIMP_FOUND )
-  target_link_libraries (gmapkernel ${ASSIMP_LIBRARIES})
-endif ( ASSIMP_FOUND )
+if ( assimp_FOUND )
+  target_link_libraries (gmapkernel assimp)
+endif ( assimp_FOUND )
 #-------------------------------------------------------------------------------

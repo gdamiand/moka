@@ -73,12 +73,12 @@ endif (CMAKE_BUILD_TYPE STREQUAL  "Debug")
 #------------------------------------------------------------------------------
 # Includes for ASSIMP
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
-find_package(ASSIMP)
+find_package(assimp)
 
-if ( ASSIMP_FOUND )
+if ( assimp_FOUND )
    ADD_DEFINITIONS(-DWITH_ASSIMP)
-   include_directories(${ASSIMP_INCLUDE_DIR})
-endif ( ASSIMP_FOUND )
+   include_directories(${assimp_INCLUDE_DIR})
+endif ( assimp_FOUND )
 
 #------------------------------------------------------------------------------
 # Includes for gmapkernel
