@@ -31,6 +31,7 @@
 #include "inline-macro.hh"
 
 #include <string>
+#include <cassert> // must be included before Magick++ because a bug
 #include <Magick++.h>
 //******************************************************************************
 

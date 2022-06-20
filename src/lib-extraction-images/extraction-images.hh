@@ -33,6 +33,7 @@
 class CVertex;
 
 #ifndef MODULE_EXTRACTION_IMAGE_WITHOUT_MAGICK
+#include <cassert> // must be included before Magick++ because a bug
 #include <Magick++.h>
 #endif
 
