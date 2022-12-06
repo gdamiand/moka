@@ -132,10 +132,10 @@ TPrecompile CPrecompileDart::getType() const
 CDart* CPrecompileDart::nextDartAlpha(CDart* ADart, unsigned int ADim)
 {
   assert(ADim<=3);
-  
+
   if ( !FParameterGMapV->getModeSimplification() || ADim==3 )
     return ADart->getAlpha(ADim);
- 
+
   assert(!FParameterGMapV->getDrawingMap()->
 	 isMarked(ADart,FParameterGMapV->getMarkRemoved(ADim)));
   CDart* res = ADart->getAlpha(ADim);
@@ -152,7 +152,7 @@ void CPrecompileDart::drawOneEdge(CDart * ADart)
   if  ( !FParameterGMapV->getModeSimplification() ||
 	FParameterGMapV->getDrawingMap()->isFree0(ADart) )
     return;
-  
+
   CDart* start = FParameterGMapV->getDartWithEmbedding(ADart);
   CDart* end = FParameterGMapV->getDartWithEmbedding(ADart->getAlpha(0));
   while ( start!=end )
@@ -208,7 +208,7 @@ void CPrecompileDart::drawModel()
    {
       mark = FParameterSelection->getSelectionMark();
       last = FParameterSelection->getLastSelectedDart();
-      
+
       clSel   = FParameterDart->
 	getCLSel(FParameterSelection->getSelectionLevel());
       clUnsel = FParameterDart->
@@ -239,10 +239,12 @@ void CPrecompileDart::drawModel()
    CDynamicCoverageAll it(FParameterGMapV->getMap());
 
    // Dessin des brins non sélectionnés :
+   glColor3fv(clUnsel);
    for (; it.cont(); ++it)
       if (mark == -1 || !FParameterGMapV->getMap()->isMarked(*it, mark))
 	{
-	  glColor3fv(clUnsel);
+          if(FParameterGMapV->getModeSimplification())
+          { glColor3fv(clUnsel); }
 	  drawOneDart(FParameterGMapV->getDartWithEmbedding(*it));
 	  if ( FParameterGMapV->getModeSimplification() )
 	    {
