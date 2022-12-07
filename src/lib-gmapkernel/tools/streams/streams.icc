@@ -21,6 +21,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifdef _WINDOWS
+#include <winsock.h>
+#else
+#include <arpa/inet.h>
+#endif
+
 //******************************************************************************
 static bool bin = true;
 //******************************************************************************
@@ -86,7 +92,10 @@ INLINE
 void writeInt(std::ostream& AStream, unsigned long int AInt)
 {
   if (bin)
+  {
+    AInt=htonl(AInt); // host to network
     AStream.write((char *) & AInt, sizeof(unsigned long int));
+  }
   else
     AStream << AInt;
 }
@@ -128,7 +137,10 @@ unsigned long int readInt(std::istream& AStream)
   unsigned long int i;
 
   if (bin)
+  {
     AStream.read((char *) & i, sizeof(unsigned long int));
+    i=ntohl(i); // network to host
+  }
   else
     AStream >> i;
 
@@ -144,7 +156,7 @@ TCoordinate readCoord(std::istream& AStream)
     AStream.read((char *) & c, sizeof(TCoordinate));
   else
     AStream >> c;
-  
+
   return c;
 }
 //******************************************************************************
