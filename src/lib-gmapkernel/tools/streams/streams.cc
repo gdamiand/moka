@@ -24,5 +24,6 @@
 //******************************************************************************
 #include "inline-macro.hh"
 #include INCLUDE_NON_INLINE("streams.hh")
-#include INCLUDE_NON_INLINE("streams.icc")
+//#include INCLUDE_NON_INLINE("streams.icc")//VIC
+#include INCLUDE_NON_INLINE("streams.incc")//VIC
 //******************************************************************************

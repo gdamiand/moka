@@ -24,5 +24,6 @@
 //******************************************************************************
 #include "inline-macro.hh"
 #include INCLUDE_HEADER    ("mesh-diver.hh")
-#include INCLUDE_NON_INLINE("mesh-diver.icc")
+//#include INCLUDE_NON_INLINE("mesh-diver.icc")//VIC
+#include INCLUDE_NON_INLINE("mesh-diver.incc")
 //******************************************************************************

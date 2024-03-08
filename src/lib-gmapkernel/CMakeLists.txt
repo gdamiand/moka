@@ -1,10 +1,15 @@
 #-------------------------------------------------------------------------------
-file(GLOB_RECURSE source_files *.cc *.hh *.icc)
+file(GLOB_RECURSE source_files *.cc *.hh *.incc) #VIC cambio *.icc pot *.incc
 source_group(GMap REGULAR_EXPRESSION "g-map/.*") 
 source_group(GMap-generic REGULAR_EXPRESSION "g-map-generic/.*") 
 source_group(GMap-vertex REGULAR_EXPRESSION "g-map-vertex/.*") 
 source_group(Tools REGULAR_EXPRESSION "tools/.*") 
 add_library (gmapkernel ${source_files})
+#-------------------------------------------------------------------------------
+#VIC
+target_include_directories(gmapkernel PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../msys64/usr/include>
+)
 #-------------------------------------------------------------------------------
 target_link_libraries (gmapkernel homology)
 #-------------------------------------------------------------------------------

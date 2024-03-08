@@ -36,7 +36,9 @@ using namespace GMap3d ;
 //*****************************************************
 GLWindow :: GLWindow(TView AViewType , QMdiArea * parent ,
                      Window * owner , SelectBar * selection) :
-      QGLWidget(QGLFormat(QGL::SampleBuffers), parent , 0, Qt::SubWindow),
+      //QGLWidget(QGLFormat(QGL::SampleBuffers), parent , 0, Qt::SubWindow),
+      //QOpenGLWidget(QGLFormat(QGL::SampleBuffers), parent , 0, Qt::SubWindow), //VIC
+    QOpenGLWidget(parent), //VIC
       FViewType(AViewType),
       FShared(NULL),
       isShared(false),
@@ -53,7 +55,9 @@ GLWindow :: GLWindow(TView AViewType , QMdiArea * parent ,
 GLWindow :: GLWindow(TView AViewType , QMdiArea * parent ,
                      Window * owner , GLWindow * share ,
                      SelectBar * selection) :
-      QGLWidget(parent, share , Qt::SubWindow) ,
+      //QGLWidget(parent, share , Qt::SubWindow) ,
+    //QOpenGLWidget(parent, share , Qt::SubWindow) , //VIC
+    QOpenGLWidget(parent) , //VIC
       FViewType(AViewType) ,
       FShared(share) ,
       isShared(true) ,

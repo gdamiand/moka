@@ -24,5 +24,6 @@
 //******************************************************************************
 #include "inline-macro.hh"
 #include INCLUDE_NON_INLINE("embedding.hh")
-#include INCLUDE_NON_INLINE("embedding.icc")
+//#include INCLUDE_NON_INLINE("embedding.icc")//VIC
+#include INCLUDE_NON_INLINE("embedding.incc")
 //******************************************************************************

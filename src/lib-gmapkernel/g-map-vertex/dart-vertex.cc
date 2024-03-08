@@ -24,5 +24,6 @@
 //******************************************************************************
 #include "inline-macro.hh"
 #include INCLUDE_HEADER    ("dart-vertex.hh")
-#include INCLUDE_NON_INLINE("dart-vertex.icc")
+//#include INCLUDE_NON_INLINE("dart-vertex.icc")//VIC
+#include INCLUDE_NON_INLINE("dart-vertex.incc")
 //******************************************************************************

@@ -154,7 +154,8 @@ std::ostream& operator<<(std::ostream& AStream,
 
 // @}
 //******************************************************************************
-#include INCLUDE_INLINE("attribute-vertex.icc")
+//#include INCLUDE_INLINE("attribute-vertex.icc")//VIC
+#include INCLUDE_INLINE("attribute-vertex.incc")
 //******************************************************************************
 #endif // ATTRIBUTE_VERTEX_HH
 //******************************************************************************

@@ -49,9 +49,13 @@ int main(int argc, char** argv)
 #endif // MODULE_SPAMOD
 
     //    glutInitDisplayMode(AUX_SINGLE | AUX_RGBA | AUX_DEPTH);
+    QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL);//VIC
+    cout<<"OPENGLff="<< std::endl;
  
     QApplication appli(argc, argv);
+
     Window moka;
+
 
     bool fullscreen = false;
     bool help = false;

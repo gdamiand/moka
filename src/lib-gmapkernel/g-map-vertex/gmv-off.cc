@@ -37,8 +37,8 @@ void CGMapVertex::linkFaceAlpha2OFF(vector< list<CDart*> >& ATestVertices,
   CDart* current = ADart;
   do
   {
-    unsigned long int v1 = (unsigned long int)getDirectInfo(current, AIndex);
-    unsigned long int v2 = (unsigned long int)getDirectInfo(alpha0(current), AIndex);
+    unsigned long int v1 = (intptr_t)getDirectInfo(current, AIndex);//(unsigned long int)getDirectInfo(current, AIndex); //VIC
+    unsigned long int v2 = (intptr_t)getDirectInfo(alpha0(current), AIndex);//(unsigned long int)getDirectInfo(alpha0(current), AIndex);//VIC
 
     list<CDart*>& tmp1 = ATestVertices[v1];
     list<CDart*>& tmp2 = ATestVertices[v2];
@@ -48,7 +48,7 @@ void CGMapVertex::linkFaceAlpha2OFF(vector< list<CDart*> >& ATestVertices,
     CDart* foundEdge = NULL;
     for (it = tmp1.begin(); foundEdge == NULL && it != tmp1.end(); ++it)
     {
-      if (((unsigned long int)getDirectInfo(alpha0(*it), AIndex)) == v2)
+      if (((intptr_t)getDirectInfo(alpha0(*it), AIndex)) == v2) //(unsigned long int)getDirectInfo(alpha0(*it), AIndex)) == v2)//VIC
       {
         foundEdge = *it;
       }
@@ -893,8 +893,8 @@ bool CGMapVertex::exportOff2D(std::ostream & AStream)
   {
     if (!isMarked(*it, markEdge))
     {
-      AStream << (unsigned long int)getDirectInfo(*it, directInfoIndex)
-              << " " << (unsigned long int)getDirectInfo(alpha0(*it),
+      AStream << (intptr_t)getDirectInfo(*it, directInfoIndex)//(unsigned long int)getDirectInfo(*it, directInfoIndex)//VIC
+              << " " << (intptr_t)getDirectInfo(alpha0(*it), //(unsigned long int)getDirectInfo(alpha0(*it), //VIC
                                                          directInfoIndex) << endl;
       markOrbit(*it, ORBIT_EDGE, markEdge);
     }
@@ -991,7 +991,7 @@ bool CGMapVertex::exportOff3D(std::ostream & AStream)
         itFace.reinit();
         while( itFace.cont() )
         {
-          AStream << (unsigned long int)getDirectInfo(*itFace, directInfoIndex)
+          AStream << (intptr_t)getDirectInfo(*itFace, directInfoIndex)//(unsigned long int)getDirectInfo(*itFace, directInfoIndex)//VIC
                   << " ";
 
           setMark(itFace++, markFace); assert(itFace.cont());

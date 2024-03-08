@@ -13,7 +13,7 @@ project(moka)
 
 # If like me you have some problems under windows, set these variable to
 # the correct pathes and file.
-IF (WIN32) 
+IF (WIN32)
   SET(GLUT_INCLUDE_DIR "C:/Program Files/Microsoft SDKs/Windows/v6.1/Include/")
   SET(QTDIR "C:/Qt/qt")
   SET(QT_QMAKE_EXECUTABLE "C:/Qt/qt/bin/qmake")
@@ -35,14 +35,14 @@ ADD_DEFINITIONS("-std=c++11")
 
 # Decide which opengl driver use.
 set(OpenGL_GL_PREFERENCE GLVND)
- 
+
 #-------------------------------------------------------------------------------
 # Some modules that we can enable or disable.
 OPTION(MODULE_MESH "Activate mesh module" ON)
 OPTION(MODULE_ROUNDING "Activate rounding module" ON)
 OPTION(MODULE_COREFINEMENT "Activate corefining module" ON)
-OPTION(MODULE_SPAMOD "Activate spamod module" OFF)
-OPTION(MODULE_EXTRACTION_IMAGE "Activate extraction image module (require ImageMagick++)" ON)
+OPTION(MODULE_SPAMOD "Activate spamod module" ON)
+OPTION(MODULE_EXTRACTION_IMAGE "Activate extraction image module (require ImageMagick++)" OFF)
 OPTION(DISABLE_SELECTION_BOX "Disable the selection box on a 3D view" OFF)
 
 #-------------------------------------------------------------------------------

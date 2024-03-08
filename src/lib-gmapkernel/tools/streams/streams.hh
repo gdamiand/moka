@@ -181,7 +181,8 @@ void writeRet(std::ostream& AStream);
 // @}
 
 //******************************************************************************
-#include INCLUDE_INLINE("streams.icc")
+//#include INCLUDE_INLINE("streams.icc") //VIC
+#include INCLUDE_INLINE("streams.incc") // VIC
 //******************************************************************************
 #endif // STREAMS_HH
 //******************************************************************************

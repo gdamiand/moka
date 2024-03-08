@@ -219,7 +219,7 @@ void CPrecompileFace::setRandomColor(CDart* ADart, int ADimension)
 	getDynamicCoverage(ADart, ORBIT_CELL[ADimension]);
       
       for ( ; cov->cont(); ++ *cov)
-	c += (long int) ** cov;
+    c += (intptr_t) ** cov; //(long int) ** cov; //VIC
       
       delete cov;
 

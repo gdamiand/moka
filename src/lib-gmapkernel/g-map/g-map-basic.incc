@@ -114,7 +114,7 @@ void CGMapBasic::randomizeDarts()
   int i, dejaTraite = 1;
 
 #ifndef _WINDOWS
-  srand(time(NULL));
+  //srand(time(NULL));//VIC
 #endif
   
   first->setNext(NULL);

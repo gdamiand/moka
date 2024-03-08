@@ -24,5 +24,6 @@
 //******************************************************************************
 #include "inline-macro.hh"
 #include INCLUDE_HEADER    ("attribute-vertex.hh")
-#include INCLUDE_NON_INLINE("attribute-vertex.icc")
+//#include INCLUDE_NON_INLINE("attribute-vertex.icc")//VIC
+#include INCLUDE_NON_INLINE("attribute-vertex.incc")
 //******************************************************************************

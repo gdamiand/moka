@@ -98,7 +98,7 @@ int CHomology::computeIncidenceNumber(CDart* ADart, int ADim,
     {
       if ( !FMap->isMarked(**cov,treated) && FMap->isMarked(**cov,m2oriented) )
 	{
-	  if ( (ADim>0 && (long int)FMap->getDirectInfo(**cov,AIndex)>0) ||
+      if ( (ADim>0 && (intptr_t)FMap->getDirectInfo(**cov,AIndex)>0) || //(long int)FMap->getDirectInfo(**cov,AIndex)>0) ||//VIC
 	       (ADim==0 && **cov==ADart2) )
 	    {
 	      // std::cout<<"inc incidenceNumber"<<std::endl;
@@ -221,7 +221,7 @@ void CHomology::computeIncidence(int ADim, bool AComputeNextCells)
 	  CCoverage* it2 = FMap->getDynamicCoverage(*it,ORBIT_CELL[ADim+1]);
 	  for( ;it2->cont();++(*it2) )
 	    {
-	      int i = (long int)FMap->getDirectInfo(**it2, index);
+          int i = (intptr_t)FMap->getDirectInfo(**it2, index);//(long int)FMap->getDirectInfo(**it2, index);//VIC
 	      int icorrected = i;
 				
 	      if ( i<0 ) icorrected = -i;

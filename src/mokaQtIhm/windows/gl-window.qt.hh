@@ -36,10 +36,11 @@
 
 //------------------ Include QT -------------------
 #include <QtWidgets/QMdiArea>
+#include <QtWidgets/QOpenGLWidget> //Victor QGLWidget
 
 class Window ;
 
-class GLWindow : public QGLWidget
+class GLWindow : public QOpenGLWidget
 {
   Q_OBJECT
   

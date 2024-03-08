@@ -23,7 +23,8 @@
 
 //******************************************************************************
 #include "coverage.hh"
-#include INCLUDE_NON_INLINE("coverage.icc")
+//#include INCLUDE_NON_INLINE("coverage.icc")//VIC
+#include INCLUDE_NON_INLINE("coverage.incc")
 using namespace GMap3d;
 //******************************************************************************
 CCoverage::~CCoverage()

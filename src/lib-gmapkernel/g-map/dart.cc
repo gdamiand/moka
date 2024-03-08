@@ -24,5 +24,6 @@
 //******************************************************************************
 #include "inline-macro.hh"
 #include INCLUDE_HEADER	   ("dart.hh")
-#include INCLUDE_NON_INLINE("dart.icc")
+//#include INCLUDE_NON_INLINE("dart.icc")//VIC
+#include INCLUDE_NON_INLINE("dart.incc")
 //******************************************************************************

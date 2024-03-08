@@ -23,7 +23,8 @@
 
 //******************************************************************************
 #include "g-map-basic.hh"
-#include INCLUDE_NON_INLINE("g-map-basic.icc")
+//#include INCLUDE_NON_INLINE("g-map-basic.icc")//VIC
+#include INCLUDE_NON_INLINE("g-map-basic.incc")
 using namespace GMap3d;
 //******************************************************************************
 CGMapBasic::~CGMapBasic()

@@ -24,5 +24,6 @@
 //******************************************************************************
 #include "inline-macro.hh"
 #include INCLUDE_NON_INLINE("g-map-vertex.hh")
-#include INCLUDE_NON_INLINE("gmv-inline.icc")
+//#include INCLUDE_NON_INLINE("gmv-inline.icc")//VIC
+#include INCLUDE_NON_INLINE("gmv-inline.incc")
 //******************************************************************************

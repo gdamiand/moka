@@ -133,7 +133,8 @@ namespace GMap3d
 
 } // namespace GMap3d
 //******************************************************************************
-#include INCLUDE_INLINE("dart-vertex.icc")
+// #include INCLUDE_INLINE("dart-vertex.icc")// VIC
+#include INCLUDE_INLINE("dart-vertex.incc")// VIC
 //******************************************************************************
 #endif // DART_VERTEX_HH
 //******************************************************************************

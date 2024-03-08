@@ -216,7 +216,8 @@ namespace GMap3d
 
 } // namespace GMap3d
 //******************************************************************************
-#include INCLUDE_INLINE("gmv-inline.icc")
+//#include INCLUDE_INLINE("gmv-inline.icc")//VIC
+#include INCLUDE_INLINE("gmv-inline.incc")//VIC
 //******************************************************************************
 #endif // G_MAP_VERTEX_HH
 //******************************************************************************

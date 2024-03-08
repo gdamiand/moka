@@ -23,7 +23,8 @@
 
 //******************************************************************************
 #include "attribute.hh"
-#include INCLUDE_NON_INLINE("attribute.icc")
+//#include INCLUDE_NON_INLINE("attribute.icc")//VIC
+#include INCLUDE_NON_INLINE("attribute.incc")
 //******************************************************************************
 CAttribute::~CAttribute()
 {

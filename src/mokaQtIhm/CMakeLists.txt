@@ -24,4 +24,5 @@ add_executable(mokaQt ${IHM_SRCS} ${MOC_SRCS} ${RESOURCES_SRCS} ${NEED_MOCS})
 
 target_link_libraries(mokaQt controler-gmap controler gmapkernel)
 target_link_libraries(mokaQt Qt5::Core Qt5::Widgets Qt5::OpenGL)
+
 #-------------------------------------------------------------------------------

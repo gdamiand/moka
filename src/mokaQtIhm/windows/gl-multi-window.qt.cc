@@ -165,7 +165,7 @@ void GLMultiWindow :: paintGL ( )
       FOwner -> getControler ( ) -> viewDraw(FViewIds[i]);
     }
 
-  // swapBuffers ( ) ;
+   //swapBuffers ( ) ;
 }
 
 //***************************************************
