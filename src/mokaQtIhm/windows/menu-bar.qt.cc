@@ -461,6 +461,12 @@ trianguler -> addAction("&Turn selected edge",
 
    operations -> addSeparator() ;
 
+   //-- VSF length,area volume
+   operations -> addAction("&LAV(VSF)",FParent,SLOT(callbackComputeLAV()),
+                         Qt::ALT+Qt::SHIFT+Qt::Key_L);
+   operations -> addSeparator() ;
+   //-- VSF end
+
    // -- Extruder
    QMenu * extruder = operations -> addMenu("&Extrude") ;
 

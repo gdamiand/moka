@@ -24,5 +24,5 @@
 //******************************************************************************
 #include "inline-macro.hh"
 #include INCLUDE_NON_INLINE("geometry.hh")
-#include INCLUDE_NON_INLINE("geometry.icc")
+#include INCLUDE_NON_INLINE("geometry.incc")
 //******************************************************************************

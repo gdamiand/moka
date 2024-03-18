@@ -457,7 +457,7 @@ std::ostream& operator<<(std::ostream& AStream,
 
 // @}
 //******************************************************************************
-#include INCLUDE_INLINE("transformation-matrix.icc")
+#include INCLUDE_INLINE("transformation-matrix.incc")
 //******************************************************************************
 #endif // TRANSFORMATION_MATRIX_HH
 //******************************************************************************

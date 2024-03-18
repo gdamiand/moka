@@ -1885,6 +1885,141 @@ void Window :: callbackDual3d()
   else updateStatusBar() ;
 }
 
+// -- VSF, LAV length Area Volume
+//******************************************************************************
+struct ForLoadOff
+{
+    unsigned long int index;
+    CMultivector multivector;
+}; // VSF WARNING: using same definition than gmv-off.cc Local definition
+//******************************************************************************
+void Window::callbackComputeLAV() //! VSF
+{
+    std::cout<< "CALLBACK COMPUTELAV()\n";
+    CDart *dart;
+    ForLoadOff* ptrFord; //NEW
+    nklein::GeometricAlgebra< double, 4> faceplaneD;// dual of the porjective plane
+    nklein::GeometricAlgebra< double, 4> Point[3],I;
+    //CAttributeMultivector *MD;
+    double L=0.0,A=0.0,V=0.0;
+    int i;
+
+    //-- Map and selection
+    CGMapVertex* map=getControler()->getMap();
+    int mark=getControler()->getSelectionMark();
+
+    //-- Identify type of selection Orbit to compute LAV on the fly in the future
+    TOrbit typeOrbit=getControler()->getSelectionOrbit();
+    if(typeOrbit==ORBIT_012) std::cout<<"Orbit type="<<"ORBIT_012"<<std::endl;
+
+    //-- Create locally the multivectors and compute, l,a,v
+    int index = map->getNewDirectInfo();
+    //! Set all DirectInfo(index) to nullptr since there is no guarantee
+    dart=map->getFirstDart();
+    while(dart)
+    {
+        dart->setDirectInfo(index,nullptr);
+        dart=dart->getNext();
+    }
+    I[e0|e1|e2|e3]=1;
+    for(CDynamicCoverageAll it(map); it.cont(); ++it)
+    {
+         if(map->isMarked(*it,mark))
+        {
+            dart=(*it);
+            //! marked dart AND not visited already
+            if(dart->getDirectInfo(index)==nullptr)
+            {
+                CAttributeVertex* vertexit = (CAttributeVertex*) map->getEmbeddingOwner(dart,ORBIT_VERTEX)->
+                                             getEmbedding(ORBIT_VERTEX)->getAttribute(ATTRIBUTE_VERTEX);
+                CAttributeVertex* vertexitn = (CAttributeVertex*) map->getEmbeddingOwner(dart->getAlpha0(),ORBIT_VERTEX)->
+                                              getEmbedding(ORBIT_VERTEX)->getAttribute(ATTRIBUTE_VERTEX);
+                CAttributeVertex* vertexitp = (CAttributeVertex*) map->getEmbeddingOwner(dart->getAlpha1()->getAlpha0(),ORBIT_VERTEX)->
+                                              getEmbedding(ORBIT_VERTEX)->getAttribute(ATTRIBUTE_VERTEX);
+                Point[0][e0]=1;Point[0][e1]=vertexitp->getX();Point[0][e2]=vertexitp->getY();Point[0][e3]=vertexitp->getZ();
+                Point[1][e0]=1;Point[1][e1]=vertexit ->getX();Point[1][e2]=vertexit ->getY();Point[1][e3]=vertexit ->getZ();
+                Point[2][e0]=1;Point[2][e1]=vertexitn->getX();Point[2][e2]=vertexitn->getY();Point[2][e3]=vertexitn->getZ();
+                faceplaneD=(Point[0]^Point[1]^Point[3])*I; //!< a sense for the face, it does not matter which one.
+                ptrFord=new ForLoadOff;
+                ptrFord->multivector=CGeometry::getMVectorPLV(faceplaneD, (*vertexitp),*vertexit,*vertexitn,1,1);//!<Face(+),Volume(+), calls computeLAV()
+                dart->setDirectInfo(index,ptrFord);
+                if(map->isMarked(dart->getAlpha0(),mark) && dart->getAlpha0()->getDirectInfo(index)==nullptr){}
+                /*
+                std::cout << vertexitp->getX() <<" , "<< vertexitp->getY()<<" , "<<vertexitp->getZ()<<std::endl;
+                std::cout << vertexit->getX() <<" , "<< vertexit->getY()<<" , "<<vertexit->getZ()<<std::endl;
+                std::cout << vertexitn->getX() <<" , "<< vertexitn->getY()<<" , "<<vertexitn->getZ()<<std::endl;
+                */
+                //! going around each edge of the face (orbit_013) attached to dart in order to createa coherent set of multivectors
+            }
+        }
+    }
+
+
+    // calculation LAV
+    i=0;
+    for(CDynamicCoverageAll it(map); it.cont(); ++it)
+    {
+        if(map->isMarked(*it,mark))
+        {
+            dart=(*it);
+            /*
+            ptrForloadOff=(ForLoadOff*) dart->getDirectInfo(0);
+            if(ptrForloadOff!= nullptr){
+                L+=ptrForloadOff->multivector.getL();cout<<"l= "<<ptrForloadOff->multivector.getL();
+                A+=ptrForloadOff->multivector.getA();
+                V+=ptrForloadOff->multivector.getV();
+            }else{
+                cout<<"No hay DirectInfo\n";
+            }
+            */
+            /*
+            MD=(CAttributeMultivector*) dart->getAttribute(ORBIT_SELF,ATTRIBUTE_MULTIVECTOR);
+            if(MD!=0)
+            {
+                L+=MD->getL();
+                A+=MD->getA();
+                V+=MD->getV();
+                //std::cout<<MD->getL()<<",";
+                if(fabs(MD->getA())>0.000000001)
+                    std::cout<<"["<<i<<"]"<<MD->getA()<<",";
+                //std::cout<<MD->getV()<<",";
+            }
+            else
+                std::cout<<"SIN ATRIBUTO_MULTIVECTOR\n";
+*/
+            ++i;
+        }
+    }
+
+    //-- Console output
+    std::cout<<i<<" dardos\n";
+    std::cout<<"LENGTH=\t"<<L<<"\n";
+    std::cout<<"AREA=\t"  <<A<<"\n";
+    std::cout<<"VOLUME=\t"<<V<<"\n";
+
+    //-- Delete first the multivectors. It should be the marked ones
+    i=0;
+    for(CDynamicCoverageAll it(map); it.cont(); ++it)
+    {
+        if(map->isMarked(*it,mark))
+        {
+            dart=(*it);
+            ptrFord=(ForLoadOff*) dart->getDirectInfo(index);
+            if(ptrFord!=nullptr)
+            {
+                delete ptrFord;
+                dart->setDirectInfo(index,nullptr);
+                ++i;
+            }
+        }
+    }
+    std::cout<< "Destroyed "<<i<<" multivectors\n";
+
+    //-- Free DirectInfo
+    map->freeDirectInfo(index);
+
+}
+
 // -- Extruder
 void Window :: callbackIntuitiveExtrudeByNormal()
 {

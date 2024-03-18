@@ -27,13 +27,16 @@
 #include INCLUDE_NON_INLINE("multivector.icc")
 //******************************************************************************
 CMultivector::CMultivector()
-{}
+{
+     //std::cout<<"Multivector void"<<std::endl;
+}
 //------------------------------------------------------------------------------
 CMultivector::CMultivector(const CMultivector & AMv)
 {
   MD=AMv.getMD();
   // OJO: compute here the values to compute length,area and volume
   computeLAV();
+  std::cout<<"Multivector copy"<<std::endl;
 }
 //------------------------------------------------------------------------------
 /*CMultivector::CMultivector(const CDart *dart,CVertex *AVertex)
@@ -130,12 +133,13 @@ void CMultivector::computeLAV()
   V[E3]=point[e3];
 
   /*! RESULTS */
-  this->l=(V*T)[0]/Tnorm;
-  this->a=this->l*(V*N)[0]/Nnorm;
-  this->v=this->a*(V*B)[0]/Bnorm*volume;//! chages the sense of B thus the scalar product
+  if (Tnorm>0) {this->l=(V*T)[0]/Tnorm;} else this->l=0.0;
+  if (Nnorm>0) {this->a=this->l*(V*N)[0]/Nnorm;} else this->a=0.0;
+  if (Bnorm>0) {this->v=this->a*(V*B)[0]/Bnorm*volume;} else this->v=0.0;//! chages the sense of B thus the scalar product
   /*! use factors: Warning the signs are not included */
   this->a*=0.5;//! 1/2
   this->v*=0.1666666666666667; //! 1/6
+  std::cout<<"computeLAV:("<<point[e1]<<","<<point[e2]<<","<<point[e3]<<"):"<<" l="<<l<<" ,a="<<a<<" ,v="<<v<<std::endl;
 }
 //******************************************************************************
 nklein::GeometricAlgebra< double, 4 > CMultivector::getMD() const
@@ -143,6 +147,7 @@ nklein::GeometricAlgebra< double, 4 > CMultivector::getMD() const
 //******************************************************************************
 void CMultivector::setMD(const nklein::GeometricAlgebra< double, 4 >&  MVector)
 {
-  MD=MVector;
+    MD=MVector;
+    //computeLAV();
 }
 //******************************************************************************

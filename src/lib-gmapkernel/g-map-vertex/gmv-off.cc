@@ -142,7 +142,18 @@ struct ForLoadOff
   unsigned long int index;
   CMultivector multivector;
 };
-//******************************************************************************
+/******************************************************************************
+ *       dart3(-)---dart4(+).[AV2]  ATestVertices[Av1]={dart1,dart1',etc...}
+ *       |||        |||             ATestVertices[Av2]={dart4,dart4',etc...}
+ * [AV1].dart1(+)---dart2(-)        dart1: dart
+ *      . ||                        this is the alpha2link target of the function
+ *       dart3'(-)---dart4'(+).[AV2]
+ *       |||         |||
+ *       dart1'(+)---dart2'(-)      dart1': dartneighbour
+ * AtestVertices: 0.....(n-1)
+ *
+ * The ordering of the planes around v1--v2 is based on multi-vectors at [AV1]
+*/
 void  CGMapVertex::linkFacesAlpha2OFF_VSF(vector< list<CDart*> >& ATestVertices,
                                           int AIndex)
 {
@@ -160,7 +171,7 @@ void  CGMapVertex::linkFacesAlpha2OFF_VSF(vector< list<CDart*> >& ATestVertices,
     dart=NULL;
     for(it1=List1.begin();it1!=List1.end();++it1)//! point 1
     {
-      /** each dart not alpha2 */
+      /** each dart not alpha2 detect edges between v1--v2 */
       if((*it1)->isFree2())
       {
         dart=(*it1);
@@ -176,7 +187,7 @@ void  CGMapVertex::linkFacesAlpha2OFF_VSF(vector< list<CDart*> >& ATestVertices,
               subVector.push_back((*it2));//! darts (+) at v2=>v1
           }
         }
-        /** Something to sew? */
+        /** Something to sew? Number of edges between v1-v2 */
         std::cout<<v2<<"=>"<<v1<<"{"<<subVector.size()<<"}\n";
         if(subVector.size()>1)
         {
@@ -355,6 +366,15 @@ CDart* CGMapVertex::addEdgeOFF(vector< CVertex >& AInitVertices,
   return dart2;
 }
 //******************************************************************************
+// VSF VIC
+// Output: AtestVertices
+// It contains for each Vertex AV a list of darts, BUT only those with positive
+// Volumes (they are the proxies of the vertex-edge object). Dart1 & Dart4
+//       dart3(-)---dart4(+).[AV2]
+//       |||        |||
+// [AV1].dart1(+)---dart2(-)
+// AVertex: third vertex to define the plane attitude at AV1
+//******************************************************************************
 CDart* CGMapVertex::addEdgeOFF_VSF(vector< CVertex >& AInitVertices,
                                    vector< list<CDart*> >& ATestVertices,
                                    unsigned long int AV1,
@@ -373,7 +393,7 @@ CDart* CGMapVertex::addEdgeOFF_VSF(vector< CVertex >& AInitVertices,
    ford2->index=AV2;
    ford2->multivector=CGeometry::getMVectorPLV(faceplane,AInitVertices[AV2],AInitVertices[AV1],AVertex,-1,-1);
 
-   CDart* dart1 = addMapDart(AInitVertices[AV1]);
+   CDart* dart1 = addMapDart(AInitVertices[AV1]); // Make embedding of dart into the vertex
    setDirectInfo(dart1, AIndex, ford1);
 
    CDart* dart2 = addMapDart();
@@ -530,6 +550,7 @@ void CGMapVertex::computeOFFSenses_VSF(vector< list<int> >& face,
   nklein::GeometricAlgebra< double, 4 >** Points = new nklein::GeometricAlgebra< double, 4 >*[face.size()];
   nklein::GeometricAlgebra< double, 4 > B, I, Line;
   nklein::GeometricAlgebra< double, 4 > planeOuter, planeOuterD;
+  nklein::GeometricAlgebra< double, 4 > planeOuterVIC; //test idea
   nklein::GeometricAlgebra< double, 4 > planeHole, planeHoleD;
   double tol=0.00001;
   bool okBaricentre;
@@ -711,6 +732,7 @@ CDart* CGMapVertex::importOff3D(std::istream & AStream)
 
   /** Pide indice en DirectInfo para guardar el indice del vertice de dardo*/
   int index = getNewDirectInfo();
+  cout << "darts DirectInfo : " << index << endl; //VSF
 
   /** Lectura de las caras */
   while (nbFaces > 0)
@@ -809,7 +831,21 @@ CDart* CGMapVertex::importOff3D(std::istream & AStream)
   /** once all faces are read sew-alpha2 all faces to form volumes*/
   linkFacesAlpha2OFF_VSF(testVertices,index);
 
-  freeDirectInfo(index);
+  /** Destroy the NEW struct created for DirectInfo. Before there was no structure, the  unsigned long int v1 was the pointer itself **/
+  CDart* dart=getFirstDart();
+  int count=0;
+  while(dart)
+  {
+      ForLoadOff* FordOff = (ForLoadOff*) dart->getDirectInfo(index);
+      delete FordOff;
+      dart->setDirectInfo(index,nullptr);
+      dart=dart->getNext();
+      count++;
+  }
+  std::cout<<"Destroy ForLoadOff= "<<count<<std::endl;
+
+  /** free the index to be used afterwards **/
+  freeDirectInfo(index);//VSF delete Directinfo destroys Multivector info is there
 
   return first;
 }
@@ -837,7 +873,7 @@ CDart* CGMapVertex::importOff(const char * AFilename)
   switch (dim)
   {
     case 2: return importOff2D(stream); break;
-    case 3: return importOff3D(stream); break;
+    case 3: return importOff3D(stream); break;//importOff3D_VSF
   }
   return NULL;
 }

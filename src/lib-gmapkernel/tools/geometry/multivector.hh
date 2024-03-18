@@ -55,6 +55,9 @@ private:
 public:
   /** Get */
   nklein::GeometricAlgebra< double, 4 > getMD() const;
+  double getL() const {return l;}
+  double getA() const {return a;}
+  double getV() const {return v;}
   /** Set */
   void setMD(const nklein::GeometricAlgebra< double, 4 >& MVector);
 public:
@@ -72,7 +75,7 @@ private:
   nklein::GeometricAlgebra<double, 4 > getPoint(const GMap3d::CDart * dart);
 };
 //******************************************************************************
-#include INCLUDE_INLINE("multivector.icc")
+#include INCLUDE_INLINE("multivector.incc")
 //******************************************************************************
 #endif // MULTIVECTOR_HH
 //******************************************************************************

@@ -382,6 +382,9 @@ public slots:
   void callbackDual2d ( ) ;
   void callbackDual3d ( ) ;
 
+  // -- VSF Compute length,area,volume
+  void callbackComputeLAV();
+
   // -- Extruder
   // Selon normale
   void callbackIntuitiveExtrudeByNormal ( ) ;

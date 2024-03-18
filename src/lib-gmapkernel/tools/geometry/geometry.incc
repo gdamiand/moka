@@ -560,6 +560,10 @@ CVertex CGeometry::getRoundingNormalVector(const CVertex& AVertex1,
  *  Point=V1
  *  line =V1^V2
  *  plane=V3^V1^V2 (must have the sense imposed by @param sense)
+ *  Sense:
+ *  only for checking that the snese defined by PlaneD=(AV1^AV2^AV3)*I is correct
+ *  i.e. that faceplane and PlaneD (both dual objects) have same(1) or
+ *  opposite (-1) senses
  */
 INLINE
 CMultivector CGeometry::getMVectorPLV(nklein::GeometricAlgebra< double,4 > &

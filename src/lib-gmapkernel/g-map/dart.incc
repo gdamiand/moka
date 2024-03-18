@@ -29,6 +29,15 @@
 //******************************************************************************
 namespace GMap3d
 {
+/*******************************************************************************
+/ VSF VIC, set FDirectInfo pointers to NULL
+*/
+INLINE
+void CDart::setDirectInfoToNull()
+{
+    for(int i=0;i<NB_DIRECT_INFO;i++)
+        FDirectInfo[i]=nullptr;
+}
 //******************************************************************************
 // Constructeurs
 // On initialise pas les champs FMarks et FUsedOrbits car tout les bits sont
@@ -43,6 +52,8 @@ CDart::CDart() :
   FAlpha[1] = this;
   FAlpha[2] = this;
   FAlpha[3] = this;
+  setDirectInfoToNull();//VSF VIC
+
 }
 //******************************************************************************
 INLINE
@@ -57,6 +68,7 @@ CDart::CDart(const CDart& ADart) :
   FAlpha[1] = this;
   FAlpha[2] = this;
   FAlpha[3] = this;
+  setDirectInfoToNull();//VSF VIC
 }
 //******************************************************************************
 INLINE
@@ -70,6 +82,7 @@ CDart::CDart(const std::bitset<NB_MARKS>& AMarks) :
   FAlpha[1] = this;
   FAlpha[2] = this;
   FAlpha[3] = this;
+  setDirectInfoToNull();//VSF VIC
 }
 //******************************************************************************
 // Destructeur
@@ -241,7 +254,7 @@ void CDart::setFree(int ADimension)
 INLINE
 void* CDart::getDirectInfo(int ADirectIndex) const
 {
-  assert(0<=ADirectIndex && ADirectIndex<NB_DIRECT_INFO);
+    assert(0<=ADirectIndex && ADirectIndex<NB_DIRECT_INFO);
 
   return FDirectInfo[ADirectIndex];
 }

@@ -643,6 +643,7 @@ namespace GMap3d
 
     /// Tableau des informations directes
     void* FDirectInfo[NB_DIRECT_INFO];
+    void setDirectInfoToNull();//VSF VIC
 
     /**
      * Variables permettant de définir les brins suivant et précédent dans la
