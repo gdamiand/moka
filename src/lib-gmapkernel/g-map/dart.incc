@@ -500,6 +500,18 @@ void CDart::deleteAttribute(TOrbit AOrbit, TAttributeId AAttribType)
 {
   delete removeAttribute(AOrbit, AAttribType);
 }
+//************************************************************************VICTOR
+INLINE
+void CDart::setVOrientation(const std::bitset<2> & AVOrientation)
+{
+    this->FVOrientation = AVOrientation;
+}
+//************************************************************************VICTOR
+INLINE
+std::bitset<2> CDart::getVOrientation()
+{
+    return FVOrientation;
+}
 //******************************************************************************
 } // namespace GMap3d
 //******************************************************************************

@@ -618,6 +618,12 @@ namespace GMap3d
      * @param marks l'ensemble des valeurs à prendre par les marques du brin
      */
     void setMarks(const std::bitset<NB_MARKS> & AMarks);
+    /** VICTOR
+     * @brief setVOrientation
+     * @param AVOrientation
+     */
+    void setVOrientation(const std::bitset<2> & AVOrientation);
+    std::bitset<2> getVOrientation();
 
     // @}
 
@@ -644,6 +650,15 @@ namespace GMap3d
     /// Tableau des informations directes
     void* FDirectInfo[NB_DIRECT_INFO];
     void setDirectInfoToNull();//VSF VIC
+
+    /**
+     * Mark the orientation of the dart
+     * VICTOR
+     * 01 => (+)
+     * 11 => (-)
+     * ?0 => no orientation defined
+     */
+    std::bitset<2> FVOrientation{"00"};//VSF VIC
 
     /**
      * Variables permettant de définir les brins suivant et précédent dans la

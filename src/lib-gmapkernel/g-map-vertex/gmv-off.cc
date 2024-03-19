@@ -365,16 +365,19 @@ CDart* CGMapVertex::addEdgeOFF(vector< CVertex >& AInitVertices,
 
   return dart2;
 }
-//******************************************************************************
-// VSF VIC
-// Output: AtestVertices
-// It contains for each Vertex AV a list of darts, BUT only those with positive
-// Volumes (they are the proxies of the vertex-edge object). Dart1 & Dart4
-//       dart3(-)---dart4(+).[AV2]
-//       |||        |||
-// [AV1].dart1(+)---dart2(-)
-// AVertex: third vertex to define the plane attitude at AV1
-//******************************************************************************
+/******************************************************************************
+* VSF VIC
+* Output: AtestVertices
+* It contains for each Vertex AV a list of darts, BUT only those with positive
+* Volumes (they are the proxies of the vertex-edge object). Dart1 & Dart4
+*       dart3(-)---dart4(+).[AV2]
+*       |||        |||
+* [AV1].dart1(+)---dart2(-)
+* AVertex: third vertex to define the plane attitude at AV1
+* (now deprecated, the plane is taken from faceplane)
+* The volume orientation is chosen arbitrarily at the first dart
+* then it is kept coherent ONLY within the connected component
+*/
 CDart* CGMapVertex::addEdgeOFF_VSF(vector< CVertex >& AInitVertices,
                                    vector< list<CDart*> >& ATestVertices,
                                    unsigned long int AV1,
@@ -394,9 +397,11 @@ CDart* CGMapVertex::addEdgeOFF_VSF(vector< CVertex >& AInitVertices,
    ford2->multivector=CGeometry::getMVectorPLV(faceplane,AInitVertices[AV2],AInitVertices[AV1],AVertex,-1,-1);
 
    CDart* dart1 = addMapDart(AInitVertices[AV1]); // Make embedding of dart into the vertex
+   dart1->setVOrientation(std::bitset<2>{"01"});//(+) VIC first +/-1 in CGeometry::getMVectorPLV
    setDirectInfo(dart1, AIndex, ford1);
 
    CDart* dart2 = addMapDart();
+   dart2->setVOrientation(std::bitset<2>{"11"});//(-) VIC first +/-1 in CGeometry::getMVectorPLV
    setDirectInfo(dart2, AIndex, ford2);
 
    //! Coutures par alpha0: dart1---dart2
@@ -413,9 +418,11 @@ CDart* CGMapVertex::addEdgeOFF_VSF(vector< CVertex >& AInitVertices,
    ford4->multivector=CGeometry::getMVectorPLV(faceplane,AInitVertices[AV2],AInitVertices[AV1],AVertex,-1, 1);
 
    CDart* dart3 = addMapDart();
+   dart3->setVOrientation(std::bitset<2>{"01"});//(+) VIC first +/-1 in CGeometry::getMVectorPLV
    setDirectInfo(dart3, AIndex, ford3);
 
    CDart* dart4 = addMapDart();
+   dart4->setVOrientation(std::bitset<2>{"11"});//(-) VIC first +/-1 in CGeometry::getMVectorPLV
    setDirectInfo(dart4, AIndex, ford4);
 
    linkAlpha3(dart1, dart3);
