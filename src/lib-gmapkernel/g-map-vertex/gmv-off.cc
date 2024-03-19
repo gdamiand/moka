@@ -550,7 +550,8 @@ void CGMapVertex::computeOFFSenses_VSF(vector< list<int> >& face,
   nklein::GeometricAlgebra< double, 4 >** Points = new nklein::GeometricAlgebra< double, 4 >*[face.size()];
   nklein::GeometricAlgebra< double, 4 > B, I, Line;
   nklein::GeometricAlgebra< double, 4 > planeOuter, planeOuterD;
-  nklein::GeometricAlgebra< double, 4 > planeOuterVIC; //test idea
+  nklein::GeometricAlgebra< double, 4 > planeOuterVIC,planeOuterVICD; //VSF-test idea
+  nklein::GeometricAlgebra< double, 4 > planeHoleVIC,planeHoleVICD; //VSF-test idea
   nklein::GeometricAlgebra< double, 4 > planeHole, planeHoleD;
   double tol=0.00001;
   bool okBaricentre;
@@ -625,18 +626,22 @@ void CGMapVertex::computeOFFSenses_VSF(vector< list<int> >& face,
 
   /** planes: (vi)....(vi) */
   // here the coplanarity could be checked
+  planeOuterVIC=0;//VSF-test
   for(int i=0; i<face.size() ;i++)
   {
     planeHole=0;
+    planeHoleVIC=0;//VSF-test
     for(int j=0; j<(face[i].size()-1);++j)
     {
       if(i==0)//outer
       {
-        planeOuter=planeOuter+B^Points[i][j]^Points[i][j+1];
+          planeOuter=planeOuter+B^Points[i][j]^Points[i][j+1];
+          planeOuterVIC=planeOuterVIC+Points[i][(j-1)>=0?(j-1):face[i].size()-1]^Points[i][j]^Points[i][j+1];//VSF_test
       }
       else//holes
       {
         planeHole=planeHole+B^Points[i][j]^Points[i][j+1];
+        planeHoleVIC=planeHoleVIC+Points[i][(j-1)>=0?(j-1):face[i].size()-1]^Points[i][j]^Points[i][j+1];//VSF_test
       }
     }
 
@@ -651,16 +656,30 @@ void CGMapVertex::computeOFFSenses_VSF(vector< list<int> >& face,
       //                sense=0; //OJO hay que manejar esto de otro modo
       planeOuterD=planeOuter*I;
       faceplane=planeOuterD;
+      planeOuterVICD=planeOuterVIC*I;//VSF-tets
+      faceplane=planeOuterVICD;//VSF-test (I return the new way of computing faceplane)
     }
     else /** outer and hole same sense => reverse */
     {
       planeHoleD=planeHole*I;
+      planeHoleVICD=planeHoleVIC*I;//VSF-test
       //            if((planeOuterD[e0]*planeHoleD[e0])>0) //OJO:usar funcion cmpPlaneSense()
       //                face[i].reverse();
-      if( CGeometry::cmpPlaneSense(planeOuterD,planeHoleD)==1)
-        face[i].reverse();
+      //if( CGeometry::cmpPlaneSense(planeOuterD,planeHoleD)==1) face[i].reverse(); //original
+      if( CGeometry::cmpPlaneSense(planeOuterVICD,planeHoleVICD)==1) face[i].reverse();//VSF-test
+      std::cout<<"senses OuterVICD and HoleVicD="<<(CGeometry::cmpPlaneSense(planeOuterVICD,planeHoleVICD)==1?"SAME":"OPPOSITE")<<std::endl;//VSF-TEST
     }
   }
+  //-- VSF-test-begin (all polygons outer and holes)
+  planeOuterVIC=0;
+  for(int i=0; i<face.size() ;i++)
+  {
+     for(int j=0; j<(face[i].size()-1);++j)
+      planeOuterVIC=planeOuterVIC+Points[i][(j-1)>=0?(j-1):face[i].size()-1]^Points[i][j]^Points[i][j+1];
+  }
+  planeOuterVICD=planeOuterVIC*I;//VSF-test
+  std::cout<<"senses OuterD and OuterVicD="<<(CGeometry::cmpPlaneSense(planeOuterD,planeOuterVICD)==1?"SAME":"OPPOSITE")<<std::endl;//VSF-TEST
+  //-- VSF-test-end
 
   /** rewrite sequence */
   /** (v1)v2...(v1)vi..vi(v1)vi..vi */

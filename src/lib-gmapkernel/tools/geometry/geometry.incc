@@ -604,6 +604,8 @@ CMultivector CGeometry::getMVectorPLV(nklein::GeometricAlgebra< double,4 > &
   LineD=Line*I; //! dual line bi-vector
 
   /** plane */
+  PlaneD=faceplane*(double)sense;
+  /*
   Plane=Point[0]^Point[1]^Point[2];
   PlaneD=Plane*I;//! dual plane vector
   if(cmpPlaneSense(PlaneD,faceplane)*sense<0)//! the senses are opposite:correct
@@ -611,7 +613,7 @@ CMultivector CGeometry::getMVectorPLV(nklein::GeometricAlgebra< double,4 > &
     //SI HACE FALTA se aplica a todo (aunque los agujeros los corregí)
     Plane=Point[0]^Point[2]^Point[1];
     PlaneD=Plane*I;//! dual plane vector
-  }
+  }*/
 
 
   /** volume */
