@@ -558,7 +558,7 @@ CVertex CGeometry::getRoundingNormalVector(const CVertex& AVertex1,
  *  V2= end point
  *  V3= auxiliary point (baricentre?)
  *  Point=V1
- *  line =V1^V2
+ *  line =V1^V2 , [AV1]--->[AV2]
  *  plane=V3^V1^V2 (must have the sense imposed by @param sense)
  *  Sense:
  *  only for checking that the snese defined by PlaneD=(AV1^AV2^AV3)*I is correct

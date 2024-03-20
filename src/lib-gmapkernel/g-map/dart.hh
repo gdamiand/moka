@@ -622,8 +622,8 @@ namespace GMap3d
      * @brief setVOrientation
      * @param AVOrientation
      */
-    void setVOrientation(const std::bitset<2> & AVOrientation);
-    std::bitset<2> getVOrientation();
+    void           setVOrientation(const std::bitset<3> & AVOrientation);
+    std::bitset<3> getVOrientation();
 
     // @}
 
@@ -658,7 +658,7 @@ namespace GMap3d
      * 11 => (-)
      * ?0 => no orientation defined
      */
-    std::bitset<2> FVOrientation{"00"};//VSF VIC
+    std::bitset<3> FVOrientation{"000"};//VSF VIC
 
     /**
      * Variables permettant de définir les brins suivant et précédent dans la

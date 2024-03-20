@@ -502,13 +502,13 @@ void CDart::deleteAttribute(TOrbit AOrbit, TAttributeId AAttribType)
 }
 //************************************************************************VICTOR
 INLINE
-void CDart::setVOrientation(const std::bitset<2> & AVOrientation)
+void CDart::setVOrientation(const std::bitset<3> & AVOrientation)
 {
     this->FVOrientation = AVOrientation;
 }
 //************************************************************************VICTOR
 INLINE
-std::bitset<2> CDart::getVOrientation()
+std::bitset<3> CDart::getVOrientation()
 {
     return FVOrientation;
 }

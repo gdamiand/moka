@@ -54,7 +54,7 @@ void CMultivector::computeLAV()
 
   nklein::GeometricAlgebra< double, 3 > A,C,B,T,N,V;
   nklein::GeometricAlgebra< double, 3 > I;
-  double invnorm,volume,Tnorm,Nnorm,Bnorm;
+  double invnorm,volume,Tnorm,Nnorm,Bnorm, tol=0.00000001;
 
   /*! Definitions */
   Ih[e0|e1|e2|e3]=1.0;
@@ -133,9 +133,12 @@ void CMultivector::computeLAV()
   V[E3]=point[e3];
 
   /*! RESULTS */
-  if (Tnorm>0) {this->l=(V*T)[0]/Tnorm;} else this->l=0.0;
-  if (Nnorm>0) {this->a=this->l*(V*N)[0]/Nnorm;} else this->a=0.0;
-  if (Bnorm>0) {this->v=this->a*(V*B)[0]/Bnorm*volume;} else this->v=0.0;//! chages the sense of B thus the scalar product
+  double xT=(V*T)[0];
+  double xN=(V*N)[0];
+  double xB=(V*B)[0];
+  if (Tnorm>0 && abs(xT)>tol) {this->l=xT/Tnorm;} else this->l=0.0;//{this->l=(V*T)[0]/Tnorm;} else this->l=0.0;
+  if (Nnorm>0 && abs(xN)>tol) {this->a=this->l*xN/Nnorm;} else this->a=0.0;//{this->a=this->l*(V*N)[0]/Nnorm;} else this->a=0.0;
+  if (Bnorm>0 && abs(xB)>tol) {this->v=this->a*xB/Bnorm*volume;} else this->v=0.0;//! chages the sense of B thus the scalar product//{this->v=this->a*(V*B)[0]/Bnorm*volume;} else this->v=0.0;//! chages the sense of B thus the scalar product
   /*! use factors: Warning the signs are not included */
   this->a*=0.5;//! 1/2
   this->v*=0.1666666666666667; //! 1/6

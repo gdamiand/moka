@@ -1896,11 +1896,14 @@ struct ForLoadOff
 void Window::callbackComputeLAV() //! VSF
 {
     std::cout<< "CALLBACK COMPUTELAV()\n";
-    CDart *dart;
+    CDart *dart,*darti;
     ForLoadOff* ptrFord; //NEW
     nklein::GeometricAlgebra< double, 4> faceplaneD;// dual of the porjective plane
     nklein::GeometricAlgebra< double, 4> Point[3],I;
-    //CAttributeMultivector *MD;
+    CAttributeVertex* vertexit;
+    CAttributeVertex* vertexitn;
+    CAttributeVertex* vertexitp;
+    std::bitset<3> FVOrientation;
     double L=0.0,A=0.0,V=0.0;
     int i;
 
@@ -1914,7 +1917,7 @@ void Window::callbackComputeLAV() //! VSF
 
     //-- Create locally the multivectors and compute, l,a,v
     int index = map->getNewDirectInfo();
-    //! Set all DirectInfo(index) to nullptr since there is no guarantee
+    //<!   Make sure that all DirectInfo(index) to nullptr since there is no guarantee
     dart=map->getFirstDart();
     while(dart)
     {
@@ -1922,35 +1925,92 @@ void Window::callbackComputeLAV() //! VSF
         dart=dart->getNext();
     }
     I[e0|e1|e2|e3]=1;
+    i=0;
     for(CDynamicCoverageAll it(map); it.cont(); ++it)
     {
          if(map->isMarked(*it,mark))
         {
             dart=(*it);
-            //! marked dart AND not visited already
+            //<! is the connected component volume-oriented?
+            FVOrientation=dart->getVOrientation();
+            if(!FVOrientation[0])
+            {
+                map->freeDirectInfo(index);
+                std::cout<<"Nothing to do: The map has no volume-orientation"<<std::endl;
+                return;
+            }
+            //<! marked dart AND not visited already
             if(dart->getDirectInfo(index)==nullptr)
             {
-                CAttributeVertex* vertexit = (CAttributeVertex*) map->getEmbeddingOwner(dart,ORBIT_VERTEX)->
-                                             getEmbedding(ORBIT_VERTEX)->getAttribute(ATTRIBUTE_VERTEX);
-                CAttributeVertex* vertexitn = (CAttributeVertex*) map->getEmbeddingOwner(dart->getAlpha0(),ORBIT_VERTEX)->
-                                              getEmbedding(ORBIT_VERTEX)->getAttribute(ATTRIBUTE_VERTEX);
-                CAttributeVertex* vertexitp = (CAttributeVertex*) map->getEmbeddingOwner(dart->getAlpha1()->getAlpha0(),ORBIT_VERTEX)->
-                                              getEmbedding(ORBIT_VERTEX)->getAttribute(ATTRIBUTE_VERTEX);
-                Point[0][e0]=1;Point[0][e1]=vertexitp->getX();Point[0][e2]=vertexitp->getY();Point[0][e3]=vertexitp->getZ();
-                Point[1][e0]=1;Point[1][e1]=vertexit ->getX();Point[1][e2]=vertexit ->getY();Point[1][e3]=vertexit ->getZ();
-                Point[2][e0]=1;Point[2][e1]=vertexitn->getX();Point[2][e2]=vertexitn->getY();Point[2][e3]=vertexitn->getZ();
-                faceplaneD=(Point[0]^Point[1]^Point[3])*I; //!< a sense for the face, it does not matter which one.
-                ptrFord=new ForLoadOff;
-                ptrFord->multivector=CGeometry::getMVectorPLV(faceplaneD, (*vertexitp),*vertexit,*vertexitn,1,1);//!<Face(+),Volume(+), calls computeLAV()
-                dart->setDirectInfo(index,ptrFord);
-                if(map->isMarked(dart->getAlpha0(),mark) && dart->getAlpha0()->getDirectInfo(index)==nullptr){}
-                /*
-                std::cout << vertexitp->getX() <<" , "<< vertexitp->getY()<<" , "<<vertexitp->getZ()<<std::endl;
-                std::cout << vertexit->getX() <<" , "<< vertexit->getY()<<" , "<<vertexit->getZ()<<std::endl;
-                std::cout << vertexitn->getX() <<" , "<< vertexitn->getY()<<" , "<<vertexitn->getZ()<<std::endl;
-                */
-                //! going around each edge of the face (orbit_013) attached to dart in order to createa coherent set of multivectors
+                //<! compute the faceplaneD alike to gmv-off.cc::ComputeSenses_VSF()
+                darti=dart;
+                faceplaneD=0;
+                do{
+                    vertexit = (CAttributeVertex*) map->getEmbeddingOwner(darti,ORBIT_VERTEX)->
+                                                 getEmbedding(ORBIT_VERTEX)->getAttribute(ATTRIBUTE_VERTEX);
+                    vertexitn = (CAttributeVertex*) map->getEmbeddingOwner(darti->getAlpha0(),ORBIT_VERTEX)->
+                                                  getEmbedding(ORBIT_VERTEX)->getAttribute(ATTRIBUTE_VERTEX);
+                    vertexitp = (CAttributeVertex*) map->getEmbeddingOwner(darti->getAlpha1()->getAlpha0(),ORBIT_VERTEX)->
+                                                  getEmbedding(ORBIT_VERTEX)->getAttribute(ATTRIBUTE_VERTEX);
+                    Point[0][e0]=1;Point[0][e1]=vertexitp->getX();Point[0][e2]=vertexitp->getY();Point[0][e3]=vertexitp->getZ();
+                    Point[1][e0]=1;Point[1][e1]=vertexit ->getX();Point[1][e2]=vertexit ->getY();Point[1][e3]=vertexit ->getZ();
+                    Point[2][e0]=1;Point[2][e1]=vertexitn->getX();Point[2][e2]=vertexitn->getY();Point[2][e3]=vertexitn->getZ();
+                    faceplaneD=faceplaneD+(Point[0]^Point[1]^Point[2]);
+                    darti=darti->getAlpha0()->getAlpha1();
+                }while(darti!=dart);
+                faceplaneD=faceplaneD*I; //!< a sense for the face, it does not matter which one.
+
+                //<! Create multivectors for the Face and ONLY for those marked darts
+                do{
+                    //if(map->isMarked(dart->getAlpha0(),mark) && dart->getAlpha0()->getDirectInfo(index)==nullptr){}
+                    if(map->isMarked(darti,mark) && darti->getDirectInfo(index)==nullptr){
+                        vertexit = (CAttributeVertex*) map->getEmbeddingOwner(darti,ORBIT_VERTEX)->
+                                                     getEmbedding(ORBIT_VERTEX)->getAttribute(ATTRIBUTE_VERTEX);
+                        vertexitn = (CAttributeVertex*) map->getEmbeddingOwner(darti->getAlpha0(),ORBIT_VERTEX)->
+                                                      getEmbedding(ORBIT_VERTEX)->getAttribute(ATTRIBUTE_VERTEX);
+                        vertexitp = (CAttributeVertex*) map->getEmbeddingOwner(darti->getAlpha1()->getAlpha0(),ORBIT_VERTEX)->
+                                                      getEmbedding(ORBIT_VERTEX)->getAttribute(ATTRIBUTE_VERTEX);
+                        //<! [vetexit](dart)---->[vertexitn]
+                        FVOrientation=darti->getVOrientation();
+                        ptrFord=new ForLoadOff;++i;
+                        ptrFord->multivector=CGeometry::getMVectorPLV(faceplaneD, (*vertexit),*vertexitn,*vertexitp,
+                                                                        FVOrientation[2]==0?1:-1,
+                                                                        FVOrientation[1]==0?1:-1);//!<Face(+),Volume(+), calls computeLAV()
+                        darti->setDirectInfo(index,ptrFord);
+                        //<!          (dart)---->
+                        //<! [vetexit]---->[vertexitn]
+                        if(map->isMarked(darti->getAlpha3(),mark) && darti->getAlpha3()->getDirectInfo(index)==nullptr){
+                            FVOrientation=darti->getAlpha3()->getVOrientation();
+                            ptrFord=new ForLoadOff;++i;
+                            ptrFord->multivector=CGeometry::getMVectorPLV(faceplaneD, (*vertexit),*vertexitn,*vertexitp,
+                                                                            FVOrientation[2]==0?1:-1,
+                                                                            FVOrientation[1]==0?1:-1);//!<Face(+),Volume(+), calls computeLAV()
+                            darti->getAlpha3()->setDirectInfo(index,ptrFord);
+                        }
+                        //<! [vetexit]<----(dart)[vertexitn]
+                        if(map->isMarked(darti->getAlpha0(),mark) && darti->getAlpha0()->getDirectInfo(index)==nullptr){
+                            FVOrientation=darti->getAlpha0()->getVOrientation();
+                            ptrFord=new ForLoadOff;++i;
+                            ptrFord->multivector=CGeometry::getMVectorPLV(faceplaneD, (*vertexitn),*vertexit,*vertexitp,
+                                                                            FVOrientation[2]==0?1:-1,
+                                                                            FVOrientation[1]==0?1:-1);//!<Face(+),Volume(+), calls computeLAV()
+                            darti->getAlpha0()->setDirectInfo(index,ptrFord);
+                        }
+                        //<!          <-----(dart)
+                        //<! [vetexit]<----(dart)[vertexitn]
+                        if(map->isMarked(darti->getAlpha0()->getAlpha3(),mark) && darti->getAlpha0()->getAlpha3()->getDirectInfo(index)==nullptr){
+                            FVOrientation=darti->getAlpha0()->getAlpha3()->getVOrientation();
+                            ptrFord=new ForLoadOff;++i;
+                            ptrFord->multivector=CGeometry::getMVectorPLV(faceplaneD, (*vertexitn),*vertexit,*vertexitp,
+                                                                            FVOrientation[2]==0?1:-1,
+                                                                            FVOrientation[1]==0?1:-1);//!<Face(+),Volume(+), calls computeLAV()
+                            darti->getAlpha0()->getAlpha3()->setDirectInfo(index,ptrFord);
+                        }
+                    }
+                    darti=darti->getAlpha0()->getAlpha1();
+                }while(darti!=dart);
             }
+            std::cout<<"Created "<<i<<" multivectors"<<std::endl;
         }
     }
 
@@ -1962,16 +2022,16 @@ void Window::callbackComputeLAV() //! VSF
         if(map->isMarked(*it,mark))
         {
             dart=(*it);
-            /*
-            ptrForloadOff=(ForLoadOff*) dart->getDirectInfo(0);
-            if(ptrForloadOff!= nullptr){
-                L+=ptrForloadOff->multivector.getL();cout<<"l= "<<ptrForloadOff->multivector.getL();
-                A+=ptrForloadOff->multivector.getA();
-                V+=ptrForloadOff->multivector.getV();
+            ptrFord=(ForLoadOff*) dart->getDirectInfo(index);
+            if(ptrFord!= nullptr){
+                ptrFord->multivector.computeLAV();
+                L+=ptrFord->multivector.getL();
+                A+=ptrFord->multivector.getA();
+                V+=ptrFord->multivector.getV();
             }else{
                 cout<<"No hay DirectInfo\n";
             }
-            */
+
             /*
             MD=(CAttributeMultivector*) dart->getAttribute(ORBIT_SELF,ATTRIBUTE_MULTIVECTOR);
             if(MD!=0)

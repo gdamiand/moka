@@ -58,6 +58,7 @@ public:
   double getL() const {return l;}
   double getA() const {return a;}
   double getV() const {return v;}
+  void computeLAV(void);
   /** Set */
   void setMD(const nklein::GeometricAlgebra< double, 4 >& MVector);
 public:
@@ -71,7 +72,7 @@ public:
   //CMultivector(const GMap3d::CDart *,GMap3d::CVertex *AVertex=NULL);
 
 private:
-  void computeLAV(void);
+
   nklein::GeometricAlgebra<double, 4 > getPoint(const GMap3d::CDart * dart);
 };
 //******************************************************************************
