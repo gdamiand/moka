@@ -760,6 +760,17 @@ CDart* CGMapVertex::importOff3D(std::istream & AStream)
   int index = getNewDirectInfo();
   cout << "darts DirectInfo : " << index << endl; //VSF
 
+  //-- Avoid crash after importing Off twice because
+  //-- other parts of MOKA use the directInfo but do not delete the content
+  CDart* dartiter= getFirstDart();
+  i=0;
+  while(dartiter){
+      dartiter->setDirectInfo(index,nullptr);
+      dartiter=dartiter->getNext();
+      i++;
+  }
+  std::cout<<"Erased initially= "<<i<<std::endl;
+
   /** Lectura de las caras */
   while (nbFaces > 0)
   {
@@ -863,7 +874,7 @@ CDart* CGMapVertex::importOff3D(std::istream & AStream)
   while(dart)
   {
       ForLoadOff* FordOff = (ForLoadOff*) dart->getDirectInfo(index);
-      delete FordOff;
+      if(FordOff!=nullptr) delete FordOff;
       dart->setDirectInfo(index,nullptr);
       dart=dart->getNext();
       count++;

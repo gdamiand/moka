@@ -142,7 +142,7 @@ void CMultivector::computeLAV()
   /*! use factors: Warning the signs are not included */
   this->a*=0.5;//! 1/2
   this->v*=0.1666666666666667; //! 1/6
-  std::cout<<"computeLAV:("<<point[e1]<<","<<point[e2]<<","<<point[e3]<<"):"<<" l="<<l<<" ,a="<<a<<" ,v="<<v<<std::endl;
+  //std::cout<<"computeLAV:("<<point[e1]<<","<<point[e2]<<","<<point[e3]<<"):"<<" l="<<l<<" ,a="<<a<<" ,v="<<v<<std::endl;
 }
 //******************************************************************************
 nklein::GeometricAlgebra< double, 4 > CMultivector::getMD() const

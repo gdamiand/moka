@@ -1911,10 +1911,6 @@ void Window::callbackComputeLAV() //! VSF
     CGMapVertex* map=getControler()->getMap();
     int mark=getControler()->getSelectionMark();
 
-    //-- Identify type of selection Orbit to compute LAV on the fly in the future
-    TOrbit typeOrbit=getControler()->getSelectionOrbit();
-    if(typeOrbit==ORBIT_012) std::cout<<"Orbit type="<<"ORBIT_012"<<std::endl;
-
     //-- Create locally the multivectors and compute, l,a,v
     int index = map->getNewDirectInfo();
     //<!   Make sure that all DirectInfo(index) to nullptr since there is no guarantee
@@ -2010,10 +2006,9 @@ void Window::callbackComputeLAV() //! VSF
                     darti=darti->getAlpha0()->getAlpha1();
                 }while(darti!=dart);
             }
-            std::cout<<"Created "<<i<<" multivectors"<<std::endl;
         }
     }
-
+    std::cout<<"Created "<<i<<" multivectors"<<std::endl;
 
     // calculation LAV
     i=0;
@@ -2032,30 +2027,27 @@ void Window::callbackComputeLAV() //! VSF
                 cout<<"No hay DirectInfo\n";
             }
 
-            /*
-            MD=(CAttributeMultivector*) dart->getAttribute(ORBIT_SELF,ATTRIBUTE_MULTIVECTOR);
-            if(MD!=0)
-            {
-                L+=MD->getL();
-                A+=MD->getA();
-                V+=MD->getV();
-                //std::cout<<MD->getL()<<",";
-                if(fabs(MD->getA())>0.000000001)
-                    std::cout<<"["<<i<<"]"<<MD->getA()<<",";
-                //std::cout<<MD->getV()<<",";
-            }
-            else
-                std::cout<<"SIN ATRIBUTO_MULTIVECTOR\n";
-*/
             ++i;
         }
     }
 
     //-- Console output
-    std::cout<<i<<" dardos\n";
-    std::cout<<"LENGTH=\t"<<L<<"\n";
-    std::cout<<"AREA=\t"  <<A<<"\n";
-    std::cout<<"VOLUME=\t"<<V<<"\n";
+    //-- Identify type of selection Orbit to compute LAV on the fly in the future
+    TOrbit typeOrbit=getControler()->getSelectionOrbit();
+    double factorL=1.0, factorA=1.0, factorV=1.0;
+    std::cout<<"ORBIT= "<<(int) typeOrbit<<std::endl;
+    switch(typeOrbit)
+    {
+    case ORBIT_SELF: std::cout<<"Orbits type="<<"ORBIT_SELF"<<std::endl; break;
+    case ORBIT_01  : std::cout<<"Orbits type="<<"ORBIT_01"  <<std::endl; factorV=0.0;break;
+    case ORBIT_012 : std::cout<<"Orbits type="<<"ORBIT_012" <<std::endl; factorL=1.0/2.0; break;//V*
+    case ORBIT_013 : std::cout<<"Orbits type="<<"ORBIT_013" <<std::endl; factorL=1.0/2.0;factorA=1.0/2.0; break;//F*
+    }
+
+    std::cout<<i<<" dardos. factorL= "<<factorL<<",factorA= "<<factorA<<",factorV= "<<factorV<< std::endl;
+    std::cout<<"LENGTH=\t"<<L*factorL<<"\n";
+    std::cout<<"AREA=\t"  <<A*factorA<<"\n";
+    std::cout<<"VOLUME=\t"<<V*factorV<<"\n";
 
     //-- Delete first the multivectors. It should be the marked ones
     i=0;
