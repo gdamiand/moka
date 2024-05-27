@@ -25,6 +25,7 @@
 #include "dart.hh"
 #include <cassert>
 #include <cstdlib>
+#include <ctime>
 //******************************************************************************
 namespace GMap3d
 {
