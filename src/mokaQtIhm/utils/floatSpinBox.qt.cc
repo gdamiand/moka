@@ -29,9 +29,9 @@
 //*********************************************
 QString FloatSpinBox :: mapValueToText(int j)
 {
-   QString str;
-   str.sprintf(format, float(j) / sc);
-   return str;
+  QString str=QString(format).arg(float(j) / sc);
+  //str.sprintf(format, float(j) / sc);
+  return str;
 }
 
 int FloatSpinBox :: mapTextToValue(bool* ok)
