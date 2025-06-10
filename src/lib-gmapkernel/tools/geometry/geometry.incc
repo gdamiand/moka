@@ -605,7 +605,7 @@ CMultivector CGeometry::getMVectorPLV(nklein::GeometricAlgebra< double,4 > &
 
   /** plane */
   PlaneD=faceplane*(double)sense;
-  /*
+  /* //Original
   Plane=Point[0]^Point[1]^Point[2];
   PlaneD=Plane*I;//! dual plane vector
   if(cmpPlaneSense(PlaneD,faceplane)*sense<0)//! the senses are opposite:correct

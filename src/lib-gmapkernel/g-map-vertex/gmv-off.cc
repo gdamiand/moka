@@ -145,11 +145,11 @@ struct ForLoadOff
 /******************************************************************************
  *       dart3(-)---dart4(+).[AV2]  ATestVertices[Av1]={dart1,dart1',etc...}
  *       |||        |||             ATestVertices[Av2]={dart4,dart4',etc...}
- * [AV1].dart1(+)---dart2(-)        dart1: dart
- *      . ||                        this is the alpha2link target of the function
+ * [AV1].dart1(+)---dart2(-)        dart4': dart
+ *      .            ||             this is the alpha2link target of the function
  *       dart3'(-)---dart4'(+).[AV2]
  *       |||         |||
- *       dart1'(+)---dart2'(-)      dart1': dartneighbour
+ *       dart1'(+)---dart2'(-)      dart4: dartneighbour
  * AtestVertices: 0.....(n-1)
  *
  * The ordering of the planes around v1--v2 is based on multi-vectors at [AV1]
@@ -165,11 +165,11 @@ void  CGMapVertex::linkFacesAlpha2OFF_VSF(vector< list<CDart*> >& ATestVertices,
   unsigned long int v1,v2;
 
   /** each point */
-  for( v1=0; v1 < ATestVertices.size(); ++v1)
+  for( v1=0; v1 < ATestVertices.size(); v1++)
   {
     list<CDart*> &List1=ATestVertices[v1];
     dart=NULL;
-    for(it1=List1.begin();it1!=List1.end();++it1)//! point 1
+    for(it1=List1.begin();it1!=List1.end();it1++)//! point 1
     {
       /** each dart not alpha2 detect edges between v1--v2 */
       if((*it1)->isFree2())
@@ -178,7 +178,7 @@ void  CGMapVertex::linkFacesAlpha2OFF_VSF(vector< list<CDart*> >& ATestVertices,
         v2 = ((ForLoadOff*)getDirectInfo(alpha0(dart), AIndex))->index;
         list<CDart*> &List2=ATestVertices[v2];
         subVector.clear();
-        for(it2=List2.begin();it2!=List2.end();++it2)//! iterate on point2
+        for(it2=List2.begin();it2!=List2.end();it2++)//! iterate on point2
         {
           if((*it2)->isFree2())
           {
@@ -188,14 +188,14 @@ void  CGMapVertex::linkFacesAlpha2OFF_VSF(vector< list<CDart*> >& ATestVertices,
           }
         }
         /** Something to sew? Number of edges between v1-v2 */
-        std::cout<<v2<<"=>"<<v1<<"{"<<subVector.size()<<"}\n";
+        std::cout<<v2<<"=>"<<v1<<" number of faces to link{"<<subVector.size()<<"}\n";
         if(subVector.size()>1)
         {
           if(subVector.size()>2)
           {
             /** order the pencil of planes */
             MvVector.clear();
-            for(int i=0;i<subVector.size();++i)
+            for(int i=0;i<subVector.size();i++)
             {
               dart=subVector[i];
               MvVector.push_back(((ForLoadOff*)getDirectInfo(dart, AIndex))->
@@ -210,7 +210,7 @@ void  CGMapVertex::linkFacesAlpha2OFF_VSF(vector< list<CDart*> >& ATestVertices,
             order.push_back(1);
           }
           /** sew according to the order */
-          for(int i=0; i<order.size();++i)
+          for(int i=0; i<order.size();i++)
           {
             dart=subVector[order[i]];//(+)
             int j=((i+1)<order.size()?(i+1):0);
@@ -594,9 +594,11 @@ void CGMapVertex::computeOFFSenses_VSF(vector< list<int> >& face,
   /** but keep its "co-planarity" */
   int ii,jj,ik,jk;
   int weight=0;
+  int count=0;
   do
   {
     okBaricentre=true;
+    count++;
     /** check okBaricentre */
     for( ii=0;ii<face.size();ii++)
     {
@@ -629,7 +631,7 @@ void CGMapVertex::computeOFFSenses_VSF(vector< list<int> >& face,
       B[e2]=baricentro.getY();
       B[e3]=baricentro.getZ();
     }
-  }while(!okBaricentre);
+  }while(!okBaricentre && count<10);
 
   /** planes: (vi)....(vi) */
   // here the coplanarity could be checked
@@ -674,10 +676,23 @@ void CGMapVertex::computeOFFSenses_VSF(vector< list<int> >& face,
       //                face[i].reverse();
       //if( CGeometry::cmpPlaneSense(planeOuterD,planeHoleD)==1) face[i].reverse(); //original
       if( CGeometry::cmpPlaneSense(planeOuterVICD,planeHoleVICD)==1) face[i].reverse();//VSF-test
-      std::cout<<"senses OuterVICD and HoleVicD="<<(CGeometry::cmpPlaneSense(planeOuterVICD,planeHoleVICD)==1?"SAME":"OPPOSITE")<<std::endl;//VSF-TEST
+      //std::cout<<"senses OuterVICD and HoleVicD="<<(CGeometry::cmpPlaneSense(planeOuterVICD,planeHoleVICD)==1?"SAME":"OPPOSITE")<<std::endl;//VSF-TEST
     }
   }
   //-- VSF-test-begin (all polygons outer and holes)
+  //-- check planarity takes the OUTER polygon as the reference Flat
+  nklein::GeometricAlgebra< double, 4 > IV;
+  IV=0;
+  for(int i=0; i<face.size() ;i++)
+  {
+      for(int j=0; j<(face[i].size());++j)
+          IV=IV+planeOuterVIC^Points[i][j];// 4-vector
+  }
+  //cout<<"IV= "<<IV[e0|e1|e2|e3]<<endl;
+  if(abs(IV[e0|e1|e2|e3])>0.00001)
+      cout<<" ######################### FACE NOT PLANAR"<<endl;
+
+  /*
   planeOuterVIC=0;
   for(int i=0; i<face.size() ;i++)
   {
@@ -685,7 +700,8 @@ void CGMapVertex::computeOFFSenses_VSF(vector< list<int> >& face,
       planeOuterVIC=planeOuterVIC+Points[i][(j-1)>=0?(j-1):face[i].size()-1]^Points[i][j]^Points[i][j+1];
   }
   planeOuterVICD=planeOuterVIC*I;//VSF-test
-  std::cout<<"senses OuterD and OuterVicD="<<(CGeometry::cmpPlaneSense(planeOuterD,planeOuterVICD)==1?"SAME":"OPPOSITE")<<std::endl;//VSF-TEST
+  //std::cout<<"senses OuterD and OuterVicD="<<(CGeometry::cmpPlaneSense(planeOuterD,planeOuterVICD)==1?"SAME":"OPPOSITE")<<std::endl;//VSF-TEST
+*/
   //-- VSF-test-end
 
   /** rewrite sequence */
