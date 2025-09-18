@@ -33,7 +33,7 @@
 
 //--------------------- Include QT --------------------
 
-#include <QtOpenGL/QGLWidget>
+#include <QOpenGLWidget>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QDialog>
 #include <QtWidgets/QGroupBox>
@@ -41,7 +41,7 @@
 
 class Window ;
 
-/** 
+/**
  * Cette classe implemente la fenetre de dialogue pour les caracteristiques topologiques
  */
 class OptionsCarac : public QDialog
@@ -75,11 +75,11 @@ private :
   Window * FParent ;
 
   bool FUpdate ;
-  
+
 
   QGroupBox * FGlobal , * FPointed ;
-  QLabel * FGlobalCells [6] , 
-    * FGlobalBorders [4] , 
+  QLabel * FGlobalCells [6] ,
+    * FGlobalBorders [4] ,
     * FPointedCells [4] ,
     * FPointedBorders [3] ,
     * FEulerLabel , * FOrientLabel, * FGenusLabel, * FNameLabel;

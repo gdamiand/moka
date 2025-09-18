@@ -39,10 +39,10 @@
 
 class Window ;
 
-class GLWindow : public QGLWidget
+class GLWindow : public QOpenGLWidget
 {
   Q_OBJECT
-  
+
 public:
 
   /**
@@ -65,7 +65,7 @@ public:
    */
   GLWindow ( TView AViewType , QMdiArea * parent ,
 	     Window * owner , GLWindow * share , SelectBar * selection  ) ;
-  
+
   /**
    * Destructeur
    */
@@ -97,16 +97,16 @@ public:
 
   /**
    * Accesseur sur l'identifiant de la vue cliquee
-   * @return L'identifiant de la vue 
+   * @return L'identifiant de la vue
    */
-  virtual TViewId getCliquedViewId ( ) const ; 
+  virtual TViewId getCliquedViewId ( ) const ;
 
   /**
    * Accesseur sur l'identifiant de la vue double-cliquee
-   * @return L'identifiant de la vue 
+   * @return L'identifiant de la vue
    */
   virtual TViewId getDoubleCliquedViewId ( ) const ;
-  
+
   /**
    * Dessin de la scene
    */
@@ -147,14 +147,14 @@ protected:
    * @param W width
    * @param H height
    */
-  virtual void resizeGL ( int W , int H ) ; 
+  virtual void resizeGL ( int W , int H ) ;
 
   /**
    * Gestion du double clicage
    * @param e Evenementdouble clic
    */
   virtual void mouseDoubleClickEvent ( QMouseEvent * e ) ;
-  
+
   // Identifiant associe a cette fenetre (cf. controler-views.hh):
   TViewId FViewId;
   TView   FViewType;
@@ -163,14 +163,14 @@ protected:
   GLWindow * FShared ;
 
   // indique si la fenetre est partagee
-  bool isShared; 
+  bool isShared;
 
   // Fenetre principale contenant la vue
   Window * FOwner ;
 
   // Pointeur sur la barre de selection
   SelectBar * FSelection ;
-  
+
   // Paramètre utiles pour l'affichage du rectangle de sélection
   int FStartX, FStartY, FCurX, FCurY;
   bool FDragMode;

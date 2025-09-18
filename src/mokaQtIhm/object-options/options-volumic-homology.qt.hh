@@ -33,7 +33,7 @@
 
 //--------------------- Include QT --------------------
 
-#include <QtOpenGL/QGLWidget>
+#include <QOpenGLWidget>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QDialog>
 #include <QtWidgets/QGroupBox>
@@ -42,7 +42,7 @@
 class Window ;
 namespace GMap3d {class CHomology;}
 
-/** 
+/**
  * Cette classe implemente la fenetre de dialogue pour le calcul des groupes d'homologies
  */
 class OptionsVolumicHomology : public QDialog
@@ -76,19 +76,19 @@ private slots:
   void callbackToggleH2free(bool);
   void callbackToggleH2torsion(bool);
   void callbackToggleH3(bool);
-  
+
 private :
 
   // Pointeur sur la fenetre principale
   Window * FParent ;
 
-  bool FUpdate ;  
+  bool FUpdate ;
 
   QGroupBox *FGenerators, *FInfo ;
   QLabel *Fh0, *Fh1free, *Fh1torsion, *Fh2free, *Fh2torsion, *Fh3, *FTime, *FMemory;
   QPushButton *FButtonH0, *FButtonH1free, *FButtonH1torsion;
   QPushButton *FButtonH2free,*FButtonH2torsion,*FButtonH3;
-  
+
   // Toolbox which computes homology.
   GMap3d::CHomology* FHomology;
 } ;

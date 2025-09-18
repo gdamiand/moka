@@ -36,7 +36,7 @@ using namespace GMap3d ;
 //*****************************************************
 GLWindow :: GLWindow(TView AViewType , QMdiArea * parent ,
                      Window * owner , SelectBar * selection) :
-      QGLWidget(QGLFormat(QGL::SampleBuffers), parent , 0, Qt::SubWindow),
+      QOpenGLWidget(parent, Qt::SubWindow),
       FViewType(AViewType),
       FShared(NULL),
       isShared(false),
@@ -53,7 +53,7 @@ GLWindow :: GLWindow(TView AViewType , QMdiArea * parent ,
 GLWindow :: GLWindow(TView AViewType , QMdiArea * parent ,
                      Window * owner , GLWindow * share ,
                      SelectBar * selection) :
-      QGLWidget(parent, share , Qt::SubWindow) ,
+      QOpenGLWidget(parent , Qt::SubWindow) ,
       FViewType(AViewType) ,
       FShared(share) ,
       isShared(true) ,
@@ -141,15 +141,15 @@ void GLWindow::paintGL()
   // Reset OpenGL parameters
   glEnable(GL_DEPTH_TEST); // z-buffer
   glDepthFunc(GL_LEQUAL);
-  //  resizeGL(width(), height());  
-  
+  //  resizeGL(width(), height());
+
   glClearColor(0,0,0, 1);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glLoadIdentity() ;
-  
-  FOwner -> getControler() -> viewInit(FViewId);  
+
+  FOwner -> getControler() -> viewInit(FViewId);
   FOwner -> getControler() -> viewDraw(FViewId) ;
-  
+
   glMatrixMode(GL_MODELVIEW);
   glPopMatrix();
   glMatrixMode(GL_PROJECTION);
@@ -175,7 +175,7 @@ void GLWindow::paintGL()
 void GLWindow :: resizeGL(int width , int height)
 {
   glViewport(0,0,width,height);
-  
+
 //   glMatrixMode(GL_PROJECTION);
 //   glLoadIdentity();
 //   glOrtho(-0.5, +0.5, +0.5, -0.5, 4.0, 15.0);
@@ -193,7 +193,7 @@ void GLWindow :: initializeGL()
 
   glDisable(GL_BLEND);
   // glEnable(GL_CULL_FACE);
-   
+
    glEnable(GL_POLYGON_MODE);
    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
@@ -330,7 +330,7 @@ void GLWindow :: mousePressEvent(QMouseEvent * eb)
 	     FStartX = int (eb -> x()); FStartY = int (eb -> y());
 	     FCurX = FStartX; FCurY = FStartY;
 	     FDragMode = true;
-	     
+
 	     if (eb -> modifiers() == Qt :: ShiftModifier)
 	       controler -> setModeDeselectionAtStop();
 	   }

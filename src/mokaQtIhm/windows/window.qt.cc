@@ -183,7 +183,7 @@ void Window::repaint()
     // Appel de la methode sur toutes les vues ouvertes
     QList<QMdiSubWindow*> vues = FWorkspace -> subWindowList() ;
     for (int i = 0 ; i < int (vues . count()) ; i++)
-      ((GLWindow *) vues.at(i)->widget())->updateGL(); //paintGL(); //update(); //repaint() ;
+      ((GLWindow *) vues.at(i)->widget())->update(); //paintGL(); //update(); //repaint() ;
 
     updateStatusBar();
     is_repainting = false;
@@ -1252,7 +1252,7 @@ void Window::callbackComputeSurfacicHomology()
 {
   if (FOptionsSurfacicHomology == NULL)
     FOptionsSurfacicHomology = new OptionsSurfacicHomology(this) ;
-  
+
   FOptionsSurfacicHomology -> show_impl() ;
   repaint();
 }
@@ -1261,7 +1261,7 @@ void Window::callbackComputeVolumicHomology()
 {
   if (FOptionsVolumicHomology == NULL)
     FOptionsVolumicHomology = new OptionsVolumicHomology(this) ;
-  
+
   FOptionsVolumicHomology -> show_impl() ;
   repaint();
 }
